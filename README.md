@@ -15,6 +15,8 @@
 
 # :construction: This project is under development and is not ready for use. :construction:
 
+Focusing on Wayland, with GTK4 to replace the dependency on Windows Forms.
+
 ## :warning: Disclaimer
 
 This is a port of the original ShareX application to Linux. It is not an official release and is not affiliated with the original ShareX project. The original ShareX project is licensed under the GNU General Public License v3.0, and this project is licensed under the same license. This project is not endorsed by the original ShareX project.
