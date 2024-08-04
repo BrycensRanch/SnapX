@@ -38,12 +38,20 @@ If you're using a different distribution, there will be a Flatpak package availa
 
 - `git`
 - `gtk4`
+- `gtk4-devel` (Fedora)
 - `libgtk-4-dev`
 - `dotnet-sdk-8.0`
 - `ffmpeg` (6.0.0)
 - `imagemagick`
 - `p7zip`
 - `libgdiplus`
+- `build-essential` (Ubuntu)
+- `@development-tools` (Fedora)
+- `libgdiplus-devel` (Fedora)
+
+Also sudo dnf group install "C Development Tools and Libraries" (Fedora) (Just to be safe)
+
+At this point, I'm guessing. I already have all of these installed on my system. :3
 
 ### Ubuntu 24.04
 
