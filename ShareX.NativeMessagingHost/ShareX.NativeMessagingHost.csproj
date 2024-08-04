@@ -15,6 +15,9 @@
 
     <!-- Ready to Run compilation -->
     <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- Enable AOT compilation -->
+    <PublishAot>true</PublishAot>
+
   </PropertyGroup>
 
   <ItemGroup>
