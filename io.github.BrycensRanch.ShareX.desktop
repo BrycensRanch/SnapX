@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=ShareX
+Comment=Screenshot and screen recording tool
+Exec=./sharex
+Icon=./Linux.png
+Terminal=false
+Type=Application
+Categories=Graphics;Photography;ScreenCapture;
+StartupNotify=true

@@ -12,7 +12,6 @@
 <p align="center"><a href="https://github.com/BrycensRanch/ShareX-Linux-Port"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
 <p align="center">For further information please check the source code.</p>
 
-
 # :construction: This project is under development and is not ready for use. :construction:
 
 Focusing on Wayland, with GTK4 to replace the dependency on Windows Forms.
@@ -41,6 +40,10 @@ If you're using a different distribution, there will be a Flatpak package availa
 - `gtk4`
 - `libgtk-4-dev`
 - `dotnet-sdk-6.0`
+- `ffmpeg` (6.0.0)
+- `imagemagick`
+- `p7zip`
+- `libgdiplus`
 
 ### Ubuntu 24.04
 
@@ -64,9 +67,8 @@ cd ShareX-Linux-Port
 dotnet build
 ```
 
-
 Lastly...
 
 I use Fedora Rawhide btw :^)
 
-
+[Fine, I'll do it myself.](https://www.youtube.com/watch?v=L_WoOkDAqbM)

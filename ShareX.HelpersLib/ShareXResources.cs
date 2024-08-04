@@ -33,7 +33,7 @@ namespace ShareX.HelpersLib
 {
     public static class ShareXResources
     {
-        public static string Name { get; set; } = "ShareX";
+        public static string Name { get; set; } = "ShareX-Linux";
 
         public static string UserAgent
         {
