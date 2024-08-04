@@ -23,15 +23,16 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
 using System;
 using System.IO;
 using System.Text;
-using System.Windows.Forms;
+using System.Diagnostics;
+using ShareX.HelpersLib;
+using System.Runtime.InteropServices;
 
 namespace ShareX.NativeMessagingHost
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main(string[] args)
         {
@@ -39,29 +40,57 @@ namespace ShareX.NativeMessagingHost
             {
                 try
                 {
-                    HelpersLib.NativeMessagingHost host = new HelpersLib.NativeMessagingHost();
+                    var host = new HelpersLib.NativeMessagingHost();
                     string input = host.Read();
 
                     if (!string.IsNullOrEmpty(input))
                     {
                         host.Write(input);
 
-                        string filePath = FileHelpers.GetAbsolutePath("ShareX.exe");
+                        string filePath = FileHelpers.GetAbsolutePath("ShareX");
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            filePath += ".exe";
+                        }
+
                         string tempFilePath = FileHelpers.GetTempFilePath("json");
                         File.WriteAllText(tempFilePath, input, Encoding.UTF8);
-                        string argument = $"-NativeMessagingInput \"{tempFilePath}\"";
-                        NativeMethods.CreateProcess(filePath, argument, CreateProcessFlags.CREATE_BREAKAWAY_FROM_JOB);
+
+                        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = filePath,
+                            Arguments = $"-NativeMessagingInput \"{tempFilePath}\"",
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+
+                        using (var process = Process.Start(startInfo))
+                        {
+                            if (process != null)
+                            {
+                                string output = process.StandardOutput.ReadToEnd();
+                                string error = process.StandardError.ReadToEnd();
+                                process.WaitForExit();
+
+                                if (process.ExitCode != 0)
+                                {
+                                    Console.Error.WriteLine($"Process exited with error code {process.ExitCode}");
+                                    Console.Error.WriteLine($"Error output: {error}");
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    e.ShowError();
+                    Console.Error.WriteLine($"Error: {e.Message}");
                 }
             }
             else
             {
-                MessageBox.Show("This executable is used to receive data from browser addon and send it to ShareX.",
-                    "ShareX NativeMessagingHost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Console.WriteLine("This executable is used to receive data from a browser addon and send it to ShareX.");
             }
         }
     }

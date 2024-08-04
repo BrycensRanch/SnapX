@@ -39,7 +39,7 @@ If you're using a different distribution, there will be a Flatpak package availa
 - `git`
 - `gtk4`
 - `libgtk-4-dev`
-- `dotnet-sdk-6.0`
+- `dotnet-sdk-8.0`
 - `ffmpeg` (6.0.0)
 - `imagemagick`
 - `p7zip`
@@ -48,13 +48,13 @@ If you're using a different distribution, there will be a Flatpak package availa
 ### Ubuntu 24.04
 
 ```bash
-sudo apt install git gtk4 libgtk-4-dev dotnet-sdk-6.0
+sudo apt install git gtk4 libgtk-4-dev dotnet-sdk-8.0
 ```
 
 ### Fedora 40
 
 ```bash
-sudo dnf install git gtk4 gtk4-devel dotnet-sdk-6.0
+sudo dnf install git gtk4 gtk4-devel dotnet-sdk-8.0
 ```
 
 ## Building from Source

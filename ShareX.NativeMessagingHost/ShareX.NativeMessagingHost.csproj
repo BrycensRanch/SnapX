@@ -1,13 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
     <AssemblyName>ShareX_NativeMessagingHost</AssemblyName>
+
+    <!-- Enable single-file publish -->
+    <PublishSingleFile>true</PublishSingleFile>
+
+    <!-- Make it self-contained -->
+    <SelfContained>true</SelfContained>
+
+    <!-- Strip out debug symbols for smaller file size -->
+    <DebugType>embedded</DebugType>
+
+    <!-- Ready to Run compilation -->
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\ShareX.HelpersLib\ShareX.HelpersLib.csproj" />
   </ItemGroup>
+
+  <!-- Cross-platform copy command using MSBuild -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)ShareX\$(OutDir)&quot;" />
+    <Copy
+      SourceFiles="$(TargetPath)"
+      DestinationFolder="$(SolutionDir)ShareX\$(OutDir)"
+      SkipUnchangedFiles="true" />
   </Target>
 </Project>

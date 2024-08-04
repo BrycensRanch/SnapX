@@ -17,7 +17,7 @@
 *.RTF diff=astextplain
 
 # Declare files that will always have CRLF line endings on checkout
-*.sln text eol=crlf
-*.csproj text eol=crlf
-*.cs text eol=crlf
-*.resx text eol=crlf
+*.sln text eol=lf
+*.csproj text eol=lf
+*.cs text eol=lf
+*.resx text eol=lf

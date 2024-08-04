@@ -3,7 +3,7 @@
     <Company>BrycensRanch & ShareX Team</Company>
     <Product>ShareX-Linux</Product>
     <Copyright>Copyright (c) 2007-2024 BrycensRanch & ShareX Team</Copyright>
-    <Version>16.1.2</Version>
+    <Version>0.0.0</Version>
     <EmbeddedResourceUseDependentUponConvention>true</EmbeddedResourceUseDependentUponConvention>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
