@@ -48,10 +48,6 @@ namespace ShareX.NativeMessagingHost
                         host.Write(input);
 
                         string filePath = FileHelpers.GetAbsolutePath("ShareX");
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                        {
-                            filePath += ".exe";
-                        }
 
                         string tempFilePath = FileHelpers.GetTempFilePath("json");
                         File.WriteAllText(tempFilePath, input, Encoding.UTF8);
