@@ -35,11 +35,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-#if MicrosoftStore
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-#endif
-
 namespace ShareX
 {
     internal static class Program
@@ -51,10 +46,6 @@ namespace ShareX
         public const ShareXBuild Build =
 #if RELEASE
             ShareXBuild.Release;
-#elif STEAM
-            ShareXBuild.Steam;
-#elif MicrosoftStore
-            ShareXBuild.MicrosoftStore;
 #elif DEBUG
             ShareXBuild.Debug;
 #else
