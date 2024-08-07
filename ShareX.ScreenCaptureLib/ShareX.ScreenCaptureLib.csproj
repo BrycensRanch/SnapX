@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <!--    TODO: Invest this dependency, for sure doesn't work on Linux but I'm already dealing with 42k errors from trying to compile on Linux-->
     <Reference Include="System.Design" />
   </ItemGroup>
   <ItemGroup>
@@ -12,6 +13,7 @@
     <ProjectReference Include="..\ShareX.MediaLib\ShareX.MediaLib.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ImageListView" Version="13.8.2" />
+        <!--    This will have to be implmented in our codebase. There's nothing like it for our use case.-->
+<!--    <PackageReference Include="ImageListView" Version="13.8.2" />-->
   </ItemGroup>
 </Project>

@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <!--    TODO: Invest this dependency, for sure doesn't work on Linux but I'm already dealing with 42k errors from trying to compile on Linux-->
     <Reference Include="System.Design" />
     <Reference Include="System.IO.Compression" />
   </ItemGroup>
