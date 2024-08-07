@@ -41,8 +41,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
       - uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
@@ -50,10 +54,10 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget
+
       - name: Restore dependencies
         run: dotnet restore
-        with:
-          global-json-file: global.json
+
       - name: Set APP_VERSION
         run: |
           content=$(<"${{ env.ASSEMBLY_INFO_PATH }}")
@@ -70,7 +74,6 @@ jobs:
           echo "APP_VERSION=$version" >> $GITHUB_ENV
 
       - name: Build
-        working-directory: ${{ env.GITHUB_WORKSPACE }}
         run: dotnet build "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
 
       - name: Upload artifact (Debug)
