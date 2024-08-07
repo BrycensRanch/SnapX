@@ -57,21 +57,23 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
-
-      - name: Set APP_VERSION
-        run: |
-          content=$(<"${{ env.ASSEMBLY_INFO_PATH }}")
-          pattern='<Version>([0-9]+(\.[0-9]+){1,3})</Version>'
-          version=$(echo "$content" | grep -Po "$pattern" | grep -Po '[0-9]+(\.[0-9]+){1,3}')
-
-          if [ "${GITHUB_REF}" = "refs/heads/develop" ]; then
-            version="${version}.${GITHUB_RUN_NUMBER}"
-            content=$(echo "$content" | sed -E "s/$pattern/<Version>$version<\/Version>/")
-            echo "$content" > "${{ env.ASSEMBLY_INFO_PATH }}"
-          fi
-
-          echo $version
-          echo "APP_VERSION=$version" >> $GITHUB_ENV
+#       Removed - I will add a .NET library that does this automatically.
+#       NOTE: The attempted port of this to bash is borked. :3
+#       The error I ran into: sed: -e expression #1, char 46: unknown option to `s'
+#      - name: Set APP_VERSION
+#        run: |
+#          content=$(<"${{ env.ASSEMBLY_INFO_PATH }}")
+#          pattern='<Version>([0-9]+(\.[0-9]+){1,3})</Version>'
+#          version=$(echo "$content" | grep -Po "$pattern" | grep -Po '[0-9]+(\.[0-9]+){1,3}')
+#
+#          if [ "${GITHUB_REF}" = "refs/heads/develop" ]; then
+#            version="${version}.${GITHUB_RUN_NUMBER}"
+#            content=$(echo "$content" | sed -E "s/$pattern/<Version>$version<\/Version>/")
+#            echo "$content" > "${{ env.ASSEMBLY_INFO_PATH }}"
+#          fi
+#
+#          echo $version
+#          echo "APP_VERSION=$version" >> $GITHUB_ENV
 
       - name: Build
         run: dotnet build "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
