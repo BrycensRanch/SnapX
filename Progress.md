@@ -3,7 +3,7 @@
 # Checklist
 
 - [x] Port `NativeMessagingHost` to .NET 8 (It was literally a few lines of code...)
-- [ ] Port `UploadersLib` to .NET 8 and GTK4
+- [ ] Port `UploadersLib` to .NET 8 and remove UI code
 - [ ] Port `ScreenCaptureLib` to .NET 8 and GTK and unknown dependencies (Requires investigation)
 - [ ] Investigate `UploadersLib` (What is it? What does it do?)
 - [ ] Investigate `IndexerLib` (What is it? What does it do?)
@@ -16,6 +16,7 @@
 - [ ] Investigate packaging a Snap package for other distributions.
 - [ ] Investigate packaging an AppImage package for other distributions.
 - [ ] Create bindings for `go-keyring` so we're not storing API Credentials in plain text on the filesystem. It's also cross-platform. That way if need be, porting this to every major OS should be cumbersome. For other operating systems, we can use Uno.
+- [ ]
 - [ ] Learn Rust and a hint of C++ to use XCap and other cross-platform screen capture libraries. (This will make the port take much longer)
 
 ## Why I choose GTK4
