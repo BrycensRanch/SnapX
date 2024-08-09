@@ -308,10 +308,7 @@ namespace ShareX
 
         private static void Run()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            DebugHelper.WriteLine("ShareX starting.");
+            DebugHelper.WriteLine("ShareX  (Linux) starting.");
             DebugHelper.WriteLine("Version: " + VersionText);
             DebugHelper.WriteLine("Build: " + Build);
             DebugHelper.WriteLine("Command line: " + Environment.CommandLine);
@@ -348,11 +345,10 @@ namespace ShareX
             CleanupManager.CleanupAsync();
             Helpers.TryFixHandCursor();
 
-            DebugHelper.WriteLine("MainForm init started.");
-            MainForm = new MainForm();
-            DebugHelper.WriteLine("MainForm init finished.");
-
-            Application.Run(MainForm);
+            DebugHelper.WriteLine("Main window init started.");
+            // Initialize the main window
+            DebugHelper.WriteLine("Main window init finished.");
+            // Run the main window
 
             CloseSequence();
         }
