@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+// TODO: Remove this dependency and make it cross platform
 using System.Management;
 
 namespace ShareX.HelpersLib
