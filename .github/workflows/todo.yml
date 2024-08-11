@@ -2,7 +2,7 @@ name: 'Run TODO to Issue'
 on:
   push:
     branches:
-      - 'master'
+      - 'develop'
 
 jobs:
   build:
