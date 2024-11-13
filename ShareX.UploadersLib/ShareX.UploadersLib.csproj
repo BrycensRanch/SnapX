@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
@@ -17,10 +17,10 @@
     <EmbeddedResource Include="APIKeys\jira_sharex.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentFTP" Version="50.0.1" />
+    <PackageReference Include="FluentFTP" Version="51.1.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SSH.NET" Version="2024.0.0" />
+    <PackageReference Include="SSH.NET" Version="2024.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\OAuthCallbackPage.html" />

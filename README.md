@@ -33,6 +33,16 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 
 If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can build the project from source.
 
+## Other platforms
+
+Hi, macOS users.
+One of the project's goals is to make ShareX more portable.
+GTK4 *does* work on macOS and Windows but the building instructions are a bit different than usual.
+Hopefully down the line, I can hope to document this for you.
+
+![img.png](img.png)
+
+![img_1.png](img_1.png)
 
 ## Development Dependencies
 
@@ -40,10 +50,10 @@ If you're using a different distribution, there will be a Flatpak package availa
 - `gtk4`
 - `gtk4-devel` (Fedora)
 - `libgtk-4-dev`
-- `dotnet-sdk-8.0`
+- `dotnet-sdk-9.0`
 - `ffmpeg` (6.0.0)
 - `imagemagick`
-- `p7zip`
+- `p7zip-devel`
 - `libgdiplus`
 - `build-essential` (Ubuntu)
 - `@development-tools` (Fedora)
@@ -53,21 +63,23 @@ Also sudo dnf group install "C Development Tools and Libraries" (Fedora) (Just t
 
 At this point, I'm guessing. I already have all of these installed on my system. :3
 
+Fedora users will able to cross compile for Windows. This is not supported under Ubuntu
+
 ### Ubuntu 24.04
 
 ```bash
-sudo apt install git gtk4 libgtk-4-dev dotnet-sdk-8.0
+sudo apt install git gtk4 libgtk-4-dev dotnet-sdk-9.0
 ```
 
 ### Fedora 40
 
 ```bash
-sudo dnf install git gtk4 gtk4-devel dotnet-sdk-8.0
+sudo dnf install git gtk4 gtk4-devel dotnet-sdk-9.0
 ```
 
 ## Building from Source
 
-I don't think it will build... at all
+I don't think it will build... at all for some time.
 
 ```bash
 git clone https://github.com/BrycensRanch/ShareX-Linux-Port

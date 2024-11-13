@@ -2,20 +2,17 @@
 
 # Checklist
 
-- [x] Port `NativeMessagingHost` to .NET 8 (It was literally a few lines of code...)
-- [ ] Port `UploadersLib` to .NET 8 and remove UI code
-- [ ] Port `ScreenCaptureLib` to .NET 8 and GTK and unknown dependencies (Requires investigation)
+- [x] Port `NativeMessagingHost` to .NET 9 (It was literally a few lines of code...)
+- [ ] Port `UploadersLib` to .NET 9 and remove UI code
+- [ ] Port `ScreenCaptureLib` to .NET 9 and GTK and unknown dependencies (Requires investigation)
 - [ ] Investigate `UploadersLib` (What is it? What does it do?)
 - [ ] Investigate `IndexerLib` (What is it? What does it do?)
 - [ ] Investigate `HistoryLib` (What is it? What does it do?)
 - [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://docs.servicestack.net/ormlite/>
 - [ ] Log files should be a daily log file, not a whole MONTH (wtf?)
-- [ ] Symlink ~/Documents/ShareX-Linux to their appropriate XDG directories to keep the familiar structure users are used to without violating the XDG spec.
-- [ ] Investigate packaging a .NET 8 package for Fedora and Ubuntu (Not planning to directly publish to the official repos. I don't want to deal with that headache)
-- [ ] Investigate packaging a Flatpak package for other distributions.
-- [ ] Investigate packaging a Snap package for other distributions.
-- [ ] Investigate packaging an AppImage package for other distributions.
-- [ ] Create bindings for `go-keyring` so we're not storing API Credentials in plain text on the filesystem. It's also cross-platform. That way if need be, porting this to every major OS should be cumbersome. For other operating systems, we can use Uno.
+- [ ] Symlink ~/Documents/ShareX-Linux to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
+- [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
+- [ ] Create bindings for `go-keyring` so we're not storing API Credentials in plain text on the filesystem. It's also cross-platform. That way, if need be, porting this to every major OS should be less cumbersome.
 - [ ] Learn Rust and a hint of C++ to use XCap and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [ ] Rust interop bindings
 
@@ -23,7 +20,7 @@
 
 Although GTK4 is not a full replacement for Windows Forms, it is a step in the right direction. GTK4 is a modern toolkit that is actively developed and maintained. It is also the toolkit used by GNOME, which is the most popular desktop environment on Linux. By using GTK4, we can ensure that the application will be compatible with the latest versions of GNOME and other desktop environments that use GTK4.
 
-Truth be told, I really wanted this to be QT6, but there are no C# bindings for QT6 yet. I'm not going to write a C++ application. I'm not a masochist.
+Truth be told, I really wanted this to be QT6, but there are no C# bindings for QT6 yet. I'm not going to write a C++ application. The project would **never** be done.
 
 To accomplish this goal, <https://github.com/gircore/gir.core> is called upon.
 
@@ -47,13 +44,13 @@ I'm aiming to add telemetry to the application. This will allow for the collecti
 
 #### Why are you doing this?
 
-WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 8 and GTK4, but with this port, it should become a Linux application
+WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 9 and GTK4, but with this port, it should become a Linux application
 
 #### How are screenshots going to work?
 
 On Windows, System.Drawing depends on the GDI+ native library, shipped with Windows Home.
 
-On .NET 8, System.Drawing is not available on Linux/macOS. However, there is hope...
+On .NET 9, System.Drawing is not available on Linux/macOS. However, there is hope...
 
 
 
