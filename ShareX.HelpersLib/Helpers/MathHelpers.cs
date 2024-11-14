@@ -25,6 +25,7 @@
 
 using System;
 using System.Drawing;
+using System.Numerics;
 
 namespace ShareX.HelpersLib
 {

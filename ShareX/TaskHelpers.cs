@@ -1300,7 +1300,7 @@ namespace ShareX
                 {
                     ProcessStartInfo psi = new ProcessStartInfo()
                     {
-                        FileName = Application.ExecutablePath,
+                        FileName = "sharex",
                         Arguments = arguments,
                         UseShellExecute = true,
                         Verb = "runas"

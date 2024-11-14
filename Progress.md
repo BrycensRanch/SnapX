@@ -3,6 +3,7 @@
 # Checklist
 
 - [x] Port `NativeMessagingHost` to .NET 9 (It was literally a few lines of code...)
+- [ ] Replace Windows specific code in ShareX for nuget dependencies instead. This way, it moves away from the dependency on passing around Bitmap everywhere.
 - [ ] Port `UploadersLib` to .NET 9 and remove UI code
 - [ ] Port `ScreenCaptureLib` to .NET 9 and GTK and unknown dependencies (Requires investigation)
 - [ ] Investigate `UploadersLib` (What is it? What does it do?)
@@ -61,7 +62,7 @@ On .NET 9, System.Drawing is not available on Linux/macOS. However, there is hop
 
 #### Snap & Flatpak
 
-A snap package should be created easily with examples like https://github.com/NickvisionApps/Parabolic
+A snap package should be created easily with examples like https://github.com/BrycensRanch/Rokon/blob/master/snapcraft.yaml
 
 ##### Finally...
 

@@ -33,7 +33,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ShareX
 {
@@ -57,7 +56,7 @@ namespace ShareX
             get
             {
                 StringBuilder sbVersionText = new StringBuilder();
-                Version version = Version.Parse(Application.ProductVersion);
+                Version version = Version.Parse("0.0.0");
                 sbVersionText.Append(version.Major + "." + version.Minor);
                 if (version.Build > 0 || version.Revision > 0) sbVersionText.Append("." + version.Build);
                 if (version.Revision > 0) sbVersionText.Append("." + version.Revision);
@@ -117,7 +116,6 @@ namespace ShareX
         internal static UploadersConfig UploadersConfig { get; set; }
         internal static HotkeysConfig HotkeysConfig { get; set; }
 
-        internal static MainForm MainForm { get; private set; }
         internal static Stopwatch StartTimer { get; private set; }
         internal static HotkeyManager HotkeyManager { get; set; }
         internal static WatchFolderManager WatchFolderManager { get; set; }
@@ -289,7 +287,7 @@ namespace ShareX
 
                     if (restartRequested)
                     {
-                        DebugHelper.WriteLine("ShareX restarting.");
+                        DebugHelper.WriteLine("Restart is not implemented.");
 
                         if (restartAsAdmin)
                         {
@@ -297,7 +295,7 @@ namespace ShareX
                         }
                         else
                         {
-                            Process.Start(Application.ExecutablePath);
+                            Process.Start("sharex");
                         }
                     }
                 }
@@ -343,7 +341,6 @@ namespace ShareX
             UpdateManager = new ShareXUpdateManager();
             LanguageHelper.ChangeLanguage(Settings.Language);
             CleanupManager.CleanupAsync();
-            Helpers.TryFixHandCursor();
 
             DebugHelper.WriteLine("Main window init started.");
             // Initialize the main window
@@ -368,13 +365,6 @@ namespace ShareX
             }
         }
 
-        public static void Restart(bool asAdmin = false)
-        {
-            restartRequested = true;
-            restartAsAdmin = asAdmin;
-            Application.Exit();
-        }
-
         private static void SingleInstanceManager_ArgumentsReceived(string[] arguments)
         {
             string message = "Arguments received: ";
@@ -389,52 +379,6 @@ namespace ShareX
             }
 
             DebugHelper.WriteLine(message);
-
-            if (WaitFormLoad(5000))
-            {
-                MainForm.InvokeSafe(async () =>
-                {
-                    await UseCommandLineArgs(arguments);
-                });
-            }
-        }
-
-        private static bool WaitFormLoad(int wait)
-        {
-            Stopwatch timer = Stopwatch.StartNew();
-
-            while (timer.ElapsedMilliseconds < wait)
-            {
-                if (MainForm != null && MainForm.IsReady) return true;
-
-                Thread.Sleep(10);
-            }
-
-            return false;
-        }
-
-        private static async Task UseCommandLineArgs(string[] args)
-        {
-            if (args == null || args.Length < 1)
-            {
-                if (MainForm.niTray != null && MainForm.niTray.Visible)
-                {
-                    // Workaround for Windows startup tray icon bug
-                    MainForm.niTray.Visible = false;
-                    MainForm.niTray.Visible = true;
-                }
-
-                MainForm.ForceActivate();
-            }
-            else if (MainForm.Visible)
-            {
-                MainForm.ForceActivate();
-            }
-
-            CLIManager cli = new CLIManager(args);
-            cli.ParseCommands();
-
-            await CLI.UseCommandLineArgs(cli.Commands);
         }
 
         private static void UpdatePersonalPath()
@@ -496,7 +440,6 @@ namespace ShareX
                         sb.AppendLine();
                         sb.Append(e);
 
-                        MessageBox.Show(sb.ToString(), "ShareX - " + Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         CustomPersonalPath = "";
                     }
                 }
@@ -598,8 +541,6 @@ namespace ShareX
                     catch (UnauthorizedAccessException e)
                     {
                         DebugHelper.WriteException(e);
-                        MessageBox.Show(string.Format(Resources.Program_WritePersonalPathConfig_Cant_access_to_file, PersonalPathConfigFilePath),
-                            "ShareX", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception e)
                     {
@@ -621,12 +562,6 @@ namespace ShareX
             }
 #endif
 
-            // Add the event handler for handling UI thread exceptions to the event
-            Application.ThreadException += Application_ThreadException;
-
-            // Set the unhandled exception mode to force all Windows Forms errors to go through our handler
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-
             // Add the event handler for handling non-UI thread exceptions to the event
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
@@ -643,20 +578,13 @@ namespace ShareX
 
         private static void OnError(Exception e)
         {
-            using (ErrorForm errorForm = new ErrorForm(e.Message, $"{e}\r\n\r\n{Title}", LogsFilePath, Links.GitHubIssues))
-            {
-                errorForm.ShowDialog();
-            }
+            DebugHelper.WriteException(e);
         }
 
         private static bool CheckAdminTasks()
         {
             if (CLI.IsCommandExist("dnschanger"))
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Helpers.TryFixHandCursor();
-                Application.Run(new DNSChangerForm());
                 return true;
             }
 

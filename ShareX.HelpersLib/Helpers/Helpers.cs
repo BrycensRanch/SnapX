@@ -277,7 +277,7 @@ namespace ShareX.HelpersLib
 
         public static string GetApplicationVersion(bool includeRevision = false)
         {
-            Version version = Version.Parse(Application.ProductVersion);
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
             string result = $"{version.Major}.{version.Minor}.{version.Build}";
             if (includeRevision)
             {
@@ -321,44 +321,14 @@ namespace ShareX.HelpersLib
             return Version.Parse(version).Normalize(ignoreRevision);
         }
 
-        public static bool IsWindowsXP()
-        {
-            return OSVersion.Major == 5 && OSVersion.Minor == 1;
-        }
-
-        public static bool IsWindowsXPOrGreater()
-        {
-            return (OSVersion.Major == 5 && OSVersion.Minor >= 1) || OSVersion.Major > 5;
-        }
-
         public static bool IsWindowsVista()
         {
             return OSVersion.Major == 6;
         }
 
-        public static bool IsWindowsVistaOrGreater()
-        {
-            return OSVersion.Major >= 6;
-        }
-
         public static bool IsWindows7()
         {
             return OSVersion.Major == 6 && OSVersion.Minor == 1;
-        }
-
-        public static bool IsWindows7OrGreater()
-        {
-            return (OSVersion.Major == 6 && OSVersion.Minor >= 1) || OSVersion.Major > 6;
-        }
-
-        public static bool IsWindows8()
-        {
-            return OSVersion.Major == 6 && OSVersion.Minor == 2;
-        }
-
-        public static bool IsWindows8OrGreater()
-        {
-            return (OSVersion.Major == 6 && OSVersion.Minor >= 2) || OSVersion.Major > 6;
         }
 
         public static bool IsWindows10OrGreater(int build = -1)
@@ -371,22 +341,6 @@ namespace ShareX.HelpersLib
             build = Math.Max(22000, build);
             return OSVersion.Major >= 10 && OSVersion.Build >= build;
         }
-
-        public static bool IsDefaultInstallDir()
-        {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            return Application.ExecutablePath.StartsWith(path);
-        }
-
-        public static bool IsValidIPAddress(string ip)
-        {
-            if (string.IsNullOrEmpty(ip)) return false;
-
-            string pattern = @"(?<First>2[0-4]\d|25[0-5]|[01]?\d\d?)\.(?<Second>2[0-4]\d|25[0-5]|[01]?\d\d?)\.(?<Third>2[0-4]\d|25[0-5]|[01]?\d\d?)\.(?<Fourth>2[0-4]\d|25[0-5]|[01]?\d\d?)";
-
-            return Regex.IsMatch(ip.Trim(), pattern);
-        }
-
         public static string ProperTimeSpan(TimeSpan ts)
         {
             string time = string.Format("{0:00}:{1:00}", ts.Minutes, ts.Seconds);
@@ -597,34 +551,6 @@ namespace ShareX.HelpersLib
             }
         }
 
-        public static bool IsMemberOfAdministratorsGroup()
-        {
-            try
-            {
-                using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
-                {
-                    WindowsPrincipal principal = new WindowsPrincipal(identity);
-                    SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
-                    return principal.UserClaims.Any(x => x.Value.Contains(sid.Value));
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
-        public static string RepeatGenerator(int count, Func<string> generator)
-        {
-            string result = "";
-            for (int x = count; x > 0; x--)
-            {
-                result += generator();
-            }
-            return result;
-        }
-
         public static bool IsRunning(string name)
         {
             try
@@ -638,20 +564,6 @@ namespace ShareX.HelpersLib
             }
 
             return true;
-        }
-
-        public static T ByteArrayToStructure<T>(byte[] bytes) where T : struct
-        {
-            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-
-            try
-            {
-                return (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-            }
-            finally
-            {
-                handle.Free();
-            }
         }
 
         public static IEnumerable<T> GetInstances<T>() where T : class
@@ -671,7 +583,7 @@ namespace ShareX.HelpersLib
 
         public static string GetOperatingSystemProductName(bool includeBit = false)
         {
-            string productName = RegistryHelpers.GetValueString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName", RegistryHive.LocalMachine);
+            string productName = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
 
             if (string.IsNullOrEmpty(productName))
             {
@@ -695,14 +607,6 @@ namespace ShareX.HelpersLib
             }
 
             return productName;
-        }
-
-        public static Cursor CreateCursor(byte[] data)
-        {
-            using (MemoryStream ms = new MemoryStream(data))
-            {
-                return new Cursor(ms);
-            }
         }
 
         public static string EscapeCLIText(string text)
@@ -832,24 +736,6 @@ namespace ShareX.HelpersLib
             return result;
         }
 
-        [ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]
-        public static bool TryFixHandCursor()
-        {
-            try
-            {
-                // https://referencesource.microsoft.com/#System.Windows.Forms/winforms/Managed/System/WinForms/Cursors.cs,423
-                typeof(Cursors).GetField("hand", BindingFlags.NonPublic | BindingFlags.Static)
-                    .SetValue(null, new Cursor(NativeMethods.LoadCursor(IntPtr.Zero, NativeConstants.IDC_HAND)));
-
-                return true;
-            }
-            catch
-            {
-                // If it fails, we'll just have to live with the old hand.
-                return false;
-            }
-        }
-
         public static bool IsTabletMode()
         {
             //int state = NativeMethods.GetSystemMetrics(SystemMetric.SM_CONVERTIBLESLATEMODE);
@@ -889,61 +775,6 @@ namespace ShareX.HelpersLib
                 return sReader.ReadToEnd();
             }
         }
-
-        public static Icon GetProgressIcon(int percentage)
-        {
-            return GetProgressIcon(percentage, Color.FromArgb(16, 116, 193));
-        }
-
-        public static Icon GetProgressIcon(int percentage, Color color)
-        {
-            percentage = percentage.Clamp(0, 100);
-
-            Size size = SystemInformation.SmallIconSize;
-
-            using (Bitmap bmp = new Bitmap(size.Width, size.Height))
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                using (Brush brush = new SolidBrush(Color.FromArgb(39, 39, 39)))
-                {
-                    g.FillRectangle(brush, 0, 0, size.Width, size.Height);
-                }
-
-                int y = (int)(size.Height * (percentage / 100f));
-
-                if (y > 0)
-                {
-                    using (Brush brush = new SolidBrush(color))
-                    {
-                        g.FillRectangle(brush, 0, size.Height - y, size.Width, y);
-                    }
-
-                    if (y < size.Height)
-                    {
-                        using (Pen pen = new Pen(ColorHelpers.LighterColor(color, 0.3f)))
-                        {
-                            g.DrawLine(pen, 0, size.Height - y, size.Width - 1, size.Height - y);
-                        }
-                    }
-                }
-
-                using (Font font = new Font("Arial", 10))
-                using (StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                {
-                    percentage = percentage.Clamp(0, 99);
-
-                    g.DrawString(percentage.ToString(), font, Brushes.White, size.Width / 2f, size.Height / 2f, sf);
-                }
-
-                bmp.SetPixel(0, 0, Color.Transparent);
-                bmp.SetPixel(bmp.Width - 1, 0, Color.Transparent);
-                bmp.SetPixel(0, bmp.Height - 1, Color.Transparent);
-                bmp.SetPixel(bmp.Width - 1, bmp.Height - 1, Color.Transparent);
-
-                return Icon.FromHandle(bmp.GetHicon());
-            }
-        }
-
         public static string GetChecksum(string filePath)
         {
             using (SHA256Managed hashAlgorithm = new SHA256Managed())
@@ -999,12 +830,6 @@ namespace ShareX.HelpersLib
             return Task.WhenAll(tasks);
         }
 
-        public static void LockCursorToWindow(Form form)
-        {
-            form.Activated += (sender, e) => Cursor.Clip = form.Bounds;
-            form.Deactivate += (sender, e) => Cursor.Clip = Rectangle.Empty;
-        }
-
         public static bool IsDefaultSettings<T>(IEnumerable<T> current, IEnumerable<T> source, Func<T, T, bool> predicate)
         {
             if (current != null && current.Count() > 0)
@@ -1013,15 +838,6 @@ namespace ShareX.HelpersLib
             }
 
             return true;
-        }
-
-        public static string GetDesktopWallpaperFilePath()
-        {
-            byte[] transcodedImageCache = (byte[])RegistryHelpers.GetValue(@"Control Panel\Desktop", "TranscodedImageCache");
-            byte[] transcodedImageCacheDest = new byte[transcodedImageCache.Length - 24];
-            Array.Copy(transcodedImageCache, 24, transcodedImageCacheDest, 0, transcodedImageCacheDest.Length);
-            string wallpaperFilePath = Encoding.Unicode.GetString(transcodedImageCacheDest);
-            return wallpaperFilePath.TrimEnd('\0');
         }
 
         public static IEnumerable<int> Range(int from, int to, int increment = 1)

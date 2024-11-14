@@ -23,9 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib.Properties;
-using System.Reflection;
-
 namespace ShareX.HelpersLib
 {
     public static class ShareXResources

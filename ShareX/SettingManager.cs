@@ -34,7 +34,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ShareX
 {
@@ -194,32 +193,6 @@ namespace ShareX
             if (SystemOptions.DisableUpload)
             {
                 DefaultTaskSettings.AfterCaptureJob = DefaultTaskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
-            }
-
-            if (Settings.IsUpgradeFrom("14.1.1"))
-            {
-                if (Helpers.IsDefaultSettings(Settings.Themes, ShareXTheme.GetDefaultThemes(), (x, y) => x.Name == y.Name))
-                {
-                    if (!Settings.Themes.IsValidIndex(Settings.SelectedTheme))
-                    {
-                        Settings.SelectedTheme = 0;
-                    }
-
-                    ShareXTheme selectedTheme = Settings.Themes[Settings.SelectedTheme];
-
-                    Settings.Themes = ShareXTheme.GetDefaultThemes();
-
-                    int index = Settings.Themes.FindIndex(x => x.Name.Equals(selectedTheme.Name, StringComparison.OrdinalIgnoreCase));
-
-                    if (index >= 0)
-                    {
-                        Settings.SelectedTheme = index;
-                    }
-                    else
-                    {
-                        Settings.SelectedTheme = 0;
-                    }
-                }
             }
 
             if (Settings.IsUpgradeFrom("14.1.2"))
@@ -411,7 +384,6 @@ namespace ShareX
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
-                MessageBox.Show("Error while exporting backup:\r\n" + e, "ShareX - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -437,7 +409,6 @@ namespace ShareX
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
-                MessageBox.Show("Error while importing backup:\r\n" + e, "ShareX - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return false;

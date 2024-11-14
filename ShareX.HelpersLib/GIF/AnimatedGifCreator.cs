@@ -26,6 +26,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using SixLabors.ImageSharp;
 
 namespace ShareX.HelpersLib
 {
