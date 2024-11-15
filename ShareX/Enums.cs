@@ -27,10 +27,6 @@ using ShareX.HelpersLib;
 using System;
 using System.ComponentModel;
 
-#if MicrosoftStore
-using Windows.ApplicationModel;
-#endif
-
 namespace ShareX
 {
     public enum ShareXBuild

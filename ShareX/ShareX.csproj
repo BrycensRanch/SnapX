@@ -36,4 +36,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ShareX.New\" />
+  </ItemGroup>
 </Project>

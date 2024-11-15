@@ -160,13 +160,6 @@ namespace ShareX
 
         #endregion History
 
-        #region Print
-
-        public bool DontShowPrintSettingsDialog = false;
-        public PrintSettings PrintSettings = new PrintSettings();
-
-        #endregion Print
-
         #region Advanced
 
         [Category("Application"), DefaultValue(false), Description("Calculate and show file sizes in binary units (KiB, MiB etc.)")]

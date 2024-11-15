@@ -24,12 +24,12 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
-using ShareX.Properties;
 using ShareX.UploadersLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,7 +56,7 @@ namespace ShareX
             get
             {
                 StringBuilder sbVersionText = new StringBuilder();
-                Version version = Version.Parse("0.0.0");
+                Version version = Assembly.GetExecutingAssembly().GetName().Version;
                 sbVersionText.Append(version.Major + "." + version.Minor);
                 if (version.Build > 0 || version.Revision > 0) sbVersionText.Append("." + version.Build);
                 if (version.Revision > 0) sbVersionText.Append("." + version.Revision);
@@ -320,13 +320,6 @@ namespace ShareX
             DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
 
             SilentRun = CLI.IsCommandExist("silent", "s");
-#if MicrosoftStore
-            SilentRun = SilentRun || AppInstance.GetActivatedEventArgs()?.Kind == ActivationKind.StartupTask;
-#endif
-
-#if STEAM
-            SteamFirstTimeConfig = CLI.IsCommandExist("SteamConfig");
-#endif
 
             IgnoreHotkeyWarning = CLI.IsCommandExist("NoHotkeys");
 
@@ -429,7 +422,7 @@ namespace ShareX
                     {
                         StringBuilder sb = new StringBuilder();
 
-                        sb.AppendFormat("{0} \"{1}\"", Resources.Program_Run_Unable_to_create_folder_, PersonalFolder);
+                        sb.AppendFormat("{0} \"{1}\"", "Unable to create personal folder!", PersonalFolder);
                         sb.AppendLine();
 
                         if (!string.IsNullOrEmpty(PersonalPathDetectionMethod))

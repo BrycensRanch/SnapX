@@ -26,7 +26,6 @@
 using Microsoft.Win32;
 using ShareX.HelpersLib;
 using System;
-using System.Windows.Forms;
 
 #if MicrosoftStore
 using Windows.ApplicationModel;
@@ -45,11 +44,8 @@ namespace ShareX
         {
             get
             {
-#if STEAM
-                return FileHelpers.GetAbsolutePath("../ShareX_Launcher.exe");
-#else
-                return Application.ExecutablePath;
-#endif
+                // TODO: Implement StartupTargetPath
+                return "sharex";
             }
         }
 
@@ -62,6 +58,7 @@ namespace ShareX
 #else
                 if (ShortcutHelpers.CheckShortcut(Environment.SpecialFolder.Startup, "ShareX", StartupTargetPath))
                 {
+                    // TODO:
                     if (Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
                         "ShareX.lnk", null) is byte[] status && status.Length > 0 && status[0] == 3)
                     {
@@ -80,20 +77,7 @@ namespace ShareX
             }
             set
             {
-#if MicrosoftStore
-                if (value == StartupState.Enabled)
-                {
-                    packageTask.RequestEnableAsync().GetAwaiter().GetResult();
-                }
-                else if (value == StartupState.Disabled)
-                {
-                    packageTask.Disable();
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
-#else
+
                 if (value == StartupState.Enabled || value == StartupState.Disabled)
                 {
                     ShortcutHelpers.SetShortcut(value == StartupState.Enabled, Environment.SpecialFolder.Startup, "ShareX", StartupTargetPath, "-silent");
@@ -102,7 +86,6 @@ namespace ShareX
                 {
                     throw new NotSupportedException();
                 }
-#endif
             }
         }
     }
