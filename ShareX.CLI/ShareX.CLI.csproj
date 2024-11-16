@@ -19,5 +19,7 @@
     <!-- Enable AOT compilation -->
     <PublishAot>true</PublishAot>
   </PropertyGroup>
-
+  <ItemGroup>
+  <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
+  </ItemGroup>
 </Project>
