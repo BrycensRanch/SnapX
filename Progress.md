@@ -17,6 +17,25 @@
 - [ ] Learn Rust and a hint of C++ to use XCap and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [ ] Rust interop bindings
 
+## Studying ShareX's behavior on Windows 11 24H2
+
+It's important to know how the program *should* behave in accordance with user expectations. As such, I've done a little recording of it.
+
+With GTK4, this is going to be a interesting task.
+
+
+## Rewrite
+
+ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with Dbus on Dotnet. https://github.com/tmds/Tmds.DBus
+
+
+I also want to decouple *away* from a specific UI framework
+which will allow for the possibility of using [Uno](https://github.com/unoplatform/uno) for Windows and macOS.
+While GTK4 does "work" on these platforms, it's significantly handicapped or unstable (on macOS)
+
+
+Worst case scenario, I may need to introduce C++ code to interact directly with Linux. I haven't tried [xcap](https://github.com/nashaofu/xcap) yet but since it's in Rust, I'd have to make it produce .a and .so files.
+
 ## Why I choose GTK4
 
 Although GTK4 is not a full replacement for Windows Forms, it is a step in the right direction. GTK4 is a modern toolkit that is actively developed and maintained. It is also the toolkit used by GNOME, which is the most popular desktop environment on Linux. By using GTK4, we can ensure that the application will be compatible with the latest versions of GNOME and other desktop environments that use GTK4.
