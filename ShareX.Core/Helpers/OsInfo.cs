@@ -60,30 +60,43 @@ public class OsInfo
         }
     }
 
-    static string GetLinuxVersion()
+static string GetLinuxVersion()
+{
+    try
     {
-        try
+        var osReleaseFile = "/etc/os-release";
+        if (File.Exists(osReleaseFile))
         {
-            // Read /etc/os-release file to extract PRETTY_NAME or NAME
-            var osReleaseFile = "/etc/os-release";
-            if (File.Exists(osReleaseFile))
+            var lines = File.ReadAllLines(osReleaseFile);
+
+            string prettyName = lines.FirstOrDefault(line => line.StartsWith("PRETTY_NAME"))?.Split('=')[1]?.Trim('"');
+
+            if (string.IsNullOrEmpty(prettyName))
             {
-                var lines = File.ReadAllLines(osReleaseFile);
-                string prettyName = lines.FirstOrDefault(line => line.StartsWith("PRETTY_NAME"))?.Split('=')[1]?.Trim('"');
+                prettyName = lines.FirstOrDefault(line => line.StartsWith("NAME"))?.Split('=')[1]?.Trim('"');
+
                 if (string.IsNullOrEmpty(prettyName))
                 {
-                    // If PRETTY_NAME doesn't exist, fallback to NAME
-                    prettyName = lines.FirstOrDefault(line => line.StartsWith("NAME"))?.Split('=')[1]?.Trim('"');
+                    string version = lines.FirstOrDefault(line => line.StartsWith("VERSION"))?.Split('=')[1]?.Trim('"');
+                    if (string.IsNullOrEmpty(version))
+                    {
+                        version = lines.FirstOrDefault(line => line.StartsWith("VERSION_ID"))?.Split('=')[1]?.Trim('"');
+                    }
+                    prettyName = version != null ? $"Linux {version}" : "Linux";
                 }
-                return prettyName ?? $"Linux {Environment.OSVersion.Version}";
             }
-            return $"Linux {Environment.OSVersion.Version}";
+
+            return prettyName;
         }
-        catch
-        {
-            return $"Linux {Environment.OSVersion.Version}";
-        }
+
+        return $"Linux {Environment.OSVersion.Version}";
     }
+    catch
+    {
+        return $"Linux {Environment.OSVersion.Version}";
+    }
+}
+
 
     static string GetmacOSVersion()
     {
