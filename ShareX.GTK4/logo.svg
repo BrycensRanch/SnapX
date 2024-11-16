@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" id="svg6843" height="100" width="100" version="1.0">
+    <metadata id="metadata68">
+        <rdf:RDF>
+            <cc:Work rdf:about="">
+                <dc:format>image/svg+xml</dc:format>
+                <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+                <dc:title></dc:title>
+            </cc:Work>
+        </rdf:RDF>
+    </metadata>
+    <defs id="defs6845" />
+    <g id="layer1" transform="translate(-19.822308,-16.115941)">
+        <path style="display:inline;fill:#971db5;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:2.12364;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" id="path6976" d="M 26.88413,34.82696 59.816977,59.527708 113.33282,43.060543 76.587303,21.177763 Z" />
+        <path style="display:inline;fill:#812299;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:2.12364;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" id="path6978" d="M 28.94243,86.287118 26.88413,34.82696 59.816977,59.527708 v 55.577152 z" />
+        <path style="display:inline;fill:#68217a;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:2.12364;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" id="path6980" d="M 59.816977,115.10486 109.21619,94.5207 113.33282,43.060543 59.816977,59.527708 Z" />
+        <path style="fill:none;stroke:#ffffff;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" id="path6982" d="M 29.216626,85.319479 76.48573,71.361442 109.38422,94.444516" />
+        <path style="fill:#babdb6;fill-rule:evenodd;stroke:#ffffff;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" id="path6984" d="M 76.434539,21.875593 V 70.984877" />
+        <text id="text925" y="112.97104" x="73.826271" style="font-size:58.6965px;line-height:1.25;font-family:Mademoiselle;-inkscape-font-specification:Mademoiselle;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;fill:#ffffff;stroke:#000000;stroke-width:2.16307;stroke-miterlimit:4;stroke-dasharray:none" xml:space="preserve">
+            <tspan style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#ffffff;stroke:#000000;stroke-width:2.16307;stroke-miterlimit:4;stroke-dasharray:none" y="112.97104" x="73.826271" id="tspan923">#</tspan>
+        </text>
+    </g>
+</svg>
