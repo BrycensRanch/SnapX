@@ -26,6 +26,7 @@
 <!--    <GitVersion>false</GitVersion>-->
     <!-- GTK4 is Linux only. -->
     <RuntimeIdentifiers>linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
+    <AssemblyName>sharex-gtk</AssemblyName>
 
   </PropertyGroup>
   <ItemGroup>

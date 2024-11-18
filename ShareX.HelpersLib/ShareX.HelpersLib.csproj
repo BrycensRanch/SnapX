@@ -3,20 +3,19 @@
     <TargetFramework>net9.0</TargetFramework>
     <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>true</ImplicitUsings>
+    <Nullable>true</Nullable>
 
     <!-- Enable single-file publish is not applicable for libraries -->
     <!-- Make it self-contained is not applicable for libraries -->
     <!-- Strip out debug symbols for smaller file size -->
     <DebugType>embedded</DebugType>
-
-    <!-- Ready to Run compilation -->
-    <PublishReadyToRun>true</PublishReadyToRun>
-
-    <!-- AOT compilation is not used for libraries -->
   </PropertyGroup>
 
   <ItemGroup>
     <!-- NuGet Package References -->
+    <!-- May not be needed, see ShareX/ShareX#7620 -->
+    <PackageReference Include="System.Management" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />

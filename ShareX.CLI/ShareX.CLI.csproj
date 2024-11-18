@@ -18,6 +18,8 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <!-- Enable AOT compilation -->
     <PublishAot>true</PublishAot>
+    <AssemblyName>sharex</AssemblyName>
+
   </PropertyGroup>
   <ItemGroup>
   <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
