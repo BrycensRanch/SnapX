@@ -50,6 +50,14 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore --locked-mode
+      # Needed for offline building :3
+      - name: Upload Source With Dependencies
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShareX-Vendored-Source
+          path: .
+          include-hidden-files: false
+          compression-level: 9
 
       - name: Build
         run: dotnet build "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
