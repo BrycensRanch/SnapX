@@ -58,6 +58,7 @@ jobs:
         run: dotnet restore --locked-mode
       # Needed for offline building :3
       - name: Upload Source With Dependencies
+        if: matrix.configuration == 'Debug'
         uses: actions/upload-artifact@v4
         with:
           name: ShareX-Vendored-Source
