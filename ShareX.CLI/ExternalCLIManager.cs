@@ -64,7 +64,7 @@ namespace ShareX.HelpersLib
                     if (psi.RedirectStandardError) process.ErrorDataReceived += cli_ErrorDataReceived;
                     process.StartInfo = psi;
 
-                    DebugHelper.WriteLine($"CLI: \"{psi.FileName}\" {psi.Arguments}");
+                    Console.WriteLine($"CLI: \"{psi.FileName}\" {psi.Arguments}");
                     process.Start();
 
                     if (psi.RedirectStandardOutput) process.BeginOutputReadLine();
