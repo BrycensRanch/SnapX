@@ -47,34 +47,24 @@ Hopefully down the line, I can hope to document this for you.
 ## Development Dependencies
 
 - `git`
-- `gtk4`
-- `gtk4-devel` (Fedora)
-- `libgtk-4-dev`
+- `gtk4-devel` on Fedora or `libgtk-4-dev` on Ubuntu
 - `dotnet-sdk-9.0`
 - `ffmpeg` (7.0.0)
-- `imagemagick`
-- `p7zip-devel`
-- `libgdiplus`
-- `build-essential` (Ubuntu)
-- `@development-tools` (Fedora)
-- `libgdiplus-devel` (Fedora)
 
-Also sudo dnf group install "C Development Tools and Libraries" (Fedora) (Just to be safe)
-
-At this point, I'm guessing. I already have all of these installed on my system. :3
-
-Fedora users will able to cross compile for Windows. This is not supported under Ubuntu
+Cross compiling is not supported! (ie, compiling for Windows from Linux)
 
 ### Ubuntu 24.04
 
 ```bash
-sudo apt install git gtk4 libgtk-4-dev dotnet-sdk-9.0 ffmpeg
+sudo apt update -q && sudo apt install -y software-properties-common
+sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged
+sudo apt install -y it libgtk-4-dev dotnet-sdk-9.0 ffmpeg
 ```
 
 ### Fedora 40
 
 ```bash
-sudo dnf install git gtk4 gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
+sudo dnf install git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
 ```
 
 ## Building from Source
