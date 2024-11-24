@@ -23,9 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.Collections.Generic;
-
 namespace ShareX.HelpersLib
 {
     public class CLICommandAction
