@@ -39,12 +39,10 @@ public class OsInfo
             {
                 if (key != null)
                 {
-                    // Retrieve product name and release version
                     string productName = key.GetValue("ProductName")?.ToString() ?? "Unknown Windows";
                     string releaseId = key.GetValue("ReleaseId")?.ToString() ?? "Unknown Release";
                     string currentVersion = key.GetValue("CurrentVersion")?.ToString() ?? "Unknown Version";
 
-                    // Combine the data into a fancy version name
                     return $"{productName} {releaseId} {currentVersion}";
                 }
                 else
@@ -74,16 +72,11 @@ static string GetLinuxVersion()
             if (string.IsNullOrEmpty(prettyName))
             {
                 prettyName = lines.FirstOrDefault(line => line.StartsWith("NAME"))?.Split('=')[1]?.Trim('"');
-
-                if (string.IsNullOrEmpty(prettyName))
-                {
-                    string version = lines.FirstOrDefault(line => line.StartsWith("VERSION"))?.Split('=')[1]?.Trim('"');
-                    if (string.IsNullOrEmpty(version))
-                    {
-                        version = lines.FirstOrDefault(line => line.StartsWith("VERSION_ID"))?.Split('=')[1]?.Trim('"');
-                    }
-                    prettyName = version != null ? $"Linux {version}" : "Linux";
+                if (string.IsNullOrEmpty(prettyName)) {
+                    return $"Linux {Environment.OSVersion.Version}";
                 }
+
+                return prettyName + " " + lines.FirstOrDefault(line => line.StartsWith("VERSION"))?.Split('=')[1]?.Trim('"');
             }
 
             return prettyName;
