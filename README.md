@@ -51,7 +51,7 @@ Hopefully down the line, I can hope to document this for you.
 - `gtk4-devel` (Fedora)
 - `libgtk-4-dev`
 - `dotnet-sdk-9.0`
-- `ffmpeg` (6.0.0)
+- `ffmpeg` (7.0.0)
 - `imagemagick`
 - `p7zip-devel`
 - `libgdiplus`
@@ -68,13 +68,13 @@ Fedora users will able to cross compile for Windows. This is not supported under
 ### Ubuntu 24.04
 
 ```bash
-sudo apt install git gtk4 libgtk-4-dev dotnet-sdk-9.0
+sudo apt install git gtk4 libgtk-4-dev dotnet-sdk-9.0 ffmpeg
 ```
 
 ### Fedora 40
 
 ```bash
-sudo dnf install git gtk4 gtk4-devel dotnet-sdk-9.0
+sudo dnf install git gtk4 gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
 ```
 
 ## Building from Source
