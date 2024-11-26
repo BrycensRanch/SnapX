@@ -23,17 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Security;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace ShareX.HelpersLib
@@ -203,8 +199,10 @@ namespace ShareX.HelpersLib
 
         public static string JSONEncode(string text)
         {
-            text = JsonConvert.ToString(text);
-            return text.Substring(1, text.Length - 2);
+            text = JsonSerializer.Serialize(text);
+
+            // Remove the surrounding quotes added during serialization
+            return text[1..^1];
         }
 
         public static string XMLEncode(string text)

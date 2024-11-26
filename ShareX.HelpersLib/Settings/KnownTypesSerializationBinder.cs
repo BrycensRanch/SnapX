@@ -23,26 +23,37 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ShareX.HelpersLib
 {
-    public class KnownTypesSerializationBinder : ISerializationBinder
+    public class KnownTypesJsonConverter : JsonConverter<object>
     {
         public IEnumerable<Type> KnownTypes { get; set; }
 
-        public void BindToName(Type serializedType, out string assemblyName, out string typeName)
+        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            assemblyName = null;
-            typeName = serializedType.Name;
+            var typeName = reader.GetString();
+
+            // Find the type that matches the name in KnownTypes
+            var matchedType = KnownTypes.SingleOrDefault(t => t.Name == typeName);
+
+            if (matchedType == null)
+            {
+                throw new JsonException($"Unknown type: {typeName}");
+            }
+
+            // Deserialize to the matched type
+            return JsonSerializer.Deserialize(ref reader, matchedType, options);
         }
 
-        public Type BindToType(string assemblyName, string typeName)
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
-            return KnownTypes.SingleOrDefault(t => t.Name == typeName);
+            // Write just the type name (no assembly info needed)
+            var typeName = value.GetType().Name;
+            writer.WriteStringValue(typeName);
         }
     }
 }

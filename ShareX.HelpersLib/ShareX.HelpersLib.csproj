@@ -13,10 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
+
     <!-- NuGet Package References -->
     <!-- May not be needed, see ShareX/ShareX#7620 -->
-    <PackageReference Include="System.Management" Version="9.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
     <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />

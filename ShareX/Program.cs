@@ -32,7 +32,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ShareX
 {
@@ -119,8 +118,6 @@ namespace ShareX
         internal static Stopwatch StartTimer { get; private set; }
         internal static HotkeyManager HotkeyManager { get; set; }
         internal static WatchFolderManager WatchFolderManager { get; set; }
-        internal static ShareXUpdateManager UpdateManager { get; private set; }
-        internal static ShareXCLIManager CLI { get; private set; }
 
         #region Paths
 
@@ -257,13 +254,9 @@ namespace ShareX
             HandleExceptions();
 
             StartTimer = Stopwatch.StartNew();
-
-            CLI = new ShareXCLIManager(args);
-            CLI.ParseCommands();
-
-#if STEAM
-            if (CheckUninstall()) return; // Steam will run ShareX with -Uninstall when uninstalling
-#endif
+            // TODO: Implement CLI in a better way than what it is now.
+            // CLI = new ShareXCLIManager(args);
+            // CLI.ParseCommands();
 
             if (CheckAdminTasks()) return; // If ShareX opened just for be able to execute task as Admin
 
@@ -272,34 +265,24 @@ namespace ShareX
 
             DebugHelper.Init(LogsFilePath);
 
-            MultiInstance = CLI.IsCommandExist("multi", "m");
+            // MultiInstance = CLI.IsCommandExist("multi", "m");
 
-            using (SingleInstanceManager singleInstanceManager = new SingleInstanceManager(MutexName, PipeName, !MultiInstance, args))
+            using var singleInstanceManager = new SingleInstanceManager(MutexName, PipeName, !MultiInstance, args);
+            if (!singleInstanceManager.IsSingleInstance || singleInstanceManager.IsFirstInstance)
             {
-                if (!singleInstanceManager.IsSingleInstance || singleInstanceManager.IsFirstInstance)
+                singleInstanceManager.ArgumentsReceived += SingleInstanceManager_ArgumentsReceived;
+
+
+                Run();
+
+                if (restartRequested)
                 {
-                    singleInstanceManager.ArgumentsReceived += SingleInstanceManager_ArgumentsReceived;
-
-                    using (TimerResolutionManager timerResolutionManager = new TimerResolutionManager())
-                    {
-                        Run();
-                    }
-
-                    if (restartRequested)
-                    {
-                        DebugHelper.WriteLine("Restart is not implemented.");
-
-                        if (restartAsAdmin)
-                        {
-                            TaskHelpers.RunShareXAsAdmin("-silent");
-                        }
-                        else
-                        {
-                            Process.Start("sharex");
-                        }
-                    }
+                    // TODO: Use GTK's restart method here.
+                    DebugHelper.WriteLine("Restart is not implemented.");
                 }
             }
+
+            DebugHelper.Flush();
 
             DebugHelper.Flush();
         }
@@ -319,9 +302,9 @@ namespace ShareX
             IsAdmin = Helpers.IsAdministrator();
             DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
 
-            SilentRun = CLI.IsCommandExist("silent", "s");
+            // SilentRun = CLI.IsCommandExist("silent", "s");
 
-            IgnoreHotkeyWarning = CLI.IsCommandExist("NoHotkeys");
+            // IgnoreHotkeyWarning = CLI.IsCommandExist("NoHotkeys");
 
             CreateParentFolders();
             RegisterExtensions();
@@ -331,8 +314,6 @@ namespace ShareX
             SettingManager.LoadInitialSettings();
 
             Uploader.UpdateServicePointManager();
-            UpdateManager = new ShareXUpdateManager();
-            LanguageHelper.ChangeLanguage(Settings.Language);
             CleanupManager.CleanupAsync();
 
             DebugHelper.WriteLine("Main window init started.");
@@ -376,17 +357,17 @@ namespace ShareX
 
         private static void UpdatePersonalPath()
         {
-            Sandbox = CLI.IsCommandExist("sandbox");
+            // Sandbox = CLI.IsCommandExist("sandbox");
 
             if (!Sandbox)
             {
-                if (CLI.IsCommandExist("portable", "p"))
-                {
-                    Portable = true;
-                    CustomPersonalPath = PortablePersonalFolder;
-                    PersonalPathDetectionMethod = "Portable CLI flag";
-                }
-                else if (File.Exists(PortableCheckFilePath))
+                // if (CLI.IsCommandExist("portable", "p"))
+                // {
+                //     Portable = true;
+                //     CustomPersonalPath = PortablePersonalFolder;
+                //     PersonalPathDetectionMethod = "Portable CLI flag";
+                // }
+                if (File.Exists(PortableCheckFilePath))
                 {
                     Portable = true;
                     CustomPersonalPath = PortablePersonalFolder;
@@ -559,78 +540,44 @@ namespace ShareX
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
 
-        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
-            OnError(e.Exception);
-        }
-
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            OnError((Exception)e.ExceptionObject);
-        }
-
-        private static void OnError(Exception e)
-        {
-            DebugHelper.WriteException(e);
-        }
+        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) => OnError(e.Exception);
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) => OnError((Exception)e.ExceptionObject);
+        private static void OnError(Exception e) => DebugHelper.WriteException(e);
 
         private static bool CheckAdminTasks()
         {
-            if (CLI.IsCommandExist("dnschanger"))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool CheckUninstall()
-        {
-            if (CLI.IsCommandExist("uninstall"))
-            {
-                try
-                {
-                    IntegrationHelpers.Uninstall();
-                }
-                catch
-                {
-                }
-
-                return true;
-            }
+            // if (CLI.IsCommandExist("dnschanger"))
+            // {
+            //     return true;
+            // }
 
             return false;
         }
 
         private static bool CheckPuushMode()
         {
-            string puushPath = FileHelpers.GetAbsolutePath("puush");
+            var puushPath = FileHelpers.GetAbsolutePath("puush");
             PuushMode = File.Exists(puushPath);
             return PuushMode;
         }
 
         private static void DebugWriteFlags()
         {
-            List<string> flags = new List<string>();
+            var flags = new List<string>();
 
             if (Dev) flags.Add(nameof(Dev));
             if (MultiInstance) flags.Add(nameof(MultiInstance));
             if (Portable) flags.Add(nameof(Portable));
             if (SilentRun) flags.Add(nameof(SilentRun));
             if (Sandbox) flags.Add(nameof(Sandbox));
-            if (SteamFirstTimeConfig) flags.Add(nameof(SteamFirstTimeConfig));
             if (IgnoreHotkeyWarning) flags.Add(nameof(IgnoreHotkeyWarning));
             if (SystemOptions.DisableUpdateCheck) flags.Add(nameof(SystemOptions.DisableUpdateCheck));
             if (SystemOptions.DisableUpload) flags.Add(nameof(SystemOptions.DisableUpload));
             if (SystemOptions.DisableLogging) flags.Add(nameof(SystemOptions.DisableLogging));
             if (PuushMode) flags.Add(nameof(PuushMode));
 
-            string output = string.Join(", ", flags);
-
-            if (!string.IsNullOrEmpty(output))
-            {
-                DebugHelper.WriteLine("Flags: " + output);
-            }
+            var output = string.Join(", ", flags);
+            DebugHelper.WriteLine("Flags: " + output);
         }
     }
 }

@@ -24,15 +24,9 @@
 #endregion License Information (GPL v3)
 
 using Microsoft.VisualBasic.FileIO;
-using ShareX.HelpersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 
 namespace ShareX.HelpersLib
 {
@@ -279,8 +273,7 @@ namespace ShareX.HelpersLib
             }
             else
             {
-                MessageBox.Show(Resources.Helpers_OpenFile_File_not_exist_ + Environment.NewLine + filePath, "ShareX",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DebugHelper.WriteLine("File does not exist: " + filePath);
             }
 
             return false;
@@ -320,8 +313,7 @@ namespace ShareX.HelpersLib
             }
             else if (allowMessageBox)
             {
-                MessageBox.Show(Resources.Helpers_OpenFolder_Folder_not_exist_ + Environment.NewLine + folderPath, "ShareX",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    throw new NotImplementedException("OpenFolder is not implemented.");
             }
 
             return false;
@@ -333,7 +325,6 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    NativeMethods.OpenFolderAndSelectFile(filePath);
 
                     DebugHelper.WriteLine("Folder opened with file: " + filePath);
 
@@ -346,8 +337,7 @@ namespace ShareX.HelpersLib
             }
             else
             {
-                MessageBox.Show(Resources.Helpers_OpenFile_File_not_exist_ + Environment.NewLine + filePath, "ShareX",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    throw new NotImplementedException("OpenFolderWithFile is not implemented.");
             }
 
             return false;
@@ -381,96 +371,6 @@ namespace ShareX.HelpersLib
 
             return filePath;
         }
-
-        public static bool BrowseFile(TextBox tb, string initialDirectory = "", bool detectSpecialFolders = false, string filter = "")
-        {
-            return BrowseFile("ShareX - " + Resources.Helpers_BrowseFile_Choose_file, tb, initialDirectory, detectSpecialFolders, filter);
-        }
-
-        public static bool BrowseFile(string title, TextBox tb, string initialDirectory = "", bool detectSpecialFolders = false, string filter = "")
-        {
-            using (OpenFileDialog ofd = new OpenFileDialog())
-            {
-                ofd.Title = title;
-                ofd.Filter = filter;
-
-                try
-                {
-                    string path = tb.Text;
-
-                    if (detectSpecialFolders)
-                    {
-                        path = ExpandFolderVariables(path);
-                    }
-
-                    if (!string.IsNullOrEmpty(path))
-                    {
-                        path = Path.GetDirectoryName(path);
-
-                        if (Directory.Exists(path))
-                        {
-                            ofd.InitialDirectory = path;
-                        }
-                    }
-                }
-                finally
-                {
-                    if (string.IsNullOrEmpty(ofd.InitialDirectory) && !string.IsNullOrEmpty(initialDirectory))
-                    {
-                        ofd.InitialDirectory = initialDirectory;
-                    }
-                }
-
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    string fileName = ofd.FileName;
-
-                    if (detectSpecialFolders)
-                    {
-                        fileName = GetVariableFolderPath(fileName);
-                    }
-
-                    tb.Text = fileName;
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static bool BrowseFolder(TextBox tb, string initialDirectory = "", bool detectSpecialFolders = false)
-        {
-            return BrowseFolder("ShareX - " + Resources.Helpers_BrowseFolder_Choose_folder, tb, initialDirectory, detectSpecialFolders);
-        }
-
-        public static bool BrowseFolder(string title, TextBox tb, string initialDirectory = "", bool detectSpecialFolders = false)
-        {
-            using (FolderSelectDialog fsd = new FolderSelectDialog())
-            {
-                fsd.Title = title;
-
-                string path = tb.Text;
-
-                if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
-                {
-                    fsd.InitialDirectory = path;
-                }
-                else if (!string.IsNullOrEmpty(initialDirectory))
-                {
-                    fsd.InitialDirectory = initialDirectory;
-                }
-
-                if (fsd.ShowDialog())
-                {
-                    tb.Text = detectSpecialFolders ? GetVariableFolderPath(fsd.FileName) : fsd.FileName;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public static string GetVariableFolderPath(string path, bool supportCustomSpecialFolders = false)
         {
             if (!string.IsNullOrEmpty(path))
@@ -594,8 +494,6 @@ namespace ShareX.HelpersLib
                 catch (Exception e)
                 {
                     DebugHelper.WriteException(e);
-                    MessageBox.Show(Resources.Helpers_CreateDirectoryIfNotExist_Create_failed_ + "\r\n\r\n" + e, "ShareX - " + Resources.Error,
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -746,7 +644,7 @@ namespace ShareX.HelpersLib
             }
             catch (Exception e)
             {
-                MessageBox.Show("Rename file error:\r\n" + e.ToString(), "ShareX - " + Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DebugHelper.WriteException(e);
             }
 
             return filePath;

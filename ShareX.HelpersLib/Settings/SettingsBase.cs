@@ -23,15 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
 
 namespace ShareX.HelpersLib
 {
@@ -43,29 +39,39 @@ namespace ShareX.HelpersLib
         public delegate void SettingsSaveFailedEventHandler(Exception e);
         public event SettingsSaveFailedEventHandler SettingsSaveFailed;
 
-        [Browsable(false), JsonIgnore]
+        // Use JsonIgnore for properties that should not be serialized
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Browsable(false)] // Still can use Browsable if you're working with UI components
         public string FilePath { get; private set; }
 
+        // Use JsonIgnore to prevent this property from being serialized
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Browsable(false)]
+        public bool IsFirstTimeRun { get; private set; }
+
+        // Use JsonIgnore for properties that should not be serialized
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Browsable(false)]
+        public bool IsUpgrade { get; private set; }
+
+        // This property can still be serialized
+        [System.Text.Json.Serialization.JsonIgnore]
         [Browsable(false)]
         public string ApplicationVersion { get; set; }
 
-        [Browsable(false), JsonIgnore]
-        public bool IsFirstTimeRun { get; private set; }
-
-        [Browsable(false), JsonIgnore]
-        public bool IsUpgrade { get; private set; }
-
-        [Browsable(false), JsonIgnore]
+        // These properties are not ignored and will be serialized
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Browsable(false)]
         public string BackupFolder { get; set; }
 
-        [Browsable(false), JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Browsable(false)]
         public bool CreateBackup { get; set; }
 
-        [Browsable(false), JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Browsable(false)]
         public bool CreateWeeklyBackup { get; set; }
 
-        [Browsable(false), JsonIgnore]
-        public bool SupportDPAPIEncryption { get; set; }
 
         public bool IsUpgradeFrom(string version)
         {
@@ -114,7 +120,7 @@ namespace ShareX.HelpersLib
             ApplicationVersion = Helpers.GetApplicationVersion();
 
             MemoryStream ms = new MemoryStream();
-            SaveToStream(ms, supportDPAPIEncryption, true);
+            SaveToStream(ms, true);
             return ms;
         }
 
@@ -137,7 +143,7 @@ namespace ShareX.HelpersLib
 
                         using (FileStream fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
                         {
-                            SaveToStream(fileStream, SupportDPAPIEncryption);
+                            SaveToStream(fileStream);
                         }
 
                         if (!JsonHelpers.QuickVerifyJsonFile(tempFilePath))
@@ -187,28 +193,23 @@ namespace ShareX.HelpersLib
             return isSuccess;
         }
 
-        private void SaveToStream(Stream stream, bool supportDPAPIEncryption = false, bool leaveOpen = false)
+        private void SaveToStream(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter streamWriter = new StreamWriter(stream, new UTF8Encoding(false, true), 1024, leaveOpen))
-            using (JsonTextWriter jsonWriter = new JsonTextWriter(streamWriter))
+            var options = new JsonSerializerOptions
             {
-                JsonSerializer serializer = new JsonSerializer();
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+                WriteIndented = true,
+                Converters = { new JsonStringEnumConverter() },
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never
 
-                if (supportDPAPIEncryption)
-                {
-                    serializer.ContractResolver = new DPAPIEncryptedStringPropertyResolver();
-                }
-                else
-                {
-                    serializer.ContractResolver = new WritablePropertiesOnlyResolver();
-                }
+            };
 
-                serializer.Converters.Add(new StringEnumConverter());
-                serializer.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                serializer.Formatting = Formatting.Indented;
-                serializer.Serialize(jsonWriter, this);
-                jsonWriter.Flush();
-            }
+            using var jsonWriter = new Utf8JsonWriter(stream, new JsonWriterOptions
+            {
+                Indented = true
+            });
+
+            JsonSerializer.Serialize(jsonWriter, this, options);
         }
 
         public static T Load(string filePath, string backupFolder = null, bool fallbackSupport = true)
@@ -235,7 +236,7 @@ namespace ShareX.HelpersLib
                 }
             }
 
-            T setting = LoadInternal(filePath, fallbackFilePaths);
+            var setting = LoadInternal<T>(filePath, fallbackFilePaths);
 
             if (setting != null)
             {
@@ -247,79 +248,63 @@ namespace ShareX.HelpersLib
 
             return setting;
         }
-
-        private static T LoadInternal(string filePath, List<string> fallbackFilePaths = null)
+        private static T LoadInternal<T>(string filePath, List<string> fallbackFilePaths = null)
         {
             string typeName = typeof(T).Name;
 
-            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-            {
-                DebugHelper.WriteLine($"{typeName} load started: {filePath}");
-
-                try
-                {
-                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        if (fileStream.Length > 0)
-                        {
-                            T settings;
-
-                            using (StreamReader streamReader = new StreamReader(fileStream))
-                            using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
-                            {
-                                JsonSerializer serializer = new JsonSerializer();
-                                serializer.ContractResolver = new DPAPIEncryptedStringPropertyResolver();
-                                serializer.Converters.Add(new StringEnumConverter());
-                                serializer.DateTimeZoneHandling = DateTimeZoneHandling.Local;
-                                serializer.ObjectCreationHandling = ObjectCreationHandling.Replace;
-                                serializer.Error += Serializer_Error;
-                                settings = serializer.Deserialize<T>(jsonReader);
-                            }
-
-                            if (settings == null)
-                            {
-                                throw new Exception($"{typeName} object is null.");
-                            }
-
-                            DebugHelper.WriteLine($"{typeName} load finished: {filePath}");
-
-                            return settings;
-                        }
-                        else
-                        {
-                            throw new Exception($"{typeName} file stream length is 0.");
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    DebugHelper.WriteException(e, $"{typeName} load failed: {filePath}");
-                }
-            }
-            else
+            // Guard clause for invalid file path
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             {
                 DebugHelper.WriteLine($"{typeName} file does not exist: {filePath}");
+                return TryLoadFromFallback<T>(fallbackFilePaths, typeName);
             }
 
-            if (fallbackFilePaths != null && fallbackFilePaths.Count > 0)
+            DebugHelper.WriteLine($"{typeName} load started: {filePath}");
+
+            try
             {
-                filePath = fallbackFilePaths[0];
+                using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                // Guard clause for empty file stream
+                if (fileStream.Length == 0)
+                {
+                    throw new Exception($"{typeName} file stream length is 0.");
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    AllowTrailingCommas = true
+                };
+
+                T settings = JsonSerializer.Deserialize<T>(fileStream, options);
+
+                // Guard clause for null settings
+                if (settings is null)
+                {
+                    throw new Exception($"{typeName} object is null.");
+                }
+
+                DebugHelper.WriteLine($"{typeName} load finished: {filePath}");
+                return settings;
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.WriteException(ex, $"{typeName} load failed: {filePath}");
+                return TryLoadFromFallback<T>(fallbackFilePaths, typeName);
+            }
+        }
+        private static T TryLoadFromFallback<T>(List<string> fallbackFilePaths, string typeName)
+        {
+            if (fallbackFilePaths?.Count > 0)
+            {
+                var fallbackFilePath = fallbackFilePaths[0];
                 fallbackFilePaths.RemoveAt(0);
-                return LoadInternal(filePath, fallbackFilePaths);
+                return LoadInternal<T>(fallbackFilePath, fallbackFilePaths);
             }
 
             DebugHelper.WriteLine($"Loading new {typeName} instance.");
-
-            return new T();
-        }
-
-        private static void Serializer_Error(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
-        {
-            // Handle missing enum values
-            if (e.ErrorContext.Error.Message.StartsWith("Error converting value"))
-            {
-                e.ErrorContext.Handled = true;
-            }
+            return Activator.CreateInstance<T>();
         }
     }
 }

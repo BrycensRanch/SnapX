@@ -23,20 +23,34 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ShareX.HelpersLib
 {
-    public class WritablePropertiesOnlyResolver : DefaultContractResolver
+    public class WritablePropertiesOnlyConverter<T> : JsonConverter<T>
     {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
-            return props.Where(p => p.Writable).ToList();
+            return JsonSerializer.Deserialize<T>(ref reader, options) ?? throw new JsonException("Unexpected end when reading properties");
+        }
+
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        {
+            var properties = value.GetType().GetProperties()
+                .Where(p => p.CanWrite)
+                .ToList();
+
+            writer.WriteStartObject();
+
+            foreach (var property in properties)
+            {
+                // Get property value
+                var propertyValue = property.GetValue(value);
+                JsonSerializer.Serialize(writer, propertyValue, property.PropertyType, options);
+            }
+
+            writer.WriteEndObject();
         }
     }
 }

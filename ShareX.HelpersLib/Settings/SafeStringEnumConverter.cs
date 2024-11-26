@@ -23,24 +23,30 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ShareX.HelpersLib
 {
-    public class SafeStringEnumConverter : StringEnumConverter
+    public class SafeStringEnumConverter : JsonConverter<Enum>
     {
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override Enum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             try
             {
-                return base.ReadJson(reader, objectType, existingValue, serializer);
+                return (Enum)JsonSerializer.Deserialize(ref reader, typeToConvert, options);
             }
-            catch (JsonSerializationException)
+            catch (JsonException)
             {
-                return existingValue;
+                // Return the default value if deserialization fails
+                return default;
             }
+        }
+
+        public override void Write(Utf8JsonWriter writer, Enum value, JsonSerializerOptions options)
+        {
+            // Write the string representation of the Enum value
+            JsonSerializer.Serialize(writer, value.ToString(), options);
         }
     }
 }

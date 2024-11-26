@@ -23,16 +23,28 @@
 
 #endregion License Information (GPL v3)
 
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.IO;
-
 namespace ShareX.HelpersLib
 {
     public static class MimeTypes
     {
         public static readonly string DefaultMimeType = "application/octet-stream";
+        private static readonly Dictionary<string, string> MimeTypeLookup = new()
+        {
+            { ".txt", "text/plain" },
+            { ".html", "text/html" },
+            { ".htm", "text/html" },
+            { ".css", "text/css" },
+            { ".js", "application/javascript" },
+            { ".json", "application/json" },
+            { ".jpg", "image/jpeg" },
+            { ".jpeg", "image/jpeg" },
+            { ".png", "image/png" },
+            { ".gif", "image/gif" },
+            { ".bmp", "image/bmp" },
+            { ".pdf", "application/pdf" },
+            { ".zip", "application/zip" },
+            // TODO: Look for Mime database
+        };
 
         public static string GetMimeTypeFromExtension(string extension)
         {
@@ -54,28 +66,18 @@ namespace ShareX.HelpersLib
 
         public static string GetMimeTypeFromFileName(string fileName)
         {
-            if (!string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrEmpty(fileName)) return DefaultMimeType;
+
+            string extension = Path.GetExtension(fileName)?.ToLowerInvariant();
+            if (string.IsNullOrEmpty(extension)) return DefaultMimeType;
+
+            // Try to get MIME type based on file extension
+            if (MimeTypeLookup.TryGetValue(extension, out string mimeType))
             {
-                string extension = Path.GetExtension(fileName).ToLowerInvariant();
-
-                if (!string.IsNullOrEmpty(extension))
-                {
-                    string mimeType = GetMimeTypeFromExtension(extension);
-
-                    if (!string.IsNullOrEmpty(mimeType))
-                    {
-                        return mimeType;
-                    }
-
-                    mimeType = RegistryHelpers.GetValueString(extension, "Content Type", RegistryHive.ClassesRoot);
-
-                    if (!string.IsNullOrEmpty(mimeType))
-                    {
-                        return mimeType;
-                    }
-                }
+                return mimeType;
             }
 
+            // Fallback: Use some external library or predefined mapping for more comprehensive support
             return DefaultMimeType;
         }
 

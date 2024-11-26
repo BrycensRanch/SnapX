@@ -23,142 +23,99 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ShareX.HelpersLib
 {
     public static class JsonHelpers
     {
-        public static void Serialize<T>(T obj, TextWriter textWriter, DefaultValueHandling defaultValueHandling = DefaultValueHandling.Include,
-            NullValueHandling nullValueHandling = NullValueHandling.Include, ISerializationBinder serializationBinder = null)
+        public static void Serialize<T>(T obj, TextWriter textWriter, JsonSerializerOptions options = null)
         {
-            if (textWriter != null)
-            {
-                using (JsonTextWriter jsonTextWriter = new JsonTextWriter(textWriter))
-                {
-                    jsonTextWriter.Formatting = Formatting.Indented;
-
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.ContractResolver = new WritablePropertiesOnlyResolver();
-                    serializer.Converters.Add(new StringEnumConverter());
-                    serializer.DefaultValueHandling = defaultValueHandling;
-                    serializer.NullValueHandling = nullValueHandling;
-                    if (serializationBinder != null) serializer.SerializationBinder = serializationBinder;
-                    serializer.Serialize(jsonTextWriter, obj);
-                }
-            }
+            if (textWriter == null) return;
+            using var memoryStream = new MemoryStream();
+            JsonSerializer.Serialize(memoryStream, obj, options);
+            // Convert to string and write to TextWriter
+            textWriter.Write(Encoding.UTF8.GetString(memoryStream.ToArray()));
         }
 
-        public static string SerializeToString<T>(T obj, DefaultValueHandling defaultValueHandling = DefaultValueHandling.Include,
-            NullValueHandling nullValueHandling = NullValueHandling.Include, ISerializationBinder serializationBinder = null)
+    public static string SerializeToString<T>(T obj, JsonSerializerOptions options = null)
+    {
+        options ??= new JsonSerializerOptions
         {
-            StringBuilder sb = new StringBuilder();
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+            Converters = { new JsonStringEnumConverter() },
+            WriteIndented = true
+        };
 
-            using (StringWriter stringWriter = new StringWriter(sb))
-            {
-                Serialize(obj, stringWriter, defaultValueHandling, nullValueHandling, serializationBinder);
-            }
+        return JsonSerializer.Serialize(obj, options);
+    }
 
-            return sb.ToString();
-        }
+    public static void SerializeToStream<T>(T obj, Stream stream, JsonSerializerOptions options = null)
+    {
+        if (stream == null) return;
 
-        public static void SerializeToStream<T>(T obj, Stream stream, DefaultValueHandling defaultValueHandling = DefaultValueHandling.Include,
-            NullValueHandling nullValueHandling = NullValueHandling.Include, ISerializationBinder serializationBinder = null)
+        options ??= new JsonSerializerOptions
         {
-            if (stream != null)
-            {
-                using (StreamWriter streamWriter = new StreamWriter(stream))
-                {
-                    Serialize(obj, streamWriter, defaultValueHandling, nullValueHandling, serializationBinder);
-                }
-            }
-        }
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+            Converters = { new JsonStringEnumConverter() },
+            WriteIndented = true
+        };
 
-        public static MemoryStream SerializeToMemoryStream<T>(T obj, DefaultValueHandling defaultValueHandling = DefaultValueHandling.Include,
-            NullValueHandling nullValueHandling = NullValueHandling.Include, ISerializationBinder serializationBinder = null)
+        JsonSerializer.Serialize(stream, obj, options);
+    }
+
+    public static MemoryStream SerializeToMemoryStream<T>(T obj, JsonSerializerOptions options = null)
+    {
+        var memoryStream = new MemoryStream();
+        SerializeToStream(obj, memoryStream, options);
+        return memoryStream;
+    }
+
+    public static void SerializeToFile<T>(T obj, string filePath, JsonSerializerOptions options = null)
+    {
+        if (string.IsNullOrEmpty(filePath)) return;
+
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
         {
-            MemoryStream memoryStream = new MemoryStream();
-            SerializeToStream(obj, memoryStream, defaultValueHandling, nullValueHandling, serializationBinder);
-            return memoryStream;
+            SerializeToStream(obj, fileStream, options);
         }
+    }
 
-        public static void SerializeToFile<T>(T obj, string filePath, DefaultValueHandling defaultValueHandling = DefaultValueHandling.Include,
-            NullValueHandling nullValueHandling = NullValueHandling.Include, ISerializationBinder serializationBinder = null)
+    public static T Deserialize<T>(TextReader textReader, JsonSerializerOptions options = null)
+    {
+        if (textReader == null) return default;
+
+        var json = textReader.ReadToEnd();
+        return JsonSerializer.Deserialize<T>(json, options);
+    }
+
+    public static T DeserializeFromString<T>(string json, JsonSerializerOptions options = null)
+    {
+        if (string.IsNullOrEmpty(json)) return default;
+
+        return JsonSerializer.Deserialize<T>(json, options);
+    }
+
+    public static T DeserializeFromStream<T>(Stream stream, JsonSerializerOptions options = null)
+    {
+        if (stream == null) return default;
+
+        return JsonSerializer.Deserialize<T>(stream, options);
+    }
+
+    public static T DeserializeFromFile<T>(string filePath, JsonSerializerOptions options = null)
+    {
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return default;
+
+        using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
         {
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                FileHelpers.CreateDirectoryFromFilePath(filePath);
-
-                using (FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
-                {
-                    SerializeToStream(obj, fileStream, defaultValueHandling, nullValueHandling, serializationBinder);
-                }
-            }
+            return DeserializeFromStream<T>(fileStream, options);
         }
-
-        public static T Deserialize<T>(TextReader textReader, ISerializationBinder serializationBinder = null)
-        {
-            if (textReader != null)
-            {
-                using (JsonTextReader jsonTextReader = new JsonTextReader(textReader))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Converters.Add(new StringEnumConverter());
-                    serializer.ObjectCreationHandling = ObjectCreationHandling.Replace;
-                    if (serializationBinder != null) serializer.SerializationBinder = serializationBinder;
-                    serializer.Error += (sender, e) => e.ErrorContext.Handled = true;
-                    return serializer.Deserialize<T>(jsonTextReader);
-                }
-            }
-
-            return default;
-        }
-
-        public static T DeserializeFromString<T>(string json, ISerializationBinder serializationBinder = null)
-        {
-            if (!string.IsNullOrEmpty(json))
-            {
-                using (StringReader stringReader = new StringReader(json))
-                {
-                    return Deserialize<T>(stringReader, serializationBinder);
-                }
-            }
-
-            return default;
-        }
-
-        public static T DeserializeFromStream<T>(Stream stream, ISerializationBinder serializationBinder = null)
-        {
-            if (stream != null)
-            {
-                using (StreamReader streamReader = new StreamReader(stream))
-                {
-                    return Deserialize<T>(streamReader, serializationBinder);
-                }
-            }
-
-            return default;
-        }
-
-        public static T DeserializeFromFile<T>(string filePath, ISerializationBinder serializationBinder = null)
-        {
-            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-            {
-                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    if (fileStream.Length > 0)
-                    {
-                        return DeserializeFromStream<T>(fileStream, serializationBinder);
-                    }
-                }
-            }
-
-            return default;
-        }
+    }
 
         public static bool QuickVerifyJsonFile(string filePath)
         {

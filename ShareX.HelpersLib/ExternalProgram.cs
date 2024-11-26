@@ -42,10 +42,11 @@ namespace ShareX.HelpersLib
         public bool DeleteInputFile { get; set; }
 
         private string pendingInputFilePath;
+        private string userInput { get; set; }
 
         public ExternalProgram()
         {
-            Args = '"' + CodeMenuEntryActions.input.ToPrefixString() + '"';
+            Args = '"' + userInput + '"';
         }
 
         public ExternalProgram(string name, string path) : this()
@@ -72,7 +73,7 @@ namespace ShareX.HelpersLib
                 {
                     try
                     {
-                        string outputPath = inputPath;
+                        var outputPath = inputPath;
 
                         string arguments;
 
@@ -94,7 +95,7 @@ namespace ShareX.HelpersLib
                                 outputPath += OutputExtension;
                             }
 
-                            arguments = CodeMenuEntryActions.Parse(Args, inputPath, outputPath);
+                            arguments = "";
                         }
 
                         using (Process process = new Process())

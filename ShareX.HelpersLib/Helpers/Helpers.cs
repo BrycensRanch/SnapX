@@ -23,31 +23,20 @@
 
 #endregion License Information (GPL v3)
 
-using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
-using ShareX.HelpersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Media;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Resources;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Security.Permissions;
 using System.Security.Principal;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
-using System.Windows.Forms;
 using System.Xml;
+using ShareX.Core.Helpers;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
 
 namespace ShareX.HelpersLib
 {
@@ -63,28 +52,6 @@ namespace ShareX.HelpersLib
         public const string Base56 = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz"; // A variant, Base56, excludes 1 (one) and o (lowercase o) compared to Base 58.
 
         public static readonly Version OSVersion = Environment.OSVersion.Version;
-
-        private static Cursor[] cursorList;
-
-        public static Cursor[] CursorList
-        {
-            get
-            {
-                if (cursorList == null)
-                {
-                    cursorList = new Cursor[] {
-                        Cursors.AppStarting, Cursors.Arrow, Cursors.Cross, Cursors.Default, Cursors.Hand, Cursors.Help,
-                        Cursors.HSplit, Cursors.IBeam, Cursors.No, Cursors.NoMove2D, Cursors.NoMoveHoriz, Cursors.NoMoveVert,
-                        Cursors.PanEast, Cursors.PanNE, Cursors.PanNorth, Cursors.PanNW, Cursors.PanSE, Cursors.PanSouth,
-                        Cursors.PanSW, Cursors.PanWest, Cursors.SizeAll, Cursors.SizeNESW, Cursors.SizeNS, Cursors.SizeNWSE,
-                        Cursors.SizeWE, Cursors.UpArrow, Cursors.VSplit, Cursors.WaitCursor
-                    };
-                }
-
-                return cursorList;
-            }
-        }
-
         public static string AddZeroes(string input, int digits = 2)
         {
             return input.PadLeft(digits, '0');
@@ -186,94 +153,33 @@ namespace ShareX.HelpersLib
             return Enum.GetValues(typeof(T)).OfType<Enum>().Skip(skip).Select(x => x.GetDescription()).ToArray();
         }
 
-        /*public static string[] GetLocalizedEnumDescriptions<T>()
-        {
-            Assembly assembly = typeof(T).Assembly;
-            string resourcePath = assembly.GetName().Name + ".Properties.Resources";
-            ResourceManager resourceManager = new ResourceManager(resourcePath, assembly);
-            return GetLocalizedEnumDescriptions<T>(resourceManager);
-        }*/
-
-        public static string[] GetLocalizedEnumDescriptions<T>()
-        {
-            return GetLocalizedEnumDescriptions<T>(Resources.ResourceManager);
-        }
-
-        public static string[] GetLocalizedEnumDescriptions<T>(ResourceManager resourceManager)
-        {
-            return Enum.GetValues(typeof(T)).OfType<Enum>().Select(x => x.GetLocalizedDescription(resourceManager)).ToArray();
-        }
-
-        public static int GetEnumLength<T>()
-        {
-            return Enum.GetValues(typeof(T)).Length;
-        }
-
         public static T GetEnumFromIndex<T>(int i)
         {
             return GetEnums<T>()[i];
-        }
-
-        public static string[] GetEnumNamesProper<T>()
-        {
-            string[] names = Enum.GetNames(typeof(T));
-            string[] newNames = new string[names.Length];
-
-            for (int i = 0; i < names.Length; i++)
-            {
-                newNames[i] = GetProperName(names[i]);
-            }
-
-            return newNames;
-        }
-
-        // returns a list of public static fields of the class type (similar to enum values)
-        public static T[] GetValueFields<T>()
-        {
-            List<T> res = new List<T>();
-            foreach (FieldInfo fi in typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public))
-            {
-                if (fi.FieldType != typeof(T)) continue;
-                res.Add((T)fi.GetValue(null));
-            }
-            return res.ToArray();
         }
 
         // Example: "TopLeft" becomes "Top left"
         // Example2: "Rotate180" becomes "Rotate 180"
         public static string GetProperName(string name, bool keepCase = false)
         {
-            StringBuilder sb = new StringBuilder();
-
-            bool number = false;
+            var sb = new StringBuilder();
+            var number = false;
 
             for (int i = 0; i < name.Length; i++)
             {
-                char c = name[i];
+                var c = name[i];
 
                 if (i > 0 && (char.IsUpper(c) || (!number && char.IsNumber(c))))
-                {
                     sb.Append(' ');
 
-                    if (keepCase)
-                    {
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        sb.Append(char.ToLowerInvariant(c));
-                    }
-                }
-                else
-                {
-                    sb.Append(c);
-                }
+                sb.Append(keepCase || i == 0 || !char.IsUpper(c) ? c : char.ToLowerInvariant(c));
 
                 number = char.IsNumber(c);
             }
 
             return sb.ToString();
         }
+
 
         public static string GetApplicationVersion(bool includeRevision = false)
         {
@@ -351,36 +257,26 @@ namespace ShareX.HelpersLib
 
         public static void PlaySoundAsync(Stream stream)
         {
-            if (stream != null)
-            {
-                Task.Run(() =>
-                {
-                    using (stream)
-                    using (SoundPlayer soundPlayer = new SoundPlayer(stream))
-                    {
-                        soundPlayer.PlaySync();
-                    }
-                });
+            if (stream == null) {
+                return;
             }
+            Task.Run(() =>
+                throw new NotImplementedException("PlaySoundAsync (stream) not implemented"));
         }
+
 
         public static void PlaySoundAsync(string filePath)
         {
-            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-            {
-                Task.Run(() =>
-                {
-                    using (SoundPlayer soundPlayer = new SoundPlayer(filePath))
-                    {
-                        soundPlayer.PlaySync();
-                    }
-                });
-            }
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return;
+
+            Task.Run(() =>
+                throw new NotImplementedException("PlaySoundAsync (filePath) not implemented"));
         }
+
 
         public static bool WaitWhile(Func<bool> check, int interval, int timeout = -1)
         {
-            Stopwatch timer = Stopwatch.StartNew();
+            var timer = Stopwatch.StartNew();
 
             while (check())
             {
@@ -397,7 +293,7 @@ namespace ShareX.HelpersLib
 
         public static async Task WaitWhileAsync(Func<bool> check, int interval, int timeout, Action onSuccess, int waitStart = 0)
         {
-            bool result = false;
+            var result = false;
 
             await Task.Run(() =>
             {
@@ -417,145 +313,115 @@ namespace ShareX.HelpersLib
             return Guid.NewGuid().ToString("N");
         }
 
-        public static Point GetPosition(ContentAlignment placement, int offset, Size backgroundSize, Size objectSize)
+
+        public static Size MeasureText(string text, string fontFilePath, float fontSize)
         {
-            return GetPosition(placement, new Point(offset, offset), backgroundSize, objectSize);
-        }
+            var fontCollection = new FontCollection();
+            var font = fontCollection.Add(fontFilePath);
 
-        public static Point GetPosition(ContentAlignment placement, int offset, Rectangle background, Size objectSize)
-        {
-            return GetPosition(placement, new Point(offset, offset), background, objectSize);
-        }
+            var fontInstance = font.CreateFont(fontSize);
 
-        public static Point GetPosition(ContentAlignment placement, Point offset, Rectangle background, Size objectSize)
-        {
-            Point position = GetPosition(placement, offset, background.Size, objectSize);
+            var measuredSize = TextMeasurer.MeasureSize(text, new TextOptions(fontInstance));
 
-            return new Point(background.X + position.X, background.Y + position.Y);
-        }
-
-        public static Point GetPosition(ContentAlignment placement, Point offset, Size backgroundSize, Size objectSize)
-        {
-            int midX = (int)Math.Round((backgroundSize.Width / 2f) - (objectSize.Width / 2f));
-            int midY = (int)Math.Round((backgroundSize.Height / 2f) - (objectSize.Height / 2f));
-            int right = backgroundSize.Width - objectSize.Width;
-            int bottom = backgroundSize.Height - objectSize.Height;
-
-            switch (placement)
-            {
-                default:
-                case ContentAlignment.TopLeft:
-                    return new Point(offset.X, offset.Y);
-                case ContentAlignment.TopCenter:
-                    return new Point(midX, offset.Y);
-                case ContentAlignment.TopRight:
-                    return new Point(right - offset.X, offset.Y);
-                case ContentAlignment.MiddleLeft:
-                    return new Point(offset.X, midY);
-                case ContentAlignment.MiddleCenter:
-                    return new Point(midX, midY);
-                case ContentAlignment.MiddleRight:
-                    return new Point(right - offset.X, midY);
-                case ContentAlignment.BottomLeft:
-                    return new Point(offset.X, bottom - offset.Y);
-                case ContentAlignment.BottomCenter:
-                    return new Point(midX, bottom - offset.Y);
-                case ContentAlignment.BottomRight:
-                    return new Point(right - offset.X, bottom - offset.Y);
-            }
-        }
-
-        public static Size MeasureText(string text, Font font)
-        {
-            using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
-            {
-                return g.MeasureString(text, font).ToSize();
-            }
+            return new Size((int)measuredSize.Width, (int)measuredSize.Height);
         }
 
         public static Size MeasureText(string text, Font font, int width)
         {
-            using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
+            var fontCollection = new FontCollection();
+            var imageFont = fontCollection.Add(font.Name);
+
+            var fontInstance = imageFont.CreateFont(font.Size);
+
+            var textOptions = new TextOptions(fontInstance)
             {
-                return g.MeasureString(text, font, width).ToSize();
-            }
+                WrappingLength = width
+            };
+
+            var measuredSize = TextMeasurer.MeasureSize(text, textOptions);
+
+            return new Size((int)measuredSize.Width, (int)measuredSize.Height);
+        }
+        public static async Task<string> SendPing(string host)
+        {
+            return await SendPingAsync(host, 1);
         }
 
-        public static string SendPing(string host)
+        public static async Task<string> SendPingAsync(string host, int count)
         {
-            return SendPing(host, 1);
-        }
+            var status = new StringBuilder();
 
-        public static string SendPing(string host, int count)
-        {
-            string[] status = new string[count];
-
-            using (Ping ping = new Ping())
+            using (var ping = new Ping())
             {
-                PingReply reply;
-                //byte[] buffer = Encoding.ASCII.GetBytes(new string('a', 32));
                 for (int i = 0; i < count; i++)
                 {
-                    reply = ping.Send(host, 3000);
+                    PingReply reply = await ping.SendPingAsync(host, 3000);
+
                     if (reply.Status == IPStatus.Success)
                     {
-                        status[i] = reply.RoundtripTime.ToString() + " ms";
+                        status.Append(reply.RoundtripTime).Append(" ms");
                     }
                     else
                     {
-                        status[i] = "Timeout";
+                        status.Append("Timeout");
                     }
-                    Thread.Sleep(100);
+
+                    if (i < count - 1)
+                    {
+                        status.Append(", ");
+                    }
+
+                    // Add delay asynchronously instead of blocking the thread
+                    await Task.Delay(100);
                 }
             }
 
-            return string.Join(", ", status);
-        }
-
-        public static void SetDefaultUICulture(CultureInfo culture)
-        {
-            Type type = typeof(CultureInfo);
-
-            try
-            {
-                // .NET 4.0
-                type.InvokeMember("s_userDefaultUICulture", BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static, null, culture, new object[] { culture });
-            }
-            catch
-            {
-                try
-                {
-                    // .NET 2.0
-                    type.InvokeMember("m_userDefaultUICulture", BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static, null, culture, new object[] { culture });
-                }
-                catch
-                {
-                    DebugHelper.WriteLine("SetDefaultUICulture failed: " + culture.DisplayName);
-                }
-            }
+            return status.ToString();
         }
 
         public static bool IsAdministrator()
         {
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+                try
                 {
-                    WindowsPrincipal principal = new WindowsPrincipal(identity);
+                    using var identity = WindowsIdentity.GetCurrent();
+                    var principal = new WindowsPrincipal(identity);
                     return principal.IsInRole(WindowsBuiltInRole.Administrator);
                 }
+                catch
+                {
+                    return false;
+                }
             }
-            catch
-            {
-                return false;
-            }
+
+            return GetCurrentUid() == 0;
+        }
+
+        private static int GetCurrentUid()
+        {
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "id",
+            Arguments = "-u",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = Process.Start(processStartInfo);
+        if (process == null) return 1000;
+        using var reader = process.StandardOutput;
+        var output = reader.ReadToEnd();
+        return int.Parse(output.Trim());
         }
 
         public static bool IsRunning(string name)
         {
             try
             {
-                Mutex mutex = Mutex.OpenExisting(name);
+                var mutex = Mutex.OpenExisting(name);
                 mutex.ReleaseMutex();
             }
             catch
@@ -568,46 +434,37 @@ namespace ShareX.HelpersLib
 
         public static IEnumerable<T> GetInstances<T>() where T : class
         {
-            Type baseType = typeof(T);
-            Assembly assembly = baseType.Assembly;
-            return assembly.GetTypes().Where(t => t.IsClass && t.IsSubclassOf(baseType) && t.GetConstructor(Type.EmptyTypes) != null).
-                Select(t => Activator.CreateInstance(t) as T);
+            var baseType = typeof(T);
+            var assembly = baseType.Assembly;
+            if (assembly == null) throw new InvalidOperationException();
+            var types = assembly.GetTypes();
+            if (types == null) throw new InvalidOperationException();
+
+            return types
+                .Where(t => t.IsClass && t.IsSubclassOf(baseType) && t.GetConstructor(Type.EmptyTypes) != null)
+                .Select(t => Activator.CreateInstance(t) as T)
+                .Where(instance => instance != null);  // Filter out null instances
         }
+
+
 
         public static IEnumerable<Type> FindSubclassesOf<T>()
         {
-            Type baseType = typeof(T);
-            Assembly assembly = baseType.Assembly;
+            var baseType = typeof(T);
+            var assembly = baseType.Assembly;
             return assembly.GetTypes().Where(t => t.IsSubclassOf(baseType));
         }
 
         public static string GetOperatingSystemProductName(bool includeBit = false)
         {
-            string productName = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-
-            if (string.IsNullOrEmpty(productName))
-            {
-                productName = Environment.OSVersion.VersionString;
-            }
-
-            if (includeBit)
-            {
-                string bit;
-
-                if (Environment.Is64BitOperatingSystem)
-                {
-                    bit = "64";
-                }
-                else
-                {
-                    bit = "32";
-                }
-
-                productName = $"{productName} ({bit}-bit)";
-            }
+            var productName = OsInfo.GetFancyOSNameAndVersion();
+            if (!includeBit) return productName;
+            var bit = Environment.Is64BitOperatingSystem ? "64" : "32";
+            productName = $"{productName} ({bit}-bit)";
 
             return productName;
         }
+
 
         public static string EscapeCLIText(string text)
         {
@@ -712,7 +569,7 @@ namespace ShareX.HelpersLib
 
         public static string NumberToRomanNumeral(int num)
         {
-            string result = "";
+            var result = "";
             result += GetNextRomanNumeralStep(ref num, 1000, "M");
             result += GetNextRomanNumeralStep(ref num, 900, "CM");
             result += GetNextRomanNumeralStep(ref num, 500, "D");
@@ -729,77 +586,48 @@ namespace ShareX.HelpersLib
             return result;
         }
 
-        public static bool IsTabletMode()
+        public static string JSONFormat(string json, JsonSerializerOptions? options = null)
         {
-            //int state = NativeMethods.GetSystemMetrics(SystemMetric.SM_CONVERTIBLESLATEMODE);
-            //return state == 0;
-
-            try
-            {
-                int result = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell", "TabletMode", 0);
-                return result > 0;
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
-        public static string JSONFormat(string json, Newtonsoft.Json.Formatting formatting)
-        {
-            return JToken.Parse(json).ToString(formatting);
+            options ??= new JsonSerializerOptions { WriteIndented = true, AllowTrailingCommas = true, AllowOutOfOrderMetadataProperties = true };
+            using var document = JsonDocument.Parse(json);
+            return JsonSerializer.Serialize(document.RootElement, options);
         }
 
         public static string XMLFormat(string xml)
         {
-            using (MemoryStream ms = new MemoryStream())
-            using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.Unicode))
-            {
-                writer.Formatting = Formatting.Indented;
+            var document = new XmlDocument();
+            document.LoadXml(xml);
 
-                XmlDocument document = new XmlDocument();
-                document.LoadXml(xml);
-                document.WriteContentTo(writer);
-                writer.Flush();
-                ms.Flush();
-                ms.Position = 0;
-                StreamReader sReader = new StreamReader(ms);
-                return sReader.ReadToEnd();
-            }
+            using var ms = new MemoryStream();
+            using var writer = new XmlTextWriter(ms, Encoding.Unicode) { Formatting = Formatting.Indented };
+            document.Save(writer);
+
+            return Encoding.Unicode.GetString(ms.ToArray());
         }
-        public static string GetChecksum(string filePath)
-        {
-            using (var hashAlgorithm = SHA256.Create())
-            {
-                return GetChecksum(filePath, hashAlgorithm);
-            }
-        }
+
+        public static string GetChecksum(string filePath) => GetChecksum(filePath, SHA256.Create());
+
 
         public static string GetChecksum(string filePath, HashAlgorithm hashAlgorithm)
         {
-            using (FileStream fs = File.OpenRead(filePath))
-            {
-                byte[] hash = hashAlgorithm.ComputeHash(fs);
-                return BitConverter.ToString(hash).Replace("-", "");
-            }
+            using var fs = File.OpenRead(filePath);
+            var hash = hashAlgorithm.ComputeHash(fs);
+            return Convert.ToHexString(hash);
         }
 
         public static string CreateChecksumFile(string filePath)
         {
-            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-            {
-                string outputFilePath = filePath + ".sha256";
-                string checksum = GetChecksum(filePath);
-                string fileName = Path.GetFileName(filePath);
-                string content = $"{checksum}  {fileName}";
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+                return "/dev/null";
 
-                File.WriteAllText(outputFilePath, content);
+            var checksum = GetChecksum(filePath);
+            var fileName = Path.GetFileName(filePath);
+            var content = $"{checksum}  {fileName}";
 
-                return outputFilePath;
-            }
+            var outputFilePath = $"{filePath}.sha256";
+            File.WriteAllText(outputFilePath, content);
 
-            return null;
+            return outputFilePath;
         }
 
         public static Task ForEachAsync<T>(IEnumerable<T> inputEnumerable, Func<T, Task> asyncProcessor, int maxDegreeOfParallelism)
