@@ -3,7 +3,7 @@ using System.Reflection;
 using Gio;
 using ShareX.GTK4;
 using ShareX.Core;
-using ShareX.Core.Helpers;
+using ShareX.Core.Utils;
 using System.Runtime.InteropServices;
 
 
