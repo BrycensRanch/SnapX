@@ -16,114 +16,55 @@
 
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
     Optionally you can also view the license at <http://www.gnu.org/licenses/>.
 */
+using System.Net.NetworkInformation;
 
 #endregion License Information (GPL v3)
-
-using System;
-using System.Collections.Generic;
-// TODO: Remove this dependency and make it cross platform
-using System.Management;
 
 namespace ShareX.HelpersLib
 {
     public class AdapterInfo : IDisposable
     {
-        private ManagementObject adapter;
+        private NetworkInterface adapter;
 
-        public AdapterInfo(ManagementObject adapter)
+        public AdapterInfo(NetworkInterface adapter)
         {
             this.adapter = adapter;
         }
 
         public static List<AdapterInfo> GetEnabledAdapters()
         {
-            List<AdapterInfo> adapters = new List<AdapterInfo>();
+            var adapters = new List<AdapterInfo>();
+            var enabledInterfaces = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(ni => ni.OperationalStatus == OperationalStatus.Up)
+                .ToList();
 
-            using (ManagementClass mc = new ManagementClass("Win32_NetworkAdapterConfiguration"))
-            using (ManagementObjectCollection moc = mc.GetInstances())
+            foreach (var ni in enabledInterfaces)
             {
-                foreach (ManagementObject mo in moc)
-                {
-                    if ((bool)mo["IPEnabled"])
-                    {
-                        adapters.Add(new AdapterInfo(mo));
-                    }
-                    else
-                    {
-                        mo.Dispose();
-                    }
-                }
+                adapters.Add(new AdapterInfo(ni));
             }
-
             return adapters;
         }
 
-        public bool IsEnabled()
-        {
-            return (bool)adapter["IPEnabled"];
-        }
+        public bool IsEnabled() => adapter.OperationalStatus == OperationalStatus.Up;
 
-        public string GetCaption()
-        {
-            return (string)adapter["Caption"];
-        }
+        public string? GetCaption() => adapter.ToString();
 
-        public string GetDescription()
-        {
-            return (string)adapter["Description"];
-        }
+        public string GetDescription() => adapter.Description;
 
-        public string[] GetDNS()
-        {
-            return (string[])adapter["DnsServerSearchOrder"];
-        }
-
-        public uint SetDNS(string primary, string secondary)
-        {
-            using (ManagementBaseObject parameters = adapter.GetMethodParameters("SetDNSServerSearchOrder"))
-            {
-                if (string.IsNullOrEmpty(primary))
-                {
-                    // Obtain DNS server address automatically
-                    parameters["DNSServerSearchOrder"] = null;
-                }
-                else if (string.IsNullOrEmpty(secondary))
-                {
-                    parameters["DNSServerSearchOrder"] = new string[] { primary };
-                }
-                else
-                {
-                    parameters["DNSServerSearchOrder"] = new string[] { primary, secondary };
-                }
-
-                // http://msdn.microsoft.com/en-us/library/aa393295(v=vs.85).aspx
-                using (ManagementBaseObject result = adapter.InvokeMethod("SetDNSServerSearchOrder", parameters, null))
-                {
-                    return (uint)result["ReturnValue"];
-                }
-            }
-        }
-
+        public string[] GetDNS() => adapter.GetIPProperties().UnicastAddresses.ToList().Select(x => x.Address.ToString()).ToArray();
+        // TODO: SetDNS needs to be implemented on a per platform basis
+        public uint SetDNS(string primary, string secondary) => throw new NotImplementedException("SetDNS is not implemented.");
         public uint SetDNSAutomatic()
         {
             return SetDNS(null, null);
         }
 
-        public void Dispose()
-        {
-            if (adapter != null)
-            {
-                adapter.Dispose();
-            }
-        }
+        public void Dispose() => Console.WriteLine($"Disposed adapter {adapter.Description}");
 
-        public override string ToString()
-        {
-            return GetDescription();
-        }
+        public override string ToString() => GetDescription();
     }
 }
