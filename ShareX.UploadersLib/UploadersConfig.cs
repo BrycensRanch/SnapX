@@ -87,7 +87,6 @@ namespace ShareX.UploadersLib
 
         #region vgy.me
 
-        [JsonEncrypt]
         public string VgymeUserKey { get; set; } = "";
 
         #endregion vgy.me
@@ -104,7 +103,6 @@ namespace ShareX.UploadersLib
 
         #region Paste.ee
 
-        [JsonEncrypt]
         public string Paste_eeUserKey { get; set; } = "";
         public bool Paste_eeEncryptPaste { get; set; } = false;
 
@@ -121,7 +119,6 @@ namespace ShareX.UploadersLib
 
         #region uPaste
 
-        [JsonEncrypt]
         public string UpasteUserKey { get; set; } = "";
         public bool UpasteIsPublic { get; set; } = false;
 
@@ -138,7 +135,6 @@ namespace ShareX.UploadersLib
         #region OneTimeSecret
 
         public string OneTimeSecretAPIUsername { get; set; } = "";
-        [JsonEncrypt]
         public string OneTimeSecretAPIKey { get; set; } = "";
 
         #endregion OneTimeSecret
@@ -194,7 +190,6 @@ namespace ShareX.UploadersLib
 
         #region puush
 
-        [JsonEncrypt]
         public string PuushAPIKey { get; set; } = "";
 
         #endregion puush
@@ -203,7 +198,6 @@ namespace ShareX.UploadersLib
 
         public AccountType SendSpaceAccountType { get; set; } = AccountType.Anonymous;
         public string SendSpaceUsername { get; set; } = "";
-        [JsonEncrypt]
         public string SendSpacePassword { get; set; } = "";
 
         #endregion SendSpace
@@ -220,7 +214,6 @@ namespace ShareX.UploadersLib
         #region Localhostr
 
         public string LocalhostrEmail { get; set; } = "";
-        [JsonEncrypt]
         public string LocalhostrPassword { get; set; } = "";
         public bool LocalhostrDirectURL { get; set; } = true;
 
@@ -240,7 +233,6 @@ namespace ShareX.UploadersLib
         public string EmailSmtpServer { get; set; } = "smtp.gmail.com";
         public int EmailSmtpPort { get; set; } = 587;
         public string EmailFrom { get; set; } = "...@gmail.com";
-        [JsonEncrypt]
         public string EmailPassword { get; set; } = "";
         public bool EmailRememberLastTo { get; set; } = true;
         public string EmailLastTo { get; set; } = "";
@@ -279,7 +271,6 @@ namespace ShareX.UploadersLib
 
         public string OwnCloudHost { get; set; } = "";
         public string OwnCloudUsername { get; set; } = "";
-        [JsonEncrypt]
         public string OwnCloudPassword { get; set; } = "";
         public string OwnCloudPath { get; set; } = "/";
         public int OwnCloudExpiryTime { get; set; } = 7;
@@ -295,7 +286,6 @@ namespace ShareX.UploadersLib
         #region MediaFire
 
         public string MediaFireUsername { get; set; } = "";
-        [JsonEncrypt]
         public string MediaFirePassword { get; set; } = "";
         public string MediaFirePath { get; set; } = "";
         public bool MediaFireUseLongLink { get; set; } = false;
@@ -328,7 +318,6 @@ namespace ShareX.UploadersLib
 
         #region s-ul
 
-        [JsonEncrypt]
         public string SulAPIKey { get; set; } = "";
 
         #endregion s-ul
@@ -336,18 +325,15 @@ namespace ShareX.UploadersLib
         #region Seafile
 
         public string SeafileAPIURL { get; set; } = "";
-        [JsonEncrypt]
         public string SeafileAuthToken { get; set; } = "";
         public string SeafileRepoID { get; set; } = "";
         public string SeafilePath { get; set; } = "/";
         public bool SeafileIsLibraryEncrypted { get; set; } = false;
-        [JsonEncrypt]
         public string SeafileEncryptedLibraryPassword { get; set; } = "";
         public bool SeafileCreateShareableURL { get; set; } = true;
         public bool SeafileCreateShareableURLRaw { get; set; } = false;
         public bool SeafileIgnoreInvalidCert { get; set; } = false;
         public int SeafileShareDaysToExpire { get; set; } = 0;
-        [JsonEncrypt]
         public string SeafileSharePassword { get; set; } = "";
         public string SeafileAccInfoEmail { get; set; } = "";
         public string SeafileAccInfoUsage { get; set; } = "";
@@ -357,7 +343,6 @@ namespace ShareX.UploadersLib
         #region Streamable
 
         public string StreamableUsername { get; set; } = "";
-        [JsonEncrypt]
         public string StreamablePassword { get; set; } = "";
         public bool StreamableUseDirectURL { get; set; } = false;
 
@@ -366,7 +351,6 @@ namespace ShareX.UploadersLib
         #region Azure Storage
 
         public string AzureStorageAccountName { get; set; } = "";
-        [JsonEncrypt]
         public string AzureStorageAccountAccessKey { get; set; } = "";
         public string AzureStorageContainer { get; set; } = "";
         public string AzureStorageEnvironment { get; set; } = "blob.core.windows.net";
@@ -379,7 +363,6 @@ namespace ShareX.UploadersLib
         #region Backblaze B2
 
         public string B2ApplicationKeyId { get; set; } = "";
-        [JsonEncrypt]
         public string B2ApplicationKey { get; set; } = "";
         public string B2BucketName { get; set; } = "";
         public string B2UploadPath { get; set; } = "ShareX/%y/%mo";
@@ -432,10 +415,8 @@ namespace ShareX.UploadersLib
         #region yourls.org
 
         public string YourlsAPIURL { get; set; } = "http://yoursite.com/yourls-api.php";
-        [JsonEncrypt]
         public string YourlsSignature { get; set; } = "";
         public string YourlsUsername { get; set; } = "";
-        [JsonEncrypt]
         public string YourlsPassword { get; set; } = "";
 
         #endregion yourls.org
@@ -443,7 +424,6 @@ namespace ShareX.UploadersLib
         #region adf.ly
 
         public string AdFlyAPIUID { get; set; } = "";
-        [JsonEncrypt]
         public string AdFlyAPIKEY { get; set; } = "";
 
         #endregion adf.ly
@@ -451,7 +431,6 @@ namespace ShareX.UploadersLib
         #region polr
 
         public string PolrAPIHostname { get; set; } = "";
-        [JsonEncrypt]
         public string PolrAPIKey { get; set; } = "";
         public bool PolrIsSecret { get; set; } = false;
         public bool PolrUseAPIv1 { get; set; } = false;
@@ -460,7 +439,6 @@ namespace ShareX.UploadersLib
 
         #region Firebase Dynamic Links
 
-        [JsonEncrypt]
         public string FirebaseWebAPIKey { get; set; } = "";
         public string FirebaseDynamicLinkDomain { get; set; } = "";
         public bool FirebaseIsShort { get; set; } = false;

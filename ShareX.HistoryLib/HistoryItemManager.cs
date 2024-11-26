@@ -27,7 +27,6 @@ using ShareX.HelpersLib;
 using System;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace ShareX.HistoryLib
 {
@@ -57,15 +56,6 @@ namespace ShareX.HistoryLib
             this.uploadFile = uploadFile;
             this.editImage = editImage;
             this.pinToScreen = pinToScreen;
-
-            InitializeComponent();
-
-            tsmiOpen.HideImageMargin();
-            tsmiCopy.HideImageMargin();
-            tsmiUploadFile.Visible = uploadFile != null;
-            tsmiEditImage.Visible = editImage != null;
-            tsmiPinToScreen.Visible = pinToScreen != null;
-            tsmiShowMoreInfo.Visible = !hideShowMoreInfoButton;
         }
 
         public HistoryItem UpdateSelectedHistoryItem()
@@ -80,26 +70,20 @@ namespace ShareX.HistoryLib
             {
                 HistoryItem = null;
             }
+            if (HistoryItem == null) return null;
 
-            if (HistoryItem != null)
-            {
-                IsURLExist = !string.IsNullOrEmpty(HistoryItem.URL);
-                IsShortenedURLExist = !string.IsNullOrEmpty(HistoryItem.ShortenedURL);
-                IsThumbnailURLExist = !string.IsNullOrEmpty(HistoryItem.ThumbnailURL);
-                IsDeletionURLExist = !string.IsNullOrEmpty(HistoryItem.DeletionURL);
-                IsImageURL = IsURLExist && FileHelpers.IsImageFile(HistoryItem.URL);
-                IsTextURL = IsURLExist && FileHelpers.IsTextFile(HistoryItem.URL);
-                IsFilePathValid = !string.IsNullOrEmpty(HistoryItem.FilePath) && Path.HasExtension(HistoryItem.FilePath);
-                IsFileExist = IsFilePathValid && File.Exists(HistoryItem.FilePath);
-                IsImageFile = IsFileExist && FileHelpers.IsImageFile(HistoryItem.FilePath);
-                IsTextFile = IsFileExist && FileHelpers.IsTextFile(HistoryItem.FilePath);
 
-                UpdateContextMenu(historyItems.Length);
-            }
-            else
-            {
-                cmsHistory.Enabled = false;
-            }
+            IsURLExist = !string.IsNullOrEmpty(HistoryItem.URL);
+            IsShortenedURLExist = !string.IsNullOrEmpty(HistoryItem.ShortenedURL);
+            IsThumbnailURLExist = !string.IsNullOrEmpty(HistoryItem.ThumbnailURL);
+            IsDeletionURLExist = !string.IsNullOrEmpty(HistoryItem.DeletionURL);
+            IsImageURL = IsURLExist && FileHelpers.IsImageFile(HistoryItem.URL);
+            IsTextURL = IsURLExist && FileHelpers.IsTextFile(HistoryItem.URL);
+            IsFilePathValid = !string.IsNullOrEmpty(HistoryItem.FilePath) && Path.HasExtension(HistoryItem.FilePath);
+            IsFileExist = IsFilePathValid && File.Exists(HistoryItem.FilePath);
+            IsImageFile = IsFileExist && FileHelpers.IsImageFile(HistoryItem.FilePath);
+            IsTextFile = IsFileExist && FileHelpers.IsTextFile(HistoryItem.FilePath);
+
 
             return HistoryItem;
         }
@@ -114,46 +98,6 @@ namespace ShareX.HistoryLib
             return null;
         }
 
-        public bool HandleKeyInput(KeyEventArgs e)
-        {
-            switch (e.KeyData)
-            {
-                default:
-                    return false;
-                case Keys.Enter:
-                    TryOpen();
-                    break;
-                case Keys.Control | Keys.Enter:
-                    OpenFile();
-                    break;
-                case Keys.Shift | Keys.Enter:
-                    OpenFolder();
-                    break;
-                case Keys.Control | Keys.C:
-                    CopyURL();
-                    break;
-                case Keys.Shift | Keys.C:
-                    CopyFile();
-                    break;
-                case Keys.Alt | Keys.C:
-                    CopyImage();
-                    break;
-                case Keys.Control | Keys.Shift | Keys.C:
-                    CopyFilePath();
-                    break;
-                case Keys.Control | Keys.U:
-                    UploadFile();
-                    break;
-                case Keys.Control | Keys.E:
-                    EditImage();
-                    break;
-                case Keys.Control | Keys.P:
-                    PinToScreen();
-                    break;
-            }
-
-            return true;
-        }
 
         public void OpenURL()
         {
@@ -217,7 +161,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(urls))
                     {
-                        ClipboardHelpers.CopyText(urls);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -236,7 +180,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(shortenedURLs))
                     {
-                        ClipboardHelpers.CopyText(shortenedURLs);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -255,7 +199,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(thumbnailURLs))
                     {
-                        ClipboardHelpers.CopyText(thumbnailURLs);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -274,7 +218,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(deletionURLs))
                     {
-                        ClipboardHelpers.CopyText(deletionURLs);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -290,19 +234,21 @@ namespace ShareX.HistoryLib
 
                 if (array != null && array.Length > 0)
                 {
-                    ClipboardHelpers.CopyFile(array);
+                    throw new NotImplementedException("");
                 }
             }
         }
 
         public void CopyImage()
         {
-            if (HistoryItem != null && IsImageFile) ClipboardHelpers.CopyImageFromFile(HistoryItem.FilePath);
+            if (HistoryItem != null && IsImageFile) throw new NotImplementedException("");
+
         }
 
         public void CopyText()
         {
-            if (HistoryItem != null && IsTextFile) ClipboardHelpers.CopyTextFromFile(HistoryItem.FilePath);
+            if (HistoryItem != null && IsTextFile) throw new NotImplementedException("");
+
         }
 
         public void CopyHTMLLink()
@@ -319,7 +265,8 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(htmlLinks))
                     {
-                        ClipboardHelpers.CopyText(htmlLinks);
+                        throw new NotImplementedException("");
+
                     }
                 }
             }
@@ -339,7 +286,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(htmlImages))
                     {
-                        ClipboardHelpers.CopyText(htmlImages);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -359,7 +306,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(htmlLinkedImages))
                     {
-                        ClipboardHelpers.CopyText(htmlLinkedImages);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -378,7 +325,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(forumLinks))
                     {
-                        ClipboardHelpers.CopyText(forumLinks);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -398,7 +345,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(forumImages))
                     {
-                        ClipboardHelpers.CopyText(forumImages);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -418,7 +365,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(forumLinkedImages))
                     {
-                        ClipboardHelpers.CopyText(forumLinkedImages);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -438,7 +385,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(markdownLinks))
                     {
-                        ClipboardHelpers.CopyText(markdownLinks);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -458,7 +405,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(markdownImages))
                     {
-                        ClipboardHelpers.CopyText(markdownImages);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -478,7 +425,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(markdownLinkedImages))
                     {
-                        ClipboardHelpers.CopyText(markdownLinkedImages);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -498,7 +445,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(filePaths))
                     {
-                        ClipboardHelpers.CopyText(filePaths);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -518,7 +465,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(fileNames))
                     {
-                        ClipboardHelpers.CopyText(fileNames);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -538,7 +485,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(fileNamesWithExtension))
                     {
-                        ClipboardHelpers.CopyText(fileNamesWithExtension);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -558,7 +505,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(folderPaths))
                     {
-                        ClipboardHelpers.CopyText(folderPaths);
+                        throw new NotImplementedException("");
                     }
                 }
             }
@@ -566,7 +513,8 @@ namespace ShareX.HistoryLib
 
         public void ShowImagePreview()
         {
-            if (HistoryItem != null && IsImageFile) ImageViewer.ShowImage(HistoryItem.FilePath);
+            if (HistoryItem != null && IsImageFile) throw new NotImplementedException("");
+
         }
 
         public void UploadFile()
@@ -586,7 +534,7 @@ namespace ShareX.HistoryLib
 
         public void ShowMoreInfo()
         {
-            new HistoryItemInfoForm(HistoryItem).Show();
+            throw new NotImplementedException("");
         }
     }
 }

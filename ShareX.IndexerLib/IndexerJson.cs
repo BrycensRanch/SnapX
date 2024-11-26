@@ -23,51 +23,43 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
+using System.Buffers;
 using ShareX.HelpersLib;
 using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Xml;
 
 namespace ShareX.IndexerLib
 {
     public class IndexerJson : Indexer
     {
-        private JsonWriter jsonWriter;
+        private Utf8JsonWriter jsonWriter;
 
-        public IndexerJson(IndexerSettings indexerSettings) : base(indexerSettings)
+        private string Index(string folderPath)
         {
-        }
-
-        public override string Index(string folderPath)
-        {
-            FolderInfo folderInfo = GetFolderInfo(folderPath);
+            var folderInfo = new FolderInfo(folderPath);
             folderInfo.Update();
 
-            StringBuilder sbContent = new StringBuilder();
+            var sbContent = new StringBuilder();
 
-            using (StringWriter sw = new StringWriter(sbContent))
-            using (jsonWriter = new JsonTextWriter(sw))
-            {
-                jsonWriter.Formatting = Formatting.Indented;
+            // Use MemoryStream and Utf8JsonWriter for JSON writing
+            using var memoryStream = new MemoryStream();
+            using var jsonWriter = new Utf8JsonWriter(memoryStream, new JsonWriterOptions { Indented = true });
 
-                jsonWriter.WriteStartObject();
-                IndexFolder(folderInfo);
-                jsonWriter.WriteEndObject();
-            }
+            jsonWriter.WriteStartObject();
+            IndexFolder(folderInfo);
+            jsonWriter.WriteEndObject();
+
+            // Convert the memory stream to a string
+            sbContent.Append(Encoding.UTF8.GetString(memoryStream.ToArray()));
 
             return sbContent.ToString();
         }
 
         protected override void IndexFolder(FolderInfo dir, int level = 0)
         {
-            if (settings.CreateParseableJson)
-            {
-                IndexFolderParseable(dir);
-            }
-            else
-            {
                 IndexFolderSimple(dir);
-            }
         }
 
         private void IndexFolderSimple(FolderInfo dir)
@@ -82,24 +74,12 @@ namespace ShareX.IndexerLib
                 jsonWriter.WriteEndObject();
             }
 
-            foreach (FileInfo fi in dir.Files)
-            {
-                jsonWriter.WriteValue(fi.Name);
-            }
-
-            jsonWriter.WriteEnd();
+            jsonWriter.WriteEndArray();
         }
 
         private void IndexFolderParseable(FolderInfo dir)
         {
             jsonWriter.WritePropertyName("Name");
-            jsonWriter.WriteValue(dir.FolderName);
-
-            if (settings.ShowSizeInfo)
-            {
-                jsonWriter.WritePropertyName("Size");
-                jsonWriter.WriteValue(dir.Size.ToSizeString(settings.BinaryUnits));
-            }
 
             if (dir.Folders.Count > 0)
             {
@@ -113,7 +93,7 @@ namespace ShareX.IndexerLib
                     jsonWriter.WriteEndObject();
                 }
 
-                jsonWriter.WriteEnd();
+                jsonWriter.WriteEndObject();
             }
 
             if (dir.Files.Count > 0)
@@ -126,18 +106,9 @@ namespace ShareX.IndexerLib
                     jsonWriter.WriteStartObject();
 
                     jsonWriter.WritePropertyName("Name");
-                    jsonWriter.WriteValue(fi.Name);
-
-                    if (settings.ShowSizeInfo)
-                    {
-                        jsonWriter.WritePropertyName("Size");
-                        jsonWriter.WriteValue(fi.Length.ToSizeString(settings.BinaryUnits));
-                    }
-
                     jsonWriter.WriteEndObject();
                 }
 
-                jsonWriter.WriteEnd();
             }
         }
     }

@@ -24,13 +24,11 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
-using ShareX.HistoryLib.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ShareX.HistoryLib
 {
@@ -55,9 +53,6 @@ namespace ShareX.HistoryLib
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
-
-                MessageBox.Show(Resources.ErrorOccuredWhileReadingHistoryFile + " " + FilePath + "\r\n\r\n" + e,
-                    "ShareX - " + Resources.HistoryManager_GetHistoryItems_Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return new List<HistoryItem>();
@@ -133,7 +128,7 @@ namespace ShareX.HistoryLib
             HistoryItem historyItem = new HistoryItem()
             {
                 FileName = "Example.png",
-                FilePath = @"C:\ShareX\Screenshots\Example.png",
+                FilePath = "/home/romvnly/Pictures/Mister_Brit.png",
                 DateTime = DateTime.Now,
                 Type = "Image",
                 Host = "Imgur",
@@ -148,18 +143,13 @@ namespace ShareX.HistoryLib
             {
                 historyItems[i] = historyItem;
             }
-
+            // TODO: Investigate this architectural flaw
+            // Should be fixed when ORMLite is brought into the equation
             Thread.Sleep(1000);
 
-            DebugTimer saveTimer = new DebugTimer($"Saved {itemCount} items");
             Append(filePath, historyItems);
-            saveTimer.WriteElapsedMilliseconds();
 
-            Thread.Sleep(1000);
-
-            DebugTimer loadTimer = new DebugTimer($"Loaded {itemCount} items");
             Load(filePath);
-            loadTimer.WriteElapsedMilliseconds();
         }
     }
 }

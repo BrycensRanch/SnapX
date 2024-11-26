@@ -17,6 +17,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <!-- Enable AOT compilation -->
     <PublishAot>true</PublishAot>
+    <AssemblyName>ShareX</AssemblyName>
 
   </PropertyGroup>
 

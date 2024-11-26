@@ -34,27 +34,18 @@ namespace ShareX.IndexerLib
     {
         protected StringBuilder sbContent = new StringBuilder();
 
-        public IndexerText(IndexerSettings indexerSettings) : base(indexerSettings)
-        {
-        }
 
-        public override string Index(string folderPath)
+        public string Index(string folderPath)
         {
             StringBuilder sbTxtIndex = new StringBuilder();
 
-            FolderInfo folderInfo = GetFolderInfo(folderPath);
+            FolderInfo folderInfo = new FolderInfo(folderPath);
             folderInfo.Update();
 
             IndexFolder(folderInfo);
             string index = sbContent.ToString().Trim();
 
             sbTxtIndex.AppendLine(index);
-            if (settings.AddFooter)
-            {
-                string footer = GetFooter();
-                sbTxtIndex.AppendLine("_".Repeat(footer.Length));
-                sbTxtIndex.AppendLine(footer);
-            }
             return sbTxtIndex.ToString().Trim();
         }
 
@@ -64,20 +55,11 @@ namespace ShareX.IndexerLib
 
             foreach (FolderInfo subdir in dir.Folders)
             {
-                if (settings.AddEmptyLineAfterFolders)
-                {
-                    sbContent.AppendLine();
-                }
-
                 IndexFolder(subdir, level + 1);
             }
 
             if (dir.Files.Count > 0)
             {
-                if (settings.AddEmptyLineAfterFolders)
-                {
-                    sbContent.AppendLine();
-                }
 
                 foreach (FileInfo fi in dir.Files)
                 {
@@ -88,26 +70,15 @@ namespace ShareX.IndexerLib
 
         private string GetFolderNameRow(FolderInfo dir, int level)
         {
-            string folderNameRow = string.Format("{0}{1}", settings.IndentationText.Repeat(level), dir.FolderName);
-
-            if (settings.ShowSizeInfo && dir.Size > 0)
-            {
-                folderNameRow += string.Format(" [{0}]", dir.Size.ToSizeString(settings.BinaryUnits));
-            }
+            string folderNameRow = string.Format("{0}{1}", level, dir.FolderName);
 
             return folderNameRow;
         }
 
         private string GetFileNameRow(FileInfo fi, int level)
         {
-            string fileNameRow = settings.IndentationText.Repeat(level) + fi.Name;
-
-            if (settings.ShowSizeInfo)
-            {
-                fileNameRow += string.Format(" [{0}]", fi.Length.ToSizeString(settings.BinaryUnits));
-            }
-
-            return fileNameRow;
+            // TODO: Reimplement whatever the fuck this is.
+            return fi.Name + "_" + level;
         }
 
         private string GetFooter()

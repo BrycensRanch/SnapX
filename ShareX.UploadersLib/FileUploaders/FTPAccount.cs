@@ -24,10 +24,7 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
-using System;
 using System.ComponentModel;
-using System.Drawing.Design;
-using System.IO;
 
 namespace ShareX.UploadersLib
 {
@@ -48,7 +45,7 @@ namespace ShareX.UploadersLib
         [Category("FTP")]
         public string Username { get; set; }
 
-        [Category("FTP"), PasswordPropertyText(true), JsonEncrypt]
+        [Category("FTP"), PasswordPropertyText(true)]
         public string Password { get; set; }
 
         [Category("FTP"), Description("Set true for active or false for passive"), DefaultValue(false)]
@@ -124,14 +121,12 @@ namespace ShareX.UploadersLib
         public FTPSEncryption FTPSEncryption { get; set; }
 
         [Category("FTPS"), Description("Certificate file location. Optional setting.")]
-        [Editor(typeof(CertFileNameEditor), typeof(UITypeEditor))]
         public string FTPSCertificateLocation { get; set; }
 
         [Category("SFTP"), Description("Key location")]
-        [Editor(typeof(KeyFileNameEditor), typeof(UITypeEditor))]
         public string Keypath { get; set; }
 
-        [Category("SFTP"), Description("OpenSSH key passphrase"), PasswordPropertyText(true), JsonEncrypt]
+        [Category("SFTP"), Description("OpenSSH key passphrase"), PasswordPropertyText(true)]
         public string Passphrase { get; set; }
 
         public FTPAccount()

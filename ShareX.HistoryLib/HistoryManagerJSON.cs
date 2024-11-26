@@ -23,12 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using ShareX.HelpersLib;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace ShareX.HistoryLib
 {
@@ -42,64 +41,59 @@ namespace ShareX.HistoryLib
 
         protected override List<HistoryItem> Load(string filePath)
         {
-            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+                return new List<HistoryItem>();
+
+            lock (thisLock)
             {
-                lock (thisLock)
-                {
-                    string json = File.ReadAllText(filePath, Encoding.UTF8);
+                string json = File.ReadAllText(filePath, Encoding.UTF8);
 
-                    if (!string.IsNullOrEmpty(json))
-                    {
-                        json = "[" + json + "]";
+                if (string.IsNullOrEmpty(json))
+                    return new List<HistoryItem>();
 
-                        return JsonConvert.DeserializeObject<List<HistoryItem>>(json);
-                    }
-                }
+                // Wrap the json in an array format (since the original code expected a JSON array)
+                json = "[" + json + "]";
+
+                // Deserialize the JSON string into a List of HistoryItem objects
+                return JsonSerializer.Deserialize<List<HistoryItem>>(json) ?? new List<HistoryItem>();
             }
-
-            return new List<HistoryItem>();
         }
 
         protected override bool Append(string filePath, IEnumerable<HistoryItem> historyItems)
         {
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                lock (thisLock)
+            if (string.IsNullOrEmpty(filePath)) return false;
+
+            // Ensure the directory exists
+            FileHelpers.CreateDirectoryFromFilePath(filePath);
+
+            // Open the file for appending data
+            using var fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096,
+                FileOptions.WriteThrough);
+            using var streamWriter = new StreamWriter(fileStream);
+                var options = new JsonSerializerOptions
                 {
-                    FileHelpers.CreateDirectoryFromFilePath(filePath);
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
+                    WriteIndented = false
+                };
 
-                    using (FileStream fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
-                    using (StreamWriter streamWriter = new StreamWriter(fileStream))
-                    {
-                        JsonSerializer serializer = new JsonSerializer();
-                        serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
+                // Check if this is the first object being written
+                bool isFirstObject = fileStream.Length == 0;
 
-                        bool firstObject = fileStream.Length == 0;
+                foreach (var historyItem in historyItems)
+                {
+                    if (!isFirstObject)
+                        streamWriter.Write(",\r\n");
 
-                        foreach (HistoryItem historyItem in historyItems)
-                        {
-                            string json = "";
+                    // Serialize the current HistoryItem and write it to the stream
+                    string json = JsonSerializer.Serialize(historyItem, options);
+                    streamWriter.Write(json);
 
-                            if (!firstObject)
-                            {
-                                json += ",\r\n";
-                            }
-
-                            json += JObject.FromObject(historyItem, serializer).ToString();
-
-                            streamWriter.Write(json);
-
-                            firstObject = false;
-                        }
-                    }
-
-                    Backup(FilePath);
+                    isFirstObject = false;  // Ensure subsequent objects are properly comma-separated
                 }
 
-                return true;
-            }
-
-            return false;
+            // Backup after appending
+            Backup(filePath);
+            return true;
         }
-    }
+}
 }

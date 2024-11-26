@@ -3,10 +3,11 @@
 # Checklist
 
 - [x] Port `NativeMessagingHost` to .NET 9 (It was literally a few lines of code...)
-- [ ] Replace Windows specific code in ShareX for nuget dependencies instead. This way, it moves away from the dependency on passing around Bitmap everywhere.
-- [ ] Port `UploadersLib` to .NET 9 and remove UI code
+- [x] Replace Windows specific code in ShareX.HelpersLib
+- [x] Port `UploadersLib` to .NET 9 and remove UI code
 - [ ] Port `ScreenCaptureLib` to .NET 9 and GTK and unknown dependencies (Requires investigation)
-- [ ] Investigate `UploadersLib` (What is it? What does it do?)
+- [x] Investigate `UploadersLib` (What is it? What does it do?)
+- It's where the uploaders are located and apply their own variables like %host%. This is a obvious code design flaw as you'll find time and time again, the functions are producing side effects everywhere that makes ShareX impossible to test.
 - [ ] Investigate `IndexerLib` (What is it? What does it do?)
 - [ ] Investigate `HistoryLib` (What is it? What does it do?)
 - [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://docs.servicestack.net/ormlite/>
@@ -16,6 +17,7 @@
 - [ ] Create bindings for `go-keyring` so we're not storing API Credentials in plain text on the filesystem. It's also cross-platform. That way, if need be, porting this to every major OS should be less cumbersome.
 - [ ] Learn Rust and a hint of C++ to use XCap and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [ ] Rust interop bindings
+- [x] Cry myself to sleep after a long refactor and the builds still not passing despite thousands and thousands of lines of dead code
 
 ## Studying ShareX's behavior on Windows 11 24H2
 
@@ -68,9 +70,12 @@ WINE is not a solution. Wine is a compatibility layer. It is not a replacement f
 
 #### How are screenshots going to work?
 
-On Windows, System.Drawing depends on the GDI+ native library, shipped with Windows Home.
+I am going to use a library I have decided to do it. I might keep the Windows code and investigate adding HDR support to it.
 
-On .NET 9, System.Drawing is not available on Linux/macOS. However, there is hope...
+### GTK on Windows sucks!
+
+I agree! That's why In the future, I want to use WPF again as a separate "Project" (it'd still be under the GitHub repository)
+https://github.com/lepoco/wpfui looks like a great start.
 
 
 
@@ -80,6 +85,16 @@ On .NET 9, System.Drawing is not available on Linux/macOS. However, there is hop
 
 
 #### Snap & Flatpak
+
+.NET 9 SDK Snap ✅
+
+https://snapcraft.io/dotnet-sdk-90
+
+.NET 9 Flatpak SDK Extension ✅
+
+https://github.com/flathub/org.freedesktop.Sdk.Extension.dotnet9
+
+
 
 A snap package should be created easily with examples like https://github.com/BrycensRanch/Rokon/blob/master/snapcraft.yaml
 
