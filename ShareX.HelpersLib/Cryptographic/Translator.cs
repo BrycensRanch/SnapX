@@ -23,8 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using System.Text;
-
 namespace ShareX.HelpersLib
 {
     public class Translator
@@ -35,50 +33,20 @@ namespace ShareX.HelpersLib
         // http://en.wikipedia.org/wiki/Binary_numeral_system
         public string[] Binary { get; private set; }
 
-        public string BinaryText
-        {
-            get
-            {
-                if (Binary != null && Binary.Length > 0)
-                {
-                    return Binary.Join();
-                }
+        public string? BinaryText => string.IsNullOrWhiteSpace(Binary.Join()) ? string.Join(string.Empty, Binary) : null;
 
-                return null;
-            }
-        }
 
         // http://en.wikipedia.org/wiki/Hexadecimal
         public string[] Hexadecimal { get; private set; }
 
-        public string HexadecimalText
-        {
-            get
-            {
-                if (Hexadecimal != null && Hexadecimal.Length > 0)
-                {
-                    return Hexadecimal.Join().ToUpperInvariant();
-                }
+        public string? HexadecimalText => string.IsNullOrWhiteSpace(Hexadecimal.Join()) ? string.Join(string.Empty, Hexadecimal).ToUpperInvariant() : null;
 
-                return null;
-            }
-        }
 
         // http://en.wikipedia.org/wiki/ASCII
         public byte[] ASCII { get; private set; }
 
-        public string ASCIIText
-        {
-            get
-            {
-                if (ASCII != null && ASCII.Length > 0)
-                {
-                    return ASCII.Join();
-                }
+        public string ASCIIText => ASCII?.Length > 0 ? string.Join(string.Empty, ASCII) : null;
 
-                return null;
-            }
-        }
 
         // http://en.wikipedia.org/wiki/Base64
         public string Base64 { get; private set; }
@@ -105,117 +73,81 @@ namespace ShareX.HelpersLib
             ASCII = null;
         }
 
-        public bool EncodeText(string text)
+        public void EncodeText(string text)
         {
-            try
-            {
-                Clear();
+            if (string.IsNullOrEmpty(text)) return;
 
-                if (!string.IsNullOrEmpty(text))
-                {
-                    Text = text;
-                    Binary = TranslatorHelper.TextToBinary(text);
-                    Hexadecimal = TranslatorHelper.TextToHexadecimal(text);
-                    ASCII = TranslatorHelper.TextToASCII(text);
-                    Base64 = TranslatorHelper.TextToBase64(text);
-                    CRC32 = TranslatorHelper.TextToHash(text, HashType.CRC32, true);
-                    MD5 = TranslatorHelper.TextToHash(text, HashType.MD5, true);
-                    SHA1 = TranslatorHelper.TextToHash(text, HashType.SHA1, true);
-                    SHA256 = TranslatorHelper.TextToHash(text, HashType.SHA256, true);
-                    SHA384 = TranslatorHelper.TextToHash(text, HashType.SHA384, true);
-                    SHA512 = TranslatorHelper.TextToHash(text, HashType.SHA512, true);
-                    return true;
-                }
-            }
-            catch
-            {
-            }
+            Clear();
 
-            return false;
+            Text = text;
+            Binary = TranslatorHelper.TextToBinary(text);
+            Hexadecimal = TranslatorHelper.TextToHexadecimal(text);
+            ASCII = TranslatorHelper.TextToASCII(text);
+            Base64 = TranslatorHelper.TextToBase64(text);
+
+            var hashTypes = new[] { HashType.CRC32, HashType.MD5, HashType.SHA1, HashType.SHA256, HashType.SHA384, HashType.SHA512 };
+
+            foreach (var hashType in hashTypes)
+            {
+                var hash = TranslatorHelper.TextToHash(text, hashType, true);
+                SetHash(hashType, hash);
+            }
         }
 
-        public bool DecodeBinary(string binary)
-        {
-            try
-            {
-                Text = TranslatorHelper.BinaryToText(binary);
-                return !string.IsNullOrEmpty(Text);
-            }
-            catch
-            {
-            }
 
-            Text = null;
-            return false;
+        private void SetHash(HashType hashType, string hash)
+        {
+            switch (hashType)
+            {
+                case HashType.CRC32:
+                    CRC32 = hash;
+                    break;
+                case HashType.MD5:
+                    MD5 = hash;
+                    break;
+                case HashType.SHA1:
+                    SHA1 = hash;
+                    break;
+                case HashType.SHA256:
+                    SHA256 = hash;
+                    break;
+                case HashType.SHA384:
+                    SHA384 = hash;
+                    break;
+                case HashType.SHA512:
+                    SHA512 = hash;
+                    break;
+                default:
+                    throw new NotImplementedException("Unknown hash type: " + hashType);
+            }
         }
 
-        public bool DecodeHex(string hex)
-        {
-            try
-            {
-                Text = TranslatorHelper.HexadecimalToText(hex);
-                return !string.IsNullOrEmpty(Text);
-            }
-            catch
-            {
-            }
+        public bool DecodeBinary(string binary) => !string.IsNullOrEmpty(TranslatorHelper.HexadecimalToText(binary));
 
-            Text = null;
-            return false;
-        }
+        public bool DecodeHex(string hex) => !string.IsNullOrEmpty(TranslatorHelper.HexadecimalToText(hex));
 
-        public bool DecodeASCII(string ascii)
-        {
-            try
-            {
-                Text = TranslatorHelper.ASCIIToText(ascii);
-                return !string.IsNullOrEmpty(Text);
-            }
-            catch
-            {
-            }
+        public bool DecodeASCII(string ascii) => !string.IsNullOrEmpty(TranslatorHelper.ASCIIToText(ascii));
 
-            Text = null;
-            return false;
-        }
+        public bool DecodeBase64(string base64) => !string.IsNullOrEmpty(TranslatorHelper.Base64ToText(base64));
 
-        public bool DecodeBase64(string base64)
-        {
-            try
-            {
-                Text = TranslatorHelper.Base64ToText(base64);
-                return !string.IsNullOrEmpty(Text);
-            }
-            catch
-            {
-            }
-
-            Text = null;
-            return false;
-        }
-
-        public string HashToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"CRC-32: {CRC32}");
-            sb.AppendLine($"MD5: {MD5}");
-            sb.AppendLine($"SHA-1: {SHA1}");
-            sb.AppendLine($"SHA-256: {SHA256}");
-            sb.AppendLine($"SHA-384: {SHA384}");
-            sb.AppendLine($"SHA-512: {SHA512}");
-            return sb.ToString();
-        }
+        public string HashToString() => string.Join(Environment.NewLine,
+            $"CRC-32: {CRC32}",
+            $"MD5: {MD5}",
+            $"SHA-1: {SHA1}",
+            $"SHA-256: {SHA256}",
+            $"SHA-384: {SHA384}",
+            $"SHA-512: {SHA512}");
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Text: {Text}");
-            sb.AppendLine($"Binary: {BinaryText}");
-            sb.AppendLine($"Hexadecimal: {HexadecimalText}");
-            sb.AppendLine($"ASCII: {ASCIIText}");
-            sb.AppendLine($"Base64: {Base64}");
-            sb.Append(HashToString());
-            return sb.ToString();
+            return string.Join(Environment.NewLine,
+                $"Text: {Text}",
+                $"Binary: {BinaryText}",
+                $"Hexadecimal: {HexadecimalText}",
+                $"ASCII: {ASCIIText}",
+                $"Base64: {Base64}",
+                HashToString());
         }
+
     }
 }
