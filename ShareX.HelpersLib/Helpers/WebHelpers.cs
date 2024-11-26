@@ -23,14 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.Drawing;
-using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace ShareX.HelpersLib
 {
@@ -38,151 +35,90 @@ namespace ShareX.HelpersLib
     {
         public static async Task DownloadFileAsync(string url, string filePath)
         {
-            if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(filePath))
             {
-                FileHelpers.CreateDirectoryFromFilePath(filePath);
-
-                HttpClient client = HttpClientFactory.Create();
-
-                using (HttpResponseMessage responseMessage = await client.GetAsync(url))
-                {
-                    if (responseMessage.IsSuccessStatusCode)
-                    {
-                        using (Stream responseStream = await responseMessage.Content.ReadAsStreamAsync())
-                        using (FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                        {
-                            await responseStream.CopyToAsync(fileStream);
-                        }
-                    }
-                }
+                return;
             }
+
+            FileHelpers.CreateDirectoryFromFilePath(filePath);
+
+            using var client = HttpClientFactory.Create();
+            using var responseMessage = await client.GetAsync(url);
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
+            using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+
+            await responseStream.CopyToAsync(fileStream);
         }
+
 
         public static async Task<string> DownloadStringAsync(string url)
         {
-            string response = null;
-
-            if (!string.IsNullOrEmpty(url))
-            {
-                HttpClient client = HttpClientFactory.Create();
-
-                using (HttpResponseMessage responseMessage = await client.GetAsync(url))
-                {
-                    if (responseMessage.IsSuccessStatusCode)
-                    {
-                        response = await responseMessage.Content.ReadAsStringAsync();
-                    }
-                }
+            if (string.IsNullOrEmpty(url)) {
+                return null;
             }
 
-            return response;
+            using var client = HttpClientFactory.Create();
+            using var responseMessage = await client.GetAsync(url);
+
+            return responseMessage.IsSuccessStatusCode
+                ? await responseMessage.Content.ReadAsStringAsync()
+                : null;
         }
 
-        public static async Task<Bitmap> DownloadImageAsync(string url)
-        {
-            Bitmap bmp = null;
 
-            if (!string.IsNullOrEmpty(url))
-            {
-                HttpClient client = HttpClientFactory.Create();
-
-                using (HttpResponseMessage responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
-                {
-                    if (responseMessage.IsSuccessStatusCode && responseMessage.Content.Headers.ContentType != null)
-                    {
-                        string mediaType = responseMessage.Content.Headers.ContentType.MediaType;
-
-                        if (MimeTypes.IsImageMimeType(mediaType))
-                        {
-                            byte[] data = await responseMessage.Content.ReadAsByteArrayAsync();
-                            MemoryStream memoryStream = new MemoryStream(data);
-
-                            try
-                            {
-                                bmp = new Bitmap(memoryStream);
-                            }
-                            catch
-                            {
-                                memoryStream.Dispose();
-                            }
-                        }
-                    }
-                }
-            }
-
-            return bmp;
-        }
 
         public static async Task<string> GetFileNameFromWebServerAsync(string url)
         {
-            string fileName = null;
+            if (string.IsNullOrEmpty(url)) return null;
 
-            if (!string.IsNullOrEmpty(url))
-            {
-                HttpClient client = HttpClientFactory.Create();
+            using var client = HttpClientFactory.Create();
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Head, url);
 
-                using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Head, url))
-                using (HttpResponseMessage responseMessage = await client.SendAsync(requestMessage))
-                {
-                    if (responseMessage.Content.Headers.ContentDisposition != null)
-                    {
-                        string contentDisposition = responseMessage.Content.Headers.ContentDisposition.ToString();
+            using var responseMessage = await client.SendAsync(requestMessage);
 
-                        if (!string.IsNullOrEmpty(contentDisposition))
-                        {
-                            string fileNameMarker = "filename=\"";
-                            int beginIndex = contentDisposition.IndexOf(fileNameMarker, StringComparison.OrdinalIgnoreCase);
-                            contentDisposition = contentDisposition.Substring(beginIndex + fileNameMarker.Length);
-                            int fileNameLength = contentDisposition.IndexOf("\"");
-                            fileName = contentDisposition.Substring(0, fileNameLength);
-                        }
-                    }
-                }
-            }
-
-            return fileName;
+            return responseMessage.Content.Headers.ContentDisposition?.FileName;
         }
 
-        // https://en.wikipedia.org/wiki/Data_URI_scheme
-        public static Bitmap DataURLToImage(string url)
+
+        public static async Task<Image<Rgba32>> DownloadImageAsync(string url)
         {
-            if (!string.IsNullOrEmpty(url) && url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(url)) return null;
+
+            using var client = HttpClientFactory.Create();
+
+            using var responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+
+            if (!responseMessage.IsSuccessStatusCode || responseMessage.Content.Headers.ContentType == null)
+                return null;
+
+            var mediaType = responseMessage.Content.Headers.ContentType.MediaType;
+            if (mediaType == null) return null;
+            if (!MimeTypes.IsImageMimeType(mediaType))
+                return null;
+
+            var data = await responseMessage.Content.ReadAsByteArrayAsync();
+
+            try
             {
-                Match match = Regex.Match(url, @"^data:(?<mediaType>[\w\/]+);base64,(?<data>.+)$", RegexOptions.IgnoreCase);
-
-                if (match.Success)
-                {
-                    string mediaType = match.Groups["mediaType"].Value;
-
-                    if (MimeTypes.IsImageMimeType(mediaType))
-                    {
-                        string data = match.Groups["data"].Value;
-
-                        if (!string.IsNullOrEmpty(data))
-                        {
-                            try
-                            {
-                                byte[] dataBytes = Convert.FromBase64String(data);
-
-                                using (MemoryStream ms = new MemoryStream(dataBytes))
-                                {
-                                    return new Bitmap(ms);
-                                }
-                            }
-                            catch
-                            {
-                            }
-                        }
-                    }
-                }
+                using var memoryStream = new MemoryStream(data);
+                return await Image.LoadAsync<Rgba32>(memoryStream);
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading image: {ex.Message}");
+                return null;
+            }
         }
 
         public static bool IsSuccessStatusCode(HttpStatusCode statusCode)
         {
-            int statusCodeNum = (int)statusCode;
+            var statusCodeNum = (int)statusCode;
             return statusCodeNum >= 200 && statusCodeNum <= 299;
         }
 
