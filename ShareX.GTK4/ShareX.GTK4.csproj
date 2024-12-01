@@ -24,7 +24,7 @@
     <Description>Screen capture, file sharing and productivity tool</Description>
 <!--    Uncomment to disable GitInfo changing the ApplicationVersion automatically-->
 <!--    <GitVersion>false</GitVersion>-->
-    <!-- GTK4 is Linux only. -->
+    <!-- ShareX.GTK4 is Linux only. -->
     <RuntimeIdentifiers>linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <AssemblyName>sharex-gtk</AssemblyName>
 
@@ -34,6 +34,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
+    <ProjectReference Include="..\ShareX.CommonUI\ShareX.CommonUI.csproj" />
+
 
     <PackageReference Include="GirCore.Gtk-4.0" Version="0.5.0" />
     <PackageReference Include="GirCore.Adw-1" Version="0.5.0" />

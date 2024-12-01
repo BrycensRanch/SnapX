@@ -5,17 +5,18 @@ namespace ShareX.GTK4;
 
 public class AboutDialog : Gtk.AboutDialog
 {
-    public AboutDialog(string sampleName)
+    public AboutDialog()
     {
-        Comments = Assembly.GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
-        Copyright = "© BrycensRanch & ShareX Team 2024-present";
-        License = "AGPL v3 or Later";
+        var internalAboutDialog = new CommonUI.AboutDialog();
+
+        Comments = internalAboutDialog.GetDescription();
+        Copyright = internalAboutDialog.GetCopyright();
+        License = internalAboutDialog.GetLicense();
         Logo = LoadFromResource("ShareX.GTK4.logo.svg");
-        Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
-        Website = "https://github.com/BrycensRanch/ShareX-Linux-Port";
-        LicenseType = Gtk.License.Agpl30;
-        ProgramName = $"{sampleName} - Powered by GirCore";
+        Version = internalAboutDialog.GetVersion();
+        Website = internalAboutDialog.GetWebsite();
+        LicenseType = Gtk.License.Gpl30;
+        ProgramName = $"{internalAboutDialog.GetTitle()}";
     }
     private static Gdk.Texture? LoadFromResource(string resourceName)
     {

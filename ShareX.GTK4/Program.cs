@@ -14,7 +14,7 @@ var application = Gtk.Application.New("ShareX.ShareX", ApplicationFlags.NonUniqu
 
             shareX.start();
             Console.WriteLine(args);
-            var dialog = new AboutDialog("ShareX on GTK4");
+            var dialog = new AboutDialog();
             dialog.SetApplication(application);
             // I honestly think the bindings don't have this.
             string gtkVersion = $"Unknown, lololololl";

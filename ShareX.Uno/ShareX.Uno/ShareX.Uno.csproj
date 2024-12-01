@@ -46,5 +46,8 @@
             ThemeService;
         </UnoFeatures>
     </PropertyGroup>
-
+    <ItemGroup>
+        <ProjectReference Include="..\..\ShareX.Core\ShareX.Core.csproj" />
+        <ProjectReference Include="..\..\ShareX.CommonUI\ShareX.CommonUI.csproj" />
+    </ItemGroup>
 </Project>

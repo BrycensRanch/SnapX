@@ -10,6 +10,8 @@ public partial class App : Application
     /// </summary>
     public App()
     {
+        var sharex = new ShareX.Core.ShareX();
+        sharex.start();
         this.InitializeComponent();
     }
 

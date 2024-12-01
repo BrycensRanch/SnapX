@@ -34,6 +34,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShareX.GTK4", "ShareX.GTK4"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.CLI", "ShareX.CLI\ShareX.CLI.csproj", "{3AAB8CC5-156D-4738-93D3-625BAA9D2ABD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.CommonUI", "ShareX.CommonUI\ShareX.CommonUI.csproj", "{74428450-9146-4434-B34F-D9D3213D7B0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,10 @@ Global
 		{3AAB8CC5-156D-4738-93D3-625BAA9D2ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AAB8CC5-156D-4738-93D3-625BAA9D2ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AAB8CC5-156D-4738-93D3-625BAA9D2ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74428450-9146-4434-B34F-D9D3213D7B0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74428450-9146-4434-B34F-D9D3213D7B0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74428450-9146-4434-B34F-D9D3213D7B0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74428450-9146-4434-B34F-D9D3213D7B0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
