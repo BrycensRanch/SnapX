@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PublishAot>true</PublishAot>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="*.xaml" />
+
+    <TrimmerRootDescriptor Include="Roots.xml" />
+  </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="11.2.2" />
+      <PackageReference Include="Avalonia.Desktop" Version="11.2.2" />
+      <PackageReference Include="FluentAvaloniaUI" Version="2.2.0" />
+      <PackageReference Include="Avalonia.Markup.Xaml.Loader" />
+      <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />
+      <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
+      <ProjectReference Include="..\ShareX.CommonUI\ShareX.CommonUI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Pages\DesignPages\BackgroundColorsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\DesignPages\ColorsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\DesignPages\DesignIconsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\DesignPages\FillColorsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\DesignPages\SignalColorsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\DesignPages\StrokeColorsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\DesignPages\TextColorsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\DesignPages\TypographyPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\AppWindowPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\ColorPickerButtonPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\ColorPickerPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\CommandBarFlyoutPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\CommandBarPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\ContentDialogPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\DemoComplexSplashScreen.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\FAComboBoxPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\FramePage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\IconsPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\InfoBadgePage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\InfoBarPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\MenuFlyoutPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\NavigationViewPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\NumberBoxPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\PickerFlyoutBasePage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\ProgressRingPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\RangeSliderPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\SettingsExpanderPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\TabViewPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\TabViewWindowingSample.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\TabViewWindowSampleContent.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\TaskDialogPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\TeachingTipPage.axaml" />
+      <UpToDateCheckInput Remove="Pages\FAControlsPages\XamlUICommandPage.axaml" />
+      <UpToDateCheckInput Remove="Views\MainView.axaml" />
+      <UpToDateCheckInput Remove="Views\MainWindow.axaml" />
+      <UpToDateCheckInput Remove="Pages\HomePage.axaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Controls\" />
+    </ItemGroup>
+
+</Project>

@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.CLI", "ShareX.CLI\Sh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.CommonUI", "ShareX.CommonUI\ShareX.CommonUI.csproj", "{74428450-9146-4434-B34F-D9D3213D7B0E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.Avalonia", "ShareX.Avalonia\ShareX.Avalonia.csproj", "{89525D3B-F639-4C0B-8CFF-F55A0C52D344}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +84,10 @@ Global
 		{74428450-9146-4434-B34F-D9D3213D7B0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74428450-9146-4434-B34F-D9D3213D7B0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74428450-9146-4434-B34F-D9D3213D7B0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89525D3B-F639-4C0B-8CFF-F55A0C52D344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89525D3B-F639-4C0B-8CFF-F55A0C52D344}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89525D3B-F639-4C0B-8CFF-F55A0C52D344}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89525D3B-F639-4C0B-8CFF-F55A0C52D344}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

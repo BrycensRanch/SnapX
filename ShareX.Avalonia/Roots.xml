@@ -1,0 +1,4 @@
+<linker>
+  <assembly fullname="ShareX.Avalonia" preserve="All" />
+  <assembly fullname="Avalonia.Themes.Fluent" preserve="All" />
+</linker>
