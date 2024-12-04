@@ -34,7 +34,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
-using ShareX.Core.Helpers;
+using ShareX.Core.Utils;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 
