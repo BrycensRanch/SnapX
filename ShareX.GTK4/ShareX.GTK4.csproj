@@ -11,16 +11,11 @@
     <!-- Make it self-contained -->
     <!-- This does not mean it doesn't need the GTK4 libraries on the host or right beside the executable.. This is only for .NET -->
     <SelfContained>true</SelfContained>
-
-    <!-- Strip out debug symbols for smaller file size -->
-    <DebugType>embedded</DebugType>
-
     <!-- Ready to Run compilation -->
     <PublishReadyToRun>true</PublishReadyToRun>
     <!-- Enable AOT compilation -->
     <PublishAot>true</PublishAot>
     <ApplicationVersion>0.0.0-DEV</ApplicationVersion>
-    <ApplicationIcon>ShareX_Icon.ico</ApplicationIcon>
     <Description>Screen capture, file sharing and productivity tool</Description>
 <!--    Uncomment to disable GitInfo changing the ApplicationVersion automatically-->
 <!--    <GitVersion>false</GitVersion>-->
