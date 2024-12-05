@@ -1,8 +1,5 @@
-using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 
 namespace ShareX.Avalonia;
@@ -11,7 +8,7 @@ public partial class App : Application
 {
     public override void Initialize()
     {
-        var sharex = new ShareX.Core.ShareX();
+        var sharex = new Core.ShareX();
         sharex.start();
         var about = new AboutDialog();
         about.Show();
