@@ -5,10 +5,15 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <PublishReadyToRun>true</PublishReadyToRun>
         <PublishAot>true</PublishAot>
+        <ApplicationIcon>ShareX_Icon.ico</ApplicationIcon>
         <InvariantGlobalization>true</InvariantGlobalization>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called ShareX.Avalonia. Instead create a executable shell script that calls ShareX.Avalonia -->
     </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
@@ -25,45 +30,6 @@
       <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />
       <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
       <ProjectReference Include="..\ShareX.CommonUI\ShareX.CommonUI.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Pages\DesignPages\BackgroundColorsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\DesignPages\ColorsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\DesignPages\DesignIconsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\DesignPages\FillColorsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\DesignPages\SignalColorsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\DesignPages\StrokeColorsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\DesignPages\TextColorsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\DesignPages\TypographyPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\AppWindowPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\ColorPickerButtonPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\ColorPickerPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\CommandBarFlyoutPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\CommandBarPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\ContentDialogPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\DemoComplexSplashScreen.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\FAComboBoxPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\FramePage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\IconsPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\InfoBadgePage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\InfoBarPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\MenuFlyoutPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\NavigationViewPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\NumberBoxPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\PickerFlyoutBasePage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\ProgressRingPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\RangeSliderPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\SettingsExpanderPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\TabViewPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\TabViewWindowingSample.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\TabViewWindowSampleContent.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\TaskDialogPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\TeachingTipPage.axaml" />
-      <UpToDateCheckInput Remove="Pages\FAControlsPages\XamlUICommandPage.axaml" />
-      <UpToDateCheckInput Remove="Views\MainView.axaml" />
-      <UpToDateCheckInput Remove="Views\MainWindow.axaml" />
-      <UpToDateCheckInput Remove="Pages\HomePage.axaml" />
     </ItemGroup>
 
     <ItemGroup>

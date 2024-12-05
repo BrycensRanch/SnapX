@@ -30,6 +30,8 @@
 %global runtime_arch arm64
 %endif
 
+# The dotnet version folder path
+%global         net             net9.0
 %global         dotnet_runtime  linux-%{runtime_arch}
 
 
@@ -66,10 +68,15 @@ Specifically, it is the CLI tool.
 Summary:        ShareX GTK4 UI
 Requires:       gtk4
 BuildRequires:  gtk4-devel
-
-
 %description gtk
 ShareX but gtk4
+
+%package ui
+Summary:        ShareX Avalonia-based UI
+
+
+%description ui
+ShareX but with Avalonia. Works best on X11.
 
 %prep
 %autosetup -n ShareX-Linux-Port-develop
@@ -91,22 +98,30 @@ dotnet publish --configuration Release --runtime %{dotnet_runtime} \
     -p:DebugSymbols=false -p:DebugType=none ShareX.CLI
 dotnet publish --configuration Release --runtime %{dotnet_runtime} \
     -p:DebugSymbols=false -p:DebugType=none -p:GitVersion=false ShareX.GTK4
+dotnet publish --configuration Release --runtime %{dotnet_runtime} \
+    -p:DebugSymbols=false -p:DebugType=none ShareX.Avalonia
 
 %check
-ShareX.CLI/bin/Release/net9.0/%{dotnet_runtime}/publish/sharex --version
+ShareX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex --version
 
 
 %install
 %{__mkdir} -p %{buildroot}%{_libdir}/sharex %{buildroot}%{_bindir}
-%{__cp} ShareX.CLI/bin/Release/net9.0/%{dotnet_runtime}/publish/sharex %{buildroot}%{_bindir}
-%{__cp} ShareX.GTK4/bin/Release/net9.0/%{dotnet_runtime}/publish/sharex-gtk %{buildroot}%{_bindir}
+%{__cp} ShareX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex %{buildroot}%{_bindir}
+%{__cp} ShareX.GTK4/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex-gtk %{buildroot}%{_bindir}
+%{__cp} ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/ShareX.Avalonia %{buildroot}%{_bindir}
 
 
 %files
 %{_bindir}/%{name}
+%license LICENSE.md
 
 %files gtk
 %{_bindir}/%{name}-gtk
+%license LICENSE.md
+
+%files ui
+%{_bindir}/ShareX.Avalonia
 %license LICENSE.md
 
 
