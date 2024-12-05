@@ -28,7 +28,6 @@ using System.IO;
 using System.Text;
 using System.Diagnostics;
 using ShareX.HelpersLib;
-using System.Runtime.InteropServices;
 
 namespace ShareX.NativeMessagingHost
 {
@@ -46,10 +45,13 @@ namespace ShareX.NativeMessagingHost
                     if (!string.IsNullOrEmpty(input))
                     {
                         host.Write(input);
+                        // TODO: This code is no longer correct with ShareX's new structure.
+                        // Windows: ShareX.Avalonia OR ShareX.CLI
+                        // macOS: ShareX.Avalonia OR ShareX.CLI
+                        // Linux: ShareX.GTK4 OR ShareX.Avalonia OR ShareX.CLI
+                        var filePath = FileHelpers.GetAbsolutePath("ShareX");
 
-                        string filePath = FileHelpers.GetAbsolutePath("ShareX");
-
-                        string tempFilePath = FileHelpers.GetTempFilePath("json");
+                        var tempFilePath = FileHelpers.GetTempFilePath("json");
                         File.WriteAllText(tempFilePath, input, Encoding.UTF8);
 
                         var startInfo = new ProcessStartInfo
@@ -62,21 +64,14 @@ namespace ShareX.NativeMessagingHost
                             CreateNoWindow = true
                         };
 
-                        using (var process = Process.Start(startInfo))
-                        {
-                            if (process != null)
-                            {
-                                string output = process.StandardOutput.ReadToEnd();
-                                string error = process.StandardError.ReadToEnd();
-                                process.WaitForExit();
-
-                                if (process.ExitCode != 0)
-                                {
-                                    Console.Error.WriteLine($"Process exited with error code {process.ExitCode}");
-                                    Console.Error.WriteLine($"Error output: {error}");
-                                }
-                            }
-                        }
+                        using var process = Process.Start(startInfo);
+                        if (process == null) return;
+                        var output = process.StandardOutput.ReadToEnd();
+                        var error = process.StandardError.ReadToEnd();
+                        process.WaitForExit();
+                        if (process.ExitCode == 0) return;
+                        Console.Error.WriteLine($"Process exited with error code {process.ExitCode}");
+                        Console.Error.WriteLine($"Error output: {error}");
                     }
                 }
                 catch (Exception e)
