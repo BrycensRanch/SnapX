@@ -35,30 +35,33 @@ If you're using a different distribution, there will be a Flatpak package availa
 
 ## Other platforms
 
-Hi, macOS users.
-One of the project's goals is to make ShareX more portable.
-GTK4 *does* work on macOS and Windows but the building instructions are a bit different than usual.
-Hopefully down the line, I can hope to document this for you.
+When I initially started this port, I only came with one main objective: ShareX on Modern Linux on native Wayland.
+Now, I realize my work could be used on other platforms such as macOS or Windows...
 
-![img.png](img.png)
+That's why ShareX.Avalonia was created. I hope down the line it'll be able to be worked on.
 
-![img_1.png](img_1.png)
+It's powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), can look something like this. Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](image.png)
+
+And yet, it runs on Windows, Linux, and macOS.
+Additionally, it looks the literal same on every OS.
+
+Regarding screenshotting, there's a lot of solutions to the problem. I want this port to be easier to maintain than upstream. Personally, I'm open to PRing any missing spots in any cross platform screenshot/capture library instead of maintaining it in the repository.
 
 ## Development Dependencies
+
+ShareX.GTK4 remains the main focus of this port. Instructions for other projects within the ShareX solution is not provided.
 
 - `git`
 - `gtk4-devel` on Fedora or `libgtk-4-dev` on Ubuntu
 - `dotnet-sdk-9.0`
 - `ffmpeg` (7.0.0)
 
-Cross compiling is not supported! (ie, compiling for Windows from Linux)
-
 ### Ubuntu 24.04
 
 ```bash
 sudo apt update -q && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged
-sudo apt install -y it libgtk-4-dev dotnet-sdk-9.0 ffmpeg
+sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg
 ```
 
 ### Fedora 40
