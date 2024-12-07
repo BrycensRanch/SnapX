@@ -1,4 +1,4 @@
-﻿#region License Information (GPL v3)
+#region License Information (GPL v3)
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
@@ -23,22 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-using Microsoft.Win32;
 using ShareX.HelpersLib;
 using System;
-
-#if MicrosoftStore
-using Windows.ApplicationModel;
-#endif
 
 namespace ShareX
 {
     public static class StartupManager
     {
-#if MicrosoftStore
-        private const int StartupTargetIndex = 0;
-        private static readonly StartupTask packageTask = StartupTask.GetForCurrentPackageAsync().GetAwaiter().GetResult()[StartupTargetIndex];
-#endif
 
         public static string StartupTargetPath
         {
@@ -53,39 +44,12 @@ namespace ShareX
         {
             get
             {
-#if MicrosoftStore
-                return (StartupState)packageTask.State;
-#else
-                if (ShortcutHelpers.CheckShortcut(Environment.SpecialFolder.Startup, "ShareX", StartupTargetPath))
-                {
-                    // TODO:
-                    if (Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
-                        "ShareX.lnk", null) is byte[] status && status.Length > 0 && status[0] == 3)
-                    {
-                        return StartupState.DisabledByUser;
-                    }
-                    else
-                    {
-                        return StartupState.Enabled;
-                    }
-                }
-                else
-                {
-                    return StartupState.Disabled;
-                }
-#endif
+             return StartupState.Enabled;
             }
             set
             {
-
-                if (value == StartupState.Enabled || value == StartupState.Disabled)
-                {
-                    ShortcutHelpers.SetShortcut(value == StartupState.Enabled, Environment.SpecialFolder.Startup, "ShareX", StartupTargetPath, "-silent");
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
+             // TODO: Implement startup state
+             throw new NotImplementedException();
             }
         }
     }
