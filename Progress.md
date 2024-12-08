@@ -30,11 +30,9 @@ With GTK4, this is going to be a interesting task.
 
 ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with Dbus on Dotnet. https://github.com/tmds/Tmds.DBus
 
-
 I also want to decouple *away* from a specific UI framework
-which will allow for the possibility of using [Uno](https://github.com/unoplatform/uno) for Windows and macOS.
+which will allow for the possibility of using [Avalonia](https://github.com/AvaloniaUI/Avalonia) for Windows and macOS.
 While GTK4 does "work" on these platforms, it's significantly handicapped or unstable (on macOS)
-
 
 Worst case scenario, I may need to introduce C++ code to interact directly with Linux. I haven't tried [xcap](https://github.com/nashaofu/xcap) yet but since it's in Rust, I'd have to make it produce .a and .so files.
 
