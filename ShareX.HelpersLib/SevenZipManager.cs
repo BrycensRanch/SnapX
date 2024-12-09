@@ -23,10 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ShareX.HelpersLib
 {
@@ -36,7 +34,7 @@ namespace ShareX.HelpersLib
 
         public SevenZipManager()
         {
-            SevenZipPath = FileHelpers.GetAbsolutePath("7za");
+            SevenZipPath = FileHelpers.GetAbsolutePath(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "7z.exe" : "7z");
         }
 
         public SevenZipManager(string sevenZipPath)
