@@ -181,13 +181,14 @@ namespace ShareX.HelpersLib
         }
 
 
-        public static string GetApplicationVersion(bool includeRevision = false)
+        public static string GetApplicationVersion(bool includeBuild = false)
         {
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            string result = $"{version.Major}.{version.Minor}.{version.Build}";
-            if (includeRevision)
+            Version? version = Assembly.GetExecutingAssembly().GetName()?.Version;
+            if (version == null) return "0.0.0";
+            string result = $"{version.Major}.{version.Minor}.{version.Revision}";
+            if (includeBuild)
             {
-                result = $"{result}.{version.Revision}";
+                result = $"{result}.{version.Build}";
             }
             return result;
         }
