@@ -161,7 +161,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(urls))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyURL is not implemented");
                     }
                 }
             }
@@ -180,7 +180,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(shortenedURLs))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyShortenedURL is not implemented");
                     }
                 }
             }
@@ -199,7 +199,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(thumbnailURLs))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyThumbnailURL is not implemented");
                     }
                 }
             }
@@ -218,7 +218,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(deletionURLs))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyDeletionURL is not implemented");
                     }
                 }
             }
@@ -234,14 +234,14 @@ namespace ShareX.HistoryLib
 
                 if (array != null && array.Length > 0)
                 {
-                    throw new NotImplementedException("");
+                    throw new NotImplementedException("CopyFile is not implemented");
                 }
             }
         }
 
         public void CopyImage()
         {
-            if (HistoryItem != null && IsImageFile) throw new NotImplementedException("");
+            if (HistoryItem != null && IsImageFile) throw new NotImplementedException("CopyImage is not implemented");
 
         }
 
@@ -265,7 +265,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(htmlLinks))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyHTMLLink is not implemented");
 
                     }
                 }
@@ -286,7 +286,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(htmlImages))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyHTMLImage is not implemented");
                     }
                 }
             }
@@ -306,7 +306,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(htmlLinkedImages))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyHTMLLinkedImage is not implemented");
                     }
                 }
             }
@@ -325,7 +325,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(forumLinks))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyForumLink is not implemented");
                     }
                 }
             }
@@ -345,7 +345,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(forumImages))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyForumImage is not implemented");
                     }
                 }
             }
@@ -365,7 +365,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(forumLinkedImages))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyForumLinkedImage is not implemented");
                     }
                 }
             }
@@ -385,7 +385,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(markdownLinks))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyMarkdownLink is not implemented");
                     }
                 }
             }
@@ -405,7 +405,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(markdownImages))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyMarkdownImage is not implemented");
                     }
                 }
             }
@@ -425,7 +425,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(markdownLinkedImages))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyMarkdownLinkedImage is not implemented");
                     }
                 }
             }
@@ -445,7 +445,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(filePaths))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyFilePath is not implemented");
                     }
                 }
             }
@@ -465,7 +465,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(fileNames))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyFileName is not implemented");
                     }
                 }
             }
@@ -485,7 +485,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(fileNamesWithExtension))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyFileNameWithExtension is not implemented");
                     }
                 }
             }
@@ -505,7 +505,7 @@ namespace ShareX.HistoryLib
 
                     if (!string.IsNullOrEmpty(folderPaths))
                     {
-                        throw new NotImplementedException("");
+                        throw new NotImplementedException("CopyFolder is not implemented");
                     }
                 }
             }
@@ -513,7 +513,7 @@ namespace ShareX.HistoryLib
 
         public void ShowImagePreview()
         {
-            if (HistoryItem != null && IsImageFile) throw new NotImplementedException("");
+            if (HistoryItem != null && IsImageFile) throw new NotImplementedException("ShowImagePreview is not implemented");
 
         }
 
@@ -534,7 +534,7 @@ namespace ShareX.HistoryLib
 
         public void ShowMoreInfo()
         {
-            throw new NotImplementedException("");
+            throw new NotImplementedException("ShowMoreInfo is not implemented");
         }
     }
 }
