@@ -6,5 +6,32 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+  <ItemGroup>
+    <PackageReference Include="JsonPath.Net" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
+    <PackageReference Include="Xdg.Directories" Version="0.1.2" />
+    <PackageReference Include="ZXing.Net" Version="0.16.9" />
+    <PackageReference Include="FluentFTP" Version="52.0.0" />
+    <PackageReference Include="MegaApiClient" Version="1.10.4" />
+    <PackageReference Include="SSH.NET" Version="2024.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Resources\host-manifest-chrome.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\host-manifest-firefox.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="APIKeys\jira_sharex.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\OAuthCallbackPage.html" />
+  </ItemGroup>
 </Project>

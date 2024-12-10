@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using ShareX.CommonUI.Types;
 
 namespace ShareX.CommonUI;
 

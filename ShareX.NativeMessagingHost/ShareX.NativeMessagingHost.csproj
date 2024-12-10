@@ -21,15 +21,14 @@
 
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ShareX.HelpersLib\ShareX.HelpersLib.csproj" />
-  </ItemGroup>
-
+  <PropertyGroup>
+    <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
+  </PropertyGroup>
   <!-- Cross-platform copy command using MSBuild -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy
       SourceFiles="$(TargetPath)"
-      DestinationFolder="$(SolutionDir)ShareX\$(OutDir)"
+      DestinationFolder="$(SolutionDir)ShareX.Core\$(OutDir)"
       SkipUnchangedFiles="true" />
   </Target>
 </Project>

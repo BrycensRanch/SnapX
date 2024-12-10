@@ -1,7 +1,4 @@
 #pragma warning disable CA1416 // I know what I'm doing. Windows registry is NOT called on Unix.
-using System;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Microsoft.Win32;
@@ -63,9 +60,9 @@ static string GetLinuxVersion()
     try
     {
         var osReleaseFile = "/etc/os-release";
-        if (File.Exists(osReleaseFile))
+        if (FileHelpers.Exists(osReleaseFile))
         {
-            var lines = File.ReadAllLines(osReleaseFile);
+            var lines = FileHelpers.ReadAllLines(osReleaseFile);
 
             string prettyName = lines.FirstOrDefault(line => line.StartsWith("PRETTY_NAME"))?.Split('=')[1]?.Trim('"');
 

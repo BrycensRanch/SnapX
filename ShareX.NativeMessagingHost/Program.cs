@@ -27,7 +27,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Diagnostics;
-using ShareX.HelpersLib;
+using ShareX.Core;
 
 namespace ShareX.NativeMessagingHost
 {
@@ -39,7 +39,7 @@ namespace ShareX.NativeMessagingHost
             {
                 try
                 {
-                    var host = new HelpersLib.NativeMessagingHost();
+                    var host = new Core.NativeMessagingHost();
                     string input = host.Read();
 
                     if (!string.IsNullOrEmpty(input))

@@ -8,9 +8,8 @@
     <Reference Include="System.Design" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ShareX.HelpersLib\ShareX.HelpersLib.csproj" />
     <ProjectReference Include="..\ShareX.ImageEffectsLib\ShareX.ImageEffectsLib.csproj" />
-    <ProjectReference Include="..\ShareX.MediaLib\ShareX.MediaLib.csproj" />
+    <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
         <!--    This will have to be implmented in our codebase. There's nothing like it for our use case.-->
