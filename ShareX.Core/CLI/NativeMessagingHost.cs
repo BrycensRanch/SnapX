@@ -23,11 +23,9 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.IO;
 using System.Text;
 
-namespace ShareX.HelpersLib
+namespace ShareX.Core.CLI
 {
     public class NativeMessagingHost
     {

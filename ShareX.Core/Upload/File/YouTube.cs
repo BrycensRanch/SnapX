@@ -23,19 +23,17 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.UploadersLib.Properties;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class YouTubeFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.YouTube;
-
-        public override Icon ServiceIcon => Resources.YouTube;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -51,8 +49,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 ShowDialog = config.YouTubeShowDialog
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpYouTube;
     }
 
     public sealed class YouTube : FileUploader, IOAuth2
@@ -101,19 +97,19 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (ShowDialog)
             {
-                using (YouTubeVideoOptionsForm form = new YouTubeVideoOptionsForm(title, description, visibility))
-                {
-                    if (form.ShowDialog() == DialogResult.OK)
-                    {
-                        title = form.Title;
-                        description = form.Description;
-                        visibility = form.Visibility;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
+                // using (YouTubeVideoOptionsForm form = new YouTubeVideoOptionsForm(title, description, visibility))
+                // {
+                //     if (form.ShowDialog() == DialogResult.OK)
+                //     {
+                //         title = form.Title;
+                //         description = form.Description;
+                //         visibility = form.Visibility;
+                //     }
+                //     else
+                //     {
+                //         return null;
+                //     }
+                // }
             }
 
             YouTubeVideoUpload uploadVideo = new YouTubeVideoUpload()
@@ -129,14 +125,14 @@ namespace ShareX.UploadersLib.FileUploaders
                 }
             };
 
-            string metadata = JsonConvert.SerializeObject(uploadVideo);
+            string metadata = JsonSerializer.Serialize(uploadVideo);
 
             UploadResult result = SendRequestFile("https://www.googleapis.com/upload/youtube/v3/videos?part=id,snippet,status", stream, fileName, "file",
                 headers: OAuth2.GetAuthHeaders(), relatedData: metadata);
 
             if (!string.IsNullOrEmpty(result.Response))
             {
-                YouTubeVideoResponse responseVideo = JsonConvert.DeserializeObject<YouTubeVideoResponse>(result.Response);
+                YouTubeVideoResponse responseVideo = JsonSerializer.Deserialize<YouTubeVideoResponse>(result.Response);
 
                 if (responseVideo != null)
                 {

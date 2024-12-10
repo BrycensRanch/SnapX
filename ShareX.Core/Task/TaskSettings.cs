@@ -25,10 +25,7 @@
 
 using Newtonsoft.Json;
 using ShareX.HelpersLib;
-using ShareX.ImageEffectsLib;
-using ShareX.IndexerLib;
 using ShareX.MediaLib;
-using ShareX.ScreenCaptureLib;
 using ShareX.UploadersLib;
 using System;
 using System.Collections.Generic;
@@ -37,7 +34,12 @@ using System.ComponentModel.Design;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Linq;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core;
+using ShareX.Core.Media;
+using ShareX.Core.Upload;
+using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Miscellaneous;
+using ShareX.Core.Watch;
 
 namespace ShareX
 {
@@ -60,11 +62,11 @@ namespace ShareX
         public AfterUploadTasks AfterUploadJob = AfterUploadTasks.CopyURLToClipboard;
 
         public bool UseDefaultDestinations = true;
-        public ImageDestination ImageDestination = ImageDestination.Imgur;
-        public FileDestination ImageFileDestination = FileDestination.Dropbox;
-        public TextDestination TextDestination = TextDestination.Pastebin;
-        public FileDestination TextFileDestination = FileDestination.Dropbox;
-        public FileDestination FileDestination = FileDestination.Dropbox;
+        public ImageDestination ImageDestination = this.ImageDestination.Imgur;
+        public FileDestination ImageFileDestination = this.FileDestination.Dropbox;
+        public TextDestination TextDestination = this.TextDestination.Pastebin;
+        public FileDestination TextFileDestination = this.FileDestination.Dropbox;
+        public FileDestination FileDestination = this.FileDestination.Dropbox;
         public UrlShortenerType URLShortenerDestination = UrlShortenerType.BITLY;
         public URLSharingServices URLSharingServiceDestination = URLSharingServices.Twitter;
 
@@ -90,7 +92,7 @@ namespace ShareX
             {
                 if (UseDefaultImageSettings)
                 {
-                    return Program.DefaultTaskSettings.ImageSettings;
+                    return ShareXDefaultTaskSettings.ImageSettings;
                 }
 
                 return TaskSettingsReference.ImageSettings;
@@ -107,7 +109,7 @@ namespace ShareX
             {
                 if (UseDefaultCaptureSettings)
                 {
-                    return Program.DefaultTaskSettings.CaptureSettings;
+                    return ShareXDefaultTaskSettings.CaptureSettings;
                 }
 
                 return TaskSettingsReference.CaptureSettings;
@@ -130,7 +132,7 @@ namespace ShareX
             {
                 if (UseDefaultToolsSettings)
                 {
-                    return Program.DefaultTaskSettings.ToolsSettings;
+                    return ShareXDefaultTaskSettings.ToolsSettings;
                 }
 
                 return TaskSettingsReference.ToolsSettings;
@@ -162,7 +164,7 @@ namespace ShareX
         {
             TaskSettings taskSettings = new TaskSettings();
             taskSettings.SetDefaultSettings();
-            taskSettings.TaskSettingsReference = Program.DefaultTaskSettings;
+            taskSettings.TaskSettingsReference = ShareXDefaultTaskSettings;
             return taskSettings;
         }
 
@@ -170,9 +172,9 @@ namespace ShareX
         {
             TaskSettings safeTaskSettings;
 
-            if (taskSettings.IsUsingDefaultSettings && Program.DefaultTaskSettings != null)
+            if (taskSettings.IsUsingDefaultSettings && ShareXDefaultTaskSettings != null)
             {
-                safeTaskSettings = Program.DefaultTaskSettings.Copy();
+                safeTaskSettings = ShareXDefaultTaskSettings.Copy();
                 safeTaskSettings.Description = taskSettings.Description;
                 safeTaskSettings.Job = taskSettings.Job;
             }
@@ -188,9 +190,9 @@ namespace ShareX
 
         public void SetDefaultSettings()
         {
-            if (Program.DefaultTaskSettings != null)
+            if (ShareXDefaultTaskSettings != null)
             {
-                TaskSettings defaultTaskSettings = Program.DefaultTaskSettings.Copy();
+                TaskSettings defaultTaskSettings = ShareXDefaultTaskSettings.Copy();
 
                 if (UseDefaultAfterCaptureJob)
                 {
@@ -343,7 +345,7 @@ namespace ShareX
         public bool ImageAutoUseJPEG = true;
         public int ImageAutoUseJPEGSize = 2048;
         public bool ImageAutoJPEGQuality = false;
-        public FileExistAction FileExistAction = FileExistAction.Ask;
+        public FileExistAction FileExistAction = this.FileExistAction.Ask;
 
         #endregion Image / General
 

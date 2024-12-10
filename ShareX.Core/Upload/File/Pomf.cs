@@ -23,21 +23,18 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.UploadersLib.FileUploaders;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class PomfFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Pomf;
-
-        public override Icon ServiceIcon => Resources.Pomf;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -48,8 +45,6 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             return new Pomf(config.PomfUploader);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpPomf;
     }
 
     public class Pomf : FileUploader
@@ -67,7 +62,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (result.IsSuccess)
             {
-                PomfResponse response = JsonConvert.DeserializeObject<PomfResponse>(result.Response);
+                PomfResponse response = JsonSerializer.Deserialize<PomfResponse>(result.Response);
 
                 if (response.success && response.files != null && response.files.Count > 0)
                 {

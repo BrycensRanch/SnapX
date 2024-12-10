@@ -25,7 +25,7 @@
 
 namespace ShareX.Core.Upload.APIKeys
 {
-    internal static partial class APIKeys
+    public static class APIKeys
     {
         // Image uploaders
         public static readonly string ImgurClientID = "";

@@ -23,15 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using File = ShareX.HelpersLib.File;
 
-namespace ShareX.HistoryLib
+using ShareX.Core.Utils;
+
+namespace ShareX.Core.History
 {
     public abstract class HistoryManager
     {
@@ -109,12 +104,12 @@ namespace ShareX.HistoryLib
             {
                 if (CreateBackup)
                 {
-                    File.CopyFile(filePath, BackupFolder);
+                    FileHelpers.CopyFile(filePath, BackupFolder);
                 }
 
                 if (CreateWeeklyBackup)
                 {
-                    File.BackupFileWeekly(filePath, BackupFolder);
+                    FileHelpers.BackupFileWeekly(filePath, BackupFolder);
                 }
             }
         }

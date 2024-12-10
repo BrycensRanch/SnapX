@@ -25,7 +25,7 @@
 
 using System.Text;
 
-namespace ShareX.HelpersLib
+namespace ShareX.Core.CLI
 {
     public class CLIManager
     {

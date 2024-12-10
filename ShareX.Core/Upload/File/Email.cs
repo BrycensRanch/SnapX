@@ -23,21 +23,17 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.UploadersLib.Properties;
-using System.Drawing;
-using System.IO;
 using System.Net;
 using System.Net.Mail;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class EmailFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Email;
-
-        public override Image ServiceImage => Resources.mail;
-
         public override bool CheckConfig(UploadersConfig config)
         {
             return !string.IsNullOrEmpty(config.EmailSmtpServer) && config.EmailSmtpPort > 0 && !string.IsNullOrEmpty(config.EmailFrom) && !string.IsNullOrEmpty(config.EmailPassword);
@@ -60,37 +56,35 @@ namespace ShareX.UploadersLib.FileUploaders
             }
             else
             {
-                using (EmailForm emailForm = new EmailForm(config.EmailRememberLastTo ? config.EmailLastTo : "", config.EmailDefaultSubject, config.EmailDefaultBody))
-                {
-                    if (emailForm.ShowDialog() == DialogResult.OK)
-                    {
-                        if (config.EmailRememberLastTo)
-                        {
-                            config.EmailLastTo = emailForm.ToEmail;
-                        }
-
-                        return new Email()
-                        {
-                            SmtpServer = config.EmailSmtpServer,
-                            SmtpPort = config.EmailSmtpPort,
-                            FromEmail = config.EmailFrom,
-                            Password = config.EmailPassword,
-                            ToEmail = emailForm.ToEmail,
-                            Subject = emailForm.Subject,
-                            Body = emailForm.Body
-                        };
-                    }
-                    else
-                    {
-                        taskInfo.StopRequested = true;
-                    }
-                }
+                // using (EmailForm emailForm = new EmailForm(config.EmailRememberLastTo ? config.EmailLastTo : "", config.EmailDefaultSubject, config.EmailDefaultBody))
+                // {
+                //     if (emailForm.ShowDialog() == DialogResult.OK)
+                //     {
+                //         if (config.EmailRememberLastTo)
+                //         {
+                //             config.EmailLastTo = emailForm.ToEmail;
+                //         }
+                //
+                //         return new Email()
+                //         {
+                //             SmtpServer = config.EmailSmtpServer,
+                //             SmtpPort = config.EmailSmtpPort,
+                //             FromEmail = config.EmailFrom,
+                //             Password = config.EmailPassword,
+                //             ToEmail = emailForm.ToEmail,
+                //             Subject = emailForm.Subject,
+                //             Body = emailForm.Body
+                //         };
+                //     }
+                //     else
+                //     {
+                //         taskInfo.StopRequested = true;
+                //     }
+                // }
             }
 
             return null;
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpEmail;
     }
 
     public class Email : FileUploader

@@ -24,13 +24,11 @@
 #endregion License Information (GPL v3)
 
 
-using SixLabors.ImageSharp;
-
 namespace ShareX.Core.Upload.BaseUploaders
 {
     public abstract class ImageUploader : FileUploader
     {
-        public UploadResult UploadImage(Image image, string fileName)
+        public UploadResult UploadImage(SixLabors.ImageSharp.Image image, string fileName)
         {
             using (MemoryStream stream = new MemoryStream())
             {

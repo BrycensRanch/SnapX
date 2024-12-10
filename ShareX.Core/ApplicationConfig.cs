@@ -24,11 +24,12 @@
 #endregion License Information (GPL v3)
 
 using System.ComponentModel;
+using ShareX.Core.History;
 using ShareX.Core.Upload;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Utils.Settings;
-using ShareX.HistoryLib;
+using SixLabors.ImageSharp;
 
 namespace ShareX.Core
 {
@@ -73,14 +74,6 @@ namespace ShareX.Core
         public bool CheckPreReleaseUpdates = false;
 
         #endregion General
-
-        #region Theme
-
-        public bool UseCustomTheme = true;
-        public List<ShareXTheme> Themes = ShareXTheme.GetDefaultThemes();
-        public int SelectedTheme = 0;
-
-        #endregion
 
         #region Paths
 
@@ -172,10 +165,6 @@ namespace ShareX.Core
         [Category("Application"), DefaultValue(true), Description("Show tips and hotkeys in main window when task list is empty.")]
         public bool ShowMainWindowTip { get; set; }
 
-        [Category("Application"), DefaultValue(""), Description("URLs will open using this path instead of default browser. Example path: chrome.exe")]
-        [Editor(typeof(ExeFileNameEditor), typeof(UITypeEditor))]
-        public string BrowserPath { get; set; }
-
         [Category("Application"), DefaultValue(false), Description("Save settings after task completed but only if there is no other active tasks.")]
         public bool SaveSettingsAfterTaskCompleted { get; set; }
 
@@ -260,8 +249,8 @@ namespace ShareX.Core
         [Category("Drag and drop window"), DefaultValue(5), Description("Position offset of drop window.")]
         public int DropOffset { get; set; }
 
-        [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
-        public ContentAlignment DropAlignment { get; set; }
+        // [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
+        // public ContentAlignment DropAlignment { get; set; }
 
         [Category("Drag and drop window"), DefaultValue(100), Description("Opacity of drop window.")]
         public int DropOpacity { get; set; }

@@ -23,10 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
 
-namespace ShareX.UploadersLib.FileUploaders
+using ShareX.Core.Upload.Utils;
+
+namespace ShareX.Core.Upload.File
 {
     public static class SendSpaceManager
     {

@@ -25,23 +25,20 @@
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
+using Math = System.Math;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     /// <summary>
     /// A <see cref="FileUploaderService"/> implementation for the Backblaze B2 Cloud Storage API.
@@ -49,9 +46,6 @@ namespace ShareX.UploadersLib.FileUploaders
     public class BackblazeB2UploaderService : FileUploaderService
     {
         public override FileDestination EnumValue => FileDestination.BackblazeB2;
-
-        public override Icon ServiceIcon => Resources.BackblazeB2;
-
         public override bool CheckConfig(UploadersConfig config)
         {
             return !string.IsNullOrWhiteSpace(config.B2ApplicationKeyId) && !string.IsNullOrWhiteSpace(config.B2ApplicationKey);
@@ -66,8 +60,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 useCustomUrl: config.B2UseCustomUrl,
                 customUrl: config.B2CustomUrl);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpBackblazeB2;
     }
 
     /// <summary>
@@ -264,7 +256,7 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(keyId, key);
 
-            using (HttpWebResponse res = GetResponse(HttpMethod.get, B2AuthorizeAccountUrl, headers: headers, allowNon2xxResponses: true))
+            using (HttpWebResponse res = GetResponse(HttpMethod.Get, B2AuthorizeAccountUrl, headers: headers, allowNon2xxResponses: true))
             {
                 if (res.StatusCode != HttpStatusCode.OK)
                 {
@@ -301,7 +293,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             using (Stream data = CreateJsonBody(reqBody))
             {
-                using (HttpWebResponse res = GetResponse(HttpMethod.post, auth.apiUrl + B2ListBucketsPath,
+                using (HttpWebResponse res = GetResponse(HttpMethod.Post, auth.apiUrl + B2ListBucketsPath,
                     contentType: ApplicationJson, headers: headers, data: data, allowNon2xxResponses: true))
                 {
                     if (res.StatusCode != HttpStatusCode.OK)
@@ -355,7 +347,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             using (Stream data = CreateJsonBody(reqBody))
             {
-                using (HttpWebResponse res = GetResponse(HttpMethod.post, auth.apiUrl + B2GetUploadUrlPath,
+                using (HttpWebResponse res = GetResponse(HttpMethod.Post, auth.apiUrl + B2GetUploadUrlPath,
                     contentType: ApplicationJson, headers: headers, data: data, allowNon2xxResponses: true))
                 {
                     if (res.StatusCode != HttpStatusCode.OK)
@@ -417,7 +409,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             string contentType = MimeTypes.GetMimeTypeFromFileName(destinationPath);
 
-            using (HttpWebResponse res = GetResponse(HttpMethod.post, b2UploadUrl.uploadUrl,
+            using (HttpWebResponse res = GetResponse(HttpMethod.Post, b2UploadUrl.uploadUrl,
                 contentType: contentType, headers: headers, data: file, allowNon2xxResponses: true))
             {
                 // if connection failed, res will be null, and here we -do- want to check explicitly for this

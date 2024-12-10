@@ -26,6 +26,8 @@
 using ShareX.HelpersLib;
 using System;
 using System.Drawing;
+using ShareX.Core.Utils.Extensions;
+using SixLabors.ImageSharp;
 
 namespace ShareX
 {
@@ -33,7 +35,7 @@ namespace ShareX
     {
         private const int WindowInfoMaxLength = 255;
 
-        public Bitmap Image { get; set; }
+        public Image Image { get; set; }
 
         private string windowTitle;
 
@@ -67,18 +69,19 @@ namespace ShareX
         {
         }
 
-        public TaskMetadata(Bitmap image)
+        public TaskMetadata(Image image)
         {
             Image = image;
         }
-
-        public void UpdateInfo(WindowInfo windowInfo)
+        // This code should be removed after ShareX.Core compiles
+        public void UpdateInfo<T>(T windowInfo)
         {
-            if (windowInfo != null)
-            {
-                WindowTitle = windowInfo.Text;
-                ProcessName = windowInfo.ProcessName;
-            }
+            // TODO: Migrate API consumers to ShareX.CommonUI
+            // if (windowInfo != null)
+            // {
+            //     WindowTitle = windowInfo.Text;
+            //     ProcessName = windowInfo.ProcessName;
+            // }
         }
 
         public void Dispose()

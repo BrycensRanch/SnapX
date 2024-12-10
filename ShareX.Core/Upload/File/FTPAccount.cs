@@ -23,10 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
+using ShareX.Core.Upload.Custom;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib
+namespace ShareX.Core.Upload.File
 {
     public class FTPAccount : ICloneable
     {

@@ -23,14 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using File = ShareX.HelpersLib.File;
 
-namespace ShareX
+using ShareX.Core.Upload;
+using ShareX.Core.Utils;
+
+namespace ShareX.Core.Watch
 {
     public class WatchFolderManager : IDisposable
     {
@@ -45,12 +42,12 @@ namespace ShareX
 
             WatchFolders = new List<WatchFolder>();
 
-            foreach (WatchFolderSettings defaultWatchFolderSetting in Program.DefaultTaskSettings.WatchFolderList)
+            foreach (WatchFolderSettings defaultWatchFolderSetting in ShareX.DefaultTaskSettings.WatchFolderList)
             {
-                AddWatchFolder(defaultWatchFolderSetting, Program.DefaultTaskSettings);
+                AddWatchFolder(defaultWatchFolderSetting, ShareX.DefaultTaskSettings);
             }
 
-            foreach (HotkeySettings hotkeySetting in Program.HotkeysConfig.Hotkeys)
+            foreach (HotkeySettings hotkeySetting in ShareX.HotkeysConfig.Hotkeys)
             {
                 foreach (WatchFolderSettings watchFolderSetting in hotkeySetting.TaskSettings.WatchFolderList)
                 {
@@ -92,8 +89,8 @@ namespace ShareX
                         string screenshotsFolder = TaskHelpers.GetScreenshotsFolder(taskSettingsCopy);
                         string fileName = Path.GetFileName(origPath);
                         destPath = TaskHelpers.HandleExistsFile(screenshotsFolder, fileName, taskSettingsCopy);
-                        File.CreateDirectoryFromFilePath(destPath);
-                        System.IO.File.Move(origPath, destPath);
+                        FileHelpers.CreateDirectoryFromFilePath(destPath);
+                        File.Move(origPath, destPath);
                     }
 
                     UploadManager.UploadFile(destPath, taskSettingsCopy);

@@ -23,13 +23,14 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public sealed class Copy : FileUploader, IOAuth
     {
@@ -88,13 +89,13 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (OAuthInfo.CheckOAuth(AuthInfo))
             {
-                string query = OAuthManager.GenerateQuery(URLAccountInfo, null, HttpMethod.get, AuthInfo);
+                string query = OAuthManager.GenerateQuery(URLAccountInfo, null, HttpMethod.Get, AuthInfo);
 
-                string response = SendRequest(HttpMethod.get, query, null, APIHeaders);
+                string response = SendRequest(HttpMethod.Get, query, null, APIHeaders);
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    account = JsonConvert.DeserializeObject<CopyAccountInfo>(response);
+                    account = JsonSerializer.Deserialize<CopyAccountInfo>(response);
 
                     if (account != null)
                     {
@@ -117,8 +118,8 @@ namespace ShareX.UploadersLib.FileUploaders
             if (!string.IsNullOrEmpty(path) && OAuthInfo.CheckOAuth(AuthInfo))
             {
                 string url = URLHelpers.CombineURL(URLFiles, URLHelpers.URLEncode(path, true));
-                string query = OAuthManager.GenerateQuery(url, null, HttpMethod.get, AuthInfo);
-                return SendRequestDownload(HttpMethod.get, query, downloadStream);
+                string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
+                return SendRequestDownload(HttpMethod.Get, query, downloadStream);
             }
 
             return false;
@@ -139,14 +140,14 @@ namespace ShareX.UploadersLib.FileUploaders
             Dictionary<string, string> args = new Dictionary<string, string>();
             args.Add("overwrite", "true");
 
-            string query = OAuthManager.GenerateQuery(url, args, HttpMethod.post, AuthInfo);
+            string query = OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo);
 
             // There's a 1GB and 5 hour(max time for a single upload) limit to all uploads through the API.
             UploadResult result = SendRequestFile(query, stream, fileName, "file", headers: APIHeaders);
 
             if (result.IsSuccess)
             {
-                CopyUploadInfo content = JsonConvert.DeserializeObject<CopyUploadInfo>(result.Response);
+                CopyUploadInfo content = JsonSerializer.Deserialize<CopyUploadInfo>(result.Response);
 
                 if (content != null && content.objects != null && content.objects.Length > 0)
                 {
@@ -168,13 +169,13 @@ namespace ShareX.UploadersLib.FileUploaders
             {
                 string url = URLHelpers.CombineURL(URLMetaData, URLHelpers.URLEncode(path, true));
 
-                string query = OAuthManager.GenerateQuery(url, null, HttpMethod.get, AuthInfo);
+                string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
 
-                string response = SendRequest(HttpMethod.get, query);
+                string response = SendRequest(HttpMethod.Get, query);
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    contentInfo = JsonConvert.DeserializeObject<CopyContentInfo>(response);
+                    contentInfo = JsonSerializer.Deserialize<CopyContentInfo>(response);
                 }
             }
 
@@ -210,20 +211,20 @@ namespace ShareX.UploadersLib.FileUploaders
 
             string url = URLHelpers.CombineURL(URLLinks, URLHelpers.URLEncode(path, true));
 
-            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.post, AuthInfo);
+            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
             CopyLinkRequest publicLink = new CopyLinkRequest();
             publicLink.@public = true;
             publicLink.name = "ShareX";
             publicLink.paths = new string[] { path };
 
-            string content = JsonConvert.SerializeObject(publicLink);
+            string content = JsonSerializer.Serialize(publicLink);
 
-            string response = SendRequest(HttpMethod.post, query, content, headers: APIHeaders);
+            string response = SendRequest(HttpMethod.Post, query, content, headers: APIHeaders);
 
             if (!string.IsNullOrEmpty(response))
             {
-                CopyLinksInfo link = JsonConvert.DeserializeObject<CopyLinksInfo>(response);
+                CopyLinksInfo link = JsonSerializer.Deserialize<CopyLinksInfo>(response);
 
                 return GetLinkURL(link, path, urlType);
             }

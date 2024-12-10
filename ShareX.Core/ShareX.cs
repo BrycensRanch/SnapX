@@ -6,6 +6,7 @@ using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
+using ShareX.Core.Watch;
 
 namespace ShareX.Core;
 

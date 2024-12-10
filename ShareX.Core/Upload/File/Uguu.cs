@@ -23,9 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using System.IO;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class UguuFileUploaderService : FileUploaderService
     {

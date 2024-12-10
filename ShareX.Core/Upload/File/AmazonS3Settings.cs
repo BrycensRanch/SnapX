@@ -23,14 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class AmazonS3Settings
     {
         public string AccessKeyID { get; set; }
-        [JsonEncrypt]
         public string SecretAccessKey { get; set; }
         public string Endpoint { get; set; }
         public string Region { get; set; }

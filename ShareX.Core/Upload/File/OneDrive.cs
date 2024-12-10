@@ -23,23 +23,21 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class OneDriveFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.OneDrive;
-
-        public override Icon ServiceIcon => Resources.OneDrive;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -55,8 +53,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 UseDirectLink = config.OneDriveUseDirectLink
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpOneDrive;
     }
 
     public sealed class OneDrive : FileUploader, IOAuth2
@@ -110,11 +106,11 @@ namespace ShareX.UploadersLib.FileUploaders
                 args.Add("code_verifier", AuthInfo.Proof.CodeVerifier);
             }
 
-            string response = SendRequestURLEncoded(HttpMethod.post, TokenEndpoint, args);
+            string response = SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
 
             if (!string.IsNullOrEmpty(response))
             {
-                OAuth2Token token = JsonConvert.DeserializeObject<OAuth2Token>(response);
+                OAuth2Token token = JsonSerializer.Deserialize<OAuth2Token>(response);
 
                 if (token != null && !string.IsNullOrEmpty(token.access_token))
                 {
@@ -137,11 +133,11 @@ namespace ShareX.UploadersLib.FileUploaders
                 args.Add("refresh_token", AuthInfo.Token.refresh_token);
                 args.Add("grant_type", "refresh_token");
 
-                string response = SendRequestURLEncoded(HttpMethod.post, TokenEndpoint, args);
+                string response = SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    OAuth2Token token = JsonConvert.DeserializeObject<OAuth2Token>(response);
+                    OAuth2Token token = JsonSerializer.Deserialize<OAuth2Token>(response);
 
                     if (token != null && !string.IsNullOrEmpty(token.access_token))
                     {
@@ -201,7 +197,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
         private string CreateSession(string fileName)
         {
-            string json = JsonConvert.SerializeObject(new
+            string json = JsonSerializer.Serialize(new
             {
                 item = new Dictionary<string, string>
                 {
@@ -214,10 +210,10 @@ namespace ShareX.UploadersLib.FileUploaders
             string url = URLHelpers.BuildUri("https://graph.microsoft.com", $"/v1.0/{folderPath}:/{fileName}:/createUploadSession");
 
             AllowReportProgress = false;
-            string response = SendRequest(HttpMethod.post, url, json, RequestHelpers.ContentTypeJSON, headers: GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Post, url, json, RequestHelpers.ContentTypeJSON, headers: GetAuthHeaders());
             AllowReportProgress = true;
 
-            OneDriveUploadSession session = JsonConvert.DeserializeObject<OneDriveUploadSession>(response);
+            OneDriveUploadSession session = JsonSerializer.Deserialize<OneDriveUploadSession>(response);
 
             if (session != null)
             {
@@ -245,7 +241,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 }
                 else
                 {
-                    SendRequest(HttpMethod.delete, sessionUrl);
+                    SendRequest(HttpMethod.Delete, sessionUrl);
                     break;
                 }
             }
@@ -253,7 +249,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (result.IsSuccess)
             {
-                OneDriveFileInfo uploadInfo = JsonConvert.DeserializeObject<OneDriveFileInfo>(result.Response);
+                OneDriveFileInfo uploadInfo = JsonSerializer.Deserialize<OneDriveFileInfo>(result.Response);
 
                 if (AutoCreateShareableLink)
                 {
@@ -288,16 +284,16 @@ namespace ShareX.UploadersLib.FileUploaders
                     break;
             }
 
-            string json = JsonConvert.SerializeObject(new
+            string json = JsonSerializer.Serialize(new
             {
                 type = linkTypeValue,
                 scope = "anonymous"
             });
 
-            string response = SendRequest(HttpMethod.post, $"https://graph.microsoft.com/v1.0/me/drive/items/{id}/createLink", json, RequestHelpers.ContentTypeJSON,
+            string response = SendRequest(HttpMethod.Post, $"https://graph.microsoft.com/v1.0/me/drive/items/{id}/createLink", json, RequestHelpers.ContentTypeJSON,
                 headers: GetAuthHeaders());
 
-            OneDrivePermission permissionInfo = JsonConvert.DeserializeObject<OneDrivePermission>(response);
+            OneDrivePermission permissionInfo = JsonSerializer.Deserialize<OneDrivePermission>(response);
 
             if (permissionInfo != null && permissionInfo.link != null)
             {
@@ -317,11 +313,11 @@ namespace ShareX.UploadersLib.FileUploaders
             args.Add("select", "id,name");
             args.Add("filter", "folder ne null");
 
-            string response = SendRequest(HttpMethod.get, $"https://graph.microsoft.com/v1.0/{folderPath}/children", args, GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Get, $"https://graph.microsoft.com/v1.0/{folderPath}/children", args, GetAuthHeaders());
 
             if (response != null)
             {
-                OneDriveFileList pathInfo = JsonConvert.DeserializeObject<OneDriveFileList>(response);
+                OneDriveFileList pathInfo = JsonSerializer.Deserialize<OneDriveFileList>(response);
                 return pathInfo;
             }
 

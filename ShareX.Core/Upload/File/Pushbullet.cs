@@ -23,24 +23,19 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class PushbulletFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Pushbullet;
-
-        public override Icon ServiceIcon => Resources.Pushbullet;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -52,8 +47,6 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             return new Pushbullet(config.PushbulletSettings);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpPushbullet;
     }
 
     public sealed class Pushbullet : FileUploader
@@ -84,7 +77,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (uploadRequest == null) return null;
 
-            PushbulletResponseFileUpload fileInfo = JsonConvert.DeserializeObject<PushbulletResponseFileUpload>(uploadRequest);
+            PushbulletResponseFileUpload fileInfo = JsonSerializer.Deserialize<PushbulletResponseFileUpload>(uploadRequest);
 
             if (fileInfo == null) return null;
 
@@ -113,7 +106,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (pushResult == null) return null;
 
-            PushbulletResponsePush push = JsonConvert.DeserializeObject<PushbulletResponsePush>(pushResult);
+            PushbulletResponsePush push = JsonSerializer.Deserialize<PushbulletResponsePush>(pushResult);
 
             if (push != null)
                 uploadResult.URL = wwwPushesURL + "?push_iden=" + push.iden;
@@ -143,7 +136,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (response == null) return null;
 
-            PushbulletResponsePush push = JsonConvert.DeserializeObject<PushbulletResponsePush>(response);
+            PushbulletResponsePush push = JsonSerializer.Deserialize<PushbulletResponsePush>(response);
 
             if (push != null)
                 return wwwPushesURL + "?push_iden=" + push.iden;
@@ -174,9 +167,9 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
-            string response = SendRequest(HttpMethod.get, apiGetDevicesURL, headers: headers);
+            string response = SendRequest(HttpMethod.Get, apiGetDevicesURL, headers: headers);
 
-            PushbulletResponseDevices devicesResponse = JsonConvert.DeserializeObject<PushbulletResponseDevices>(response);
+            PushbulletResponseDevices devicesResponse = JsonSerializer.Deserialize<PushbulletResponseDevices>(response);
 
             if (devicesResponse != null && devicesResponse.devices != null)
             {
@@ -228,7 +221,7 @@ namespace ShareX.UploadersLib.FileUploaders
             public string key { get; set; }
             public string signature { get; set; }
             public string policy { get; set; }
-            [JsonProperty("content-type")]
+            [JsonPropertyName("content-type")]
             public string content_type { get; set; }
         }
     }
@@ -241,7 +234,6 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public class PushbulletSettings
     {
-        [JsonEncrypt]
         public string UserAPIKey { get; set; } = "";
         public List<PushbulletDevice> DeviceList { get; set; } = new List<PushbulletDevice>();
         public int SelectedDevice { get; set; } = 0;

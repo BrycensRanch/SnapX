@@ -23,14 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Text.Json;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Utils;
 
-namespace ShareX.HistoryLib
+namespace ShareX.Core.History
 {
     public class HistoryManagerJSON : HistoryManager
     {
@@ -65,7 +62,7 @@ namespace ShareX.HistoryLib
             if (string.IsNullOrEmpty(filePath)) return false;
 
             // Ensure the directory exists
-            File.CreateDirectoryFromFilePath(filePath);
+            FileHelpers.CreateDirectoryFromFilePath(filePath);
 
             // Open the file for appending data
             using var fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096,

@@ -23,24 +23,20 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class DropboxFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Dropbox;
-
-        public override Icon ServiceIcon => Resources.Dropbox;
-
         public override bool CheckConfig(UploadersConfig config)
         {
             return OAuth2Info.CheckOAuth(config.DropboxOAuth2Info);
@@ -55,8 +51,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 UseDirectLink = config.DropboxUseDirectLink
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpDropbox;
     }
 
     public sealed class Dropbox : FileUploader, IOAuth2Basic
@@ -121,7 +115,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(response))
             {
-                OAuth2Token token = JsonConvert.DeserializeObject<OAuth2Token>(response);
+                OAuth2Token token = JsonSerializer.Deserialize<OAuth2Token>(response);
 
                 if (token != null && !string.IsNullOrEmpty(token.access_token))
                 {
@@ -167,11 +161,11 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             if (OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string response = SendRequest(HttpMethod.post, URLGetCurrentAccount, "null", RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLGetCurrentAccount, "null", RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    return JsonConvert.DeserializeObject<DropboxAccount>(response);
+                    return JsonSerializer.Deserialize<DropboxAccount>(response);
                 }
             }
 
@@ -182,7 +176,7 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     path = VerifyPath(path)
                 });
@@ -190,7 +184,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 Dictionary<string, string> args = new Dictionary<string, string>();
                 args.Add("arg", json);
 
-                return SendRequestDownload(HttpMethod.post, URLDownload, downloadStream, args, GetAuthHeaders(), null, RequestHelpers.ContentTypeJSON);
+                return SendRequestDownload(HttpMethod.Post, URLDownload, downloadStream, args, GetAuthHeaders(), null, RequestHelpers.ContentTypeJSON);
             }
 
             return false;
@@ -204,7 +198,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 return null;
             }
 
-            string json = JsonConvert.SerializeObject(new
+            string json = JsonSerializer.Serialize(new
             {
                 path = VerifyPath(path, fileName),
                 mode = "overwrite",
@@ -215,13 +209,13 @@ namespace ShareX.UploadersLib.FileUploaders
             Dictionary<string, string> args = new Dictionary<string, string>();
             args.Add("arg", json);
 
-            string response = SendRequest(HttpMethod.post, URLUpload, stream, RequestHelpers.ContentTypeOctetStream, args, GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Post, URLUpload, stream, RequestHelpers.ContentTypeOctetStream, args, GetAuthHeaders());
 
             UploadResult ur = new UploadResult(response);
 
             if (!string.IsNullOrEmpty(ur.Response))
             {
-                DropboxMetadata metadata = JsonConvert.DeserializeObject<DropboxMetadata>(ur.Response);
+                DropboxMetadata metadata = JsonSerializer.Deserialize<DropboxMetadata>(ur.Response);
 
                 if (metadata != null)
                 {
@@ -247,7 +241,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (path != null && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     path = VerifyPath(path),
                     include_media_info = false,
@@ -255,11 +249,11 @@ namespace ShareX.UploadersLib.FileUploaders
                     include_has_explicit_shared_members = false
                 });
 
-                string response = SendRequest(HttpMethod.post, URLGetMetadata, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLGetMetadata, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    metadata = JsonConvert.DeserializeObject<DropboxMetadata>(response);
+                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
                 }
             }
 
@@ -277,7 +271,7 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     path = VerifyPath(path),
                     settings = new
@@ -286,13 +280,13 @@ namespace ShareX.UploadersLib.FileUploaders
                     }
                 });
 
-                string response = SendRequest(HttpMethod.post, URLCreateSharedLink, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLCreateSharedLink, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 DropboxLinkMetadata linkMetadata = null;
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    linkMetadata = JsonConvert.DeserializeObject<DropboxLinkMetadata>(response);
+                    linkMetadata = JsonSerializer.Deserialize<DropboxLinkMetadata>(response);
                 }
                 else if (IsError && Errors.Errors[Errors.Count - 1].Text.Contains("\"shared_link_already_exists\"")) // Ugly workaround
                 {
@@ -326,17 +320,17 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (path != null && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     path = VerifyPath(path),
                     direct_only = directOnly
                 });
 
-                string response = SendRequest(HttpMethod.post, URLListSharedLinks, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLListSharedLinks, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    result = JsonConvert.DeserializeObject<DropboxListSharedLinksResult>(response);
+                    result = JsonSerializer.Deserialize<DropboxListSharedLinksResult>(response);
                 }
             }
 
@@ -349,17 +343,17 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(fromPath) && !string.IsNullOrEmpty(toPath) && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     from_path = VerifyPath(fromPath),
                     to_path = VerifyPath(toPath)
                 });
 
-                string response = SendRequest(HttpMethod.post, URLCopy, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLCopy, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    metadata = JsonConvert.DeserializeObject<DropboxMetadata>(response);
+                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
                 }
             }
 
@@ -372,16 +366,16 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     path = VerifyPath(path)
                 });
 
-                string response = SendRequest(HttpMethod.post, URLCreateFolder, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLCreateFolder, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    metadata = JsonConvert.DeserializeObject<DropboxMetadata>(response);
+                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
                 }
             }
 
@@ -394,16 +388,16 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     path = VerifyPath(path)
                 });
 
-                string response = SendRequest(HttpMethod.post, URLDelete, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLDelete, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    metadata = JsonConvert.DeserializeObject<DropboxMetadata>(response);
+                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
                 }
             }
 
@@ -416,17 +410,17 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(fromPath) && !string.IsNullOrEmpty(toPath) && OAuth2Info.CheckOAuth(AuthInfo))
             {
-                string json = JsonConvert.SerializeObject(new
+                string json = JsonSerializer.Serialize(new
                 {
                     from_path = VerifyPath(fromPath),
                     to_path = VerifyPath(toPath)
                 });
 
-                string response = SendRequest(HttpMethod.post, URLMove, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Post, URLMove, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    metadata = JsonConvert.DeserializeObject<DropboxMetadata>(response);
+                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
                 }
             }
 
@@ -477,13 +471,13 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public class DropboxAccountType
     {
-        [JsonProperty(".tag")]
+        [JsonPropertyName(".tag")]
         public string tag { get; set; }
     }
 
     public class DropboxMetadata
     {
-        [JsonProperty(".tag")]
+        [JsonPropertyName(".tag")]
         public string tag { get; set; }
         public string name { get; set; }
         public string id { get; set; }
@@ -519,7 +513,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public class DropboxLinkMetadata
     {
-        [JsonProperty(".tag")]
+        [JsonPropertyName(".tag")]
         public string tag { get; set; }
         public string url { get; set; }
         public string name { get; set; }
@@ -542,13 +536,13 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public class DropboxLinkMetadataResolvedVisibility
     {
-        [JsonProperty(".tag")]
+        [JsonPropertyName(".tag")]
         public string tag { get; set; }
     }
 
     public class DropboxLinkMetadataRevokeFailureReason
     {
-        [JsonProperty(".tag")]
+        [JsonPropertyName(".tag")]
         public string tag { get; set; }
     }
 

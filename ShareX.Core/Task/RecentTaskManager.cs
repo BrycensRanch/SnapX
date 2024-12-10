@@ -23,13 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.Properties;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
 
-namespace ShareX
+namespace ShareX.Core.Task
 {
     public class RecentTaskManager
     {
@@ -37,13 +32,11 @@ namespace ShareX
 
         public int MaxCount
         {
-            get
-            {
-                return maxCount;
-            }
+            get => maxCount;
+
             set
             {
-                maxCount = value.Clamp(1, 100);
+                maxCount = Math.Clamp(value, 1, 100);
 
                 lock (itemsLock)
                 {
@@ -51,8 +44,6 @@ namespace ShareX
                     {
                         Tasks.Dequeue();
                     }
-
-                    UpdateTrayMenu();
                 }
             }
         }
@@ -70,15 +61,12 @@ namespace ShareX
         {
             lock (itemsLock)
             {
-                MaxCount = Program.Settings.RecentTasksMaxCount;
+                MaxCount = ShareX.Settings.RecentTasksMaxCount;
 
-                if (Program.Settings.RecentTasks != null)
+                if (ShareX.Settings.RecentTasks != null)
                 {
-                    Tasks = new Queue<RecentTask>(Program.Settings.RecentTasks.Take(MaxCount));
+                    Tasks = new Queue<RecentTask>(ShareX.Settings.RecentTasks.Take(MaxCount));
                 }
-
-                UpdateTrayMenu();
-                UpdateMainWindowList();
             }
         }
 
@@ -100,13 +88,13 @@ namespace ShareX
                 Add(recentItem);
             }
 
-            if (Program.Settings.RecentTasksSave)
+            if (ShareX.Settings.RecentTasksSave)
             {
-                Program.Settings.RecentTasks = Tasks.ToArray();
+                ShareX.Settings.RecentTasks = Tasks.ToArray();
             }
             else
             {
-                Program.Settings.RecentTasks = null;
+                ShareX.Settings.RecentTasks = null;
             }
         }
 
@@ -120,8 +108,6 @@ namespace ShareX
                 }
 
                 Tasks.Enqueue(task);
-
-                UpdateTrayMenu();
             }
         }
 
@@ -131,65 +117,8 @@ namespace ShareX
             {
                 Tasks.Clear();
 
-                Program.Settings.RecentTasks = null;
+                ShareX.Settings.RecentTasks = null;
 
-                UpdateTrayMenu();
-            }
-        }
-
-        private void UpdateTrayMenu()
-        {
-            ToolStripMenuItem tsmi = Program.MainForm.tsmiTrayRecentItems;
-
-            if (Program.Settings.RecentTasksSave && Program.Settings.RecentTasksShowInTrayMenu && Tasks.Count > 0)
-            {
-                tsmi.Visible = true;
-
-                tsmi.DropDownItems.Clear();
-                ToolStripMenuItem tsmiTip = new ToolStripMenuItem(Resources.RecentManager_UpdateRecentMenu_Left_click_to_copy_URL_to_clipboard__Right_click_to_open_URL_);
-                tsmiTip.Enabled = false;
-                tsmi.DropDownItems.Add(tsmiTip);
-                tsmi.DropDownItems.Add(new ToolStripSeparator());
-
-                foreach (RecentTask task in Tasks)
-                {
-                    ToolStripMenuItem tsmiLink = new ToolStripMenuItem();
-                    tsmiLink.Text = task.TrayMenuText;
-                    string link = task.ToString();
-                    tsmiLink.ToolTipText = link;
-                    tsmiLink.MouseUp += (sender, e) =>
-                    {
-                        if (e.Button == MouseButtons.Left)
-                        {
-                            ClipboardHelpers.CopyText(link);
-                        }
-                        else if (e.Button == MouseButtons.Right)
-                        {
-                            URLHelpers.OpenURL(link);
-                        }
-                    };
-
-                    if (Program.Settings.RecentTasksTrayMenuMostRecentFirst)
-                    {
-                        tsmi.DropDownItems.Insert(2, tsmiLink);
-                    }
-                    else
-                    {
-                        tsmi.DropDownItems.Add(tsmiLink);
-                    }
-                }
-            }
-            else
-            {
-                tsmi.Visible = false;
-            }
-        }
-
-        private void UpdateMainWindowList()
-        {
-            if (Program.Settings.RecentTasksSave && Program.Settings.RecentTasksShowInMainWindow && Tasks.Count > 0)
-            {
-                TaskManager.AddRecentTasksToMainWindow();
             }
         }
     }

@@ -24,21 +24,15 @@
 #endregion License Information (GPL v3)
 
 using CG.Web.MegaApiClient;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class MegaFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Mega;
-
-        public override Icon ServiceIcon => Resources.Mega;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -50,8 +44,6 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             return new Mega(config.MegaAuthInfos?.GetMegaApiClientAuthInfos(), config.MegaParentNodeId);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpMega;
     }
 
     public sealed class Mega : FileUploader, IWebClient
@@ -155,7 +147,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
         public string PostRequestJson(Uri url, string jsonData)
         {
-            return SendRequest(HttpMethod.post, url.ToString(), jsonData, RequestHelpers.ContentTypeJSON);
+            return SendRequest(HttpMethod.Post, url.ToString(), jsonData, RequestHelpers.ContentTypeJSON);
         }
 
         public string PostRequestRaw(Uri url, Stream dataStream)
@@ -163,7 +155,7 @@ namespace ShareX.UploadersLib.FileUploaders
             try
             {
                 AllowReportProgress = true;
-                return SendRequest(HttpMethod.post, url.ToString(), dataStream, "application/octet-stream");
+                return SendRequest(HttpMethod.Post, url.ToString(), dataStream, "application/octet-stream");
             }
             finally
             {

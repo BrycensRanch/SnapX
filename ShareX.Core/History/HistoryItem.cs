@@ -23,12 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace ShareX.HistoryLib
+namespace ShareX.Core.History
 {
     public class HistoryItem
     {

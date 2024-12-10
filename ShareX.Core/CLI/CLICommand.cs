@@ -23,7 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.HelpersLib
+namespace ShareX.Core.CLI
 {
     public class CLICommand
     {

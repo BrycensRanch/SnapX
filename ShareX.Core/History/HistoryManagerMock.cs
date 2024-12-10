@@ -27,8 +27,10 @@ using ShareX.HelpersLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Random;
 
-namespace ShareX.HistoryLib
+namespace ShareX.Core.History
 {
     public class HistoryManagerMock : HistoryManager
     {

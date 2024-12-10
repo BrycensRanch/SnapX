@@ -23,23 +23,19 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
+using System.Text.Json;
 using System.Web;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class GoogleDriveFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.GoogleDrive;
-
-        public override Icon ServiceIcon => Resources.GoogleDrive;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -56,8 +52,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 DriveID = config.GoogleDriveSelectedDrive?.id
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpGoogleDrive;
     }
 
     public enum GoogleDrivePermissionRole
@@ -143,7 +137,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 };
             }
 
-            return JsonConvert.SerializeObject(metadata);
+            return JsonSerializer.Serialize(metadata);
         }
 
         private void SetPermissions(string fileID, GoogleDrivePermissionRole role, GoogleDrivePermissionType type, bool allowFileDiscovery)
@@ -152,14 +146,14 @@ namespace ShareX.UploadersLib.FileUploaders
 
             string url = string.Format("https://www.googleapis.com/drive/v3/files/{0}/permissions?supportsAllDrives=true", fileID);
 
-            string json = JsonConvert.SerializeObject(new
+            string json = JsonSerializer.Serialize(new
             {
                 role = role.ToString(),
                 type = type.ToString(),
                 allowFileDiscovery = allowFileDiscovery.ToString()
             });
 
-            SendRequest(HttpMethod.post, url, json, RequestHelpers.ContentTypeJSON, null, OAuth2.GetAuthHeaders());
+            SendRequest(HttpMethod.Post, url, json, RequestHelpers.ContentTypeJSON, null, OAuth2.GetAuthHeaders());
         }
 
         public List<GoogleDriveFile> GetFolders(string driveID = "", bool trashed = false, bool writer = true)
@@ -196,12 +190,12 @@ namespace ShareX.UploadersLib.FileUploaders
             do
             {
                 args["pageToken"] = pageToken;
-                string response = SendRequest(HttpMethod.get, "https://www.googleapis.com/drive/v3/files", args, OAuth2.GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Get, "https://www.googleapis.com/drive/v3/files", args, OAuth2.GetAuthHeaders());
                 pageToken = "";
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    GoogleDriveFileList fileList = JsonConvert.DeserializeObject<GoogleDriveFileList>(response);
+                    GoogleDriveFileList fileList = JsonSerializer.Deserialize<GoogleDriveFileList>(response);
 
                     if (fileList != null)
                     {
@@ -227,12 +221,12 @@ namespace ShareX.UploadersLib.FileUploaders
             do
             {
                 args["pageToken"] = pageToken;
-                string response = SendRequest(HttpMethod.get, "https://www.googleapis.com/drive/v3/drives", args, OAuth2.GetAuthHeaders());
+                string response = SendRequest(HttpMethod.Get, "https://www.googleapis.com/drive/v3/drives", args, OAuth2.GetAuthHeaders());
                 pageToken = "";
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    GoogleDriveSharedDriveList driveList = JsonConvert.DeserializeObject<GoogleDriveSharedDriveList>(response);
+                    GoogleDriveSharedDriveList driveList = JsonSerializer.Deserialize<GoogleDriveSharedDriveList>(response);
 
                     if (driveList != null)
                     {
@@ -257,7 +251,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(result.Response))
             {
-                GoogleDriveFile upload = JsonConvert.DeserializeObject<GoogleDriveFile>(result.Response);
+                GoogleDriveFile upload = JsonSerializer.Deserialize<GoogleDriveFile>(result.Response);
 
                 if (upload != null)
                 {

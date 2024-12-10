@@ -23,18 +23,17 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
+using ShareX.UploadersLib.FileUploaders;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class PlikFileUploaderService : FileUploaderService
     {
@@ -49,10 +48,6 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             return !string.IsNullOrEmpty(config.PlikSettings.URL) && !string.IsNullOrEmpty(config.PlikSettings.APIKey);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpPlik;
-
-        public override Icon ServiceIcon => Resources.Plik;
     }
 
     public sealed class Plik : FileUploader
@@ -97,8 +92,8 @@ namespace ShareX.UploadersLib.FileUploaders
                 metaDataReq.Login = Settings.Login;
                 metaDataReq.Password = Settings.Password;
             }
-            string metaDataResp = SendRequest(HttpMethod.post, Settings.URL + "/upload", JsonConvert.SerializeObject(metaDataReq), headers: requestHeaders);
-            UploadMetadataResponse metaData = JsonConvert.DeserializeObject<UploadMetadataResponse>(metaDataResp);
+            string metaDataResp = SendRequest(HttpMethod.Post, Settings.URL + "/upload", JsonSerializer.Serialize(metaDataReq), headers: requestHeaders);
+            UploadMetadataResponse metaData = JsonSerializer.Deserialize<UploadMetadataResponse>(metaDataResp);
             requestHeaders["x-uploadtoken"] = metaData.uploadToken;
             string url = $"{Settings.URL}/file/{metaData.id}/{metaData.files.First().Value.id}/{fileName}";
             UploadResult FileDatReq = SendRequestFile(url, stream, fileName, "file", headers: requestHeaders);
@@ -178,35 +173,35 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public class UploadMetadataRequestFile
     {
-        [JsonProperty("fileName")]
+        [JsonPropertyName("fileName")]
         public string FileName { get; set; }
-        [JsonProperty("fileType")]
+        [JsonPropertyName("fileType")]
         public string FileType { get; set; }
-        [JsonProperty("fileSize")]
+        [JsonPropertyName("fileSize")]
         public int FileSize { get; set; }
     }
 
     public class UploadMetadataRequestFile0
     {
-        [JsonProperty("0")]
+        [JsonPropertyName("0")]
         public UploadMetadataRequestFile File0 { get; set; }
     }
 
     public class UploadMetadataRequest
     {
-        [JsonProperty("ttl")]
+        [JsonPropertyName("ttl")]
         public int Ttl { get; set; }
-        [JsonProperty("removable")]
+        [JsonPropertyName("removable")]
         public bool Removable { get; set; }
-        [JsonProperty("oneShot")]
+        [JsonPropertyName("oneShot")]
         public bool OneShot { get; set; }
-        [JsonProperty("comments")]
+        [JsonPropertyName("comments")]
         public string Comment { get; set; }
-        [JsonProperty("login")]
+        [JsonPropertyName("login")]
         public string Login { get; set; }
-        [JsonProperty("password")]
+        [JsonPropertyName("password")]
         public string Password { get; set; }
-        [JsonProperty("files")]
+        [JsonPropertyName("files")]
         public UploadMetadataRequestFile0 Files { get; set; }
     }
 

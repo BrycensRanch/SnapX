@@ -23,12 +23,14 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.FileUploaders;
 using ShareX.UploadersLib.ImageUploaders;
-using ShareX.UploadersLib.TextUploaders;
-using ShareX.UploadersLib.URLShorteners;
-using System.Collections.Generic;
+using ShareX.Core.Upload.Custom;
+using ShareX.Core.Upload.File;
+using ShareX.Core.Upload.Image;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Text;
+using ShareX.Core.Upload.URL;
+using ShareX.Core.Utils.Settings;
 
 namespace ShareX.Core.Upload
 {

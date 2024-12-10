@@ -26,7 +26,7 @@
 using Newtonsoft.Json;
 using System;
 
-namespace ShareX
+namespace ShareX.Core
 {
     public class NewsItem
     {

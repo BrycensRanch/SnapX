@@ -23,11 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace ShareX.HelpersLib
+namespace ShareX.Core.Task
 {
     public class TaskEx<T>
     {
@@ -40,7 +37,7 @@ namespace ShareX.HelpersLib
         private Progress<T> p;
         private CancellationTokenSource cts;
 
-        public async Task Run(Action action)
+        public async System.Threading.Tasks.Task Run(Action action)
         {
             if (IsRunning)
             {
@@ -56,7 +53,7 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    await Task.Run(action, cts.Token);
+                    await System.Threading.Tasks.Task.Run(action, cts.Token);
                 }
                 catch (OperationCanceledException)
                 {

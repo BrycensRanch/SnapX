@@ -25,23 +25,18 @@
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class OwnCloudFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.OwnCloud;
-
-        public override Image ServiceImage => Resources.OwnCloud;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -62,8 +57,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 AutoExpire = config.OwnCloudAutoExpire
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpOwnCloud;
     }
 
     public sealed class OwnCloud : FileUploader
@@ -115,7 +108,7 @@ namespace ShareX.UploadersLib.FileUploaders
             NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Username, Password);
             headers["OCS-APIREQUEST"] = "true";
 
-            string response = SendRequest(HttpMethod.put, url, stream, MimeTypes.GetMimeTypeFromFileName(fileName), null, headers);
+            string response = SendRequest(HttpMethod.Put, url, stream, MimeTypes.GetMimeTypeFromFileName(fileName), null, headers);
 
             UploadResult result = new UploadResult(response);
 
@@ -185,7 +178,7 @@ namespace ShareX.UploadersLib.FileUploaders
                         OwnCloudShareResponseData data = ((JObject)result.ocs.data).ToObject<OwnCloudShareResponseData>();
                         string link = data.url;
 
-                        if (PreviewLink && File.IsImageFile(path))
+                        if (PreviewLink && FileHelpers.IsImageFile(path))
                         {
                             link += "/preview";
                         }

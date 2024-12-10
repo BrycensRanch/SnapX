@@ -25,16 +25,14 @@
 
 using ShareX.HelpersLib;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class PlikSettings
     {
         public string URL { get; set; } = "";
-        [JsonEncrypt]
         public string APIKey { get; set; } = "";
         public bool IsSecured { get; set; } = false;
         public string Login { get; set; } = "";
-        [JsonEncrypt]
         public string Password { get; set; } = "";
         public bool Removable { get; set; } = false;
         public bool OneShot { get; set; } = false;

@@ -23,7 +23,9 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.HelpersLib
+using ShareX.Core.Utils;
+
+namespace ShareX.Core
 {
     public static class ShareXResources
     {

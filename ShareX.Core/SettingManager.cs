@@ -46,7 +46,7 @@ namespace ShareX
         {
             get
             {
-                if (Program.Sandbox) return null;
+                if (ShareX.Sandbox) return null;
 
                 return Path.Combine(Program.PersonalFolder, ApplicationConfigFileName);
             }

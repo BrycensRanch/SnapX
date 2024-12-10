@@ -23,22 +23,18 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Threading;
-using System.Windows.Forms;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class StreamableFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Streamable;
-
-        public override Icon ServiceIcon => Resources.Streamable;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -52,8 +48,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 UseDirectURL = config.StreamableUseDirectURL
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpStreamable;
     }
 
     public class Streamable : FileUploader
@@ -89,7 +83,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
         private void TranscodeFile(UploadResult result)
         {
-            StreamableTranscodeResponse transcodeResponse = JsonConvert.DeserializeObject<StreamableTranscodeResponse>(result.Response);
+            StreamableTranscodeResponse transcodeResponse = JsonSerializer.Deserialize<StreamableTranscodeResponse>(result.Response);
 
             if (!string.IsNullOrEmpty(transcodeResponse.Shortcode))
             {
@@ -98,8 +92,8 @@ namespace ShareX.UploadersLib.FileUploaders
 
                 while (!StopUploadRequested)
                 {
-                    string statusJson = SendRequest(HttpMethod.get, URLHelpers.CombineURL(Host, "videos", transcodeResponse.Shortcode));
-                    StreamableStatusResponse response = JsonConvert.DeserializeObject<StreamableStatusResponse>(statusJson);
+                    string statusJson = SendRequest(HttpMethod.Get, URLHelpers.CombineURL(Host, "videos", transcodeResponse.Shortcode));
+                    StreamableStatusResponse response = JsonSerializer.Deserialize<StreamableStatusResponse>(statusJson);
 
                     if (response.status > 2)
                     {

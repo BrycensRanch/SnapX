@@ -23,8 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Drawing;
+using ShareX.Core.Utils;
+using SixLabors.ImageSharp;
 
 namespace ShareX.Core.Capture
 {

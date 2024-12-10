@@ -23,26 +23,20 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using System.Windows.Forms;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class MediaFireFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.MediaFire;
-
-        public override Icon ServiceIcon => Resources.MediaFire;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -57,8 +51,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 UseLongLink = config.MediaFireUseLongLink
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpMediaFire;
     }
 
     public sealed class MediaFire : FileUploader
@@ -191,11 +183,13 @@ namespace ShareX.UploadersLib.FileUploaders
 
         private T DeserializeResponse<T>(string s) where T : new()
         {
-            var refObj = new { response = new T() };
-            object obj = JsonConvert.DeserializeObject(s, refObj.GetType());
-            return (T)obj.GetType().GetProperty("response").GetValue(obj, null);
-        }
+            // Deserialize the string into a JSON object
+            var jsonDoc = JsonDocument.Parse(s);
 
+            // Extract the value of the "response" property from the JSON document and deserialize it into T
+            var responseElement = jsonDoc.RootElement.GetProperty("response");
+            return JsonSerializer.Deserialize<T>(responseElement.GetRawText());
+        }
         private static char IntToChar(int x)
         {
             if (x < 10) return (char)(x + '0');

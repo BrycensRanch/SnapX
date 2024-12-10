@@ -26,20 +26,17 @@
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using File = System.IO.File;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Utils;
+using ShareX.UploadersLib;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public sealed class SFTP : FileUploader, IDisposable
     {
         public FTPAccount Account { get; private set; }
 
-        public bool IsValidAccount => (!string.IsNullOrEmpty(Account.Keypath) && File.Exists(Account.Keypath)) || !string.IsNullOrEmpty(Account.Password);
+        public bool IsValidAccount => (!string.IsNullOrEmpty(Account.Keypath) && System.IO.File.Exists(Account.Keypath)) || !string.IsNullOrEmpty(Account.Password);
 
         public bool IsConnected => client != null && client.IsConnected;
 
@@ -104,7 +101,7 @@ namespace ShareX.UploadersLib.FileUploaders
             {
                 if (!string.IsNullOrEmpty(Account.Keypath))
                 {
-                    if (!File.Exists(Account.Keypath))
+                    if (!System.IO.File.Exists(Account.Keypath))
                     {
                         throw new FileNotFoundException(Resources.UploadersConfigForm_ConnectSFTPAccount_Key_file_not_found, Account.Keypath);
                     }

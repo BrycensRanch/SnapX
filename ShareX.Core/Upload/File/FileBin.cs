@@ -23,10 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using System.Collections.Generic;
-using System.IO;
 
-namespace ShareX.UploadersLib.FileUploaders
+using ShareX.Core.Upload.BaseUploaders;
+
+namespace ShareX.Core.Upload.File
 {
     public sealed class FileBin : FileUploader
     {

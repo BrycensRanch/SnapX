@@ -23,20 +23,17 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class SharedFolderFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.SharedFolder;
-
-        public override Image ServiceImage => Resources.server_network;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -70,8 +67,6 @@ namespace ShareX.UploadersLib.FileUploaders
 
             return null;
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpSharedFolder;
     }
 
     public class SharedFolderUploader : FileUploader
@@ -89,7 +84,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             string filePath = account.GetLocalhostPath(fileName);
 
-            File.CreateDirectoryFromFilePath(filePath);
+            FileHelpers.CreateDirectoryFromFilePath(filePath);
 
             using (FileStream fs = new FileStream(filePath, FileMode.Create))
             {

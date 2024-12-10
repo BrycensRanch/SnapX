@@ -24,21 +24,18 @@
 #endregion License Information (GPL v3)
 
 using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class BoxFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Box;
-
-        public override Icon ServiceIcon => Resources.Box;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -54,8 +51,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 ShareAccessLevel = config.BoxShareAccessLevel
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpBox;
     }
 
     public sealed class Box : FileUploader, IOAuth2
@@ -182,7 +177,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             string url = string.Format("https://api.box.com/2.0/folders/{0}/items", id);
 
-            string response = SendRequest(HttpMethod.get, url, headers: GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Get, url, headers: GetAuthHeaders());
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -194,7 +189,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
         public string CreateSharedLink(string id, BoxShareAccessLevel accessLevel)
         {
-            string response = SendRequest(HttpMethod.put, "https://api.box.com/2.0/files/" + id, "{\"shared_link\": {\"access\": \"" + accessLevel.ToString().ToLower() + "\"}}", headers: GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Put, "https://api.box.com/2.0/files/" + id, "{\"shared_link\": {\"access\": \"" + accessLevel.ToString().ToLower() + "\"}}", headers: GetAuthHeaders());
 
             if (!string.IsNullOrEmpty(response))
             {

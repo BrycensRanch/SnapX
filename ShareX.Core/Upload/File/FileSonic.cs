@@ -23,12 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
-using System.IO;
 using System.Xml.Linq;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class FileSonic : FileUploader
     {
@@ -75,7 +74,7 @@ namespace ShareX.UploadersLib.FileUploaders
             args.Add("u", Username);
             args.Add("p", Password);
 
-            string response = SendRequest(HttpMethod.get, APIURL, args);
+            string response = SendRequest(HttpMethod.Get, APIURL, args);
 
             XDocument xd = XDocument.Parse(response);
             return xd.GetValue("FSApi_Upload/getUploadUrl/response/url");

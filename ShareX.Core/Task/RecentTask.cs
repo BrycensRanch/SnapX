@@ -25,9 +25,10 @@
 
 using ShareX.HelpersLib;
 using System;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX
+namespace ShareX.Core.Task
 {
     public class RecentTask
     {
@@ -48,7 +49,7 @@ namespace ShareX
                     text = URL;
                 }
 
-                return File.GetFileNameSafe(text);
+                return FileHelpers.GetFileNameSafe(text);
             }
         }
 

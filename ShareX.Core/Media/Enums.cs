@@ -25,7 +25,7 @@
 
 using System.ComponentModel;
 
-namespace ShareX.MediaLib
+namespace ShareX.Core.Media
 {
     public enum ThumbnailLocationType
     {

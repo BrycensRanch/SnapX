@@ -23,19 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
 using ShareX.IndexerLib;
-using ShareX.Properties;
-using ShareX.UploadersLib;
-using System;
-using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices.ComTypes;
 using System.Web;
-using System.Windows.Forms;
-using File = System.IO.File;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Miscellaneous;
 
 namespace ShareX.Core.Upload
 {
@@ -47,7 +41,7 @@ namespace ShareX.Core.Upload
 
             if (!string.IsNullOrEmpty(filePath))
             {
-                if (File.Exists(filePath))
+                if (System.IO.File.Exists(filePath))
                 {
                     WorkerTask task = WorkerTask.CreateFileUploaderTask(filePath, taskSettings);
                     TaskManager.Start(task);
@@ -78,16 +72,16 @@ namespace ShareX.Core.Upload
 
         private static bool IsUploadConfirmed(int length)
         {
-            if (Program.Settings.ShowMultiUploadWarning)
+            if (ShareX.Settings.ShowMultiUploadWarning)
             {
-                using (MyMessageBox msgbox = new MyMessageBox(string.Format(Resources.UploadManager_IsUploadConfirmed_Are_you_sure_you_want_to_upload__0__files_, length),
-                    "ShareX - " + Resources.UploadManager_IsUploadConfirmed_Upload_files,
-                    MessageBoxButtons.YesNo, Resources.UploadManager_IsUploadConfirmed_Don_t_show_this_message_again_))
-                {
-                    msgbox.ShowDialog();
-                    Program.Settings.ShowMultiUploadWarning = !msgbox.IsChecked;
-                    return msgbox.DialogResult == DialogResult.Yes;
-                }
+                // using (MyMessageBox msgbox = new MyMessageBox(string.Format(Resources.UploadManager_IsUploadConfirmed_Are_you_sure_you_want_to_upload__0__files_, length),
+                //     "ShareX - " + Resources.UploadManager_IsUploadConfirmed_Upload_files,
+                //     MessageBoxButtons.YesNo, Resources.UploadManager_IsUploadConfirmed_Don_t_show_this_message_again_))
+                // {
+                //     msgbox.ShowDialog();
+                //     Program.Settings.ShowMultiUploadWarning = !msgbox.IsChecked;
+                //     return msgbox.DialogResult == DialogResult.Yes;
+                // }
             }
 
             return true;
@@ -95,66 +89,66 @@ namespace ShareX.Core.Upload
 
         public static void UploadFile(TaskSettings taskSettings = null)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
-            {
-                ofd.Title = "ShareX - " + Resources.UploadManager_UploadFile_File_upload;
-
-                if (!string.IsNullOrEmpty(Program.Settings.FileUploadDefaultDirectory) && Directory.Exists(Program.Settings.FileUploadDefaultDirectory))
-                {
-                    ofd.InitialDirectory = Program.Settings.FileUploadDefaultDirectory;
-                }
-                else
-                {
-                    ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                }
-
-                ofd.Multiselect = true;
-
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    if (!string.IsNullOrEmpty(ofd.FileName))
-                    {
-                        Program.Settings.FileUploadDefaultDirectory = Path.GetDirectoryName(ofd.FileName);
-                    }
-
-                    UploadFile(ofd.FileNames, taskSettings);
-                }
-            }
+            // using (OpenFileDialog ofd = new OpenFileDialog())
+            // {
+            //     ofd.Title = "ShareX - " + Resources.UploadManager_UploadFile_File_upload;
+            //
+            //     if (!string.IsNullOrEmpty(ShareX.Settings.FileUploadDefaultDirectory) && Directory.Exists(Program.Settings.FileUploadDefaultDirectory))
+            //     {
+            //         ofd.InitialDirectory = ShareX.Settings.FileUploadDefaultDirectory;
+            //     }
+            //     else
+            //     {
+            //         ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            //     }
+            //
+            //     ofd.Multiselect = true;
+            //
+            //     if (ofd.ShowDialog() == DialogResult.OK)
+            //     {
+            //         if (!string.IsNullOrEmpty(ofd.FileName))
+            //         {
+            //             ShareX.Settings.FileUploadDefaultDirectory = Path.GetDirectoryName(ofd.FileName);
+            //         }
+            //
+            //         UploadFile(ofd.FileNames, taskSettings);
+            //     }
+            // }
         }
 
         public static void UploadFolder(TaskSettings taskSettings = null)
         {
-            using (FolderSelectDialog folderDialog = new FolderSelectDialog())
-            {
-                folderDialog.Title = "ShareX - " + Resources.UploadManager_UploadFolder_Folder_upload;
-
-                if (!string.IsNullOrEmpty(Program.Settings.FileUploadDefaultDirectory) && Directory.Exists(Program.Settings.FileUploadDefaultDirectory))
-                {
-                    folderDialog.InitialDirectory = Program.Settings.FileUploadDefaultDirectory;
-                }
-                else
-                {
-                    folderDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                }
-
-                if (folderDialog.ShowDialog() && !string.IsNullOrEmpty(folderDialog.FileName))
-                {
-                    Program.Settings.FileUploadDefaultDirectory = folderDialog.FileName;
-                    UploadFile(folderDialog.FileName, taskSettings);
-                }
-            }
+            // using (FolderSelectDialog folderDialog = new FolderSelectDialog())
+            // {
+            //     folderDialog.Title = "ShareX - " + Resources.UploadManager_UploadFolder_Folder_upload;
+            //
+            //     if (!string.IsNullOrEmpty(Program.Settings.FileUploadDefaultDirectory) && Directory.Exists(Program.Settings.FileUploadDefaultDirectory))
+            //     {
+            //         folderDialog.InitialDirectory = Program.Settings.FileUploadDefaultDirectory;
+            //     }
+            //     else
+            //     {
+            //         folderDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            //     }
+            //
+            //     if (folderDialog.ShowDialog() && !string.IsNullOrEmpty(folderDialog.FileName))
+            //     {
+            //         Program.Settings.FileUploadDefaultDirectory = folderDialog.FileName;
+            //         UploadFile(folderDialog.FileName, taskSettings);
+            //     }
+            // }
         }
 
-        public static void ProcessImageUpload(Bitmap bmp, TaskSettings taskSettings)
+        public static void ProcessImageUpload(SixLabors.ImageSharp.Image image, TaskSettings taskSettings)
         {
-            if (bmp != null)
+            if (image != null)
             {
                 if (!taskSettings.AdvancedSettings.ProcessImagesDuringClipboardUpload)
                 {
                     taskSettings.AfterCaptureJob = AfterCaptureTasks.UploadImageToHost;
                 }
 
-                RunImageTask(bmp, taskSettings);
+                RunImageTask(image, taskSettings);
             }
         }
 
@@ -363,9 +357,9 @@ namespace ShareX.Core.Upload
             }
         }
 
-        public static void RunImageTask(Bitmap bmp, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
+        public static void RunImageTask(SixLabors.ImageSharp.Image image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
         {
-            TaskMetadata metadata = new TaskMetadata(bmp);
+            TaskMetadata metadata = new TaskMetadata(image);
             RunImageTask(metadata, taskSettings, skipQuickTaskMenu, skipAfterCaptureWindow);
         }
 

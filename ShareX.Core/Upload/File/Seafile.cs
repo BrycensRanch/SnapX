@@ -23,24 +23,20 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Web;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class SeafileFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Seafile;
-
-        public override Image ServiceImage => Resources.Seafile;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -61,8 +57,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 IgnoreInvalidCert = config.SeafileIgnoreInvalidCert
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpSeafile;
     }
 
     public sealed class Seafile : FileUploader
@@ -103,7 +97,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(response))
             {
-                SeafileAuthResponse AuthResult = JsonConvert.DeserializeObject<SeafileAuthResponse>(response);
+                SeafileAuthResponse AuthResult = JsonSerializer.Deserialize<SeafileAuthResponse>(response);
 
                 return AuthResult.token;
             }
@@ -129,7 +123,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                string response = SendRequest(HttpMethod.get, url);
+                string response = SendRequest(HttpMethod.Get, url);
 
                 if (!string.IsNullOrEmpty(response))
                 {
@@ -167,7 +161,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                string response = SendRequest(HttpMethod.get, url, null, headers);
+                string response = SendRequest(HttpMethod.Get, url, null, headers);
 
                 if (!string.IsNullOrEmpty(response))
                 {
@@ -209,11 +203,11 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                string response = SendRequest(HttpMethod.get, url, null, headers);
+                string response = SendRequest(HttpMethod.Get, url, null, headers);
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    SeafileCheckAccInfoResponse AccInfoResponse = JsonConvert.DeserializeObject<SeafileCheckAccInfoResponse>(response);
+                    SeafileCheckAccInfoResponse AccInfoResponse = JsonSerializer.Deserialize<SeafileCheckAccInfoResponse>(response);
 
                     return AccInfoResponse;
                 }
@@ -250,11 +244,11 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                string response = SendRequest(HttpMethod.get, url, null, headers);
+                string response = SendRequest(HttpMethod.Get, url, null, headers);
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    SeafileDefaultLibraryObj JsonResponse = JsonConvert.DeserializeObject<SeafileDefaultLibraryObj>(response);
+                    SeafileDefaultLibraryObj JsonResponse = JsonSerializer.Deserialize<SeafileDefaultLibraryObj>(response);
 
                     return JsonResponse.repo_id;
                 }
@@ -287,11 +281,11 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                string response = SendRequest(HttpMethod.get, url, null, headers);
+                string response = SendRequest(HttpMethod.Get, url, null, headers);
 
                 if (!string.IsNullOrEmpty(response))
                 {
-                    List<SeafileLibraryObj> JsonResponse = JsonConvert.DeserializeObject<List<SeafileLibraryObj>>(response);
+                    List<SeafileLibraryObj> JsonResponse = JsonSerializer.Deserialize<List<SeafileLibraryObj>>(response);
 
                     return JsonResponse;
                 }
@@ -324,7 +318,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                string response = SendRequest(HttpMethod.get, url, null, headers);
+                string response = SendRequest(HttpMethod.Get, url, null, headers);
 
                 if (!string.IsNullOrEmpty(response))
                 {
@@ -435,7 +429,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                string response = SendRequest(HttpMethod.get, url, null, headers);
+                string response = SendRequest(HttpMethod.Get, url, null, headers);
 
                 string responseURL = response.Trim('"');
 
@@ -501,7 +495,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     sslBypassHelper = new SSLBypassHelper();
                 }
 
-                SendRequestURLEncoded(HttpMethod.put, url, args, headers);
+                SendRequestURLEncoded(HttpMethod.Put, url, args, headers);
                 return LastResponseInfo.Headers["Location"];
             }
             finally
@@ -538,7 +532,7 @@ namespace ShareX.UploadersLib.FileUploaders
         public long size { get; set; }
         public string name { get; set; }
         public string type { get; set; }
-        [JsonProperty("virtual")]
+        [JsonPropertyName("virtual")]
         public string _virtual { get; set; }
         public string desc { get; set; }
         public string root { get; set; }

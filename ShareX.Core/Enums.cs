@@ -27,7 +27,7 @@ using ShareX.HelpersLib;
 using System;
 using System.ComponentModel;
 
-namespace ShareX
+namespace ShareX.Core
 {
     public enum ShareXBuild
     {

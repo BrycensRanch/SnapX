@@ -24,17 +24,13 @@
 #endregion License Information (GPL v3)
 
 using CG.Web.MegaApiClient;
-using ShareX.HelpersLib;
-using System;
 
-namespace ShareX.UploadersLib
+namespace ShareX.Core.Upload.File
 {
     public class MegaAuthInfos
     {
         public string Email { get; set; }
-        [JsonEncrypt]
         public string Hash { get; set; }
-        [JsonEncrypt]
         public string PasswordAesKey { get; set; }
 
         public MegaAuthInfos()

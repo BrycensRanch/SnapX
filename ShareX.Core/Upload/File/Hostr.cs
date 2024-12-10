@@ -23,20 +23,18 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.UploadersLib.Properties;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class HostrFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Localhostr;
-
-        public override Icon ServiceIcon => Resources.Hostr;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -50,8 +48,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 DirectURL = config.LocalhostrDirectURL
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpHostr;
     }
 
     public sealed class Hostr : FileUploader
@@ -77,7 +73,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
                 if (result.IsSuccess)
                 {
-                    HostrFileUploadResponse response = JsonConvert.DeserializeObject<HostrFileUploadResponse>(result.Response);
+                    HostrFileUploadResponse response = JsonSerializer.Deserialize<HostrFileUploadResponse>(result.Response);
 
                     if (response != null)
                     {
@@ -110,10 +106,10 @@ namespace ShareX.UploadersLib.FileUploaders
 
         public class HostrFileUploadResponseDirect
         {
-            [JsonProperty("150x")]
+            [JsonPropertyName("150x")]
             public string direct_150x { get; set; }
 
-            [JsonProperty("930x")]
+            [JsonPropertyName("150x")]
             public string direct_930x { get; set; }
         }
     }

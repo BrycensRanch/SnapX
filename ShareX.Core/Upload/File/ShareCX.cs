@@ -23,10 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using System.IO;
 using System.Text.RegularExpressions;
+using ShareX.Core.Upload.BaseUploaders;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public sealed class ShareCX : FileUploader
     {

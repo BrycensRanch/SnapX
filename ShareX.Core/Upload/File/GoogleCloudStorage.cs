@@ -24,21 +24,18 @@
 #endregion License Information (GPL v3)
 
 using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class GoogleCloudStorageNewFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.GoogleCloudStorage;
-
-        public override Icon ServiceIcon => Resources.GoogleCloud;
-
         public override bool CheckConfig(UploadersConfig config)
         {
             return OAuth2Info.CheckOAuth(config.GoogleCloudStorageOAuth2Info) && !string.IsNullOrEmpty(config.GoogleCloudStorageBucket);
@@ -57,8 +54,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 SetPublicACL = config.GoogleCloudStorageSetPublicACL
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpGoogleCloudStorage;
     }
 
     public sealed class GoogleCloudStorage : FileUploader, IOAuth2
@@ -141,9 +136,9 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             string uploadPath = NameParser.Parse(NameParserType.FilePath, Prefix.Trim('/'));
 
-            if ((RemoveExtensionImage && File.IsImageFile(fileName)) ||
-                (RemoveExtensionText && File.IsTextFile(fileName)) ||
-                (RemoveExtensionVideo && File.IsVideoFile(fileName)))
+            if ((RemoveExtensionImage && FileHelpers.IsImageFile(fileName)) ||
+                (RemoveExtensionText && FileHelpers.IsTextFile(fileName)) ||
+                (RemoveExtensionVideo && FileHelpers.IsVideoFile(fileName)))
             {
                 fileName = Path.GetFileNameWithoutExtension(fileName);
             }

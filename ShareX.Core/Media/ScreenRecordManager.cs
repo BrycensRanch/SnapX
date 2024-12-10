@@ -23,25 +23,18 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.MediaLib;
-using ShareX.Properties;
-using ShareX.ScreenCaptureLib;
-using System;
-using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using File = ShareX.HelpersLib.File;
 
-namespace ShareX
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
+
+namespace ShareX.Core.Media
 {
     public static class ScreenRecordManager
     {
         public static bool IsRecording { get; private set; }
 
-        private static ScreenRecorder screenRecorder;
-        private static ScreenRecordForm recordForm;
+        // private static ScreenRecorder screenRecorder;
+        // private static ScreenRecordForm recordForm;
 
         public static void StartStopRecording(ScreenRecordOutput outputType, ScreenRecordStartMethod startMethod, TaskSettings taskSettings)
         {
@@ -177,7 +170,7 @@ namespace ShareX
                 return;
             }
 
-            Program.Settings.ScreenRecordRegion = captureRectangle;
+            ShareX.Settings.ScreenRecordRegion = captureRectangle;
 
             IsRecording = true;
 
@@ -299,7 +292,7 @@ namespace ShareX
                             {
                                 ffmpeg.ShowError = true;
                                 ffmpeg.ConcatenateVideos(new string[] { concatPath, path }, tempPath, true);
-                                File.RenameFile(tempPath, path);
+                                FileHelpers.RenameFile(tempPath, path);
                             }
                         }
                     }
@@ -334,11 +327,11 @@ namespace ShareX
 
                 if (abortRequested)
                 {
-                    File.DeleteFile(path);
+                    FileHelpers.DeleteFile(path);
                 }
 
-                File.DeleteFile(concatPath);
-                File.DeleteFile(tempPath);
+                FileHelpers.DeleteFile(concatPath);
+                FileHelpers.DeleteFile(tempPath);
             }).ContinueInCurrentContext(() =>
             {
                 if (!abortRequested && !string.IsNullOrEmpty(path) && System.IO.File.Exists(path) && TaskHelpers.ShowAfterCaptureForm(taskSettings, out string customFileName, null, path))
@@ -350,7 +343,7 @@ namespace ShareX
 
                         if (!currentFileName.Equals(customFileName, StringComparison.OrdinalIgnoreCase))
                         {
-                            path = File.RenameFile(path, customFileName + ext);
+                            path = FileHelpers.RenameFile(path, customFileName + ext);
                         }
                     }
 
@@ -365,12 +358,12 @@ namespace ShareX
 
         private static void ScreenRecorder_RecordingStarted()
         {
-            recordForm.ChangeState(ScreenRecordState.AfterRecordingStart);
+            // recordForm.ChangeState(ScreenRecordState.AfterRecordingStart);
         }
 
         private static void ScreenRecorder_EncodingProgressChanged(int progress)
         {
-            recordForm.ChangeStateProgress(progress);
+            // recordForm.ChangeStateProgress(progress);
         }
 
         private static string ProcessTwoPassEncoding(string input, TaskMetadata metadata, TaskSettings taskSettings, bool deleteInputFile = true)

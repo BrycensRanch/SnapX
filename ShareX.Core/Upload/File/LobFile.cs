@@ -23,22 +23,17 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class LobFileFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Lithiio;
 
-        public override Image ServiceImage => Resources.LobFile;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -49,8 +44,6 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             return new LobFile(config.LithiioSettings);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpLithiio;
     }
 
     public sealed class LobFile : FileUploader
@@ -75,7 +68,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (result.IsSuccess)
             {
-                LobFileUploadResponse uploadResponse = JsonConvert.DeserializeObject<LobFileUploadResponse>(result.Response);
+                LobFileUploadResponse uploadResponse = JsonSerializer.Deserialize<LobFileUploadResponse>(result.Response);
 
                 if (uploadResponse.Success)
                 {
@@ -100,7 +93,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (!string.IsNullOrEmpty(response))
             {
-                LobFileFetchAPIKeyResponse apiKeyResponse = JsonConvert.DeserializeObject<LobFileFetchAPIKeyResponse>(response);
+                LobFileFetchAPIKeyResponse apiKeyResponse = JsonSerializer.Deserialize<LobFileFetchAPIKeyResponse>(response);
 
                 if (apiKeyResponse.Success)
                 {
@@ -134,7 +127,6 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public class LobFileSettings
     {
-        [JsonEncrypt]
         public string UserAPIKey { get; set; } = "";
     }
 }

@@ -25,6 +25,8 @@
 
 using ShareX.HelpersLib;
 using System.Text;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
 
 namespace ShareX.Core.Upload
 {

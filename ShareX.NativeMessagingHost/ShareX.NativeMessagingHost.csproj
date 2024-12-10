@@ -21,9 +21,9 @@
 
   </PropertyGroup>
 
-  <PropertyGroup>
+  <ItemGroup>
     <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
-  </PropertyGroup>
+  </ItemGroup>
   <!-- Cross-platform copy command using MSBuild -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy

@@ -23,21 +23,20 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json.Linq;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json.Nodes;
+using FluentFTP.Helpers;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class SulFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Sul;
 
-        public override Image ServiceImage => Resources.Sul;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -48,8 +47,6 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             return new SulUploader(config.SulAPIKey);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpSul;
     }
 
     public sealed class SulUploader : FileUploader
@@ -75,7 +72,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             if (result.IsSuccess)
             {
-                JToken jsonResponse = JToken.Parse(result.Response);
+                var jsonResponse = JsonNode.Parse(result.Response);
 
                 string protocol = "";
                 string domain = "";
@@ -85,11 +82,11 @@ namespace ShareX.UploadersLib.FileUploaders
 
                 if (jsonResponse != null)
                 {
-                    protocol = (string)jsonResponse.SelectToken("protocol");
-                    domain = (string)jsonResponse.SelectToken("domain");
-                    file = (string)jsonResponse.SelectToken("filename");
-                    extension = (string)jsonResponse.SelectToken("extension");
-                    error = (string)jsonResponse.SelectToken("error");
+                    protocol = jsonResponse.SelectToken("protocol").ObjectToString();
+                    domain = jsonResponse.SelectToken("domain").ObjectToString();
+                    file = jsonResponse.SelectToken("filename").ObjectToString();
+                    extension = jsonResponse.SelectToken("extension").ObjectToString();
+                    error = jsonResponse.SelectToken("error").ObjectToString();
                 }
 
                 if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(protocol))

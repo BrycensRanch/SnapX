@@ -23,24 +23,21 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
 using System.Collections.Specialized;
-using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class AzureStorageUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.AzureStorage;
-
-        public override Image ServiceImage => Resources.AzureStorage;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -54,8 +51,6 @@ namespace ShareX.UploadersLib.FileUploaders
             return new AzureStorage(config.AzureStorageAccountName, config.AzureStorageAccountAccessKey, config.AzureStorageContainer,
                 config.AzureStorageEnvironment, config.AzureStorageCustomDomain, config.AzureStorageUploadPath, config.AzureStorageCacheControl);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpAzureStorage;
     }
 
     public sealed class AzureStorage : FileUploader
@@ -121,7 +116,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             requestHeaders["Authorization"] = $"SharedKey {AzureStorageAccountName}:{stringToSign}";
 
-            SendRequest(HttpMethod.put, requestURL, stream, contentType, null, requestHeaders);
+            SendRequest(HttpMethod.Put, requestURL, stream, contentType, null, requestHeaders);
 
             if (LastResponseInfo != null && LastResponseInfo.IsSuccess)
             {

@@ -24,25 +24,20 @@
 #endregion License Information (GPL v3)
 
 using Newtonsoft.Json;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class JiraFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Jira;
-
-        public override Image ServiceImage => Resources.jira;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -53,8 +48,6 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             return new Jira(config.JiraHost, config.JiraOAuthInfo, config.JiraIssuePrefix);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpJira;
     }
 
     public class Jira : FileUploader, IOAuth
@@ -185,9 +178,9 @@ namespace ShareX.UploadersLib.FileUploaders
                 Dictionary<string, string> args = new Dictionary<string, string>();
                 args[OAuthManager.ParameterCallback] = "oob"; // Request activation code to validate authentication
 
-                string url = OAuthManager.GenerateQuery(jiraRequestToken.ToString(), args, HttpMethod.post, AuthInfo);
+                string url = OAuthManager.GenerateQuery(jiraRequestToken.ToString(), args, HttpMethod.Post, AuthInfo);
 
-                string response = SendRequest(HttpMethod.post, url);
+                string response = SendRequest(HttpMethod.Post, url);
 
                 if (!string.IsNullOrEmpty(response))
                 {
@@ -204,7 +197,7 @@ namespace ShareX.UploadersLib.FileUploaders
             {
                 AuthInfo.AuthVerifier = verificationCode;
 
-                NameValueCollection nv = GetAccessTokenEx(jiraAccessToken.ToString(), AuthInfo, HttpMethod.post);
+                NameValueCollection nv = GetAccessTokenEx(jiraAccessToken.ToString(), AuthInfo, HttpMethod.Post);
 
                 return nv != null;
             }
@@ -258,9 +251,9 @@ namespace ShareX.UploadersLib.FileUploaders
                 args["jql"] = string.Format("issueKey='{0}'", issueId);
                 args["maxResults"] = "10";
                 args["fields"] = "summary";
-                string query = OAuthManager.GenerateQuery(jiraPathSearch.ToString(), args, HttpMethod.get, AuthInfo);
+                string query = OAuthManager.GenerateQuery(jiraPathSearch.ToString(), args, HttpMethod.Get, AuthInfo);
 
-                string response = SendRequest(HttpMethod.get, query);
+                string response = SendRequest(HttpMethod.Get, query);
                 if (!string.IsNullOrEmpty(response))
                 {
                     var anonType = new { issues = new[] { new { key = "", fields = new { summary = "" } } } };

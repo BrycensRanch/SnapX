@@ -23,26 +23,20 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml.Linq;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils.Cryptographic;
+using ShareX.Core.Utils.Extensions;
+using ShareX.UploadersLib.FileUploaders;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class SendSpaceFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.SendSpace;
-
-        public override Icon ServiceIcon => Resources.SendSpace;
-
         public override bool CheckConfig(UploadersConfig config)
         {
             return config.SendSpaceAccountType == AccountType.Anonymous ||
@@ -58,8 +52,6 @@ namespace ShareX.UploadersLib.FileUploaders
                 Password = config.SendSpacePassword
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpSendSpace;
     }
 
     public sealed class SendSpace : FileUploader
@@ -416,7 +408,7 @@ namespace ShareX.UploadersLib.FileUploaders
             args.Add("session_key", sessionKey);
             args.Add("speed_limit", SpeedLimit.ToString());
 
-            string response = SendRequest(HttpMethod.get, APIURL, args);
+            string response = SendRequest(HttpMethod.Get, APIURL, args);
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -445,7 +437,7 @@ namespace ShareX.UploadersLib.FileUploaders
             args.Add("api_version", APIVersion);
             args.Add("app_version", AppVersion);
 
-            string response = SendRequest(HttpMethod.get, APIURL, args);
+            string response = SendRequest(HttpMethod.Get, APIURL, args);
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -554,7 +546,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     time = DateTime.Now;
                     try
                     {
-                        string response = sendSpace.SendRequest(HttpMethod.post, url);
+                        string response = sendSpace.SendRequest(HttpMethod.Post, url);
 
                         progressInfo.ParseResponse(response);
 

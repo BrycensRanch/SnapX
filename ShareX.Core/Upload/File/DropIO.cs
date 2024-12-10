@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
-using System.IO;
 using System.Xml.Linq;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public sealed class DropIO : FileUploader
     {

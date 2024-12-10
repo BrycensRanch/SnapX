@@ -26,7 +26,12 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
-using File = ShareX.Core.Upload.File;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Custom;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
 
 namespace ShareX.Core.Upload.File
 {
@@ -199,7 +204,7 @@ namespace ShareX.Core.Upload.File
             string url = URLHelpers.CombineURL(scheme + host, canonicalURI);
             url = URLHelpers.FixPrefix(url);
 
-            SendRequest(HttpMethod.put, url, stream, contentType, null, headers);
+            SendRequest(HttpMethod.Put, url, stream, contentType, null, headers);
 
             if (LastResponseInfo != null && LastResponseInfo.IsSuccess)
             {
@@ -259,9 +264,9 @@ namespace ShareX.Core.Upload.File
         {
             string path = NameParser.Parse(NameParserType.FilePath, Settings.ObjectPrefix.Trim('/'));
 
-            if ((Settings.RemoveExtensionImage && File.IsImageFile(fileName)) ||
-                (Settings.RemoveExtensionText && File.IsTextFile(fileName)) ||
-                (Settings.RemoveExtensionVideo && File.IsVideoFile(fileName)))
+            if ((Settings.RemoveExtensionImage && FileHelpers.IsImageFile(fileName)) ||
+                (Settings.RemoveExtensionText && FileHelpers.IsTextFile(fileName)) ||
+                (Settings.RemoveExtensionVideo && FileHelpers.IsVideoFile(fileName)))
             {
                 fileName = Path.GetFileNameWithoutExtension(fileName);
             }

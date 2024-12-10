@@ -32,7 +32,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using File = System.IO.File;
 
-namespace ShareX
+namespace ShareX.Core
 {
     public class NewsManager
     {

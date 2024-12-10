@@ -23,14 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
 using System.ComponentModel;
-using System.Drawing.Design;
-using System.IO;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib
+namespace ShareX.Core.Upload.File
 {
     public class LocalhostAccount : ICloneable
     {
@@ -38,7 +35,6 @@ namespace ShareX.UploadersLib
         public string Name { get; set; }
 
         [Category("Localhost"), Description(@"Root folder, e.g. C:\Inetpub\wwwroot")]
-        [Editor(typeof(DirectoryNameEditor), typeof(UITypeEditor))]
         public string LocalhostRoot { get; set; }
 
         [Category("Localhost"), Description("Port Number"), DefaultValue(80)]
@@ -47,7 +43,7 @@ namespace ShareX.UploadersLib
         [Category("Localhost")]
         public string UserName { get; set; }
 
-        [Category("Localhost"), PasswordPropertyText(true), JsonEncrypt]
+        [Category("Localhost"), PasswordPropertyText(true)]
         public string Password { get; set; }
 
         [Category("Localhost"), Description("Localhost Sub-folder Path, e.g. screenshots, %y = year, %mo = month. SubFolderPath will be automatically appended to HttpHomePath if HttpHomePath does not start with @")]
@@ -75,7 +71,7 @@ namespace ShareX.UploadersLib
                     return "";
                 }
 
-                return new Uri(File.ExpandFolderVariables(LocalhostRoot)).AbsoluteUri;
+                return new Uri(FileHelpers.ExpandFolderVariables(LocalhostRoot)).AbsoluteUri;
             }
         }
 
@@ -113,7 +109,7 @@ namespace ShareX.UploadersLib
 
         public string GetSubFolderPath()
         {
-            return NameParser.Parse(NameParserType.URL, SubFolderPath.Replace("%host", File.ExpandFolderVariables(LocalhostRoot)));
+            return NameParser.Parse(NameParserType.URL, SubFolderPath.Replace("%host", FileHelpers.ExpandFolderVariables(LocalhostRoot)));
         }
 
         public string GetHttpHomePath()
@@ -127,7 +123,7 @@ namespace ShareX.UploadersLib
 
             HttpHomePath = URLHelpers.RemovePrefixes(HttpHomePath);
 
-            return NameParser.Parse(NameParserType.URL, HttpHomePath.Replace("%host", File.ExpandFolderVariables(LocalhostRoot)));
+            return NameParser.Parse(NameParserType.URL, HttpHomePath.Replace("%host", FileHelpers.ExpandFolderVariables(LocalhostRoot)));
         }
 
         public string GetUriPath(string fileName)
@@ -190,7 +186,7 @@ namespace ShareX.UploadersLib
                 return "";
             }
 
-            return Path.Combine(Path.Combine(File.ExpandFolderVariables(LocalhostRoot), GetSubFolderPath()), fileName);
+            return Path.Combine(Path.Combine(FileHelpers.ExpandFolderVariables(LocalhostRoot), GetSubFolderPath()), fileName);
         }
 
         public string GetLocalhostUri(string fileName)
@@ -207,7 +203,7 @@ namespace ShareX.UploadersLib
 
         public override string ToString()
         {
-            return string.Format("{0} - {1}:{2}", Name, File.GetVariableFolderPath(LocalhostRoot), Port);
+            return string.Format("{0} - {1}:{2}", Name, FileHelpers.GetVariableFolderPath(LocalhostRoot), Port);
         }
 
         public LocalhostAccount Clone()

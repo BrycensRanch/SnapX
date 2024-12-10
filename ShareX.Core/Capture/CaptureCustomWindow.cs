@@ -23,10 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.Properties;
-using System;
-using System.Windows.Forms;
 
 namespace ShareX.Core.Capture
 {
@@ -38,18 +34,19 @@ namespace ShareX.Core.Capture
 
             if (!string.IsNullOrEmpty(windowTitle))
             {
-                IntPtr hWnd = NativeMethods.SearchWindow(windowTitle);
-
-                if (hWnd == IntPtr.Zero)
-                {
-                    MessageBox.Show(Resources.UnableToFindAWindowWithSpecifiedWindowTitle, "ShareX", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    WindowHandle = hWnd;
-
-                    return base.Execute(taskSettings);
-                }
+                // TODO: Reimplement w/ Windows support & Linux (X11, and KDE Plasma Wayland)
+                // IntPtr hWnd = NativeMethods.SearchWindow(windowTitle);
+                //
+                // if (hWnd == IntPtr.Zero)
+                // {
+                //     MessageBox.Show(Resources.UnableToFindAWindowWithSpecifiedWindowTitle, "ShareX", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // }
+                // else
+                // {
+                //     WindowHandle = hWnd;
+                //
+                //     return base.Execute(taskSettings);
+                // }
             }
 
             return null;

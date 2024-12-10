@@ -24,20 +24,15 @@
 #endregion License Information (GPL v3)
 
 using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class LambdaFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.Lambda;
-
-        public override Icon ServiceIcon => Resources.Lambda;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -54,8 +49,6 @@ namespace ShareX.UploadersLib.FileUploaders
 
             return new Lambda(config.LambdaSettings);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpLambda;
     }
 
     public sealed class Lambda : FileUploader
@@ -75,7 +68,7 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             Dictionary<string, string> arguments = new Dictionary<string, string>();
             arguments.Add("api_key", Config.UserAPIKey);
-            UploadResult result = SendRequestFile(uploadUrl, stream, fileName, "file", arguments, method: HttpMethod.put);
+            UploadResult result = SendRequestFile(uploadUrl, stream, fileName, "file", arguments, method: HttpMethod.Put);
 
             if (result.Response == null)
             {
@@ -113,7 +106,6 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public class LambdaSettings
     {
-        [JsonEncrypt]
         public string UserAPIKey { get; set; } = "";
         public string UploadURL { get; set; } = "https://lbda.net/";
     }

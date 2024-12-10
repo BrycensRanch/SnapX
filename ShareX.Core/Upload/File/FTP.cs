@@ -25,27 +25,22 @@
 
 using FluentFTP;
 using FluentFTP.Exceptions;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Windows.Forms;
-using File = System.IO.File;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class FTPFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.FTP;
-
-        public override Image ServiceImage => Resources.folder_network;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -77,7 +72,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 }
             }
 
-            FTPAccount account = config.FTPAccountList.ReturnIfValidIndex(index);
+            var account = config.FTPAccountList.ReturnIfValidIndex(index);
 
             if (account != null)
             {
@@ -93,8 +88,6 @@ namespace ShareX.UploadersLib.FileUploaders
 
             return null;
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpFTP;
     }
 
     public sealed class FTP : FileUploader, IDisposable
@@ -147,7 +140,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 client.Config.SslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
                 client.Config.DataConnectionEncryption = true;
 
-                if (!string.IsNullOrEmpty(account.FTPSCertificateLocation) && File.Exists(account.FTPSCertificateLocation))
+                if (!string.IsNullOrEmpty(account.FTPSCertificateLocation) && System.IO.File.Exists(account.FTPSCertificateLocation))
                 {
                     X509Certificate cert = X509Certificate2.CreateFromSignedFile(Account.FTPSCertificateLocation);
                     client.Config.ClientCertificates.Add(cert);
@@ -281,7 +274,7 @@ namespace ShareX.UploadersLib.FileUploaders
             }
         }
 
-        public void UploadImage(Image image, string remotePath)
+        public void UploadImage(SixLabors.ImageSharp.Image image, string remotePath)
         {
             using (MemoryStream stream = new MemoryStream())
             {
@@ -306,7 +299,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 {
                     string fileName = Path.GetFileName(file);
 
-                    if (File.Exists(file))
+                    if (System.IO.File.Exists(file))
                     {
                         UploadFile(file, URLHelpers.CombineURL(remotePath, fileName));
                     }

@@ -23,7 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX
+namespace ShareX.Core.Watch
 {
     public class WatchFolderSettings
     {

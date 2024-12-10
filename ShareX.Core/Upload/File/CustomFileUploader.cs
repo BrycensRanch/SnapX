@@ -23,19 +23,18 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System;
-using System.Drawing;
-using System.IO;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Custom;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class CustomFileUploaderService : FileUploaderService
     {
         public override FileDestination EnumValue { get; } = FileDestination.CustomFileUploader;
-
-        public override Image ServiceImage => Resources.globe_network;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -55,7 +54,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 index = config.CustomFileUploaderSelected;
             }
 
-            CustomUploaderItem customUploader = config.CustomUploadersList.ReturnIfValidIndex(index);
+            var customUploader = config.CustomUploadersList.ReturnIfValidIndex(index);
 
             if (customUploader != null)
             {

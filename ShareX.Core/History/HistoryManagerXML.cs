@@ -23,16 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.HistoryLib
+namespace ShareX.Core.History
 {
     public class HistoryManagerXML : HistoryManager
     {
@@ -136,7 +133,7 @@ namespace ShareX.HistoryLib
             {
                 lock (thisLock)
                 {
-                    File.CreateDirectoryFromFilePath(filePath);
+                    FileHelpers.CreateDirectoryFromFilePath(filePath);
 
                     using (FileStream fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
                     using (XmlTextWriter writer = new XmlTextWriter(fileStream, Encoding.UTF8))

@@ -23,7 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class AmazonS3Endpoint
     {

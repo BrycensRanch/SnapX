@@ -23,12 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.IO;
 using System.Text;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.IndexerLib
+namespace ShareX.Core.Indexer
 {
     public class IndexerHtml : Indexer
     {
@@ -53,7 +52,7 @@ namespace ShareX.IndexerLib
 
             // FolderInfo folderInfo = GetFolderInfo(folderPath);
             // folderInfo.Update();
-            //
+
             // IndexFolder(folderInfo);
             string index = sbContent.ToString().Trim();
 
@@ -126,7 +125,7 @@ namespace ShareX.IndexerLib
 
             pathTitle = dir.FolderName;
 
-            int heading = (level + 1).Clamp(1, 6);
+            var heading = System.Math.Clamp(level + 1, 1, 6);
 
             return HtmlHelper.StartTag("h" + heading) + URLHelpers.HtmlEncode(pathTitle) + folderNameRow + HtmlHelper.EndTag("h" + heading);
         }

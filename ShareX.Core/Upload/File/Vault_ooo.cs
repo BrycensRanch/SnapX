@@ -24,16 +24,16 @@
 #endregion License Information (GPL v3)
 
 using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils;
+using Math = ShareX.Core.Utils.Math;
 
-namespace ShareX.UploadersLib.FileUploaders
+namespace ShareX.Core.Upload.File
 {
     public class Vault_oooFileUploaderService : FileUploaderService
     {
@@ -64,7 +64,7 @@ namespace ShareX.UploadersLib.FileUploaders
             #region Calculating sizes
 
             long fileSize = stream.Length;
-            int chunks = (int)Math.Ceiling((double)fileSize / BYTE_CHUNK_SIZE);
+            int chunks = (int)System.Math.Ceiling((double)fileSize / BYTE_CHUNK_SIZE);
             long fullUploadSize = 16; // 16 bytes header
 
             List<long> uploadSizes = new List<long>();
@@ -106,7 +106,7 @@ namespace ShareX.UploadersLib.FileUploaders
             postRequestJson.Add("chunks", chunks);
             postRequestJson.Add("fileLength", fullUploadSize);
 
-            string postResult = SendRequest(HttpMethod.post, URLHelpers.CombineURL(APIURL, fullFileName), JsonConvert.SerializeObject(postRequestJson), RequestHelpers.ContentTypeJSON, requestHeaders);
+            string postResult = SendRequest(HttpMethod.Post, URLHelpers.CombineURL(APIURL, fullFileName), JsonConvert.SerializeObject(postRequestJson), RequestHelpers.ContentTypeJSON, requestHeaders);
             Vault_oooMetaInfo metaInfo = JsonConvert.DeserializeObject<Vault_oooMetaInfo>(postResult);
 
             if (string.IsNullOrEmpty(metaInfo.UrlPathName))
@@ -163,7 +163,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     headers.Add("X-Put-Chunk-End", (uploadChunkStart + ms.Length).ToString());
                     headers.Add("X-Put-JWT", metaInfo.Token);
 
-                    SendRequest(HttpMethod.put, URLHelpers.CombineURL(APIURL, metaInfo.UrlPathName), ms, "application/octet-stream", null, headers);
+                    SendRequest(HttpMethod.Put, URLHelpers.CombineURL(APIURL, metaInfo.UrlPathName), ms, "application/octet-stream", null, headers);
                 }
             }, chunks, fileSize);
 

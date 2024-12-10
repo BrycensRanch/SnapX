@@ -23,9 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
 
-namespace ShareX.UploadersLib.FileUploaders
+using ShareX.Core.Utils;
+
+namespace ShareX.Core.Upload.File
 {
     public class PomfUploader
     {
