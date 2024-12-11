@@ -25,6 +25,7 @@
 
 using System.ComponentModel;
 using ShareX.Core.History;
+using ShareX.Core.Task;
 using ShareX.Core.Upload;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
@@ -121,7 +122,7 @@ namespace ShareX.Core
 
         public int UploadLimit = 5;
         public int BufferSizePower = 5;
-        public List<ClipboardFormat> ClipboardContentFormats = new List<ClipboardFormat>();
+        // public List<ClipboardFormat> ClipboardContentFormats = new List<ClipboardFormat>();
 
         public int MaxUploadFailRetry = 1;
         public bool UseSecondaryUploaders = false;
@@ -144,7 +145,7 @@ namespace ShareX.Core
         public bool RecentTasksTrayMenuMostRecentFirst = false;
 
         public HistorySettings HistorySettings = new HistorySettings();
-        public ImageHistorySettings ImageHistorySettings = new ImageHistorySettings();
+        // public ImageHistorySettings ImageHistorySettings = new ImageHistorySettings();
 
         #endregion History
 
@@ -232,15 +233,12 @@ namespace ShareX.Core
         public int ShowLargeFileSizeWarning { get; set; }
 
         [Category("Paths"), Description("Custom uploaders configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting ShareX.")]
-        [Editor(typeof(DirectoryNameEditor), typeof(UITypeEditor))]
         public string CustomUploadersConfigPath { get; set; }
 
         [Category("Paths"), Description("Custom hotkeys configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting ShareX.")]
-        [Editor(typeof(DirectoryNameEditor), typeof(UITypeEditor))]
         public string CustomHotkeysConfigPath { get; set; }
 
         [Category("Paths"), Description("Custom screenshot path (secondary location). If custom screenshot path is temporarily unavailable (e.g. network share), ShareX will use this location (recommended to be a local path).")]
-        [Editor(typeof(DirectoryNameEditor), typeof(UITypeEditor))]
         public string CustomScreenshotsPath2 { get; set; }
 
         [Category("Drag and drop window"), DefaultValue(150), Description("Size of drop window.")]
@@ -279,7 +277,7 @@ namespace ShareX.Core
 
         #region Actions toolbar
 
-        public List<HotkeyType> ActionsToolbarList = new List<HotkeyType>() { HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
+        public List<HotkeyType> ActionsToolbarList = new() { HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
             HotkeyType.None, HotkeyType.FileUpload, HotkeyType.ClipboardUploadWithContentViewer };
 
         public bool ActionsToolbarRunAtStartup = false;

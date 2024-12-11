@@ -31,6 +31,11 @@ namespace ShareX.Core.Utils.Extensions
 {
     public static class EnumExtensions
     {
+        public const string HotkeyType_Category_Upload = "Upload";
+        public const string HotkeyType_Category_ScreenCapture = "ScreenCapture";
+        public const string HotkeyType_Category_ScreenRecord = "ScreenRecord";
+        public const string HotkeyType_Category_Tools = "Tools";
+        public const string HotkeyType_Category_Other = "Other";
 
         public static string GetDescription(this Enum value)
         {

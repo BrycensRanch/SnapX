@@ -23,10 +23,9 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
+using ShareX.Core.Utils.Settings;
 
-namespace ShareX
+namespace ShareX.Core.Hotkey
 {
     public class HotkeysConfig : SettingsBase<HotkeysConfig>
     {

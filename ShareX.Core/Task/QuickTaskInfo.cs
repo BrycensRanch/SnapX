@@ -42,17 +42,17 @@ namespace ShareX.Core.Task
             }
         }
 
-        public static List<QuickTaskInfo> DefaultPresets => new List<QuickTaskInfo>()
+        public static List<QuickTaskInfo> DefaultPresets => new()
         {
-            new QuickTaskInfo("Save, Upload, Copy URL", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.UploadImageToHost, AfterUploadTasks.CopyURLToClipboard),
-            new QuickTaskInfo("Save, Copy image", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.CopyImageToClipboard),
-            new QuickTaskInfo("Save, Copy image file", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.CopyFileToClipboard),
-            new QuickTaskInfo("Annotate, Save, Upload, Copy URL", AfterCaptureTasks.AnnotateImage | AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.UploadImageToHost, AfterUploadTasks.CopyURLToClipboard),
-            new QuickTaskInfo(),
-            new QuickTaskInfo("Upload, Copy URL", AfterCaptureTasks.UploadImageToHost, AfterUploadTasks.CopyURLToClipboard),
-            new QuickTaskInfo("Save", AfterCaptureTasks.SaveImageToFile),
-            new QuickTaskInfo("Copy image", AfterCaptureTasks.CopyImageToClipboard),
-            new QuickTaskInfo("Annotate", AfterCaptureTasks.AnnotateImage)
+            new("Save, Upload, Copy URL", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.UploadImageToHost, AfterUploadTasks.CopyURLToClipboard),
+            new("Save, Copy image", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.CopyImageToClipboard),
+            new("Save, Copy image file", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.CopyFileToClipboard),
+            new("Annotate, Save, Upload, Copy URL", AfterCaptureTasks.AnnotateImage | AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.UploadImageToHost, AfterUploadTasks.CopyURLToClipboard),
+            new(),
+            new("Upload, Copy URL", AfterCaptureTasks.UploadImageToHost, AfterUploadTasks.CopyURLToClipboard),
+            new("Save", AfterCaptureTasks.SaveImageToFile),
+            new("Copy image", AfterCaptureTasks.CopyImageToClipboard),
+            new("Annotate", AfterCaptureTasks.AnnotateImage)
         };
 
         public QuickTaskInfo()

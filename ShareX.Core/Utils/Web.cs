@@ -34,7 +34,7 @@ namespace ShareX.Core.Utils
 {
     public static class WebHelpers
     {
-        public static async Task DownloadFileAsync(string url, string filePath)
+        public static async System.Threading.Tasks.Task DownloadFileAsync(string url, string filePath)
         {
             if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(filePath))
             {
@@ -57,6 +57,32 @@ namespace ShareX.Core.Utils
             await responseStream.CopyToAsync(fileStream);
         }
 
+        public static async System.Threading.Tasks.Task<SixLabors.ImageSharp.Image> DataURLToImage(string url)
+        {
+            // Ensure the URL is valid and starts with "data:"
+            if (url == null || !url.ToString().StartsWith("data:"))
+            {
+                throw new ArgumentException("Invalid data URL.");
+            }
+
+            // Extract the base64 data from the data URL
+            var dataUrl = url.ToString();
+            var regex = new Regex(@"^data:image\/(?<type>.*?);base64,(?<data>.+)$");
+            var match = regex.Match(dataUrl);
+
+            if (!match.Success)
+            {
+                throw new ArgumentException("Invalid data URL format.");
+            }
+
+            var base64Data = match.Groups["data"].Value;
+
+            byte[] imageBytes = Convert.FromBase64String(base64Data);
+
+            using var ms = new MemoryStream(imageBytes);
+            var image = await SixLabors.ImageSharp.Image.LoadAsync(ms);
+            return image;
+        }
 
         public static async Task<string> DownloadStringAsync(string url)
         {

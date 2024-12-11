@@ -23,13 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Xml.Linq;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public enum YfrogThumbnailType
     {
@@ -83,12 +83,7 @@ namespace ShareX.UploadersLib.ImageUploaders
             {
                 case YfrogUploadType.UPLOAD_IMAGE_ONLY:
                     return Upload(stream, fileName, "");
-                case YfrogUploadType.UPLOAD_IMAGE_AND_TWITTER:
-                    using (TwitterTweetForm msgBox = new TwitterTweetForm())
-                    {
-                        msgBox.ShowDialog();
-                        return Upload(stream, fileName, msgBox.Message);
-                    }
+                case YfrogUploadType.UPLOAD_IMAGE_AND_TWITTER: throw new NotImplementedException("YfrogUploadType UPLOAD_IMAGE_AND_TWITTER is not implemented.");
             }
 
             return null;

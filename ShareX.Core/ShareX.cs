@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using ShareX.Core.Hotkey;
+using ShareX.Core.Task;
 using ShareX.Core.Upload;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Utils;
@@ -42,7 +44,13 @@ internal static class ShareX
 
         public static void start()
         {
+            Debug.WriteLine("Starting ShareX");
+        }
 
+        public static void quit()
+        {
+            Debug.WriteLine("Quitting ShareX");
+            Environment.Exit(0);
         }
         public static string Title
         {
@@ -126,7 +134,6 @@ internal static class ShareX
             AppName, PersonalPathConfigFileName);
 
         private static readonly string PortableCheckFilePath = FileHelpers.GetAbsolutePath("Portable");
-        public static readonly string SteamInAppFilePath = FileHelpers.GetAbsolutePath("Steam");
 
         private static string CustomPersonalPath { get; set; }
 

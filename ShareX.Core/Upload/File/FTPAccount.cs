@@ -27,6 +27,7 @@ using System.ComponentModel;
 using ShareX.Core.Upload.Custom;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Parsers;
 
 namespace ShareX.Core.Upload.File
 {

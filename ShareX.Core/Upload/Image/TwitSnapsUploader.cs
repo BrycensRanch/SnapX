@@ -16,19 +16,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-    Optionally you can also view the license at <http://www.gnu.org/licenses/>.
+    Optionally, you can also view the license at <http://www.gnu.org/licenses/>.
 */
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
-using System.IO;
 using System.Xml.Linq;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public sealed class TwitSnapsUploader : ImageUploader
     {
@@ -46,11 +46,12 @@ namespace ShareX.UploadersLib.ImageUploaders
 
         public override UploadResult Upload(Stream stream, string fileName)
         {
-            using (TwitterTweetForm msgBox = new TwitterTweetForm())
-            {
-                msgBox.ShowDialog();
-                return Upload(stream, fileName, msgBox.Message);
-            }
+            throw new NotImplementedException("Twitsnaps upload not implemented");
+            // using (TwitterTweetForm msgBox = new TwitterTweetForm())
+            // {
+            //     msgBox.ShowDialog();
+            //     return Upload(stream, fileName, msgBox.Message);
+            // }
         }
 
         private UploadResult Upload(Stream stream, string fileName, string msg)

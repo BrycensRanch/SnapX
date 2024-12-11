@@ -61,18 +61,13 @@ namespace ShareX.Core.Media
 
         public static void PauseScreenRecording()
         {
-            if (IsRecording && recordForm != null && !recordForm.IsDisposed)
-            {
-                recordForm.PauseResumeRecording();
-            }
+            throw new NotImplementedException("As with many things, this function is.... NOT IMPLEMENTED. (ScreenRecordManager.PauseScreenRecording)");
         }
 
         public static void AbortRecording()
         {
-            if (IsRecording && recordForm != null && !recordForm.IsDisposed)
-            {
-                recordForm.AbortRecording();
-            }
+            throw new NotImplementedException("As with many things, this function is.... NOT IMPLEMENTED. (ScreenRecordManager.AbortRecording)");
+
         }
 
         private static void StartRecording(ScreenRecordOutput outputType, TaskSettings taskSettings, ScreenRecordStartMethod startMethod = ScreenRecordStartMethod.Region)

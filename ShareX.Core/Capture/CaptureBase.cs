@@ -23,6 +23,10 @@
 
 #endregion License Information (GPL v3)
 
+using ShareX.Core.Task;
+using ShareX.Core.Upload;
+using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Native;
 using SixLabors.ImageSharp;
 
 namespace ShareX.Core.Capture
@@ -51,7 +55,7 @@ namespace ShareX.Core.Capture
             {
                 int delay = (int)(taskSettings.CaptureSettings.ScreenshotDelay * 1000);
 
-                Task.Delay(delay).ContinueInCurrentContext(() =>
+                System.Threading.Tasks.Task.Delay(delay).ContinueInCurrentContext(() =>
                 {
                     CaptureInternal(taskSettings, autoHideForm);
                 });
@@ -68,7 +72,7 @@ namespace ShareX.Core.Capture
         {
             if (autoHideForm && AllowAutoHideForm)
             {
-                ShareX.MainWindow.Hide();
+                // ShareX.MainWindow.Hide();
                 Thread.Sleep(250);
             }
 
@@ -87,7 +91,7 @@ namespace ShareX.Core.Capture
             {
                 if (autoHideForm && AllowAutoHideForm)
                 {
-                    ShareX.MainWindow.ForceActivate();
+                    // ShareX.MainWindow.ForceActivate();
                 }
 
                 AfterCapture(metadata, taskSettings);
@@ -127,16 +131,16 @@ namespace ShareX.Core.Capture
 
         protected TaskMetadata CreateMetadata(Rectangle insideRect, string ignoreProcess)
         {
-            TaskMetadata metadata = new TaskMetadata();
+            var metadata = new TaskMetadata();
 
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-            WindowInfo windowInfo = new WindowInfo(handle);
-
-            if ((ignoreProcess == null || !windowInfo.ProcessName.Equals(ignoreProcess, StringComparison.OrdinalIgnoreCase)) &&
-                (insideRect.IsEmpty || windowInfo.Rectangle.Contains(insideRect)))
-            {
-                metadata.UpdateInfo(windowInfo);
-            }
+            var handle = Methods.GetForeground();
+            // var windowInfo = new WindowInfo(handle);
+            //
+            // if ((ignoreProcess == null || !windowInfo.ProcessName.Equals(ignoreProcess, StringComparison.OrdinalIgnoreCase)) &&
+            //     (insideRect.IsEmpty || windowInfo.Rectangle.Contains(insideRect)))
+            // {
+            //     metadata.UpdateInfo(windowInfo);
+            // }
 
             return metadata;
         }

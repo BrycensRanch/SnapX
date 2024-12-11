@@ -28,6 +28,7 @@
     <PackageReference Include="FluentFTP" Version="52.0.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
+    <PackageReference Include="ZXing.Net.Bindings.ImageSharp" Version="0.16.14" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">
@@ -38,9 +39,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Upload\APIKeys\jira_sharex.pfx" />
+    <Content Include="Resources\OAuthCallbackPage.html" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\OAuthCallbackPage.html" />
+    <EmbeddedResource Include="Resources\jira_sharex.pfx" />
   </ItemGroup>
 </Project>

@@ -24,6 +24,8 @@
 #endregion License Information (GPL v3)
 
 
+using ShareX.Core.Hotkey;
+using ShareX.Core.Task;
 using ShareX.Core.Upload;
 using ShareX.Core.Utils;
 
@@ -81,14 +83,14 @@ namespace ShareX.Core.Watch
 
                 watchFolder.FileWatcherTrigger += origPath =>
                 {
-                    TaskSettings taskSettingsCopy = TaskSettings.GetSafeTaskSettings(taskSettings);
+                    var taskSettingsCopy = TaskSettings.GetSafeTaskSettings(taskSettings);
                     string destPath = origPath;
 
                     if (watchFolderSetting.MoveFilesToScreenshotsFolder)
                     {
                         string screenshotsFolder = TaskHelpers.GetScreenshotsFolder(taskSettingsCopy);
                         string fileName = Path.GetFileName(origPath);
-                        destPath = TaskHelpers.HandleExistsFile(screenshotsFolder, fileName, taskSettingsCopy);
+                        destPath = Path.Combine(screenshotsFolder, fileName);
                         FileHelpers.CreateDirectoryFromFilePath(destPath);
                         File.Move(origPath, destPath);
                     }

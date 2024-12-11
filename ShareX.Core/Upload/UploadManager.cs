@@ -23,13 +23,14 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.IndexerLib;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Web;
+using ShareX.Core.Task;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
+using ShareX.Core.Utils.Native;
 
 namespace ShareX.Core.Upload
 {
@@ -79,7 +80,7 @@ namespace ShareX.Core.Upload
                 //     MessageBoxButtons.YesNo, Resources.UploadManager_IsUploadConfirmed_Don_t_show_this_message_again_))
                 // {
                 //     msgbox.ShowDialog();
-                //     Program.Settings.ShowMultiUploadWarning = !msgbox.IsChecked;
+                //     ShareX.Settings.ShowMultiUploadWarning = !msgbox.IsChecked;
                 //     return msgbox.DialogResult == DialogResult.Yes;
                 // }
             }
@@ -93,7 +94,7 @@ namespace ShareX.Core.Upload
             // {
             //     ofd.Title = "ShareX - " + Resources.UploadManager_UploadFile_File_upload;
             //
-            //     if (!string.IsNullOrEmpty(ShareX.Settings.FileUploadDefaultDirectory) && Directory.Exists(Program.Settings.FileUploadDefaultDirectory))
+            //     if (!string.IsNullOrEmpty(ShareX.Settings.FileUploadDefaultDirectory) && Directory.Exists(ShareX.Settings.FileUploadDefaultDirectory))
             //     {
             //         ofd.InitialDirectory = ShareX.Settings.FileUploadDefaultDirectory;
             //     }
@@ -122,9 +123,9 @@ namespace ShareX.Core.Upload
             // {
             //     folderDialog.Title = "ShareX - " + Resources.UploadManager_UploadFolder_Folder_upload;
             //
-            //     if (!string.IsNullOrEmpty(Program.Settings.FileUploadDefaultDirectory) && Directory.Exists(Program.Settings.FileUploadDefaultDirectory))
+            //     if (!string.IsNullOrEmpty(ShareX.Settings.FileUploadDefaultDirectory) && Directory.Exists(ShareX.Settings.FileUploadDefaultDirectory))
             //     {
-            //         folderDialog.InitialDirectory = Program.Settings.FileUploadDefaultDirectory;
+            //         folderDialog.InitialDirectory = ShareX.Settings.FileUploadDefaultDirectory;
             //     }
             //     else
             //     {
@@ -133,7 +134,7 @@ namespace ShareX.Core.Upload
             //
             //     if (folderDialog.ShowDialog() && !string.IsNullOrEmpty(folderDialog.FileName))
             //     {
-            //         Program.Settings.FileUploadDefaultDirectory = folderDialog.FileName;
+            //         ShareX.Settings.FileUploadDefaultDirectory = folderDialog.FileName;
             //         UploadFile(folderDialog.FileName, taskSettings);
             //     }
             // }
@@ -206,16 +207,11 @@ namespace ShareX.Core.Upload
             {
                 if (Clipboard.ContainsImage())
                 {
-                    Bitmap image;
+                    SixLabors.ImageSharp.Image image;
 
-                    if (HelpersOptions.UseAlternativeClipboardGetImage)
-                    {
-                        image = ClipboardHelpers.GetImageAlternative2();
-                    }
-                    else
-                    {
-                        image = (Bitmap)Clipboard.GetImage();
-                    }
+
+                    image = Clipboard.GetImage();
+
 
                     ProcessImageUpload(image, taskSettings);
                 }
@@ -235,12 +231,9 @@ namespace ShareX.Core.Upload
             catch (ExternalException e)
             {
                 DebugHelper.WriteException(e);
+                // Basic retries. Should use Polly Nuget package
+                ClipboardUpload(taskSettings);
 
-                if (MessageBox.Show("\"" + e.Message + "\"\r\n\r\n" + Resources.WouldYouLikeToRetryClipboardUpload, "ShareX - " + Resources.ClipboardUpload,
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                {
-                    ClipboardUpload(taskSettings);
-                }
             }
             catch (Exception e)
             {
@@ -262,18 +255,8 @@ namespace ShareX.Core.Upload
         {
             if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
-            if (Program.Settings.ShowClipboardContentViewer)
-            {
-                using (ClipboardUploadForm clipboardUploadForm = new ClipboardUploadForm(taskSettings, true))
-                {
-                    clipboardUploadForm.ShowDialog();
-                    Program.Settings.ShowClipboardContentViewer = !clipboardUploadForm.DontShowThisWindow;
-                }
-            }
-            else
-            {
-                ClipboardUpload(taskSettings);
-            }
+            ClipboardUpload(taskSettings);
+
         }
 
         public static void ShowTextUploadDialog(TaskSettings taskSettings = null)
@@ -336,27 +319,6 @@ namespace ShareX.Core.Upload
             }
         }
 
-        public static void ShowShortenURLDialog(TaskSettings taskSettings = null)
-        {
-            if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-
-            string inputText = null;
-
-            string text = ClipboardHelpers.GetText(true);
-
-            if (URLHelpers.IsValidURL(text))
-            {
-                inputText = text;
-            }
-
-            string url = InputBox.Show(Resources.UploadManager_ShowShortenURLDialog_ShortenURL, inputText, Resources.UploadManager_ShowShortenURLDialog_Shorten);
-
-            if (!string.IsNullOrEmpty(url))
-            {
-                ShortenURL(url, taskSettings);
-            }
-        }
-
         public static void RunImageTask(SixLabors.ImageSharp.Image image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
         {
             TaskMetadata metadata = new TaskMetadata(image);
@@ -371,24 +333,7 @@ namespace ShareX.Core.Upload
             {
                 if (!skipQuickTaskMenu && taskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.ShowQuickTaskMenu))
                 {
-                    QuickTaskMenu quickTaskMenu = new QuickTaskMenu();
-
-                    quickTaskMenu.TaskInfoSelected += taskInfo =>
-                    {
-                        if (taskInfo == null)
-                        {
-                            RunImageTask(metadata, taskSettings, true);
-                        }
-                        else if (taskInfo.IsValid)
-                        {
-                            taskSettings.AfterCaptureJob = taskInfo.AfterCaptureTasks;
-                            taskSettings.AfterUploadJob = taskInfo.AfterUploadTasks;
-                            RunImageTask(metadata, taskSettings, true);
-                        }
-                    };
-
-                    quickTaskMenu.ShowMenu();
-
+                    RunImageTask(metadata, taskSettings, true);
                     return;
                 }
 
@@ -404,9 +349,9 @@ namespace ShareX.Core.Upload
             }
         }
 
-        public static void UploadImage(Bitmap bmp, TaskSettings taskSettings = null)
+        public static void UploadImage(SixLabors.ImageSharp.Image image, TaskSettings taskSettings = null)
         {
-            if (bmp != null)
+            if (image != null)
             {
                 if (taskSettings == null)
                 {
@@ -419,13 +364,13 @@ namespace ShareX.Core.Upload
                     taskSettings.AfterCaptureJob = AfterCaptureTasks.UploadImageToHost;
                 }
 
-                RunImageTask(bmp, taskSettings);
+                RunImageTask(image, taskSettings);
             }
         }
 
-        public static void UploadImage(Bitmap bmp, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
+        public static void UploadImage(SixLabors.ImageSharp.Image image, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
         {
-            if (bmp != null)
+            if (image != null)
             {
                 if (taskSettings == null)
                 {
@@ -441,7 +386,7 @@ namespace ShareX.Core.Upload
                     taskSettings.ImageFileDestination = imageFileDestination;
                 }
 
-                RunImageTask(bmp, taskSettings);
+                RunImageTask(image, taskSettings);
             }
         }
 
@@ -570,7 +515,7 @@ namespace ShareX.Core.Upload
             {
                 if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
-                taskSettings.ToolsSettings.IndexerSettings.BinaryUnits = Program.Settings.BinaryUnits;
+                taskSettings.ToolsSettings.IndexerSettings.BinaryUnits = ShareX.Settings.BinaryUnits;
 
                 string source = null;
 

@@ -13,7 +13,6 @@ namespace ShareX.Core.Utils.Native
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                // Check if X11 or Wayland
                 if (IsWayland())
                 {
                     return GetWindowRectangleWayland(windowHandle);
@@ -29,19 +28,25 @@ namespace ShareX.Core.Utils.Native
             }
             else
             {
-                throw new PlatformNotSupportedException("Unsupported platform");
+                throw new PlatformNotSupportedException($"Unsupported platform {RuntimeInformation.OSDescription}");
             }
         }
 
-        // Windows: Use user32.dll to get the window rectangle
+        public static object GetForeground()
+        {
+            throw new NotImplementedException("GetForegroundWindow is not implemented");
+        }
         private static Rectangle GetWindowRectangleWindows(IntPtr windowHandle)
         {
             GetWindowRect(windowHandle, out RECT rect);
             return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
         }
 
+
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -86,10 +91,8 @@ namespace ShareX.Core.Utils.Native
             public IntPtr root;
         }
 
-        // Check if Wayland is being used (requires DBus)
         private static bool IsWayland()
         {
-            // Try to check if Wayland is the compositor
             string display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
             return !string.IsNullOrEmpty(display);
         }

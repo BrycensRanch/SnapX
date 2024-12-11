@@ -56,7 +56,7 @@ namespace ShareX.Core.History
 
         public async Task<List<HistoryItem>> GetHistoryItemsAsync()
         {
-            return await Task.Run(() => GetHistoryItems());
+            return await System.Threading.Tasks.Task.Run(() => GetHistoryItems());
         }
 
         public bool AppendHistoryItem(HistoryItem historyItem)

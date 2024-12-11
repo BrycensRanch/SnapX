@@ -35,6 +35,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Random;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 
@@ -261,7 +262,7 @@ namespace ShareX.Core.Utils
             if (stream == null) {
                 return;
             }
-            Task.Run(() =>
+            System.Threading.Tasks.Task.Run(() =>
                 throw new NotImplementedException("PlaySoundAsync (stream) not implemented"));
         }
 
@@ -270,7 +271,7 @@ namespace ShareX.Core.Utils
         {
             if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
 
-            Task.Run(() =>
+            System.Threading.Tasks.Task.Run(() =>
                 throw new NotImplementedException("PlaySoundAsync (filePath) not implemented"));
         }
 
@@ -292,11 +293,11 @@ namespace ShareX.Core.Utils
             return true;
         }
 
-        public static async Task WaitWhileAsync(Func<bool> check, int interval, int timeout, Action onSuccess, int waitStart = 0)
+        public static async System.Threading.Tasks.Task WaitWhileAsync(Func<bool> check, int interval, int timeout, Action onSuccess, int waitStart = 0)
         {
             var result = false;
 
-            await Task.Run(() =>
+            await System.Threading.Tasks.Task.Run(() =>
             {
                 if (waitStart > 0)
                 {
@@ -373,7 +374,7 @@ namespace ShareX.Core.Utils
                     }
 
                     // Add delay asynchronously instead of blocking the thread
-                    await Task.Delay(100);
+                    await System.Threading.Tasks.Task.Delay(100);
                 }
             }
 
@@ -586,6 +587,10 @@ namespace ShareX.Core.Utils
             result += GetNextRomanNumeralStep(ref num, 1, "I");
             return result;
         }
+        public static string RepeatGenerator(int count, Func<string> generator)
+        {
+            return string.Concat(Enumerable.Repeat(0, count).Select(_ => generator()));
+        }
 
         public static string JSONFormat(string json, JsonSerializerOptions? options = null)
         {
@@ -631,11 +636,11 @@ namespace ShareX.Core.Utils
             return outputFilePath;
         }
 
-        public static Task ForEachAsync<T>(IEnumerable<T> inputEnumerable, Func<T, Task> asyncProcessor, int maxDegreeOfParallelism)
+        public static System.Threading.Tasks.Task ForEachAsync<T>(IEnumerable<T> inputEnumerable, Func<T, System.Threading.Tasks.Task> asyncProcessor, int maxDegreeOfParallelism)
         {
             SemaphoreSlim throttler = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism);
 
-            IEnumerable<Task> tasks = inputEnumerable.Select(async input =>
+            IEnumerable<System.Threading.Tasks.Task> tasks = inputEnumerable.Select(async input =>
             {
                 await throttler.WaitAsync();
 
@@ -649,7 +654,7 @@ namespace ShareX.Core.Utils
                 }
             });
 
-            return Task.WhenAll(tasks);
+            return System.Threading.Tasks.Task.WhenAll(tasks);
         }
 
         public static bool IsDefaultSettings<T>(IEnumerable<T> current, IEnumerable<T> source, Func<T, T, bool> predicate)

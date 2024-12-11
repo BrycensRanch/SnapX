@@ -35,6 +35,8 @@ using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Parsers;
+using SixLabors.ImageSharp;
 
 namespace ShareX.Core.Upload.File
 {
@@ -278,7 +280,7 @@ namespace ShareX.Core.Upload.File
         {
             using (MemoryStream stream = new MemoryStream())
             {
-                image.Save(stream, image.RawFormat);
+                image.Save(remotePath);
                 UploadData(stream, remotePath);
             }
         }

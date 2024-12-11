@@ -23,12 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.Drawing;
 using System.Globalization;
-using System.IO;
+using SixLabors.ImageSharp;
 
-namespace ShareX.MediaLib
+namespace ShareX.Core.Media
 {
     public class VideoInfo
     {

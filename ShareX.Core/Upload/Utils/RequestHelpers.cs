@@ -23,14 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
+using ShareX.Core.Utils.Cryptographic;
+using ShareX.Core.Utils.Miscellaneous;
 
 namespace ShareX.Core.Upload.Utils
 {
@@ -126,7 +124,7 @@ namespace ShareX.Core.Upload.Utils
             {
                 request.AllowWriteStreamBuffering = HelpersOptions.CurrentProxy.IsValidProxy();
 
-                if (method == HttpMethod.get)
+                if (method == HttpMethod.Get)
                 {
                     request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
                 }

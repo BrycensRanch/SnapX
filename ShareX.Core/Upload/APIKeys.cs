@@ -23,9 +23,9 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.APIKeys
+namespace ShareX.Core.Upload
 {
-    public static class APIKeys
+    internal static class APIKeys
     {
         // Image uploaders
         public static readonly string ImgurClientID = "";

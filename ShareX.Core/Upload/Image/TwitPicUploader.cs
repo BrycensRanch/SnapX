@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public enum TwitPicUploadType
     {
@@ -74,11 +74,7 @@ namespace ShareX.UploadersLib.ImageUploaders
                 case TwitPicUploadType.UPLOAD_IMAGE_ONLY:
                     return Upload(stream, fileName, UploadLink);
                 case TwitPicUploadType.UPLOAD_IMAGE_AND_TWITTER:
-                    using (TwitterTweetForm msgBox = new TwitterTweetForm())
-                    {
-                        msgBox.ShowDialog();
-                        return Upload(stream, fileName, UploadAndPostLink, msgBox.Message);
-                    }
+                    throw new NotImplementedException("TwitPicUploadType.UPLOAD_IMAGE_AND_TWITTER is not implemented yet.");
             }
 
             return null;
@@ -102,7 +98,7 @@ namespace ShareX.UploadersLib.ImageUploaders
 
             UploadResult result = SendRequestFile(url, stream, fileName, "media", args);
 
-            TwitPicResponse response = JsonConvert.DeserializeObject<TwitPicResponse>(result.Response);
+            TwitPicResponse response = JsonSerializer.Deserialize<TwitPicResponse>(result.Response);
 
             if (response != null)
             {

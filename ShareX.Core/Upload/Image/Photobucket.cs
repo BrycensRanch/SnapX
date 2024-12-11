@@ -23,22 +23,19 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
 using System.Xml.Linq;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public class PhotobucketImageUploaderService : ImageUploaderService
     {
         public override ImageDestination EnumValue { get; } = ImageDestination.Photobucket;
-
-        public override Icon ServiceIcon => Resources.Photobucket;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -49,8 +46,6 @@ namespace ShareX.UploadersLib.ImageUploaders
         {
             return new Photobucket(config.PhotobucketOAuthInfo, config.PhotobucketAccountInfo);
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpPhotobucket;
     }
 
     public sealed class Photobucket : ImageUploader, IOAuth
@@ -76,14 +71,14 @@ namespace ShareX.UploadersLib.ImageUploaders
 
         public string GetAuthorizationURL()
         {
-            return GetAuthorizationURL(URLRequestToken, URLAuthorize, AuthInfo, null, HttpMethod.post);
+            return GetAuthorizationURL(URLRequestToken, URLAuthorize, AuthInfo, null, HttpMethod.Post);
         }
 
         public bool GetAccessToken(string verificationCode)
         {
             AuthInfo.AuthVerifier = verificationCode;
 
-            NameValueCollection nv = GetAccessTokenEx(URLAccessToken, AuthInfo, HttpMethod.post);
+            NameValueCollection nv = GetAccessTokenEx(URLAccessToken, AuthInfo, HttpMethod.Post);
 
             if (nv != null)
             {
@@ -121,7 +116,7 @@ namespace ShareX.UploadersLib.ImageUploaders
             */
 
             string url = "http://api.photobucket.com/album/!/upload";
-            string query = OAuthManager.GenerateQuery(url, args, HttpMethod.post, AuthInfo);
+            string query = OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo);
             query = FixURL(query);
 
             UploadResult result = SendRequestFile(query, stream, fileName, "uploadfile");
@@ -148,7 +143,7 @@ namespace ShareX.UploadersLib.ImageUploaders
             args.Add("name", albumName); // Name of result. Must be between 2 and 50 characters. Valid characters are letters, numbers, underscore ( _ ), hyphen (-), and space.
 
             string url = "http://api.photobucket.com/album/!";
-            string query = OAuthManager.GenerateQuery(url, args, HttpMethod.post, AuthInfo);
+            string query = OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo);
             query = FixURL(query);
 
             string response = SendRequestMultiPart(query, args);

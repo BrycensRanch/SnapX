@@ -23,9 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.IO;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Task;
+using ShareX.Core.Utils;
 
 namespace ShareX.Core.Upload
 {
@@ -64,16 +63,16 @@ namespace ShareX.Core.Upload
                 IsThumbnailURLExist = !string.IsNullOrEmpty(Info.Result.ThumbnailURL);
                 IsDeletionURLExist = !string.IsNullOrEmpty(Info.Result.DeletionURL);
                 IsFileURL = IsURLExist && URLHelpers.IsFileURL(Info.Result.URL);
-                IsImageURL = IsFileURL && File.IsImageFile(Info.Result.URL);
-                IsTextURL = IsFileURL && File.IsTextFile(Info.Result.URL);
+                IsImageURL = IsFileURL && FileHelpers.IsImageFile(Info.Result.URL);
+                IsTextURL = IsFileURL && FileHelpers.IsTextFile(Info.Result.URL);
             }
 
             IsFilePathValid = !string.IsNullOrEmpty(Info.FilePath) && Path.HasExtension(Info.FilePath);
             IsFileExist = IsFilePathValid && System.IO.File.Exists(Info.FilePath);
             IsThumbnailFilePathValid = !string.IsNullOrEmpty(Info.ThumbnailFilePath) && Path.HasExtension(Info.ThumbnailFilePath);
             IsThumbnailFileExist = IsThumbnailFilePathValid && System.IO.File.Exists(Info.ThumbnailFilePath);
-            IsImageFile = IsFileExist && File.IsImageFile(Info.FilePath);
-            IsTextFile = IsFileExist && File.IsTextFile(Info.FilePath);
+            IsImageFile = IsFileExist && FileHelpers.IsImageFile(Info.FilePath);
+            IsTextFile = IsFileExist && FileHelpers.IsTextFile(Info.FilePath);
         }
     }
 }

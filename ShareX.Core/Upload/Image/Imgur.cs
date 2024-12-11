@@ -215,13 +215,13 @@ namespace ShareX.Core.Upload.Image
 
                 string response = SendRequest(HttpMethod.Get, "https://api.imgur.com/3/account/me/albums", args, GetAuthHeaders());
 
-                ImgurResponse imgurResponse = JsonConvert.DeserializeObject<ImgurResponse>(response);
+                ImgurResponse imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(response);
 
                 if (imgurResponse != null)
                 {
                     if (imgurResponse.success && imgurResponse.status == 200)
                     {
-                        return ((JArray)imgurResponse.data).ToObject<List<ImgurAlbumData>>();
+                        return JsonSerializer.Deserialize<List<ImgurAlbumData>>(imgurResponse.data.ToString());
                     }
                     else
                     {
@@ -239,13 +239,13 @@ namespace ShareX.Core.Upload.Image
             {
                 string response = SendRequest(HttpMethod.Get, $"https://api.imgur.com/3/album/{albumID}/images", headers: GetAuthHeaders());
 
-                ImgurResponse imgurResponse = JsonConvert.DeserializeObject<ImgurResponse>(response);
+                ImgurResponse imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(response);
 
                 if (imgurResponse != null)
                 {
                     if (imgurResponse.success && imgurResponse.status == 200)
                     {
-                        return ((JArray)imgurResponse.data).ToObject<List<ImgurImageData>>();
+                        return JsonSerializer.Deserialize<List<ImgurImageData>>(imgurResponse.data.ToString());
                     }
                     else
                     {
@@ -310,7 +310,7 @@ namespace ShareX.Core.Upload.Image
                 {
                     if (imgurResponse.success && imgurResponse.status == 200)
                     {
-                        ImgurImageData imageData = JsonDocument.Parse(imgurResponse.data).Deserialize<ImgurImageData>();
+                        ImgurImageData imageData = JsonDocument.Parse(imgurResponse.data.ToString()).Deserialize<ImgurImageData>();
 
                         if (imageData != null && !string.IsNullOrEmpty(imageData.link))
                         {
@@ -395,11 +395,11 @@ namespace ShareX.Core.Upload.Image
 
         private ImgurErrorData ParseError(ImgurResponse response)
         {
-            ImgurErrorData errorData = ((JObject)response.data).ToObject<ImgurErrorData>();
+            ImgurErrorData errorData = JsonSerializer.Deserialize<ImgurErrorData>(response.data.ToString());
 
             if (errorData != null && !(errorData.error is string))
             {
-                errorData.error = ((JObject)errorData.error).ToObject<ImgurError>().message;
+                errorData.error = JsonSerializer.Deserialize<ImgurErrorData>(errorData.error.ToString());
             }
 
             return errorData;

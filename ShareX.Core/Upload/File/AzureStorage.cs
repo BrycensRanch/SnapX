@@ -32,6 +32,7 @@ using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Miscellaneous;
+using ShareX.Core.Utils.Parsers;
 
 namespace ShareX.Core.Upload.File
 {

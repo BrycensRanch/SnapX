@@ -27,9 +27,11 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Parsers;
 
 namespace ShareX.Core.Upload.Custom
 {
@@ -46,11 +48,10 @@ namespace ShareX.Core.Upload.Custom
         [DefaultValue(CustomUploaderDestinationType.None)]
         public CustomUploaderDestinationType DestinationType { get; set; }
 
-        [DefaultValue(HttpMethod.Post), JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public HttpMethod RequestMethod { get; set; } = HttpMethod.post;
+        public HttpMethod RequestMethod { get; set; } = HttpMethod.Post;
 
         // TEMP: For backward compatibility
-        [JsonProperty]
+        [JsonPropertyName("RequestType")]
         private HttpMethod RequestType { set => RequestMethod = value; }
 
         [DefaultValue("")]
@@ -109,7 +110,7 @@ namespace ShareX.Core.Upload.Custom
             return new CustomUploaderItem()
             {
                 Version = Helpers.GetApplicationVersion(),
-                RequestMethod = HttpMethod.post,
+                RequestMethod = HttpMethod.Post,
                 Body = CustomUploaderBody.MultipartFormData
             };
         }
@@ -192,7 +193,7 @@ namespace ShareX.Core.Upload.Custom
 
         public string GetData(CustomUploaderInput input)
         {
-            NameParser nameParser = new NameParser(NameParserType.Text);
+            var nameParser = new NameParser(NameParserType.Text);
             string result = nameParser.Parse(Data);
 
             Dictionary<string, string> replace = new Dictionary<string, string>();
@@ -236,7 +237,7 @@ namespace ShareX.Core.Upload.Custom
 
             if (Arguments != null)
             {
-                ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser(input);
+                var parser = new ShareXCustomUploaderSyntaxParser(input);
                 parser.UseNameParser = true;
 
                 foreach (KeyValuePair<string, string> arg in Arguments)
@@ -252,9 +253,9 @@ namespace ShareX.Core.Upload.Custom
         {
             if (Headers != null && Headers.Count > 0)
             {
-                NameValueCollection collection = new NameValueCollection();
+                var collection = new NameValueCollection();
 
-                ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser(input);
+                var parser = new ShareXCustomUploaderSyntaxParser(input);
                 parser.UseNameParser = true;
 
                 foreach (KeyValuePair<string, string> header in Headers)
@@ -279,7 +280,7 @@ namespace ShareX.Core.Upload.Custom
                     responseInfo.ResponseText = "";
                 }
 
-                ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser()
+                var parser = new ShareXCustomUploaderSyntaxParser()
                 {
                     FileName = input.FileName,
                     ResponseInfo = responseInfo,
@@ -337,15 +338,15 @@ namespace ShareX.Core.Upload.Custom
             {
                 ParseResponse(result, responseInfo, errors, input, isShortenedURL);
             }
-            catch (JsonReaderException e)
+            catch (JsonException e)
             {
-                string hostName = URLHelpers.GetHostName(RequestURL);
+                var hostName = URLHelpers.GetHostName(RequestURL);
                 errors.AddFirst($"Invalid response content is returned from host ({hostName}), expected response content is JSON." +
                     Environment.NewLine + Environment.NewLine + e);
             }
             catch (Exception e)
             {
-                string hostName = URLHelpers.GetHostName(RequestURL);
+                var hostName = URLHelpers.GetHostName(RequestURL);
                 errors.AddFirst($"Unable to parse response content returned from host ({hostName})." +
                     Environment.NewLine + Environment.NewLine + e);
             }
@@ -357,7 +358,7 @@ namespace ShareX.Core.Upload.Custom
 
             if (string.IsNullOrEmpty(Version) || Helpers.CompareVersion(Version, "12.3.1") <= 0)
             {
-                if (RequestMethod == HttpMethod.post)
+                if (RequestMethod == HttpMethod.Post)
                 {
                     Body = CustomUploaderBody.MultipartFormData;
                 }
@@ -494,7 +495,7 @@ namespace ShareX.Core.Upload.Custom
         {
             if (!string.IsNullOrEmpty(RequestURL))
             {
-                NameValueCollection nvc = URLHelpers.ParseQueryString(RequestURL);
+                var nvc = URLHelpers.ParseQueryString(RequestURL);
 
                 if (nvc != null && nvc.Count > 0)
                 {

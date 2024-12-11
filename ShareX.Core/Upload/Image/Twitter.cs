@@ -24,20 +24,17 @@
 #endregion License Information (GPL v3)
 
 using Newtonsoft.Json;
-using ShareX.HelpersLib;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.OAuth;
+using ShareX.Core.Upload.Utils;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public class TwitterImageUploaderService : ImageUploaderService
     {
         public override ImageDestination EnumValue { get; } = ImageDestination.Twitter;
-
-        public override Icon ServiceIcon => Resources.Twitter;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -55,8 +52,6 @@ namespace ShareX.UploadersLib.ImageUploaders
                 DefaultMessage = config.TwitterDefaultMessage ?? ""
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpTwitter;
     }
 
     public class Twitter : ImageUploader, IOAuth
@@ -93,18 +88,19 @@ namespace ShareX.UploadersLib.ImageUploaders
 
             if (!SkipMessageBox)
             {
-                using (TwitterTweetForm twitterMsg = new TwitterTweetForm())
-                {
-                    twitterMsg.MediaMode = true;
-                    twitterMsg.Message = DefaultMessage;
-
-                    if (twitterMsg.ShowDialog() != DialogResult.OK)
-                    {
-                        return new UploadResult() { IsURLExpected = false };
-                    }
-
-                    message = twitterMsg.Message;
-                }
+                throw new NotImplementedException("Twitter Upload is not implemented yet.");
+                // using (TwitterTweetForm twitterMsg = new TwitterTweetForm())
+                // {
+                //     twitterMsg.MediaMode = true;
+                //     twitterMsg.Message = DefaultMessage;
+                //
+                //     if (twitterMsg.ShowDialog() != DialogResult.OK)
+                //     {
+                //         return new UploadResult() { IsURLExpected = false };
+                //     }
+                //
+                //     message = twitterMsg.Message;
+                // }
             }
 
             return TweetMessageWithMedia(message, stream, fileName);
@@ -118,7 +114,7 @@ namespace ShareX.UploadersLib.ImageUploaders
             }
 
             string url = string.Format("https://api.twitter.com/{0}/statuses/update.json", APIVersion);
-            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.post, AuthInfo);
+            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
             Dictionary<string, string> args = new Dictionary<string, string>();
             args.Add("status", message);
@@ -141,7 +137,7 @@ namespace ShareX.UploadersLib.ImageUploaders
             }
 
             string url = string.Format("https://api.twitter.com/{0}/statuses/update_with_media.json", APIVersion);
-            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.post, AuthInfo);
+            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
             Dictionary<string, string> args = new Dictionary<string, string>();
             args.Add("status", message);
@@ -164,8 +160,8 @@ namespace ShareX.UploadersLib.ImageUploaders
         private string GetConfiguration()
         {
             string url = string.Format("https://api.twitter.com/{0}/help/configuration.json", APIVersion);
-            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.get, AuthInfo);
-            string response = SendRequest(HttpMethod.get, query);
+            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
+            string response = SendRequest(HttpMethod.Get, query);
             return response;
         }
     }

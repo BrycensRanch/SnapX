@@ -1,4 +1,4 @@
-﻿#region License Information (GPL v3)
+#region License Information (GPL v3)
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
@@ -23,14 +23,31 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Media
+namespace ShareX.Core.Utils.Parsers
 {
-    public class ImageCombinerOptions
+    public abstract class CodeMenuEntry
     {
-        // public Orientation Orientation { get; set; } = Orientation.Vertical;
-        public ImageCombinerAlignment Alignment { get; set; } = ImageCombinerAlignment.LeftOrTop;
-        public int Space { get; set; } = 0;
-        public int WrapAfter { get; set; } = 0;
-        public bool AutoFillBackground { get; set; } = true;
+        protected abstract string Prefix { get; }
+
+        public string Value { get; private set; }
+        public string Description { get; private set; }
+        public string Category { get; private set; }
+
+        public CodeMenuEntry(string value, string description, string category = null)
+        {
+            Value = value;
+            Description = description;
+            Category = category;
+        }
+
+        public string ToPrefixString()
+        {
+            return ToPrefixString(Prefix);
+        }
+
+        public string ToPrefixString(string prefix)
+        {
+            return prefix + Value;
+        }
     }
 }

@@ -32,21 +32,14 @@ public class OsInfo
     {
         try
         {
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion"))
-            {
-                if (key != null)
-                {
-                    string productName = key.GetValue("ProductName")?.ToString() ?? "Unknown Windows";
-                    string releaseId = key.GetValue("ReleaseId")?.ToString() ?? "Unknown Release";
-                    string currentVersion = key.GetValue("CurrentVersion")?.ToString() ?? "Unknown Version";
+            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+            if (key == null) return $"Windows {Environment.OSVersion.Version}";
+            var productName = key.GetValue("ProductName")?.ToString() ?? "Unknown Windows";
+            var releaseId = key.GetValue("ReleaseId")?.ToString() ?? "Unknown Release";
+            var currentVersion = key.GetValue("CurrentVersion")?.ToString() ?? "Unknown Version";
 
-                    return $"{productName} {releaseId} {currentVersion}";
-                }
-                else
-                {
-                    return $"Windows {Environment.OSVersion.Version}";
-                }
-            }
+            return $"{productName} {releaseId} {currentVersion}";
+
         }
         catch (Exception ex)
         {
@@ -60,11 +53,11 @@ static string GetLinuxVersion()
     try
     {
         var osReleaseFile = "/etc/os-release";
-        if (FileHelpers.Exists(osReleaseFile))
+        if (File.Exists(osReleaseFile))
         {
-            var lines = FileHelpers.ReadAllLines(osReleaseFile);
+            var lines = File.ReadAllLines(osReleaseFile);
 
-            string prettyName = lines.FirstOrDefault(line => line.StartsWith("PRETTY_NAME"))?.Split('=')[1]?.Trim('"');
+            var prettyName = lines.FirstOrDefault(line => line.StartsWith("PRETTY_NAME"))?.Split('=')[1]?.Trim('"');
 
             if (string.IsNullOrEmpty(prettyName))
             {

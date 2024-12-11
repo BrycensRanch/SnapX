@@ -26,7 +26,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShareX.Core.Upload;
-using ShareX.Core.Upload.APIKeys;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;

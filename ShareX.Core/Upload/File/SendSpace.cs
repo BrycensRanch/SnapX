@@ -30,7 +30,6 @@ using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils.Cryptographic;
 using ShareX.Core.Utils.Extensions;
-using ShareX.UploadersLib.FileUploaders;
 
 namespace ShareX.Core.Upload.File
 {
@@ -533,7 +532,7 @@ namespace ShareX.Core.Upload.File
                 this.sendSpace = sendSpace;
 
                 cts = new CancellationTokenSource();
-                Task.Run(() => DoWork(cts.Token), cts.Token);
+                System.Threading.Tasks.Task.Run(() => DoWork(cts.Token), cts.Token);
             }
 
             private void DoWork(CancellationToken ct)

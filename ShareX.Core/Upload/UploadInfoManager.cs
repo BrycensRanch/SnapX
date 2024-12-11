@@ -30,6 +30,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ShareX.Core.Task;
+using ShareX.Core.Utils;
 using File = ShareX.HelpersLib.File;
 
 namespace ShareX.Core.Upload
@@ -115,17 +117,17 @@ namespace ShareX.Core.Upload
 
         public void OpenFile()
         {
-            if (IsItemSelected && SelectedItem.IsFileExist) File.OpenFile(SelectedItem.Info.FilePath);
+            if (IsItemSelected && SelectedItem.IsFileExist) FileHelpers.OpenFile(SelectedItem.Info.FilePath);
         }
 
         public void OpenThumbnailFile()
         {
-            if (IsItemSelected && SelectedItem.IsThumbnailFileExist) File.OpenFile(SelectedItem.Info.ThumbnailFilePath);
+            if (IsItemSelected && SelectedItem.IsThumbnailFileExist) FileHelpers.OpenFile(SelectedItem.Info.ThumbnailFilePath);
         }
 
         public void OpenFolder()
         {
-            if (IsItemSelected && SelectedItem.IsFileExist) File.OpenFolderWithFile(SelectedItem.Info.FilePath);
+            if (IsItemSelected && SelectedItem.IsFileExist) FileHelpers.OpenFolderWithFile(SelectedItem.Info.FilePath);
         }
 
         public void TryOpen()
@@ -144,7 +146,7 @@ namespace ShareX.Core.Upload
                 }
                 else if (SelectedItem.IsFilePathValid)
                 {
-                    File.OpenFile(SelectedItem.Info.FilePath);
+                    FileHelpers.OpenFile(SelectedItem.Info.FilePath);
                 }
             }
         }
@@ -303,19 +305,6 @@ namespace ShareX.Core.Upload
 
         #region Other
 
-        public void ShowImagePreview()
-        {
-            if (IsItemSelected && SelectedItem.IsImageFile) ImageViewer.ShowImage(SelectedItem.Info.FilePath);
-        }
-
-        public void ShowErrors()
-        {
-            if (IsItemSelected)
-            {
-                SelectedItem.Task.ShowErrorWindow();
-            }
-        }
-
         public void StopUpload()
         {
             if (IsItemSelected)
@@ -337,25 +326,6 @@ namespace ShareX.Core.Upload
             if (IsItemSelected && SelectedItem.IsFileURL) UploadManager.DownloadFile(SelectedItem.Info.Result.URL);
         }
 
-        public void EditImage()
-        {
-            if (IsItemSelected && SelectedItem.IsImageFile) TaskHelpers.AnnotateImageFromFile(SelectedItem.Info.FilePath);
-        }
-
-        public void BeautifyImage()
-        {
-            if (IsItemSelected && SelectedItem.IsImageFile) TaskHelpers.OpenImageBeautifier(SelectedItem.Info.FilePath);
-        }
-
-        public void AddImageEffects()
-        {
-            if (IsItemSelected && SelectedItem.IsImageFile) TaskHelpers.OpenImageEffects(SelectedItem.Info.FilePath);
-        }
-
-        public void PinToScreen()
-        {
-            if (IsItemSelected && SelectedItem.IsImageFile) TaskHelpers.PinToScreen(SelectedItem.Info.FilePath);
-        }
 
         public void DeleteFiles()
         {
@@ -363,7 +333,7 @@ namespace ShareX.Core.Upload
             {
                 foreach (string filePath in SelectedItems.Select(x => x.Info.FilePath))
                 {
-                    File.DeleteFile(filePath, true);
+                    FileHelpers.DeleteFile(filePath, true);
                 }
             }
         }
@@ -393,7 +363,7 @@ namespace ShareX.Core.Upload
             if (IsItemSelected && SelectedItem.IsURLExist) new QRCodeForm(SelectedItem.Info.Result.URL).Show();
         }
 
-        public async Task OCRImage()
+        public async System.Threading.Tasks.Task OCRImage()
         {
             if (IsItemSelected && SelectedItem.IsImageFile) await TaskHelpers.OCRImage(SelectedItem.Info.FilePath);
         }

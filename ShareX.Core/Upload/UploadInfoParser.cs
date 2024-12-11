@@ -23,8 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.IO;
+using ShareX.Core.Task;
+using ShareX.Core.Utils.Parsers;
 
 namespace ShareX.Core.Upload
 {

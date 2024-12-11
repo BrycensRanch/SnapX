@@ -23,10 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
 using System.IO;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseUploaders;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public sealed class ImmioUploader : ImageUploader
     {
@@ -35,7 +36,7 @@ namespace ShareX.UploadersLib.ImageUploaders
             UploadResult result = SendRequestFile("http://imm.io/store/", stream, fileName, "image");
             if (result.IsSuccess)
             {
-                ImmioResponse response = JsonConvert.DeserializeObject<ImmioResponse>(result.Response);
+                ImmioResponse response = JsonSerializer.Deserialize<ImmioResponse>(result.Response);
                 if (response != null) result.URL = response.Payload.Uri;
             }
             return result;

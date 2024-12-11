@@ -23,11 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
 using System.Collections.Specialized;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.OAuth;
@@ -205,42 +205,43 @@ namespace ShareX.Core.Upload.File
 
         public override UploadResult Upload(Stream stream, string fileName)
         {
-            using (new SSLBypassHelper())
-            {
-                using (JiraUpload up = new JiraUpload(jiraIssuePrefix, GetSummary))
-                {
-                    if (up.ShowDialog() == DialogResult.Cancel)
-                    {
-                        return new UploadResult
-                        {
-                            IsSuccess = true,
-                            IsURLExpected = false
-                        };
-                    }
-
-                    Uri uri = Combine(jiraBaseAddress, string.Format(PathIssueAttachments, up.IssueId));
-                    string query = OAuthManager.GenerateQuery(uri.ToString(), null, HttpMethod.post, AuthInfo);
-
-                    NameValueCollection headers = new NameValueCollection();
-                    headers.Set("X-Atlassian-Token", "nocheck");
-
-                    UploadResult res = SendRequestFile(query, stream, fileName, "file", headers: headers);
-                    if (res.Response.Contains("errorMessages"))
-                    {
-                        Errors.Add(res.Response);
-                    }
-                    else
-                    {
-                        res.IsURLExpected = true;
-                        var anonType = new[] { new { thumbnail = "" } };
-                        var anonObject = JsonConvert.DeserializeAnonymousType(res.Response, anonType);
-                        res.ThumbnailURL = anonObject[0].thumbnail;
-                        res.URL = Combine(jiraBaseAddress, string.Format(PathBrowseIssue, up.IssueId)).ToString();
-                    }
-
-                    return res;
-                }
-            }
+            throw new NotImplementedException("Jira Upload is not implemented");
+            // using (new SSLBypassHelper())
+            // {
+            //     using (JiraUpload up = new JiraUpload(jiraIssuePrefix, GetSummary))
+            //     {
+            //         if (up.ShowDialog() == DialogResult.Cancel)
+            //         {
+            //             return new UploadResult
+            //             {
+            //                 IsSuccess = true,
+            //                 IsURLExpected = false
+            //             };
+            //         }
+            //
+            //         Uri uri = Combine(jiraBaseAddress, string.Format(PathIssueAttachments, up.IssueId));
+            //         string query = OAuthManager.GenerateQuery(uri.ToString(), null, HttpMethod.Post, AuthInfo);
+            //
+            //         NameValueCollection headers = new NameValueCollection();
+            //         headers.Set("X-Atlassian-Token", "nocheck");
+            //
+            //         UploadResult res = SendRequestFile(query, stream, fileName, "file", headers: headers);
+            //         if (res.Response.Contains("errorMessages"))
+            //         {
+            //             Errors.Add(res.Response);
+            //         }
+            //         else
+            //         {
+            //             res.IsURLExpected = true;
+            //             var anonType = new[] { new { thumbnail = "" } };
+            //             var anonObject = JsonConvert.DeserializeAnonymousType(res.Response, anonType);
+            //             res.ThumbnailURL = anonObject[0].thumbnail;
+            //             res.URL = Combine(jiraBaseAddress, string.Format(PathBrowseIssue, up.IssueId)).ToString();
+            //         }
+            //
+            //         return res;
+            //     }
+            // }
         }
 
         private string GetSummary(string issueId)
@@ -256,9 +257,16 @@ namespace ShareX.Core.Upload.File
                 string response = SendRequest(HttpMethod.Get, query);
                 if (!string.IsNullOrEmpty(response))
                 {
-                    var anonType = new { issues = new[] { new { key = "", fields = new { summary = "" } } } };
-                    var res = JsonConvert.DeserializeAnonymousType(response, anonType);
-                    return res.issues[0].fields.summary;
+                    using var doc = JsonDocument.Parse(response);
+
+                    var summary = doc.RootElement
+                        .GetProperty("issues")[0]
+                        .GetProperty("fields")
+                        .GetProperty("summary")
+                        .GetString();
+
+                    return summary;
+
                 }
 
                 // This query can returns error so we have to remove last error from errors list

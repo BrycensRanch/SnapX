@@ -23,15 +23,16 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Random;
+using ShareX.MediaLib;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp.Drawing.Processing;
+using Math = System.Math;
 
-namespace ShareX.MediaLib
+namespace ShareX.Core.Media
 {
     public class VideoThumbnailer
     {
@@ -127,17 +128,7 @@ namespace ShareX.MediaLib
             {
                 if (Options.CombineScreenshots)
                 {
-                    using (Image img = CombineScreenshots(tempThumbnails))
-                    {
-                        string tempFilePath = Path.Combine(GetOutputDirectory(), Path.GetFileNameWithoutExtension(MediaPath) + Options.FilenameSuffix + "." + Options.ImageFormat.GetDescription());
-                        Image.SaveImage(img, tempFilePath);
-                        thumbnails.Add(new VideoThumbnailInfo(tempFilePath));
-                    }
-
-                    if (!Options.KeepScreenshots)
-                    {
-                        tempThumbnails.ForEach(x => System.IO.File.Delete(x.FilePath));
-                    }
+                        throw new NotImplementedException("VideoThumbnailer Combine screenshots is not implemented.");
                 }
                 else
                 {
@@ -146,7 +137,7 @@ namespace ShareX.MediaLib
 
                 if (Options.OpenDirectory && thumbnails.Count > 0)
                 {
-                    File.OpenFolderWithFile(thumbnails[0].FilePath);
+                    FileHelpers.OpenFolderWithFile(thumbnails[0].FilePath);
                 }
             }
 
@@ -172,11 +163,11 @@ namespace ShareX.MediaLib
                     directory = Path.GetDirectoryName(MediaPath);
                     break;
                 case ThumbnailLocationType.CustomFolder:
-                    directory = File.ExpandFolderVariables(Options.CustomOutputDirectory);
+                    directory = FileHelpers.ExpandFolderVariables(Options.CustomOutputDirectory);
                     break;
             }
 
-            File.CreateDirectory(directory);
+            FileHelpers.CreateDirectory(directory);
 
             return directory;
         }
@@ -196,143 +187,6 @@ namespace ShareX.MediaLib
             }
 
             return (int)((RandomFast.NextDouble() * (mediaSeekTimes[start + 1] - mediaSeekTimes[start])) + mediaSeekTimes[start]);
-        }
-
-        private Image CombineScreenshots(List<VideoThumbnailInfo> thumbnails)
-        {
-            List<Bitmap> images = new List<Bitmap>();
-            Image finalImage = null;
-
-            try
-            {
-                string infoString = "";
-                int infoStringHeight = 0;
-
-                if (Options.AddVideoInfo)
-                {
-                    infoString = VideoInfo.ToString();
-
-                    using (Font font = new Font("Arial", 12))
-                    {
-                        infoStringHeight = Helpers.MeasureText(infoString, font).Height;
-                    }
-                }
-
-                foreach (VideoThumbnailInfo thumbnail in thumbnails)
-                {
-                    Bitmap bmp = Image.LoadImage(thumbnail.FilePath);
-
-                    if (Options.MaxThumbnailWidth > 0 && bmp.Width > Options.MaxThumbnailWidth)
-                    {
-                        int maxThumbnailHeight = (int)((float)Options.MaxThumbnailWidth / bmp.Width * bmp.Height);
-                        bmp = Image.ResizeImage(bmp, Options.MaxThumbnailWidth, maxThumbnailHeight);
-                    }
-
-                    images.Add(bmp);
-                }
-
-                int columnCount = Options.ColumnCount;
-
-                int thumbWidth = images[0].Width;
-
-                int width = (Options.Padding * 2) +
-                            (thumbWidth * columnCount) +
-                            ((columnCount - 1) * Options.Spacing);
-
-                int rowCount = (int)Math.Ceiling(images.Count / (float)columnCount);
-
-                int thumbHeight = images[0].Height;
-
-                int height = (Options.Padding * 3) +
-                             infoStringHeight +
-                             (thumbHeight * rowCount) +
-                             ((rowCount - 1) * Options.Spacing);
-
-                finalImage = new Bitmap(width, height);
-
-                using (Graphics g = Graphics.FromImage(finalImage))
-                {
-                    g.Clear(Color.WhiteSmoke);
-
-                    if (!string.IsNullOrEmpty(infoString))
-                    {
-                        using (Font font = new Font("Arial", 12))
-                        {
-                            g.DrawString(infoString, font, Brushes.Black, Options.Padding, Options.Padding);
-                        }
-                    }
-
-                    int i = 0;
-                    int offsetY = (Options.Padding * 2) + infoStringHeight;
-
-                    for (int y = 0; y < rowCount; y++)
-                    {
-                        int offsetX = Options.Padding;
-
-                        for (int x = 0; x < columnCount; x++)
-                        {
-                            if (Options.DrawShadow)
-                            {
-                                int shadowOffset = 3;
-
-                                using (Brush shadowBrush = new SolidBrush(Color.FromArgb(75, Color.Black)))
-                                {
-                                    g.FillRectangle(shadowBrush, offsetX + shadowOffset, offsetY + shadowOffset, thumbWidth, thumbHeight);
-                                }
-                            }
-
-                            g.DrawImage(images[i], offsetX, offsetY, thumbWidth, thumbHeight);
-
-                            if (Options.DrawBorder)
-                            {
-                                g.DrawRectangleProper(Pens.Black, offsetX, offsetY, thumbWidth, thumbHeight);
-                            }
-
-                            if (Options.AddTimestamp)
-                            {
-                                int timestampOffset = 10;
-
-                                using (Font font = new Font("Arial", 10, FontStyle.Bold))
-                                {
-                                    g.DrawTextWithShadow(thumbnails[i].Timestamp.ToString(), new Point(offsetX + timestampOffset, offsetY + timestampOffset), font, Brushes.White, Brushes.Black);
-                                }
-                            }
-
-                            i++;
-
-                            if (i >= images.Count)
-                            {
-                                return finalImage;
-                            }
-
-                            offsetX += thumbWidth + Options.Spacing;
-                        }
-
-                        offsetY += thumbHeight + Options.Spacing;
-                    }
-                }
-
-                return finalImage;
-            }
-            catch
-            {
-                if (finalImage != null)
-                {
-                    finalImage.Dispose();
-                }
-
-                throw;
-            }
-            finally
-            {
-                foreach (Bitmap image in images)
-                {
-                    if (image != null)
-                    {
-                        image.Dispose();
-                    }
-                }
-            }
         }
     }
 }

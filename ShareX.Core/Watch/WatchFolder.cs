@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using System.Diagnostics;
+using ShareX.Core.Task;
 using ShareX.Core.Utils;
 
 namespace ShareX.Core.Watch

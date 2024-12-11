@@ -23,13 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Drawing;
 using ShareX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
 
-namespace ShareX
+namespace ShareX.Core.Task
 {
     public class TaskMetadata : IDisposable
     {

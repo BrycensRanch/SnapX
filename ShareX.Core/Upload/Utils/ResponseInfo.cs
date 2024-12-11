@@ -25,6 +25,7 @@
 
 using System.Net;
 using System.Text;
+using ShareX.Core.Utils;
 
 namespace ShareX.Core.Upload.Utils
 {

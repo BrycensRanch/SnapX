@@ -23,20 +23,16 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using ShareX.UploadersLib.Properties;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
+using System.Text.Json;
+using ShareX.Core.Upload.BaseServices;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public class VgymeImageUploaderService : ImageUploaderService
     {
         public override ImageDestination EnumValue { get; } = ImageDestination.Vgyme;
-
-        public override Icon ServiceIcon => Resources.Vgyme;
 
         public override bool CheckConfig(UploadersConfig config) => true;
 
@@ -47,8 +43,6 @@ namespace ShareX.UploadersLib.ImageUploaders
                 UserKey = config.VgymeUserKey
             };
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpVgyme;
     }
 
     public sealed class VgymeUploader : ImageUploader
@@ -64,7 +58,7 @@ namespace ShareX.UploadersLib.ImageUploaders
 
             if (result.IsSuccess)
             {
-                VgymeResponse response = JsonConvert.DeserializeObject<VgymeResponse>(result.Response);
+                VgymeResponse response = JsonSerializer.Deserialize<VgymeResponse>(result.Response);
 
                 if (response != null && !response.Error)
                 {

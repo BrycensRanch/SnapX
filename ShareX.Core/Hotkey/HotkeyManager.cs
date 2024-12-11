@@ -23,11 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace ShareX
+namespace ShareX.Core.Hotkey
 {
     public class HotkeyManager
     {
@@ -64,13 +61,13 @@ namespace ShareX
 
         public void RegisterHotkey(HotkeySettings hotkeySetting)
         {
-            if (!Program.Settings.DisableHotkeys || hotkeySetting.TaskSettings.Job == HotkeyType.DisableHotkeys)
+            if (!ShareX.Settings.DisableHotkeys || hotkeySetting.TaskSettings.Job == HotkeyType.DisableHotkeys)
             {
                 UnregisterHotkey(hotkeySetting, false);
 
                 if (hotkeySetting.HotkeyInfo.Status != HotkeyStatus.Registered && hotkeySetting.HotkeyInfo.IsValidHotkey)
                 {
-                    hotkeyForm.RegisterHotkey(hotkeySetting.HotkeyInfo);
+                    // hotkeyForm.RegisterHotkey(hotkeySetting.HotkeyInfo);
 
                     if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Registered)
                     {
@@ -179,7 +176,7 @@ namespace ShareX
             Hotkeys.AddRange(GetDefaultHotkeyList());
             RegisterAllHotkeys();
 
-            if (Program.Settings.DisableHotkeys)
+            if (ShareX.Settings.DisableHotkeys)
             {
                 TaskHelpers.ToggleHotkeys();
             }

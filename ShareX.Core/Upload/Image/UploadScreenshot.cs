@@ -23,12 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System.Collections.Generic;
-using System.IO;
 using System.Xml.Linq;
+using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Utils.Extensions;
 
-namespace ShareX.UploadersLib.ImageUploaders
+namespace ShareX.Core.Upload.Image
 {
     public class UploadScreenshot : ImageUploader
     {

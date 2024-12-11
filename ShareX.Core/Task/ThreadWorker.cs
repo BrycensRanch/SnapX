@@ -23,10 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.Threading;
 
-namespace ShareX.HelpersLib
+namespace ShareX.Core.Task
 {
     public class ThreadWorker
     {

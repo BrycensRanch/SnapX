@@ -28,7 +28,7 @@ using System.Text;
 using ShareX.Core;
 using ShareX.Core.Utils;
 
-namespace ShareX.UploadersLib
+namespace ShareX.Core.Upload.OAuth
 {
     public class OAuthListener : IDisposable
     {
@@ -126,7 +126,7 @@ namespace ShareX.UploadersLib
 
             if (queryState == state && !string.IsNullOrEmpty(queryCode))
             {
-                return await Task.Run(() => OAuth.GetAccessToken(queryCode));
+                return await System.Threading.Tasks.Task.Run(() => OAuth.GetAccessToken(queryCode));
             }
 
             return false;

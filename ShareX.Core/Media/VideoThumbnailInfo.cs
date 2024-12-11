@@ -23,10 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.IO;
 
-namespace ShareX.MediaLib
+namespace ShareX.Core.Media
 {
     public class VideoThumbnailInfo
     {
