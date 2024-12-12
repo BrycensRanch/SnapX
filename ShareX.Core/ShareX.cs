@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using ShareX.Core.CLI;
 using ShareX.Core.Hotkey;
 using ShareX.Core.Task;
 using ShareX.Core.Upload;
@@ -28,20 +29,22 @@ public class ShareX
             ShareXBuild.Unknown;
 #endif
 
-        public static string VersionText
+    public static string VersionText
+    {
+        get
         {
-            get
-            {
-                var sbVersionText = new StringBuilder();
-                var version = Assembly.GetExecutingAssembly().GetName().Version;
-                sbVersionText.Append(version.Major + "." + version.Minor);
-                if (version.Build > 0 || version.Revision > 0) sbVersionText.Append("." + version.Build);
-                if (version.Revision > 0) sbVersionText.Append("." + version.Revision);
-                if (Dev) sbVersionText.Append(" Dev");
-                if (Portable) sbVersionText.Append(" Portable");
-                return sbVersionText.ToString();
-            }
+            var version = Assembly.GetExecutingAssembly().GetName().Version!;
+            var versionString = $"{version.Major}.{version.Minor}.{version.Revision}";
+            if (version.Build > 0)
+                versionString += $".{version.Build}";
+            if (Dev)
+                versionString += " Dev";
+            if (Portable)
+                versionString += " Portable";
+
+            return versionString;
         }
+    }
 
         public static void quit()
         {
@@ -244,7 +247,7 @@ public class ShareX
 
             StartTimer = Stopwatch.StartNew();
             // TODO: Implement CLI in a better way than what it is now.
-            // CLI = new ShareXCLIManager(args);
+            // CLI = new CLIManager(args);
             // CLI.ParseCommands();
 
             if (CheckAdminTasks()) return; // If ShareX opened just for be able to execute task as Admin
@@ -297,16 +300,11 @@ public class ShareX
             RegisterExtensions();
             CheckPuushMode();
             DebugWriteFlags();
-
             SettingManager.LoadInitialSettings();
+            // SettingManager.LoadAllSettings();
 
             Uploader.UpdateServicePointManager();
             // CleanupManager.CleanupAsync();
-
-            DebugHelper.WriteLine("Main window init started.");
-            // Initialize the main window
-            DebugHelper.WriteLine("Main window init finished.");
-            // Run the main window
 
         }
 

@@ -225,8 +225,8 @@ namespace ShareX.Core.Utils.Extensions
         public static void ShowError(this Exception e, bool fullError = true)
         {
             var error = fullError ? e.ToString() : e.Message;
-            // TODO: Implement this in GTK
-            Console.WriteLine(error);
+            // TODO: Remove all calls of this function. It shows that they're still handling UI concerns.
+            DebugHelper.WriteException(error);
         }
 
         public static System.Threading.Tasks.Task ContinueInCurrentContext(this System.Threading.Tasks.Task task, Action action) =>

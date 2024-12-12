@@ -245,7 +245,7 @@ namespace ShareX.Core.Task
                 Prepare();
                 threadWorker.DoWork += ThreadDoWork;
                 threadWorker.Completed += ThreadCompleted;
-                threadWorker.Start(ApartmentState.STA);
+                threadWorker.Start();
             }
         }
 
