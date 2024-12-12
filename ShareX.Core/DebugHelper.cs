@@ -64,11 +64,11 @@ namespace ShareX.Core
         {
             if (Logger != null)
             {
-                Logger.Error("Exception: {Message} - {Exception}", message, exception); // Log using Serilog Error level
+                Logger.Error("{Message} - {Exception}", message, exception); // Log using Serilog Error level
             }
             else
             {
-                Debug.WriteLine($"Exception: {message} - {exception}");
+                Console.Error.WriteLine($"{message} - {exception}");
             }
         }
 
