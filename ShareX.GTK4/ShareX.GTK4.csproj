@@ -17,8 +17,6 @@
     <PublishAot>true</PublishAot>
     <ApplicationVersion>0.0.0-DEV</ApplicationVersion>
     <Description>Screen capture, file sharing and productivity tool</Description>
-<!--    Uncomment to disable GitInfo changing the ApplicationVersion automatically-->
-<!--    <GitVersion>false</GitVersion>-->
     <!-- ShareX.GTK4 is Linux only. -->
     <RuntimeIdentifiers>linux-x64;linux-musl-x64;linux-bionic-arm64;linux-musl-arm64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <AssemblyName>sharex-gtk</AssemblyName>
@@ -36,10 +34,6 @@
     <PackageReference Include="GirCore.Adw-1" Version="0.5.0" />
     <PackageReference Include="GirCore.Gio-2.0" Version="0.5.0" />
     <PackageReference Include="GirCore.Gdk-4.0" Version="0.5.0" />
-    <PackageReference Include="GitInfo" Version="3.3.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="nulastudio.NetBeauty" Version="2.1.4.6" />
   </ItemGroup>
   <PropertyGroup>
