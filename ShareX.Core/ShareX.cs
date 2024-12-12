@@ -184,9 +184,8 @@ public class ShareX
                 // {
                 //     return null;
                 // }
-
-                string fileName = string.Format("ShareX-Log-{0:yyyy-MM}.txt", DateTime.Now);
-                return Path.Combine(LogsFolder, fileName);
+                var date = DateTime.Now;
+                return Path.Combine(LogsFolder, date.Year.ToString(), date.Month.ToString("D2"), $"ShareX-{date.Day}.log");
             }
         }
 
