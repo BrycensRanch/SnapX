@@ -13,10 +13,10 @@ public class AboutDialog
     {
         return Core.Utils.OsInfo.GetFancyOSNameAndVersion();
     }
-    public virtual string GetTitle() => "ShareX";
+    public virtual string GetTitle() => Core.ShareX.Title;
     public virtual string GetLicense() => "GPL v3 or Later";
-    public virtual string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
-    public virtual string GetWebsite() => "https://github.com/BrycensRanch/ShareX-Linux-Port";
+    public virtual string GetVersion() => Core.ShareX.VersionText;
+    public virtual string GetWebsite() => Core.Utils.Miscellaneous.Links.GitHub;
     public virtual string GetDescription() => Assembly.GetExecutingAssembly()
         .GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? "Image sharing tool";
     public virtual string GetCopyright() => "© BrycensRanch & ShareX Team 2024-present";

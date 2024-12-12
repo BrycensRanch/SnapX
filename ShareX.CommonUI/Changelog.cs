@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using ShareX.CommonUI.Types;
+using ShareX.Core;
 
 namespace ShareX.CommonUI;
 
@@ -22,21 +23,21 @@ public abstract class Changelog
         {
             try
             {
-                Console.WriteLine("GetChangeSummary called.");
+                DebugHelper.WriteLine("GetChangeSummary called.");
                 var releaseSummary = await GetLatestReleasesSinceVersion();
                 if (!IsValidChangelog(releaseSummary))
                     return releaseSummary;
-                Console.WriteLine("No GitHub release available. Checking tags instead.");
+                DebugHelper.WriteLine("No GitHub release available. Checking tags instead.");
                 //
                 var tagSummary = await GetTagsSinceVersion();
                 if (!IsValidChangelog(tagSummary))
                     return tagSummary;
-                Console.WriteLine("No GitHub tags available. Checking GHA Builds instead.");
+                DebugHelper.WriteLine("No GitHub tags available. Checking GHA Builds instead.");
 
                 var actionSummary = await GetBuildSummaryFromActions();
                 if (!IsValidChangelog(actionSummary))
                     return actionSummary;
-                Console.WriteLine("No GHA Builds available. Outputting recent commits instead.");
+                DebugHelper.WriteLine("No GHA Builds available. Outputting recent commits instead.");
 
                 return await GetRecentCommits();
             }
@@ -47,7 +48,7 @@ public abstract class Changelog
             }
         }
 private bool IsValidChangelog(string changelog) {
-    Console.WriteLine($"Validating changelog: {changelog}");
+    DebugHelper.WriteLine($"Validating changelog: {changelog}");
     return !string.IsNullOrWhiteSpace(changelog) && changelog.Any(char.IsLetter) && changelog.Length > 4;
 }
 private async Task<string> GetLatestReleasesSinceVersion()
@@ -181,7 +182,7 @@ private bool IsNewerVersion(int releaseMajor, int releaseMinor, int releasePatch
                 return "No commit history available.";
 
             var json = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(json);
+            DebugHelper.WriteLine(json);
             var commits = JsonSerializer.Deserialize<List<Root>>(json);
             if (commits == null || commits.Count == 0) return  "No commit history available.";
             var commitMessages = "";

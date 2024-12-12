@@ -4,10 +4,10 @@ namespace ShareX.CLI;
 
 public class CLIAbout : AboutDialog
 {
-    public override string GetTitle() => "ShareX CLI";
 
     public override void Show()
     {
+        Core.ShareX.Qualifier = " CLI";
         Console.WriteLine($"===============  {GetTitle()}     =================");
         Console.WriteLine($"{GetDescription()}");
         Console.WriteLine($"Version: {GetVersion()}");

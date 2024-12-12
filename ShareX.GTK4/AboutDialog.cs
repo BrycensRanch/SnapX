@@ -5,9 +5,9 @@ namespace ShareX.GTK4;
 
 public class AboutDialog : Gtk.AboutDialog
 {
+    public ShareX.CommonUI.AboutDialog internalAboutDialog = new CommonUI.AboutDialog();
     public AboutDialog()
     {
-        var internalAboutDialog = new CommonUI.AboutDialog();
 
         Comments = internalAboutDialog.GetDescription();
         Copyright = internalAboutDialog.GetCopyright();
