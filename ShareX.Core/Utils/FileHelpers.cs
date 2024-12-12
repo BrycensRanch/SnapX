@@ -382,7 +382,7 @@ namespace ShareX.Core.Utils
                 {
                     if (supportCustomSpecialFolders)
                     {
-                        foreach (KeyValuePair<string, string> specialFolder in HelpersOptions.ShareXSpecialFolders)
+                        foreach (KeyValuePair<string, string> specialFolder in HelpersOptions.ShareXUserFolders)
                         {
                             path = path.Replace(specialFolder.Value, $"%{specialFolder.Key}%", StringComparison.OrdinalIgnoreCase);
                         }
@@ -408,17 +408,17 @@ namespace ShareX.Core.Utils
             {
                 try
                 {
-                    if (supportCustomSpecialFolders)
+                    foreach (KeyValuePair<string, string> userFolder in HelpersOptions.ShareXUserFolders)
                     {
-                        foreach (KeyValuePair<string, string> specialFolder in HelpersOptions.ShareXSpecialFolders)
-                        {
-                            path = path.Replace($"%{specialFolder.Key}%", specialFolder.Value, StringComparison.OrdinalIgnoreCase);
-                        }
+                        path = path.Replace($"%{userFolder.Key}%", userFolder.Value, StringComparison.OrdinalIgnoreCase);
                     }
-
-                    foreach (Environment.SpecialFolder specialFolder in Helpers.GetEnums<Environment.SpecialFolder>())
+                    // May produce duplicate entries in HelpersOptions.ShareXUserFolders, it keeps compatability with Windows configurations
+                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                     {
-                        path = path.Replace($"%{specialFolder}%", Environment.GetFolderPath(specialFolder), StringComparison.OrdinalIgnoreCase);
+                        foreach (Environment.SpecialFolder specialFolder in Helpers.GetEnums<Environment.SpecialFolder>())
+                        {
+                            path = path.Replace($"%{specialFolder}%", Environment.GetFolderPath(specialFolder), StringComparison.OrdinalIgnoreCase);
+                        }
                     }
 
                     path = Environment.ExpandEnvironmentVariables(path);

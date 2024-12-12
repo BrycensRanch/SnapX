@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using SixLabors.ImageSharp;
+using Xdg.Directories;
 
 namespace ShareX.Core.Utils.Miscellaneous
 {
@@ -41,7 +42,16 @@ namespace ShareX.Core.Utils.Miscellaneous
         public static List<Color> RecentColors { get; set; } = new List<Color>();
         public static string LastSaveDirectory { get; set; } = "";
         public static bool URLEncodeIgnoreEmoji { get; set; } = false;
-        public static Dictionary<string, string> ShareXSpecialFolders { get; set; } = new Dictionary<string, string>();
+        public static Dictionary<string, string> ShareXUserFolders { get; set; } = new()
+        {
+            { "Desktop", UserDirectory.DesktopDir },
+            { "Music", UserDirectory.MusicDir },
+            { "Pictures", UserDirectory.PicturesDir },
+            { "Videos", UserDirectory.VideosDir },
+            { "Documents", UserDirectory.DocumentsDir },
+            { "Downloads", UserDirectory.DownloadDir},
+            { "Templates", UserDirectory.TemplatesDir}
+        };
         public static bool DevMode { get; set; } = false;
     }
 }

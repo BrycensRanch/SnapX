@@ -35,10 +35,13 @@ namespace ShareX.Core
 
         public static void Init(string logFilePath)
         {
-            Logger = new LoggerConfiguration()
-                        .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
-                        .WriteTo.Console()
-                        .CreateLogger();
+            var loggerConfig = new LoggerConfiguration()
+                .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day);
+            if (ShareX.LogToConsole)
+            {
+                loggerConfig = loggerConfig.WriteTo.Console();
+            }
+            Logger = loggerConfig.CreateLogger();
         }
 
         public static void WriteLine(string message = "")
@@ -58,7 +61,6 @@ namespace ShareX.Core
         {
             WriteLine(string.Format(format, args)); // Formatting and passing the result to WriteLine
         }
-
         // Write an exception message
         public static void WriteException(string exception, string message = "Exception")
         {
