@@ -40,8 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\OAuthCallbackPage.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\jira_sharex.pfx" />
+    <Content Include="Resources\jira_sharex.pfx" />
   </ItemGroup>
 </Project>
