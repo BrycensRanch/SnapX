@@ -15,14 +15,12 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          stale-issue-message: ""
-          stale-pr-message: ""
-          days-before-issue-stale: 360
+          days-before-issue-stale: 365
           days-before-pr-stale: 90
           days-before-issue-close: 7
           days-before-pr-close: 7
           stale-issue-label: "Stale"
           stale-pr-label: "Stale"
-          exempt-issue-labels: "Bug,Enhancement"
-          exempt-pr-labels: ""
+          exempt-issue-labels: "Bug,Enhancement,Accepted,NotOurBug,Upstream"
+          exempt-pr-labels: "release"
           operations-per-run: 100
