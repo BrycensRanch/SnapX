@@ -36,7 +36,7 @@ namespace ShareX.Core
 {
     public class ApplicationConfig : SettingsBase<ApplicationConfig>
     {
-        public TaskSettings DefaultTaskSettings = new TaskSettings();
+        public TaskSettings DefaultTaskSettings = new();
 
         public DateTime FirstTimeRunDate = DateTime.Now;
         public string FileUploadDefaultDirectory = "";
@@ -45,7 +45,7 @@ namespace ShareX.Core
 
         // Main window
         public bool FirstTimeMinimizeToTray = true;
-        public List<int> TaskListViewColumnWidths = new List<int>();
+        public List<int> TaskListViewColumnWidths = new();
         public int PreviewSplitterDistance = 335;
 
         public ApplicationConfig()
@@ -57,7 +57,7 @@ namespace ShareX.Core
 
         #region General
 
-        public SupportedLanguage Language = SupportedLanguage.Automatic;
+        public SupportedLanguage Language = SupportedLanguage.English;
         public bool ShowTray = true;
         public bool SilentRun = false;
         public bool TrayIconProgressEnabled = true;
@@ -114,7 +114,7 @@ namespace ShareX.Core
 
         #region Proxy
 
-        public ProxyInfo ProxySettings = new ProxyInfo();
+        public ProxyInfo ProxySettings = new();
 
         #endregion Proxy
 
@@ -126,9 +126,9 @@ namespace ShareX.Core
 
         public int MaxUploadFailRetry = 1;
         public bool UseSecondaryUploaders = false;
-        public List<ImageDestination> SecondaryImageUploaders = new List<ImageDestination>();
-        public List<TextDestination> SecondaryTextUploaders = new List<TextDestination>();
-        public List<FileDestination> SecondaryFileUploaders = new List<FileDestination>();
+        public List<ImageDestination> SecondaryImageUploaders = new();
+        public List<TextDestination> SecondaryTextUploaders = new();
+        public List<FileDestination> SecondaryFileUploaders = new();
 
         #endregion Upload
 
@@ -144,7 +144,7 @@ namespace ShareX.Core
         public bool RecentTasksShowInTrayMenu = true;
         public bool RecentTasksTrayMenuMostRecentFirst = false;
 
-        public HistorySettings HistorySettings = new HistorySettings();
+        public HistorySettings HistorySettings = new();
         // public ImageHistorySettings ImageHistorySettings = new ImageHistorySettings();
 
         #endregion History

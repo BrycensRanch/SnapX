@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using ShareX.Core.CLI;
 using ShareX.Core.Hotkey;
@@ -17,9 +18,9 @@ namespace ShareX.Core;
 public class ShareX
 {
         public const string AppName = "ShareX";
+        public static string Qualifier = "";
         public const string MutexName = "82E6AC09-0FEF-4390-AD9F-0DD3F5561EFC";
         public static readonly string PipeName = $"{Environment.MachineName}-{Environment.UserName}-{AppName}";
-
         public const ShareXBuild Build =
 #if RELEASE
             ShareXBuild.Release;
@@ -45,7 +46,7 @@ public class ShareX
             return versionString;
         }
     }
-
+        public void setQualifier(string qualifier) => Qualifier = qualifier;
         public static void quit()
         {
             CloseSequence();
@@ -54,7 +55,7 @@ public class ShareX
         {
             get
             {
-                string title = $"{AppName} {VersionText}";
+                string title = $"{AppName}{Qualifier}";
 
                 if (Settings != null && Settings.DevMode)
                 {
@@ -72,22 +73,10 @@ public class ShareX
             }
         }
 
-        public static string TitleShort
-        {
-            get
-            {
-                if (Settings != null && Settings.DevMode)
-                {
-                    return Title;
-                }
-
-                return AppName;
-            }
-        }
-
         public static bool Dev { get; } = true;
         public static bool MultiInstance { get; private set; }
         public static bool Portable { get; private set; }
+        public static bool LogToConsole { get; private set; } = true;
         public static bool SilentRun { get; private set; }
         public static bool Sandbox { get; private set; }
         public static bool IsAdmin { get; private set; }
@@ -108,7 +97,8 @@ public class ShareX
 
         private const string PersonalPathConfigFileName = "PersonalPath.cfg";
 
-        public static readonly string DefaultPersonalFolder = Path.Combine(UserDirectory.DocumentsDir, AppName);
+        // Many Windows users consider %USERPROFILE%\Documents\ShareX the correct location and I'm not here to subvert expectations.
+        public static readonly string DefaultPersonalFolder = Path.Combine(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? UserDirectory.DocumentsDir : BaseDirectory.DataHome, AppName);
         public static readonly string PortablePersonalFolder = FileHelpers.GetAbsolutePath(AppName);
 
         private static string PersonalPathConfigFilePath
@@ -236,6 +226,11 @@ public class ShareX
             start(Array.Empty<string>());
         }
 
+        public void silenceLogging()
+        {
+            LogToConsole = false;
+        }
+
         public void shutdown()
         {
             CloseSequence();
@@ -340,63 +335,61 @@ public class ShareX
 
         private static void UpdatePersonalPath()
         {
+            if (Sandbox) return;
             // Sandbox = CLI.IsCommandExist("sandbox");
 
-            if (!Sandbox)
+            // if (CLI.IsCommandExist("portable", "p"))
+            // {
+            //     Portable = true;
+            //     CustomPersonalPath = PortablePersonalFolder;
+            //     PersonalPathDetectionMethod = "Portable CLI flag";
+            // }
+            if (File.Exists(PortableCheckFilePath))
             {
-                // if (CLI.IsCommandExist("portable", "p"))
-                // {
-                //     Portable = true;
-                //     CustomPersonalPath = PortablePersonalFolder;
-                //     PersonalPathDetectionMethod = "Portable CLI flag";
-                // }
-                if (File.Exists(PortableCheckFilePath))
+                Portable = true;
+                CustomPersonalPath = PortablePersonalFolder;
+                PersonalPathDetectionMethod = $"Portable file ({PortableCheckFilePath})";
+            }
+            // else if (!string.IsNullOrEmpty(SystemOptions.PersonalPath))
+            // {
+            //     CustomPersonalPath = SystemOptions.PersonalPath;
+            //     PersonalPathDetectionMethod = "Registry";
+            // }
+            else
+            {
+                MigratePersonalPathConfig();
+
+                string customPersonalPath = ReadPersonalPathConfig();
+
+                if (!string.IsNullOrEmpty(customPersonalPath))
                 {
-                    Portable = true;
-                    CustomPersonalPath = PortablePersonalFolder;
-                    PersonalPathDetectionMethod = $"Portable file ({PortableCheckFilePath})";
+                    CustomPersonalPath = FileHelpers.GetAbsolutePath(customPersonalPath);
+                    PersonalPathDetectionMethod = $"PersonalPath.cfg file ({PersonalPathConfigFilePath})";
                 }
-                // else if (!string.IsNullOrEmpty(SystemOptions.PersonalPath))
-                // {
-                //     CustomPersonalPath = SystemOptions.PersonalPath;
-                //     PersonalPathDetectionMethod = "Registry";
-                // }
-                else
+            }
+
+            if (!Directory.Exists(PersonalFolder))
+            {
+                try
                 {
-                    MigratePersonalPathConfig();
-
-                    string customPersonalPath = ReadPersonalPathConfig();
-
-                    if (!string.IsNullOrEmpty(customPersonalPath))
-                    {
-                        CustomPersonalPath = FileHelpers.GetAbsolutePath(customPersonalPath);
-                        PersonalPathDetectionMethod = $"PersonalPath.cfg file ({PersonalPathConfigFilePath})";
-                    }
+                    Directory.CreateDirectory(PersonalFolder);
                 }
-
-                if (!Directory.Exists(PersonalFolder))
+                catch (Exception e)
                 {
-                    try
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.AppendFormat("{0} \"{1}\"", "Unable to create personal folder!", PersonalFolder);
+                    sb.AppendLine();
+
+                    if (!string.IsNullOrEmpty(PersonalPathDetectionMethod))
                     {
-                        Directory.CreateDirectory(PersonalFolder);
+                        sb.AppendLine("Personal path detection method: " + PersonalPathDetectionMethod);
                     }
-                    catch (Exception e)
-                    {
-                        StringBuilder sb = new StringBuilder();
 
-                        sb.AppendFormat("{0} \"{1}\"", "Unable to create personal folder!", PersonalFolder);
-                        sb.AppendLine();
+                    sb.AppendLine();
+                    sb.Append(e);
 
-                        if (!string.IsNullOrEmpty(PersonalPathDetectionMethod))
-                        {
-                            sb.AppendLine("Personal path detection method: " + PersonalPathDetectionMethod);
-                        }
-
-                        sb.AppendLine();
-                        sb.Append(e);
-
-                        CustomPersonalPath = "";
-                    }
+                    CustomPersonalPath = "";
                 }
             }
         }
@@ -415,15 +408,9 @@ public class ShareX
         {
         }
 
-        public static void UpdateHelpersSpecialFolders()
-        {
-            Dictionary<string, string> specialFolders = new Dictionary<string, string>();
-            specialFolders.Add("ShareXImageEffects", ImageEffectsFolder);
-            HelpersOptions.ShareXSpecialFolders = specialFolders;
-        }
-
         private static void MigratePersonalPathConfig()
         {
+            DebugHelper.WriteLine("MigratePersonalPathConfig called");
             if (File.Exists(PreviousPersonalPathConfigFilePath))
             {
                 try
@@ -433,7 +420,19 @@ public class ShareX
                         FileHelpers.CreateDirectoryFromFilePath(CurrentPersonalPathConfigFilePath);
                         File.Move(PreviousPersonalPathConfigFilePath, CurrentPersonalPathConfigFilePath);
                     }
-
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        try
+                        {
+                            // @see https://github.com/BrycensRanch/ShareX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
+                            Directory.CreateSymbolicLink(Path.Combine(UserDirectory.DocumentsDir, AppName), CurrentPersonalPathConfigFilePath);
+                        }
+                        catch (Exception e)
+                        {
+                            DebugHelper.WriteLine("Failed to symbolic link typical ShareX path. You can safely ignore this.");
+                            DebugHelper.WriteLine(e.Message);
+                        }
+                    }
                     File.Delete(PreviousPersonalPathConfigFilePath);
                     Directory.Delete(Path.GetDirectoryName(PreviousPersonalPathConfigFilePath));
                 }
