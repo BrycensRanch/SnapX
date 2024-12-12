@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.Avalonia", "ShareX.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.Core", "ShareX.Core\ShareX.Core.csproj", "{9C0D2877-B8F3-4D84-BD4C-E89173EBDD96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareX.GTK4", "ShareX.GTK4\ShareX.GTK4.csproj", "{C0EC0A4C-DEC1-4656-B791-EA8FB4A517B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,11 +73,18 @@ Global
 		{9C0D2877-B8F3-4D84-BD4C-E89173EBDD96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C0D2877-B8F3-4D84-BD4C-E89173EBDD96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C0D2877-B8F3-4D84-BD4C-E89173EBDD96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0EC0A4C-DEC1-4656-B791-EA8FB4A517B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0EC0A4C-DEC1-4656-B791-EA8FB4A517B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0EC0A4C-DEC1-4656-B791-EA8FB4A517B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0EC0A4C-DEC1-4656-B791-EA8FB4A517B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEACF1C2-28EE-44DF-B55E-2234F6137272}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C0EC0A4C-DEC1-4656-B791-EA8FB4A517B1} = {5387FE8B-32DE-48F6-A79F-45C1562893A9}
 	EndGlobalSection
 EndGlobal
