@@ -1,19 +1,24 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using ShareX.Core;
 
 namespace ShareX.Avalonia;
 
-public partial class App : Application
+public class App : Application
 {
+    public Core.ShareX ShareX { get; set; }
     public override void Initialize()
     {
-        var sharex = new Core.ShareX();
-        sharex.start();
+
+        ShareX = new Core.ShareX();
+        ShareX.start();
         var about = new AboutDialog();
         about.Show();
-
-        // AvaloniaXamlLoader.Load(this);
+        DebugHelper.WriteLine($"{nameof(ShareX)}: {nameof(AboutDialog)}: {about}");
+        AvaloniaXamlLoader.Load(this);
 
         // Default logic doesn't auto detect windows theme anymore in designer
         // to stop light mode, force here
@@ -21,17 +26,25 @@ public partial class App : Application
         {
             RequestedThemeVariant = ThemeVariant.Dark;
         }
+
+    }
+
+    public void Shutdown(object? sender, ShutdownRequestedEventArgs e)
+    {
+        ShareX.shutdown();
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        // {
-        //     desktop.MainWindow = new MainWindow();
-        // }
-        // else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
-        // {
-        //     singleView.MainView = new MainView();
-        // }
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.ShutdownRequested += Shutdown;
+
+            // desktop.MainWindow = new MainWindow();
+        }
+        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
+        {
+            // singleView.MainView = new MainView();
+        }
     }
 }
