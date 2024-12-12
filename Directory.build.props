@@ -9,6 +9,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <Optimize>true</Optimize>
+    <!-- Disabled due to messing up JSON serialization. -->
+    <!--<Optimize>true</Optimize>-->
   </PropertyGroup>
 </Project>
