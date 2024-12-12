@@ -23,7 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-using System.Drawing;
+using ShareX.Core.Task;
 
 namespace ShareX.Core.Capture
 {
@@ -31,8 +31,8 @@ namespace ShareX.Core.Capture
     {
         protected override TaskMetadata Execute(TaskSettings taskSettings)
         {
-            Rectangle rect = taskSettings.CaptureSettings.CaptureCustomRegion;
-            TaskMetadata metadata = CreateMetadata(rect);
+            var rect = taskSettings.CaptureSettings.CaptureCustomRegion;
+            var metadata = CreateMetadata(rect);
             metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureRectangle(rect);
             return metadata;
         }

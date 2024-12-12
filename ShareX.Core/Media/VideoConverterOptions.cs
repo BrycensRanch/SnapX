@@ -106,7 +106,7 @@ namespace ShareX.Core.Media
                     }
                     else
                     {
-                        args.Append($"-crf {VideoQuality.Clamp(FFmpegCLIManager.x264_min, FFmpegCLIManager.x264_max)} ");
+                        args.Append($"-crf {Math.Clamp(VideoQuality, FFmpegCLIManager.x264_min, FFmpegCLIManager.x264_max)} ");
                     }
                     args.Append("-pix_fmt yuv420p ");
                     args.Append("-movflags +faststart ");
@@ -120,7 +120,7 @@ namespace ShareX.Core.Media
                     }
                     else
                     {
-                        args.Append($"-crf {VideoQuality.Clamp(FFmpegCLIManager.x265_min, FFmpegCLIManager.x265_max)} ");
+                        args.Append($"-crf {Math.Clamp(VideoQuality, FFmpegCLIManager.x265_min, FFmpegCLIManager.x265_max)} ");
                     }
                     break;
                 case ConverterVideoCodecs.h264_nvenc: // https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
@@ -169,7 +169,7 @@ namespace ShareX.Core.Media
                     }
                     else
                     {
-                        args.Append($"-crf {VideoQuality.Clamp(FFmpegCLIManager.vp8_min, FFmpegCLIManager.vp8_max)} ");
+                        args.Append($"-crf {Math.Clamp(VideoQuality, FFmpegCLIManager.vp8_min, FFmpegCLIManager.vp8_max)} ");
                         args.Append("-b:v 100M ");
                     }
                     break;
@@ -181,7 +181,7 @@ namespace ShareX.Core.Media
                     }
                     else
                     {
-                        args.Append($"-crf {VideoQuality.Clamp(FFmpegCLIManager.vp9_min, FFmpegCLIManager.vp9_max)} ");
+                        args.Append($"-crf {Math.Clamp(VideoQuality, FFmpegCLIManager.vp9_min, FFmpegCLIManager.vp9_max)} ");
                         args.Append("-b:v 0 ");
                     }
                     break;
@@ -193,7 +193,7 @@ namespace ShareX.Core.Media
                     }
                     else
                     {
-                        args.Append($"-crf {VideoQuality.Clamp(FFmpegCLIManager.av1_min, FFmpegCLIManager.av1_max)} ");
+                        args.Append($"-crf {Math.Clamp(VideoQuality, FFmpegCLIManager.av1_min, FFmpegCLIManager.av1_max)} ");
                     }
                     break;
                 case ConverterVideoCodecs.xvid: // https://trac.ffmpeg.org/wiki/Encode/MPEG-4
@@ -204,7 +204,7 @@ namespace ShareX.Core.Media
                     }
                     else
                     {
-                        args.Append($"-q:v {VideoQuality.Clamp(FFmpegCLIManager.xvid_min, FFmpegCLIManager.xvid_max)} ");
+                        args.Append($"-q:v {Math.Clamp(VideoQuality, FFmpegCLIManager.xvid_min, FFmpegCLIManager.xvid_max)} ");
                     }
                     break;
                 case ConverterVideoCodecs.gif: // https://ffmpeg.org/ffmpeg-filters.html#palettegen-1

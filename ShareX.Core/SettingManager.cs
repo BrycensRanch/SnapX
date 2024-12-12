@@ -23,20 +23,17 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.HistoryLib;
-using ShareX.Properties;
-using ShareX.ScreenCaptureLib;
-using ShareX.UploadersLib;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using File = ShareX.HelpersLib.File;
 
-namespace ShareX
+using ShareX.Core.History;
+using ShareX.Core.Hotkey;
+using ShareX.Core.Task;
+using ShareX.Core.Upload;
+using ShareX.Core.Upload.Custom;
+using ShareX.Core.Upload.Zip;
+using ShareX.Core.Utils;
+using ShareX.Core.Utils.Extensions;
+
+namespace ShareX.Core
 {
     internal static class SettingManager
     {
@@ -48,7 +45,7 @@ namespace ShareX
             {
                 if (ShareX.Sandbox) return null;
 
-                return Path.Combine(Program.PersonalFolder, ApplicationConfigFileName);
+                return Path.Combine(ShareX.PersonalFolder, ApplicationConfigFileName);
             }
         }
 
@@ -58,17 +55,17 @@ namespace ShareX
         {
             get
             {
-                if (Program.Sandbox) return null;
+                if (ShareX.Sandbox) return null;
 
                 string uploadersConfigFolder;
 
                 if (Settings != null && !string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
                 {
-                    uploadersConfigFolder = File.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
+                    uploadersConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
                 }
                 else
                 {
-                    uploadersConfigFolder = Program.PersonalFolder;
+                    uploadersConfigFolder = ShareX.PersonalFolder;
                 }
 
                 return Path.Combine(uploadersConfigFolder, UploadersConfigFileName);
@@ -81,29 +78,29 @@ namespace ShareX
         {
             get
             {
-                if (Program.Sandbox) return null;
+                if (ShareX.Sandbox) return null;
 
                 string hotkeysConfigFolder;
 
                 if (Settings != null && !string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
                 {
-                    hotkeysConfigFolder = File.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
+                    hotkeysConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
                 }
                 else
                 {
-                    hotkeysConfigFolder = Program.PersonalFolder;
+                    hotkeysConfigFolder = ShareX.PersonalFolder;
                 }
 
                 return Path.Combine(hotkeysConfigFolder, HotkeysConfigFileName);
             }
         }
 
-        public static string BackupFolder => Path.Combine(Program.PersonalFolder, "Backup");
+        public static string BackupFolder => Path.Combine(ShareX.PersonalFolder, "Backup");
 
-        private static ApplicationConfig Settings { get => Program.Settings; set => Program.Settings = value; }
-        private static TaskSettings DefaultTaskSettings { get => Program.DefaultTaskSettings; set => Program.DefaultTaskSettings = value; }
-        private static UploadersConfig UploadersConfig { get => Program.UploadersConfig; set => Program.UploadersConfig = value; }
-        private static HotkeysConfig HotkeysConfig { get => Program.HotkeysConfig; set => Program.HotkeysConfig = value; }
+        private static ApplicationConfig Settings { get => ShareX.Settings; set => ShareX.Settings = value; }
+        private static TaskSettings DefaultTaskSettings { get => ShareX.DefaultTaskSettings; set => ShareX.DefaultTaskSettings = value; }
+        private static UploadersConfig UploadersConfig { get => ShareX.UploadersConfig; set => ShareX.UploadersConfig = value; }
+        private static HotkeysConfig HotkeysConfig { get => ShareX.HotkeysConfig; set => ShareX.HotkeysConfig = value; }
 
         private static ManualResetEvent uploadersConfigResetEvent = new ManualResetEvent(false);
         private static ManualResetEvent hotkeysConfigResetEvent = new ManualResetEvent(false);
@@ -112,7 +109,7 @@ namespace ShareX
         {
             LoadApplicationConfig();
 
-            Task.Run(() =>
+            System.Threading.Tasks.Task.Run(() =>
             {
                 LoadUploadersConfig();
                 uploadersConfigResetEvent.Set();
@@ -155,14 +152,12 @@ namespace ShareX
 
             if (e is UnauthorizedAccessException || e is FileNotFoundException)
             {
-                message = Resources.YourAntiVirusSoftwareOrTheControlledFolderAccessFeatureInWindowsCouldBeBlockingShareX;
+                message = "Your antivirus software could be blocking ShareX or some other Windows feature";
             }
             else
             {
                 message = e.Message;
             }
-
-            TaskHelpers.ShowNotificationTip(message, "ShareX - " + Resources.FailedToSaveSettings, 5000);
         }
 
         public static void LoadUploadersConfig(bool fallbackSupport = true)
@@ -170,7 +165,6 @@ namespace ShareX
             UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, BackupFolder, fallbackSupport);
             UploadersConfig.CreateBackup = true;
             UploadersConfig.CreateWeeklyBackup = true;
-            UploadersConfig.SupportDPAPIEncryption = true;
             UploadersConfigBackwardCompatibilityTasks();
         }
 
@@ -191,58 +185,34 @@ namespace ShareX
 
         private static void ApplicationConfigBackwardCompatibilityTasks()
         {
-            if (SystemOptions.DisableUpload)
-            {
-                DefaultTaskSettings.AfterCaptureJob = DefaultTaskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
-            }
-
-            if (Settings.IsUpgradeFrom("14.1.2"))
-            {
-                if (!Environment.Is64BitOperatingSystem && !string.IsNullOrEmpty(DefaultTaskSettings.CaptureSettings.FFmpegOptions.CLIPath))
-                {
-                    DefaultTaskSettings.CaptureSettings.FFmpegOptions.OverrideCLIPath = true;
-                }
-            }
-
-            if (Settings.IsUpgradeFrom("15.0.1"))
-            {
-                DefaultTaskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
-                DefaultTaskSettings.CaptureSettings.FFmpegOptions.FixSources();
-            }
-
             if (Settings.IsUpgradeFrom("16.0.2"))
             {
                 if (Settings.CheckPreReleaseUpdates)
                 {
                     Settings.UpdateChannel = UpdateChannel.PreRelease;
                 }
-
-                if (!DefaultTaskSettings.CaptureSettings.SurfaceOptions.UseDimming)
-                {
-                    DefaultTaskSettings.CaptureSettings.SurfaceOptions.BackgroundDimStrength = 0;
-                }
             }
         }
 
         private static void MigrateHistoryFile()
         {
-            if (System.IO.File.Exists(Program.HistoryFilePathOld))
+            if (System.IO.File.Exists(ShareX.HistoryFilePathOld))
             {
-                if (!System.IO.File.Exists(Program.HistoryFilePath))
+                if (!System.IO.File.Exists(ShareX.HistoryFilePath))
                 {
-                    DebugHelper.WriteLine($"Migrating XML history file \"{Program.HistoryFilePathOld}\" to JSON history file \"{Program.HistoryFilePath}\"");
+                    DebugHelper.WriteLine($"Migrating XML history file \"{ShareX.HistoryFilePathOld}\" to JSON history file \"{ShareX.HistoryFilePath}\"");
 
-                    HistoryManagerXML historyManagerXML = new HistoryManagerXML(Program.HistoryFilePathOld);
-                    List<HistoryItem> historyItems = historyManagerXML.GetHistoryItems();
+                    var historyManagerXML = new HistoryManagerXML(ShareX.HistoryFilePathOld);
+                    var historyItems = historyManagerXML.GetHistoryItems();
 
                     if (historyItems.Count > 0)
                     {
-                        HistoryManagerJSON historyManagerJSON = new HistoryManagerJSON(Program.HistoryFilePath);
+                        var historyManagerJSON = new HistoryManagerJSON(ShareX.HistoryFilePath);
                         historyManagerJSON.AppendHistoryItems(historyItems);
                     }
                 }
 
-                File.MoveFile(Program.HistoryFilePathOld, BackupFolder);
+                FileHelpers.MoveFile(ShareX.HistoryFilePathOld, BackupFolder);
             }
         }
 
@@ -259,16 +229,6 @@ namespace ShareX
 
         private static void HotkeysConfigBackwardCompatibilityTasks()
         {
-            if (SystemOptions.DisableUpload)
-            {
-                foreach (TaskSettings taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
-                {
-                    if (taskSettings != null)
-                    {
-                        taskSettings.AfterCaptureJob = taskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
-                    }
-                }
-            }
 
             if (Settings.IsUpgradeFrom("15.0.1"))
             {
@@ -276,8 +236,8 @@ namespace ShareX
                 {
                     if (taskSettings != null && taskSettings.CaptureSettings != null)
                     {
-                        taskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
-                        taskSettings.CaptureSettings.FFmpegOptions.FixSources();
+                        // taskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
+                        // taskSettings.CaptureSettings.FFmpegOptions.FixSources();
                     }
                 }
             }
@@ -360,7 +320,7 @@ namespace ShareX
 
             try
             {
-                List<ZipEntryInfo> entries = new List<ZipEntryInfo>();
+                var entries = new List<ZipEntryInfo>();
 
                 if (settings)
                 {
@@ -376,7 +336,7 @@ namespace ShareX
 
                 if (history)
                 {
-                    entries.Add(new ZipEntryInfo(Program.HistoryFilePath));
+                    entries.Add(new ZipEntryInfo(ShareX.HistoryFilePath));
                 }
 
                 ZipManager.Compress(archivePath, entries);
@@ -400,9 +360,9 @@ namespace ShareX
         {
             try
             {
-                ZipManager.Extract(archivePath, Program.PersonalFolder, true, entry =>
+                ZipManager.Extract(archivePath, ShareX.PersonalFolder, true, entry =>
                 {
-                    return File.CheckExtension(entry.Name, new string[] { "json", "xml" });
+                    return FileHelpers.CheckExtension(entry.Name, new string[] { "json", "xml" });
                 }, 1_000_000_000);
 
                 return true;

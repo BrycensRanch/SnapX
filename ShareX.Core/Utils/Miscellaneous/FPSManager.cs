@@ -63,7 +63,7 @@ namespace ShareX.Core.Utils.Miscellaneous
             }
             else if (fpsTimer.ElapsedMilliseconds >= 1000)
             {
-                FPS = (int)Math.Round(frameCount / fpsTimer.Elapsed.TotalSeconds);
+                FPS = (int)System.Math.Round(frameCount / fpsTimer.Elapsed.TotalSeconds);
 
                 OnFPSUpdated();
 
@@ -84,7 +84,7 @@ namespace ShareX.Core.Utils.Miscellaneous
 
                     if (currentFrameDuration < targetFrameDuration)
                     {
-                        int sleepDuration = (int)Math.Round(targetFrameDuration - currentFrameDuration);
+                        int sleepDuration = (int)System.Math.Round(targetFrameDuration - currentFrameDuration);
 
                         if (sleepDuration > 0)
                         {

@@ -27,10 +27,6 @@ using System.Diagnostics;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Random;
-using ShareX.MediaLib;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp.Drawing.Processing;
-using Math = System.Math;
 
 namespace ShareX.Core.Media
 {

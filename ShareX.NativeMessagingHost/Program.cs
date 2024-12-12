@@ -27,62 +27,53 @@ using System;
 using System.IO;
 using System.Text;
 using System.Diagnostics;
-using ShareX.Core;
+using ShareX.Core.Utils;
 
-namespace ShareX.NativeMessagingHost
+if (args.Length == 0) {
+    Console.WriteLine("This executable is used to receive data from a browser addon and send it to ShareX.");
+    return;
+}
+
+try
 {
-    internal static class Program
+    var host = new ShareX.Core.CLI.NativeMessagingHost();
+    string input = host.Read();
+
+    if (!string.IsNullOrEmpty(input))
     {
-        private static void Main(string[] args)
+        host.Write(input);
+        // TODO: This code is no longer correct with ShareX's new structure.
+        // Windows: ShareX.Avalonia OR ShareX.CLI
+        // macOS: ShareX.Avalonia OR ShareX.CLI
+        // Linux: ShareX.GTK4 OR ShareX.Avalonia OR ShareX.CLI
+        var filePath = FileHelpers.GetAbsolutePath("ShareX");
+
+        var tempFilePath = FileHelpers.GetTempFilePath("json");
+        File.WriteAllText(tempFilePath, input, Encoding.UTF8);
+
+        var startInfo = new ProcessStartInfo
         {
-            if (args.Length > 0)
-            {
-                try
-                {
-                    var host = new Core.NativeMessagingHost();
-                    string input = host.Read();
+            FileName = filePath,
+            Arguments = $"-NativeMessagingInput \"{tempFilePath}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
 
-                    if (!string.IsNullOrEmpty(input))
-                    {
-                        host.Write(input);
-                        // TODO: This code is no longer correct with ShareX's new structure.
-                        // Windows: ShareX.Avalonia OR ShareX.CLI
-                        // macOS: ShareX.Avalonia OR ShareX.CLI
-                        // Linux: ShareX.GTK4 OR ShareX.Avalonia OR ShareX.CLI
-                        var filePath = FileHelpers.GetAbsolutePath("ShareX");
-
-                        var tempFilePath = FileHelpers.GetTempFilePath("json");
-                        File.WriteAllText(tempFilePath, input, Encoding.UTF8);
-
-                        var startInfo = new ProcessStartInfo
-                        {
-                            FileName = filePath,
-                            Arguments = $"-NativeMessagingInput \"{tempFilePath}\"",
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
-
-                        using var process = Process.Start(startInfo);
-                        if (process == null) return;
-                        var output = process.StandardOutput.ReadToEnd();
-                        var error = process.StandardError.ReadToEnd();
-                        process.WaitForExit();
-                        if (process.ExitCode == 0) return;
-                        Console.Error.WriteLine($"Process exited with error code {process.ExitCode}");
-                        Console.Error.WriteLine($"Error output: {error}");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine($"Error: {e.Message}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("This executable is used to receive data from a browser addon and send it to ShareX.");
-            }
-        }
+        using var process = Process.Start(startInfo);
+        if (process == null) return;
+        var output = process.StandardOutput.ReadToEnd();
+        var error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        Debug.WriteLine($"Output: {output}");
+        if (process.ExitCode == 0) return;
+        Console.Error.WriteLine($"Process exited with error code {process.ExitCode}");
+        Console.Error.WriteLine($"Error output: {error}");
     }
 }
+catch (Exception e)
+{
+    Console.Error.WriteLine($"Error: {e.Message}");
+}
+

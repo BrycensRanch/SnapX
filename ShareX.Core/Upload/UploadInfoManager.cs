@@ -23,16 +23,9 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using ShareX.UploadersLib;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using ShareX.Core.Task;
 using ShareX.Core.Utils;
-using File = ShareX.HelpersLib.File;
+using ShareX.Core.Utils.Native;
 
 namespace ShareX.Core.Upload
 {
@@ -88,7 +81,7 @@ namespace ShareX.Core.Upload
 
                 if (!string.IsNullOrEmpty(urls))
                 {
-                    ClipboardHelpers.CopyText(urls);
+                    Clipboard.CopyText(urls);
                 }
             }
         }
@@ -177,39 +170,27 @@ namespace ShareX.Core.Upload
 
         public void CopyFile()
         {
-            if (IsItemSelected && SelectedItem.IsFileExist) ClipboardHelpers.CopyFile(SelectedItem.Info.FilePath);
+            if (IsItemSelected && SelectedItem.IsFileExist) Clipboard.CopyFile(SelectedItem.Info.FilePath);
         }
 
         public void CopyImage()
         {
-            if (IsItemSelected && SelectedItem.IsImageFile) ClipboardHelpers.CopyImageFromFile(SelectedItem.Info.FilePath);
-        }
-
-        public void CopyImageDimensions()
-        {
-            if (IsItemSelected && SelectedItem.IsImageFile)
-            {
-                Size size = Image.GetImageFileDimensions(SelectedItem.Info.FilePath);
-                if (!size.IsEmpty)
-                {
-                    ClipboardHelpers.CopyText($"{size.Width} x {size.Height}");
-                }
-            }
+            if (IsItemSelected && SelectedItem.IsImageFile) Clipboard.CopyImageFromFile(SelectedItem.Info.FilePath);
         }
 
         public void CopyText()
         {
-            if (IsItemSelected && SelectedItem.IsTextFile) ClipboardHelpers.CopyTextFromFile(SelectedItem.Info.FilePath);
+            if (IsItemSelected && SelectedItem.IsTextFile) Clipboard.CopyTextFromFile(SelectedItem.Info.FilePath);
         }
 
         public void CopyThumbnailFile()
         {
-            if (IsItemSelected && SelectedItem.IsThumbnailFileExist) ClipboardHelpers.CopyFile(SelectedItem.Info.ThumbnailFilePath);
+            if (IsItemSelected && SelectedItem.IsThumbnailFileExist) Clipboard.CopyFile(SelectedItem.Info.ThumbnailFilePath);
         }
 
         public void CopyThumbnailImage()
         {
-            if (IsItemSelected && SelectedItem.IsThumbnailFileExist) ClipboardHelpers.CopyImageFromFile(SelectedItem.Info.ThumbnailFilePath);
+            if (IsItemSelected && SelectedItem.IsThumbnailFileExist) Clipboard.CopyImageFromFile(SelectedItem.Info.ThumbnailFilePath);
         }
 
         public void CopyHTMLLink()
@@ -358,49 +339,12 @@ namespace ShareX.Core.Upload
             if (IsItemSelected && SelectedItem.IsURLExist) TaskHelpers.SearchImageUsingBing(SelectedItem.Info.Result.URL);
         }
 
-        public void ShowQRCode()
-        {
-            if (IsItemSelected && SelectedItem.IsURLExist) new QRCodeForm(SelectedItem.Info.Result.URL).Show();
-        }
-
         public async System.Threading.Tasks.Task OCRImage()
         {
             if (IsItemSelected && SelectedItem.IsImageFile) await TaskHelpers.OCRImage(SelectedItem.Info.FilePath);
         }
 
-        public void CombineImages()
-        {
-            if (IsItemSelected)
-            {
-                IEnumerable<string> imageFiles = SelectedItems.Where(x => x.IsImageFile).Select(x => x.Info.FilePath);
 
-                if (imageFiles.Count() > 1)
-                {
-                    TaskHelpers.OpenImageCombiner(imageFiles);
-                }
-            }
-        }
-
-        public void CombineImages(Orientation orientation)
-        {
-            if (IsItemSelected)
-            {
-                IEnumerable<string> imageFiles = SelectedItems.Where(x => x.IsImageFile).Select(x => x.Info.FilePath);
-
-                if (imageFiles.Count() > 1)
-                {
-                    TaskHelpers.CombineImages(imageFiles, orientation);
-                }
-            }
-        }
-
-        public void ShowResponse()
-        {
-            if (IsItemSelected && SelectedItem.Info.Result != null)
-            {
-                ResponseForm.ShowInstance(SelectedItem.Info.Result);
-            }
-        }
 
         #endregion Other
     }

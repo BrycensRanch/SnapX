@@ -31,7 +31,7 @@ namespace ShareX.Core.Upload.Utils
 
         public int Count => Errors.Count;
 
-        public string DefaultTitle { get; set; } = Resources.Error;
+        public string DefaultTitle { get; set; } = "Error";
 
         public UploaderErrorManager()
         {

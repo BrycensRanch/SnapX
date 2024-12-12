@@ -141,7 +141,7 @@ namespace ShareX.Core.Upload.Custom
         {
             if (string.IsNullOrEmpty(RequestURL))
             {
-                throw new Exception(Resources.CustomUploaderItem_GetRequestURL_RequestURLMustBeConfigured);
+                throw new Exception("Custom uploader RequestURL must be configured.");
             }
 
             ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser(input);
@@ -225,7 +225,7 @@ namespace ShareX.Core.Upload.Custom
         {
             if (string.IsNullOrEmpty(FileFormName))
             {
-                throw new Exception(Resources.CustomUploaderItem_GetFileFormName_FileFormNameMustBeConfigured);
+                throw new Exception("Custom uploader FileFormName must be configured.");
             }
 
             return FileFormName;

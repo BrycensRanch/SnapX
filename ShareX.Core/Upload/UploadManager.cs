@@ -29,8 +29,8 @@ using System.Web;
 using ShareX.Core.Task;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
-using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Utils.Native;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace ShareX.Core.Upload
 {
@@ -140,7 +140,7 @@ namespace ShareX.Core.Upload
             // }
         }
 
-        public static void ProcessImageUpload(SixLabors.ImageSharp.Image image, TaskSettings taskSettings)
+        public static void ProcessImageUpload(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings)
         {
             if (image != null)
             {
@@ -207,7 +207,7 @@ namespace ShareX.Core.Upload
             {
                 if (Clipboard.ContainsImage())
                 {
-                    SixLabors.ImageSharp.Image image;
+                    SixLabors.ImageSharp.Image<Rgba64> image;
 
 
                     image = Clipboard.GetImage();
@@ -217,7 +217,7 @@ namespace ShareX.Core.Upload
                 }
                 else if (Clipboard.ContainsText())
                 {
-                    string text = Clipboard.GetText();
+                    var text = Clipboard.GetText();
 
                     ProcessTextUpload(text, taskSettings);
                 }
@@ -241,85 +241,31 @@ namespace ShareX.Core.Upload
             }
         }
 
-        public static void ClipboardUploadWithContentViewer(TaskSettings taskSettings = null)
-        {
-            if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-
-            using (ClipboardUploadForm clipboardUploadForm = new ClipboardUploadForm(taskSettings))
-            {
-                clipboardUploadForm.ShowDialog();
-            }
-        }
-
-        public static void ClipboardUploadMainWindow(TaskSettings taskSettings = null)
-        {
-            if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-
-            ClipboardUpload(taskSettings);
-
-        }
-
-        public static void ShowTextUploadDialog(TaskSettings taskSettings = null)
-        {
-            if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-
-            using (TextUploadForm form = new TextUploadForm())
-            {
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    string text = form.Content;
-
-                    if (!string.IsNullOrEmpty(text))
-                    {
-                        UploadText(text, taskSettings);
-                    }
-                }
-            }
-        }
-
-        public static void DragDropUpload(IDataObject data, TaskSettings taskSettings = null)
-        {
-            if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-
-            if (data.GetDataPresent(DataFormats.FileDrop, false))
-            {
-                string[] files = data.GetData(DataFormats.FileDrop, false) as string[];
-                UploadFile(files, taskSettings);
-            }
-            else if (data.GetDataPresent(DataFormats.Bitmap, false))
-            {
-                Bitmap bmp = data.GetData(DataFormats.Bitmap, false) as Bitmap;
-                RunImageTask(bmp, taskSettings);
-            }
-            else if (data.GetDataPresent(DataFormats.Text, false))
-            {
-                string text = data.GetData(DataFormats.Text, false) as string;
-                UploadText(text, taskSettings, true);
-            }
-        }
-
-        public static void UploadURL(TaskSettings taskSettings = null)
+        public static void UploadURL(TaskSettings taskSettings = null, string url = null)
         {
             if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
             string inputText = null;
 
-            string text = ClipboardHelpers.GetText(true);
+            string text = Clipboard.GetText();
 
             if (URLHelpers.IsValidURL(text))
             {
                 inputText = text;
             }
 
-            string url = InputBox.Show(Resources.UploadManager_UploadURL_URL_to_download_from_and_upload, inputText);
 
             if (!string.IsNullOrEmpty(url))
             {
                 DownloadAndUploadFile(url, taskSettings);
             }
         }
-
-        public static void RunImageTask(SixLabors.ImageSharp.Image image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
+        public static void RunImageTask(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings)
+        {
+            TaskMetadata metadata = new TaskMetadata(image);
+            RunImageTask(metadata, taskSettings);
+        }
+        public static void RunImageTask(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
         {
             TaskMetadata metadata = new TaskMetadata(image);
             RunImageTask(metadata, taskSettings, skipQuickTaskMenu, skipAfterCaptureWindow);
@@ -339,17 +285,13 @@ namespace ShareX.Core.Upload
 
                 string customFileName = null;
 
-                if (!skipAfterCaptureWindow && !TaskHelpers.ShowAfterCaptureForm(taskSettings, out customFileName, metadata))
-                {
-                    return;
-                }
 
                 WorkerTask task = WorkerTask.CreateImageUploaderTask(metadata, taskSettings, customFileName);
                 TaskManager.Start(task);
             }
         }
 
-        public static void UploadImage(SixLabors.ImageSharp.Image image, TaskSettings taskSettings = null)
+        public static void UploadImage(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings = null)
         {
             if (image != null)
             {
@@ -368,7 +310,7 @@ namespace ShareX.Core.Upload
             }
         }
 
-        public static void UploadImage(SixLabors.ImageSharp.Image image, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
+        public static void UploadImage(SixLabors.ImageSharp.Image<Rgba64> image, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
         {
             if (image != null)
             {
@@ -498,17 +440,6 @@ namespace ShareX.Core.Upload
             }
         }
 
-        public static void IndexFolder(TaskSettings taskSettings = null)
-        {
-            using (FolderSelectDialog dlg = new FolderSelectDialog())
-            {
-                if (dlg.ShowDialog())
-                {
-                    IndexFolder(dlg.FileName, taskSettings);
-                }
-            }
-        }
-
         public static void IndexFolder(string folderPath, TaskSettings taskSettings = null)
         {
             if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
@@ -519,9 +450,9 @@ namespace ShareX.Core.Upload
 
                 string source = null;
 
-                Task.Run(() =>
+                System.Threading.Tasks.Task.Run(() =>
                 {
-                    source = Indexer.Index(folderPath, taskSettings.ToolsSettings.IndexerSettings);
+                    // source = Core.Indexer.Indexer(folderPath, taskSettings.ToolsSettings.IndexerSettings);
                 }).ContinueInCurrentContext(() =>
                 {
                     if (!string.IsNullOrEmpty(source))

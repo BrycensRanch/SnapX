@@ -31,6 +31,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
+using ShareX.Core.Utils.Miscellaneous;
 
 namespace ShareX.Core.Utils
 {
@@ -47,7 +48,7 @@ namespace ShareX.Core.Utils
         {
             if (!string.IsNullOrEmpty(url))
             {
-                Task.Run(() =>
+                System.Threading.Tasks.Task.Run(() =>
                 {
                     try
                     {
@@ -126,18 +127,7 @@ namespace ShareX.Core.Utils
             for (int i = 0; i < text.Length; i++)
             {
                 string remainingText = text.Substring(i);
-
-                int emojiLength = Emoji.SearchEmoji(remainingText);
-
-                if (emojiLength > 0)
-                {
-                    sb.Append(remainingText.Substring(0, emojiLength));
-                    i += emojiLength - 1;
-                }
-                else
-                {
-                    sb.Append(URLEncode(remainingText.Substring(0, 1), isPath));
-                }
+                sb.Append(URLEncode(remainingText.Substring(0, 1), isPath));
             }
 
             return sb.ToString();

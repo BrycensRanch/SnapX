@@ -25,7 +25,6 @@
 
 using System.Net;
 using System.Net.NetworkInformation;
-using ShareX.HelpersLib;
 
 namespace ShareX.Core.Utils.Miscellaneous
 {

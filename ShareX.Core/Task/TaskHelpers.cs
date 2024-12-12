@@ -24,7 +24,6 @@
 #endregion License Information (GPL v3)
 
 using System.Diagnostics;
-using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using ShareX.Core.Capture;
@@ -64,7 +63,7 @@ namespace ShareX.Core.Task
 
             DebugHelper.WriteLine("Executing: " + job.GetLocalizedDescription());
 
-            TaskSettings safeTaskSettings = TaskSettings.GetSafeTaskSettings(taskSettings);
+            var safeTaskSettings = TaskSettings.GetSafeTaskSettings(taskSettings);
 
             switch (job)
             {
@@ -79,10 +78,10 @@ namespace ShareX.Core.Task
                     UploadManager.ClipboardUpload(safeTaskSettings);
                     break;
                 case HotkeyType.ClipboardUploadWithContentViewer:
-                    UploadManager.ClipboardUploadWithContentViewer(safeTaskSettings);
+                    // UploadManager.ClipboardUploadWithContentViewer(safeTaskSettings);
                     break;
                 case HotkeyType.UploadText:
-                    UploadManager.UploadText(safeTaskSettings);
+                    // UploadManager.UploadText(safeTaskSettings);
                     break;
                 case HotkeyType.UploadURL:
                     UploadManager.UploadURL(safeTaskSettings);
@@ -231,7 +230,7 @@ namespace ShareX.Core.Task
                     // OpenHashCheck();
                     break;
                 case HotkeyType.IndexFolder:
-                    UploadManager.IndexFolder();
+                    // UploadManager.IndexFolder();
                     break;
                 case HotkeyType.ClipboardViewer:
                     // OpenClipboardViewer();
@@ -282,9 +281,9 @@ namespace ShareX.Core.Task
             }
         }
 
-        public static ImageData PrepareImage(MediaTypeNames.Image img, TaskSettings taskSettings)
+        public static ImageData PrepareImage(Image<Rgba64> img, TaskSettings taskSettings)
         {
-            ImageData imageData = new ImageData();
+            var imageData = new ImageData();
             imageData.ImageStream = SaveImageAsStream(img, taskSettings.ImageSettings.ImageFormat, taskSettings);
             imageData.ImageFormat = taskSettings.ImageSettings.ImageFormat;
 
@@ -293,17 +292,17 @@ namespace ShareX.Core.Task
             {
                 imageData.ImageStream.Dispose();
 
-                using (Bitmap newImage = MediaTypeNames.Image.FillBackground(img, Color.White))
-                {
-                    if (taskSettings.ImageSettings.ImageAutoJPEGQuality)
-                    {
-                        imageData.ImageStream = MediaTypeNames.Image.SaveJPEGAutoQuality(newImage, taskSettings.ImageSettings.ImageAutoUseJPEGSize * 1000, 2, 70, 100);
-                    }
-                    else
-                    {
-                        imageData.ImageStream = MediaTypeNames.Image.SaveJPEG(newImage, taskSettings.ImageSettings.ImageJPEGQuality);
-                    }
-                }
+                // using (Bitmap newImage = MediaTypeNames.Image.FillBackground(img, Color.White))
+                // {
+                //     if (taskSettings.ImageSettings.ImageAutoJPEGQuality)
+                //     {
+                //         imageData.ImageStream = MediaTypeNames.Image.SaveJPEGAutoQuality(newImage, taskSettings.ImageSettings.ImageAutoUseJPEGSize * 1000, 2, 70, 100);
+                //     }
+                //     else
+                //     {
+                //         imageData.ImageStream = MediaTypeNames.Image.SaveJPEG(newImage, taskSettings.ImageSettings.ImageJPEGQuality);
+                //     }
+                // }
 
                 imageData.ImageFormat = EImageFormat.JPEG;
             }
@@ -311,28 +310,28 @@ namespace ShareX.Core.Task
             return imageData;
         }
 
-        public static string CreateThumbnail(Bitmap bmp, string folder, string fileName, TaskSettings taskSettings)
-        {
-            if ((taskSettings.ImageSettings.ThumbnailWidth > 0 || taskSettings.ImageSettings.ThumbnailHeight > 0) && (!taskSettings.ImageSettings.ThumbnailCheckSize ||
-                (bmp.Width > taskSettings.ImageSettings.ThumbnailWidth && bmp.Height > taskSettings.ImageSettings.ThumbnailHeight)))
-            {
-                string thumbnailFileName = Path.GetFileNameWithoutExtension(fileName) + taskSettings.ImageSettings.ThumbnailName + ".jpg";
-                string thumbnailFilePath = HandleExistsFile(folder, thumbnailFileName, taskSettings);
-
-                if (!string.IsNullOrEmpty(thumbnailFilePath))
-                {
-                    using (Bitmap thumbnail = (Bitmap)bmp.Clone())
-                    using (Bitmap resizedImage = new Resize(taskSettings.ImageSettings.ThumbnailWidth, taskSettings.ImageSettings.ThumbnailHeight).Apply(thumbnail))
-                    using (Bitmap newImage = MediaTypeNames.Image.FillBackground(resizedImage, Color.White))
-                    {
-                        MediaTypeNames.Image.SaveJPEG(newImage, thumbnailFilePath, 90);
-                        return thumbnailFilePath;
-                    }
-                }
-            }
-
-            return null;
-        }
+        // public static string CreateThumbnail(Bitmap bmp, string folder, string fileName, TaskSettings taskSettings)
+        // {
+        //     if ((taskSettings.ImageSettings.ThumbnailWidth > 0 || taskSettings.ImageSettings.ThumbnailHeight > 0) && (!taskSettings.ImageSettings.ThumbnailCheckSize ||
+        //         (bmp.Width > taskSettings.ImageSettings.ThumbnailWidth && bmp.Height > taskSettings.ImageSettings.ThumbnailHeight)))
+        //     {
+        //         string thumbnailFileName = Path.GetFileNameWithoutExtension(fileName) + taskSettings.ImageSettings.ThumbnailName + ".jpg";
+        //         string thumbnailFilePath = HandleExistsFile(folder, thumbnailFileName, taskSettings);
+        //
+        //         if (!string.IsNullOrEmpty(thumbnailFilePath))
+        //         {
+        //             using (Bitmap thumbnail = (Bitmap)bmp.Clone())
+        //             using (Bitmap resizedImage = new Resize(taskSettings.ImageSettings.ThumbnailWidth, taskSettings.ImageSettings.ThumbnailHeight).Apply(thumbnail))
+        //             using (Bitmap newImage = MediaTypeNames.Image.FillBackground(resizedImage, Color.White))
+        //             {
+        //                 MediaTypeNames.Image.SaveJPEG(newImage, thumbnailFilePath, 90);
+        //                 return thumbnailFilePath;
+        //             }
+        //         }
+        //     }
+        //
+        //     return null;
+        // }
 
         public static MemoryStream SaveImageAsStream(SixLabors.ImageSharp.Image img, EImageFormat imageFormat, TaskSettings taskSettings)
         {
@@ -355,24 +354,24 @@ namespace ShareX.Core.Task
                         {
                             using (ms)
                             {
-                                return MediaTypeNames.Image.PNGStripColorSpaceInformation(ms);
+                                // return MediaTypeNames.Image.PNGStripColorSpaceInformation(ms);
                             }
                         }
                         break;
                     case EImageFormat.JPEG:
-                        using (Bitmap newImage = MediaTypeNames.Image.FillBackground(img, Color.White))
-                        {
-                            MediaTypeNames.Image.SaveJPEG(newImage, ms, jpegQuality);
-                        }
+                        // using (Bitmap newImage = MediaTypeNames.Image.FillBackground(img, Color.White))
+                        // {
+                        //     MediaTypeNames.Image.SaveJPEG(newImage, ms, jpegQuality);
+                        // }
                         break;
                     case EImageFormat.GIF:
-                        MediaTypeNames.Image.SaveGIF(img, ms, gifQuality);
+                        // MediaTypeNames.Image.SaveGIF(img, ms, gifQuality);
                         break;
                     case EImageFormat.BMP:
-                        img.Save(ms, ImageFormat.Bmp);
+                        // img.Save(ms, ImageFormat.Bmp);
                         break;
                     case EImageFormat.TIFF:
-                        img.Save(ms, ImageFormat.Tiff);
+                        // img.Save(ms, ImageFormat.Tiff);
                         break;
                 }
             }
@@ -385,30 +384,54 @@ namespace ShareX.Core.Task
             return ms;
         }
 
-        public static void SaveImageAsFile(Bitmap bmp, TaskSettings taskSettings, bool overwriteFile = false)
+        // public static void SaveImageAsFile(Bitmap bmp, TaskSettings taskSettings, bool overwriteFile = false)
+        // {
+        //     using (ImageData imageData = PrepareImage(bmp, taskSettings))
+        //     {
+        //         string screenshotsFolder = GetScreenshotsFolder(taskSettings);
+        //         string fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), bmp);
+        //         string filePath = Path.Combine(screenshotsFolder, fileName);
+        //
+        //         if (!overwriteFile)
+        //         {
+        //             filePath = HandleExistsFile(filePath, taskSettings);
+        //         }
+        //
+        //         if (!string.IsNullOrEmpty(filePath))
+        //         {
+        //             imageData.Write(filePath);
+        //             DebugHelper.WriteLine("Image saved to file: " + filePath);
+        //         }
+        //     }
+        // }
+        public static string HandleExistsFile(string filePath, TaskSettings taskSettings)
         {
-            using (ImageData imageData = PrepareImage(bmp, taskSettings))
+            if (File.Exists(filePath))
             {
-                string screenshotsFolder = GetScreenshotsFolder(taskSettings);
-                string fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), bmp);
-                string filePath = Path.Combine(screenshotsFolder, fileName);
-
-                if (!overwriteFile)
+                switch (taskSettings.ImageSettings.FileExistAction)
                 {
-                    filePath = HandleExistsFile(filePath, taskSettings);
-                }
-
-                if (!string.IsNullOrEmpty(filePath))
-                {
-                    imageData.Write(filePath);
-                    DebugHelper.WriteLine("Image saved to file: " + filePath);
+                    case FileExistAction.Ask:
+                            throw new NotImplementedException("FileExistAction.Ask not implemented");
+                        break;
+                    case FileExistAction.UniqueName:
+                        filePath = FileHelpers.GetUniqueFilePath(filePath);
+                        break;
+                    case FileExistAction.Cancel:
+                        filePath = "";
+                        break;
                 }
             }
-        }
 
-        public static string GetFileName(TaskSettings taskSettings, string extension, Bitmap bmp)
+            return filePath;
+        }
+        public static string HandleExistsFile(string folderPath, string fileName , TaskSettings taskSettings)
         {
-            TaskMetadata metadata = new TaskMetadata(bmp);
+            var filePath = Path.Combine(folderPath, fileName);
+            return HandleExistsFile(filePath, taskSettings);
+        }
+        public static string GetFileName(TaskSettings taskSettings, string extension, Image<Rgba64> bmp)
+        {
+            var metadata = new TaskMetadata(bmp);
             return GetFileName(taskSettings, extension, metadata);
         }
 
@@ -513,23 +536,23 @@ namespace ShareX.Core.Task
 
         private static void AddExternalProgramFromRegistry(TaskSettings taskSettings, string name, string fileName)
         {
-            if (!taskSettings.ExternalPrograms.Exists(x => x.Name == name))
-            {
-                try
-                {
-                    string filePath = RegistryHelpers.SearchProgramPath(fileName);
-
-                    if (!string.IsNullOrEmpty(filePath))
-                    {
-                        ExternalProgram externalProgram = new ExternalProgram(name, filePath);
-                        taskSettings.ExternalPrograms.Add(externalProgram);
-                    }
-                }
-                catch (Exception e)
-                {
-                    DebugHelper.WriteException(e);
-                }
-            }
+            // if (!taskSettings.ExternalPrograms.Exists(x => x.Name == name))
+            // {
+            //     try
+            //     {
+            //         string filePath = RegistryHelpers.SearchProgramPath(fileName);
+            //
+            //         if (!string.IsNullOrEmpty(filePath))
+            //         {
+            //             ExternalProgram externalProgram = new ExternalProgram(name, filePath);
+            //             taskSettings.ExternalPrograms.Add(externalProgram);
+            //         }
+            //     }
+            //     catch (Exception e)
+            //     {
+            //         DebugHelper.WriteException(e);
+            //     }
+            // }
         }
 
         // public static void StartScreenRecording(ScreenRecordOutput outputType, ScreenRecordStartMethod startMethod, TaskSettings taskSettings = null)
@@ -541,7 +564,7 @@ namespace ShareX.Core.Task
 
         public static void StopScreenRecording()
         {
-            ScreenRecordManager.StopRecording();
+            // ScreenRecordManager.StopRecording();
         }
 
         public static void PauseScreenRecording()
@@ -568,12 +591,6 @@ namespace ShareX.Core.Task
             }
         }
 
-        public static void CombineImages(IEnumerable<string> imageFiles, Orientation orientation, TaskSettings taskSettings = null)
-        {
-            if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-
-            throw new NotImplementedException("CombineImages not implemented");
-        }
 
         public static void RunShareXAsAdmin(string arguments = null)
         {
@@ -692,7 +709,7 @@ namespace ShareX.Core.Task
         {
             if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
-            Screenshot screenshot = new Screenshot()
+            var screenshot = new Screenshot()
             {
                 CaptureCursor = taskSettings.CaptureSettings.ShowCursor,
                 CaptureClientArea = taskSettings.CaptureSettings.CaptureClientArea,
@@ -821,22 +838,22 @@ namespace ShareX.Core.Task
                         case NativeMessagingAction.UploadImage:
                             if (!string.IsNullOrEmpty(nativeMessagingInput.URL))
                             {
-                                SixLabors.ImageSharp.Image bmp = await WebHelpers.DataURLToImage(nativeMessagingInput.URL);
+                                var image = await WebHelpers.DataURLToImage(nativeMessagingInput.URL);
 
-                                if (bmp == null && taskSettings.AdvancedSettings.ProcessImagesDuringExtensionUpload)
+                                if (image == null && taskSettings.AdvancedSettings.ProcessImagesDuringExtensionUpload)
                                 {
                                     try
                                     {
-                                        bmp = await WebHelpers.DownloadImageAsync(nativeMessagingInput.URL);
+                                        image = await WebHelpers.DownloadImageAsync(nativeMessagingInput.URL);
                                     }
                                     catch
                                     {
                                     }
                                 }
 
-                                if (bmp != null)
+                                if (image != null)
                                 {
-                                    UploadManager.RunImageTask(bmp, taskSettings);
+                                    UploadManager.RunImageTask(image, taskSettings);
                                 }
                                 else
                                 {

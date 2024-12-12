@@ -26,9 +26,9 @@
 
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.File;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils.Extensions;
-using ShareX.UploadersLib.FileUploaders;
 
 namespace ShareX.Core.Upload.SharingServices
 {
@@ -38,7 +38,7 @@ namespace ShareX.Core.Upload.SharingServices
 
         public override bool CheckConfig(UploadersConfig config)
         {
-            PushbulletSettings pushbulletSettings = config.PushbulletSettings;
+            var pushbulletSettings = config.PushbulletSettings;
 
             return pushbulletSettings != null && !string.IsNullOrEmpty(pushbulletSettings.UserAPIKey) && pushbulletSettings.DeviceList != null &&
                 pushbulletSettings.DeviceList.IsValidIndex(pushbulletSettings.SelectedDevice);
@@ -61,7 +61,7 @@ namespace ShareX.Core.Upload.SharingServices
 
         public override UploadResult ShareURL(string url)
         {
-            UploadResult result = new UploadResult { URL = url, IsURLExpected = false };
+            var result = new UploadResult { URL = url, IsURLExpected = false };
 
             new Pushbullet(Settings).PushLink(url, "ShareX: URL share");
 

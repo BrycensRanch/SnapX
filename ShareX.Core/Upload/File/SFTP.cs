@@ -28,7 +28,6 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Utils;
-using ShareX.UploadersLib;
 
 namespace ShareX.Core.Upload.File
 {
@@ -103,7 +102,7 @@ namespace ShareX.Core.Upload.File
                 {
                     if (!System.IO.File.Exists(Account.Keypath))
                     {
-                        throw new FileNotFoundException(Resources.UploadersConfigForm_ConnectSFTPAccount_Key_file_not_found, Account.Keypath);
+                        throw new FileNotFoundException("Key file does not exist.", Account.Keypath);
                     }
 
                     PrivateKeyFile keyFile;

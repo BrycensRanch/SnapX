@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using System.Diagnostics;
+using ShareX.Core.Utils.Miscellaneous;
 
 namespace ShareX.Core.Utils
 {
@@ -92,7 +93,7 @@ namespace ShareX.Core.Utils
         {
             try
             {
-                HttpClient client = HttpClientFactory.Create();
+                var client = HttpClientFactory.Create();
 
                 using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, URL))
                 {

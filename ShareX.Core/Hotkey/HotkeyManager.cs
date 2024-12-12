@@ -24,6 +24,8 @@
 #endregion License Information (GPL v3)
 
 
+using ShareX.Core.Task;
+
 namespace ShareX.Core.Hotkey
 {
     public class HotkeyManager
@@ -47,11 +49,6 @@ namespace ShareX.Core.Hotkey
             Hotkeys = hotkeys;
 
             RegisterAllHotkeys();
-
-            if (showFailedHotkeys)
-            {
-                ShowFailedHotkeys();
-            }
         }
 
         protected void OnHotkeyTrigger(HotkeySettings hotkeySetting)
@@ -110,7 +107,7 @@ namespace ShareX.Core.Hotkey
         {
             if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Registered)
             {
-                hotkeyForm.UnregisterHotkey(hotkeySetting.HotkeyInfo);
+                DebugHelper.WriteLine("UnregisterHotkey(hotkeySetting.HotkeyInfo) " + hotkeySetting);
 
                 if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.NotConfigured)
                 {
@@ -154,20 +151,6 @@ namespace ShareX.Core.Hotkey
             }
 
             HotkeysToggledTrigger?.Invoke(hotkeysDisabled);
-        }
-
-        public void ShowFailedHotkeys()
-        {
-            List<HotkeySettings> failedHotkeysList = Hotkeys.Where(x => x.HotkeyInfo.Status == HotkeyStatus.Failed).ToList();
-
-            if (failedHotkeysList.Count > 0)
-            {
-                string failedHotkeys = string.Join("\r\n", failedHotkeysList.Select(x => $"[{x.HotkeyInfo}] {x.TaskSettings}"));
-                string hotkeyText = failedHotkeysList.Count > 1 ? Resources.HotkeyManager_ShowFailedHotkeys_hotkeys : Resources.HotkeyManager_ShowFailedHotkeys_hotkey;
-                string text = string.Format(Resources.HotkeyManager_ShowFailedHotkeys_Unable_to_register_hotkey, hotkeyText, failedHotkeys);
-
-                MessageBox.Show(text, "ShareX - " + Resources.HotkeyManager_ShowFailedHotkeys_Hotkey_registration_failed, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
         }
 
         public void ResetHotkeys()

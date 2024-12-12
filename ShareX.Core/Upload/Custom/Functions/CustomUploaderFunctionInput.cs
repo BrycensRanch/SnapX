@@ -24,7 +24,6 @@
 #endregion License Information (GPL v3)
 
 using ShareX.Core.Utils;
-using ShareX.HelpersLib;
 
 namespace ShareX.Core.Upload.Custom.Functions
 {

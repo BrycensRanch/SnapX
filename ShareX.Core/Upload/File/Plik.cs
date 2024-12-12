@@ -64,9 +64,9 @@ namespace ShareX.Core.Upload.File
             {
                 throw new Exception("Plik Host is empty.");
             }
-            NameValueCollection requestHeaders = new NameValueCollection();
+            var requestHeaders = new NameValueCollection();
             requestHeaders["X-PlikToken"] = Settings.APIKey;
-            UploadMetadataRequest metaDataReq = new UploadMetadataRequest();
+            var metaDataReq = new UploadMetadataRequest();
             metaDataReq.Files = new UploadMetadataRequestFile0();
             metaDataReq.Files.File0 = new UploadMetadataRequestFile();
             metaDataReq.Files.File0.FileName = fileName;
@@ -91,40 +91,22 @@ namespace ShareX.Core.Upload.File
                 metaDataReq.Login = Settings.Login;
                 metaDataReq.Password = Settings.Password;
             }
-            string metaDataResp = SendRequest(HttpMethod.Post, Settings.URL + "/upload", JsonSerializer.Serialize(metaDataReq), headers: requestHeaders);
-            UploadMetadataResponse metaData = JsonSerializer.Deserialize<UploadMetadataResponse>(metaDataResp);
+            var metaDataResp = SendRequest(HttpMethod.Post, Settings.URL + "/upload", JsonSerializer.Serialize(metaDataReq), headers: requestHeaders);
+            var metaData = JsonSerializer.Deserialize<UploadMetadataResponse>(metaDataResp);
             requestHeaders["x-uploadtoken"] = metaData.uploadToken;
-            string url = $"{Settings.URL}/file/{metaData.id}/{metaData.files.First().Value.id}/{fileName}";
-            UploadResult FileDatReq = SendRequestFile(url, stream, fileName, "file", headers: requestHeaders);
+            var url = $"{Settings.URL}/file/{metaData.id}/{metaData.files.First().Value.id}/{fileName}";
+            var FileDatReq = SendRequestFile(url, stream, fileName, "file", headers: requestHeaders);
 
             return ConvertResult(metaData, FileDatReq);
         }
 
         private UploadResult ConvertResult(UploadMetadataResponse metaData, UploadResult fileDataReq)
         {
-            UploadResult result = new UploadResult(fileDataReq.Response);
+            var result = new UploadResult(fileDataReq.Response);
             //UploadMetadataResponse fileData = JsonConvert.DeserializeObject<UploadMetadataResponse>(fileDataReq.Response);
-            UploadMetadataResponseFile actFile = metaData.files.First().Value;
+            var actFile = metaData.files.First().Value;
             result.URL = $"{Settings.URL}/file/{metaData.id}/{actFile.id}/{URLHelpers.URLEncode(actFile.fileName)}";
             return result;
-        }
-
-        internal static void CalculateTTLValue(NumericUpDown ttlElement, int newUnit, int oldUnit)
-        {
-            if (newUnit != 3)
-            {
-                if (ttlElement.Value == -1)
-                {
-                    ttlElement.Value = 1;
-                }
-                ttlElement.Value *= GetMultiplyIndex(newUnit, oldUnit);
-                ttlElement.ReadOnly = false;
-            }
-            else
-            {
-                ttlElement.Value = -1;
-                ttlElement.ReadOnly = true;
-            }
         }
 
         internal static decimal GetMultiplyIndex(int newUnit, int oldUnit)

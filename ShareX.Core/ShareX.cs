@@ -9,10 +9,11 @@ using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Watch;
+using Xdg.Directories;
 
 namespace ShareX.Core;
 
-internal static class ShareX
+public class ShareX
 {
         public const string AppName = "ShareX";
         public const string MutexName = "82E6AC09-0FEF-4390-AD9F-0DD3F5561EFC";
@@ -31,8 +32,8 @@ internal static class ShareX
         {
             get
             {
-                StringBuilder sbVersionText = new StringBuilder();
-                Version version = Assembly.GetExecutingAssembly().GetName().Version;
+                var sbVersionText = new StringBuilder();
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
                 sbVersionText.Append(version.Major + "." + version.Minor);
                 if (version.Build > 0 || version.Revision > 0) sbVersionText.Append("." + version.Build);
                 if (version.Revision > 0) sbVersionText.Append("." + version.Revision);
@@ -42,15 +43,9 @@ internal static class ShareX
             }
         }
 
-        public static void start()
-        {
-            Debug.WriteLine("Starting ShareX");
-        }
-
         public static void quit()
         {
-            Debug.WriteLine("Quitting ShareX");
-            Environment.Exit(0);
+            CloseSequence();
         }
         public static string Title
         {
@@ -110,7 +105,7 @@ internal static class ShareX
 
         private const string PersonalPathConfigFileName = "PersonalPath.cfg";
 
-        public static readonly string DefaultPersonalFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), AppName);
+        public static readonly string DefaultPersonalFolder = Path.Combine(UserDirectory.DocumentsDir, AppName);
         public static readonly string PortablePersonalFolder = FileHelpers.GetAbsolutePath(AppName);
 
         private static string PersonalPathConfigFilePath
@@ -234,8 +229,16 @@ internal static class ShareX
 
         private static bool closeSequenceStarted, restartRequested, restartAsAdmin;
 
-        [STAThread]
-        private static void Main(string[] args)
+        public void start()
+        {
+            start(Array.Empty<string>());
+        }
+
+        public void shutdown()
+        {
+            CloseSequence();
+        }
+        public void start(string[] args)
         {
             HandleExceptions();
 
@@ -263,15 +266,13 @@ internal static class ShareX
 
                 if (restartRequested)
                 {
-                    // TODO: Use GTK's restart method here.
                     DebugHelper.WriteLine("Restart is not implemented.");
                 }
             }
 
             DebugHelper.Flush();
-
-            DebugHelper.Flush();
         }
+
 
         private static void Run()
         {
@@ -307,7 +308,6 @@ internal static class ShareX
             DebugHelper.WriteLine("Main window init finished.");
             // Run the main window
 
-            CloseSequence();
         }
 
         public static void CloseSequence()

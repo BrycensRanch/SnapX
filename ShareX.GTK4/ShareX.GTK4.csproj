@@ -20,7 +20,7 @@
 <!--    Uncomment to disable GitInfo changing the ApplicationVersion automatically-->
 <!--    <GitVersion>false</GitVersion>-->
     <!-- ShareX.GTK4 is Linux only. -->
-    <RuntimeIdentifiers>linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x64;linux-musl-x64;linux-bionic-arm64;linux-musl-arm64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <AssemblyName>sharex-gtk</AssemblyName>
 
   </PropertyGroup>

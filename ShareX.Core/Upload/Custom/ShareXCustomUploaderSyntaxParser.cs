@@ -23,11 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using ShareX.Core.Upload.Custom;
 using ShareX.Core.Upload.Custom.Functions;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils;

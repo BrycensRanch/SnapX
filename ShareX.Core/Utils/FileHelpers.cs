@@ -29,6 +29,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
+using Xdg.Directories;
 
 namespace ShareX.Core.Utils
 {
@@ -718,8 +719,10 @@ namespace ShareX.Core.Utils
 
         public static string GetTempFilePath(string extension)
         {
-            string path = Path.GetTempFileName();
-            return Path.ChangeExtension(path, extension);
+            var tempFilePath = Path.Combine(BaseDirectory.CacheHome, "sharex", Path.GetRandomFileName());
+            Directory.CreateDirectory(tempFilePath);
+            System.IO.File.Create(tempFilePath).Dispose();
+            return Path.ChangeExtension(tempFilePath, extension);
         }
 
         public static void CreateEmptyFile(string filePath)

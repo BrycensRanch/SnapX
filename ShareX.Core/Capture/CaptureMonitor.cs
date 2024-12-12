@@ -23,7 +23,9 @@
 
 #endregion License Information (GPL v3)
 
-using System.Drawing;
+
+using ShareX.Core.Task;
+using SixLabors.ImageSharp;
 
 namespace ShareX.Core.Capture
 {
@@ -38,7 +40,7 @@ namespace ShareX.Core.Capture
 
         protected override TaskMetadata Execute(TaskSettings taskSettings)
         {
-            TaskMetadata metadata = CreateMetadata(MonitorRectangle);
+            var metadata = CreateMetadata(MonitorRectangle);
             metadata.Image = TaskHelpers.GetScreenshot().CaptureRectangle(MonitorRectangle);
             return metadata;
         }

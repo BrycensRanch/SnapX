@@ -23,8 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-using System;
-using System.Linq;
+
 using SixLabors.ImageSharp;
 
 
@@ -289,53 +288,55 @@ namespace ShareX.Core.Utils
         {
             Rectangle rect = Rectangle.Empty;
 
-            if (NativeMethods.IsDWMEnabled() && NativeMethods.GetExtendedFrameBounds(handle, out Rectangle tempRect))
-            {
-                rect = tempRect;
-            }
-
-            if (rect.IsEmpty)
-            {
-                rect = NativeMethods.GetWindowRect(handle);
-            }
-
-            if (!Helpers.IsWindows10OrGreater() && NativeMethods.IsZoomed(handle))
-            {
-                rect = NativeMethods.MaximizedWindowFix(handle, rect);
-            }
+            // if (NativeMethods.IsDWMEnabled() && NativeMethods.GetExtendedFrameBounds(handle, out Rectangle tempRect))
+            // {
+            //     rect = tempRect;
+            // }
+            //
+            // if (rect.IsEmpty)
+            // {
+            //     rect = NativeMethods.GetWindowRect(handle);
+            // }
+            //
+            // if (!Helpers.IsWindows10OrGreater() && NativeMethods.IsZoomed(handle))
+            // {
+            //     rect = NativeMethods.MaximizedWindowFix(handle, rect);
+            // }
 
             return rect;
         }
 
         public static Rectangle GetActiveWindowRectangle()
         {
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-            return GetWindowRectangle(handle);
+            // IntPtr handle = NativeMethods.GetForegroundWindow();
+            // return GetWindowRectangle(handle);
+            return Rectangle.Empty;
         }
 
         public static Rectangle GetActiveWindowClientRectangle()
         {
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-            return NativeMethods.GetClientRect(handle);
+            // IntPtr handle = NativeMethods.GetForegroundWindow();
+            // return NativeMethods.GetClientRect(handle);
+            return Rectangle.Empty;
         }
 
         public static bool IsActiveWindowFullscreen()
         {
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-
-            if (handle.ToInt32() > 0)
-            {
-                WindowInfo windowInfo = new WindowInfo(handle);
-                string className = windowInfo.ClassName;
-                string[] ignoreList = new string[] { "Progman", "WorkerW" };
-
-                if (ignoreList.All(ignore => !className.Equals(ignore, StringComparison.OrdinalIgnoreCase)))
-                {
-                    Rectangle windowRectangle = windowInfo.Rectangle;
-                    Rectangle monitorRectangle = Screen.FromRectangle(windowRectangle).Bounds;
-                    return windowRectangle.Contains(monitorRectangle);
-                }
-            }
+            // IntPtr handle = NativeMethods.GetForegroundWindow();
+            //
+            // if (handle.ToInt32() > 0)
+            // {
+            //     WindowInfo windowInfo = new WindowInfo(handle);
+            //     string className = windowInfo.ClassName;
+            //     string[] ignoreList = new string[] { "Progman", "WorkerW" };
+            //
+            //     if (ignoreList.All(ignore => !className.Equals(ignore, StringComparison.OrdinalIgnoreCase)))
+            //     {
+            //         Rectangle windowRectangle = windowInfo.Rectangle;
+            //         Rectangle monitorRectangle = Screen.FromRectangle(windowRectangle).Bounds;
+            //         return windowRectangle.Contains(monitorRectangle);
+            //     }
+            // }
 
             return false;
         }

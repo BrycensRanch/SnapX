@@ -23,9 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Threading;
+using ShareX.Core.Task;
 
 namespace ShareX.Core.Capture
 {
@@ -40,37 +38,35 @@ namespace ShareX.Core.Capture
         public CaptureWindow(IntPtr windowHandle)
         {
             WindowHandle = windowHandle;
-
-            AllowAutoHideForm = WindowHandle != ShareX.MainWindow.Handle;
         }
 
         protected override TaskMetadata Execute(TaskSettings taskSettings)
         {
-            WindowInfo windowInfo = new WindowInfo(WindowHandle);
+            // WindowInfo windowInfo = new WindowInfo(WindowHandle);
+            //
+            // if (windowInfo.IsMinimized)
+            // {
+            //     windowInfo.Restore();
+            //     Thread.Sleep(250);
+            // }
+            //
+            // if (!windowInfo.IsActive)
+            // {
+            //     windowInfo.Activate();
+            //     Thread.Sleep(100);
+            // }
 
-            if (windowInfo.IsMinimized)
-            {
-                windowInfo.Restore();
-                Thread.Sleep(250);
-            }
-
-            if (!windowInfo.IsActive)
-            {
-                windowInfo.Activate();
-                Thread.Sleep(100);
-            }
-
-            TaskMetadata metadata = new TaskMetadata();
-            metadata.UpdateInfo(windowInfo);
-
-            if (taskSettings.CaptureSettings.CaptureTransparent && !taskSettings.CaptureSettings.CaptureClientArea)
-            {
-                metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindowTransparent(WindowHandle);
-            }
-            else
-            {
-                metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindow(WindowHandle);
-            }
+            var metadata = new TaskMetadata();
+            // metadata.UpdateInfo(windowInfo);
+            //
+            // if (taskSettings.CaptureSettings.CaptureTransparent && !taskSettings.CaptureSettings.CaptureClientArea)
+            // {
+            //     metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindowTransparent(WindowHandle);
+            // }
+            // else
+            // {
+            //     metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindow(WindowHandle);
+            // }
 
             return metadata;
         }

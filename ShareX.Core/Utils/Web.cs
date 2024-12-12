@@ -57,7 +57,7 @@ namespace ShareX.Core.Utils
             await responseStream.CopyToAsync(fileStream);
         }
 
-        public static async System.Threading.Tasks.Task<SixLabors.ImageSharp.Image> DataURLToImage(string url)
+        public static async System.Threading.Tasks.Task<SixLabors.ImageSharp.Image<Rgba64>> DataURLToImage(string url)
         {
             // Ensure the URL is valid and starts with "data:"
             if (url == null || !url.ToString().StartsWith("data:"))
@@ -80,7 +80,7 @@ namespace ShareX.Core.Utils
             byte[] imageBytes = Convert.FromBase64String(base64Data);
 
             using var ms = new MemoryStream(imageBytes);
-            var image = await SixLabors.ImageSharp.Image.LoadAsync(ms);
+            var image = await SixLabors.ImageSharp.Image.LoadAsync<Rgba64>(ms);
             return image;
         }
 
@@ -113,7 +113,7 @@ namespace ShareX.Core.Utils
         }
 
 
-        public static async Task<Image<Rgba32>> DownloadImageAsync(string url)
+        public static async Task<Image<Rgba64>> DownloadImageAsync(string url)
         {
             if (string.IsNullOrEmpty(url)) return null;
 
@@ -134,7 +134,7 @@ namespace ShareX.Core.Utils
             try
             {
                 using var memoryStream = new MemoryStream(data);
-                return await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(memoryStream);
+                return await SixLabors.ImageSharp.Image.LoadAsync<Rgba64>(memoryStream);
             }
             catch (Exception ex)
             {

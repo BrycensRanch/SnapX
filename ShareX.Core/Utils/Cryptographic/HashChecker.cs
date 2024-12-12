@@ -46,7 +46,7 @@ namespace ShareX.Core.Utils.Cryptographic
         {
             string result = null;
 
-            if (!IsWorking && !string.IsNullOrEmpty(filePath) && FileHelpers.Exists(filePath))
+            if (!IsWorking && !string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 IsWorking = true;
 
@@ -54,7 +54,7 @@ namespace ShareX.Core.Utils.Cryptographic
 
                 using (cts = new CancellationTokenSource())
                 {
-                    result = await Task.Run(() =>
+                    result = await System.Threading.Tasks.Task.Run(() =>
                     {
                         try
                         {

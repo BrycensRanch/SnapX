@@ -23,12 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Random;
+
+// TODO: Discontinue this file. XUnit for basic unit tests of HistoryLib
 
 namespace ShareX.Core.History
 {

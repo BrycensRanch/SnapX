@@ -23,7 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using System.Collections.Generic;
 using System.Text;
 
 namespace ShareX.Core.Upload.Custom
@@ -48,7 +47,7 @@ namespace ShareX.Core.Upload.Custom
 
         private string Parse(string text, bool isFunction, int startPosition, out int endPosition)
         {
-            StringBuilder sbOutput = new StringBuilder();
+            var sbOutput = new StringBuilder();
             bool escape = false;
             int i;
 

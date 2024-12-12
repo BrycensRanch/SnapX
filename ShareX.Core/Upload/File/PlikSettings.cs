@@ -23,8 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-
 namespace ShareX.Core.Upload.File
 {
     public class PlikSettings

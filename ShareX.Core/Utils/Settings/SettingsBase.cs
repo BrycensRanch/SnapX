@@ -107,7 +107,7 @@ namespace ShareX.Core.Utils.Settings
 
         public void SaveAsync(string filePath)
         {
-            Task.Run(() => Save(filePath));
+            System.Threading.Tasks.Task.Run(() => Save(filePath));
         }
 
         public void SaveAsync()

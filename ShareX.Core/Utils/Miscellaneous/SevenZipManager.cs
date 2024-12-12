@@ -34,7 +34,7 @@ namespace ShareX.Core.Utils.Miscellaneous
 
         public SevenZipManager()
         {
-            SevenZipPath = File.GetAbsolutePath(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "7z.exe" : "7z");
+            SevenZipPath = FileHelpers.GetAbsolutePath(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "7z.exe" : "7z");
         }
 
         public SevenZipManager(string sevenZipPath)

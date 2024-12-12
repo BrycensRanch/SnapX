@@ -26,9 +26,10 @@
 
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.Image;
 using ShareX.Core.Upload.OAuth;
 using ShareX.Core.Upload.Utils;
-using ShareX.UploadersLib.ImageUploaders;
+using ShareX.Core.Utils.Extensions;
 
 namespace ShareX.Core.Upload.SharingServices
 {

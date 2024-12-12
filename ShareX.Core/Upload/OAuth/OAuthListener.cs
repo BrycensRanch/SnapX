@@ -24,8 +24,8 @@
 #endregion License Information (GPL v3)
 
 using System.Net;
+using System.Reflection;
 using System.Text;
-using ShareX.Core;
 using ShareX.Core.Utils;
 
 namespace ShareX.Core.Upload.OAuth
@@ -103,17 +103,18 @@ namespace ShareX.Core.Upload.OAuth
                     {
                         status = "Authorization did not succeed.";
                     }
-
-                    string responseText = Resources.OAuthCallbackPage.Replace("{0}", status);
-                    byte[] buffer = Encoding.UTF8.GetBytes(responseText);
+                    var assembly = Assembly.GetExecutingAssembly();
+                    await using var stream = assembly.GetManifestResourceStream("OAuthCallbackPage.html");
+                    using var reader = new StreamReader(stream);
+                    var oAuthCallbackPage = reader.ReadToEnd();
+                    var responseText = oAuthCallbackPage.Replace("{0}", status);;
+                    var buffer = Encoding.UTF8.GetBytes(responseText);
                     response.ContentLength64 = buffer.Length;
                     response.KeepAlive = false;
 
-                    using (Stream responseOutput = response.OutputStream)
-                    {
-                        await responseOutput.WriteAsync(buffer, 0, buffer.Length);
-                        await responseOutput.FlushAsync();
-                    }
+                    await using var responseOutput = response.OutputStream;
+                    await responseOutput.WriteAsync(buffer, 0, buffer.Length);
+                    await responseOutput.FlushAsync();
                 }
             }
             catch (ObjectDisposedException)

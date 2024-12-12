@@ -69,7 +69,7 @@ namespace ShareX.Core.Upload.File
         public static OneDriveFileInfo RootFolder = new OneDriveFileInfo
         {
             id = "", // empty defaults to root
-            name = Resources.OneDrive_RootFolder_Root_folder
+            name = "Root folder"
         };
 
         public OneDrive(OAuth2Info authInfo)

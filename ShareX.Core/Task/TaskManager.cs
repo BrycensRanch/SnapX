@@ -184,14 +184,9 @@ namespace ShareX.Core.Task
                                 string title = error.Title;
                                 if (string.IsNullOrEmpty(title))
                                 {
-                                    title = Resources.TaskManager_task_UploadCompleted_Error;
+                                    title = "Error";
                                 }
-
-                                if (info.TaskSettings.GeneralSettings.ShowToastNotificationAfterTaskCompleted && !string.IsNullOrEmpty(error.Text) &&
-                                    (!info.TaskSettings.GeneralSettings.DisableNotificationsOnFullscreen || !CaptureHelpers.IsActiveWindowFullscreen()))
-                                {
-                                    TaskHelpers.ShowNotificationTip(error.Text, "ShareX - " + title, 5000);
-                                }
+                                DebugHelper.WriteLine(title);
                             }
                         }
                         else

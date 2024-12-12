@@ -4,8 +4,8 @@ namespace ShareX.Core.Utils.Parsers
     {
         protected override string Prefix { get; } = "$";
 
-        public static readonly CodeMenuEntryActions input = new CodeMenuEntryActions("input", Resources.ActionsCodeMenuEntry_FilePath_File_path);
-        public static readonly CodeMenuEntryActions output = new CodeMenuEntryActions("output", Resources.ActionsCodeMenuEntry_OutputFilePath_File_path_without_extension____Output_file_name_extension_);
+        public static readonly CodeMenuEntryActions input = new CodeMenuEntryActions("input", "File path");
+        public static readonly CodeMenuEntryActions output = new CodeMenuEntryActions("output", "File path with output file name extension");
 
         public CodeMenuEntryActions(string value, string description) : base(value, description)
         {

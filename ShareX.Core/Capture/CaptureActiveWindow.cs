@@ -23,13 +23,15 @@
 
 #endregion License Information (GPL v3)
 
+using ShareX.Core.Task;
+
 namespace ShareX.Core.Capture
 {
     public class CaptureActiveWindow : CaptureBase
     {
         protected override TaskMetadata Execute(TaskSettings taskSettings)
         {
-            TaskMetadata metadata = CreateMetadata();
+            var metadata = CreateMetadata();
 
             if (taskSettings.CaptureSettings.CaptureTransparent && !taskSettings.CaptureSettings.CaptureClientArea)
             {

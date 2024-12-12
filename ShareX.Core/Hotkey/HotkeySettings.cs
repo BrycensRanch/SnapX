@@ -24,6 +24,8 @@
 #endregion License Information (GPL v3)
 
 
+using ShareX.Core.Task;
+
 namespace ShareX.Core.Hotkey
 {
     public class HotkeySettings

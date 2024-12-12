@@ -62,7 +62,7 @@ namespace ShareX.Core.Utils.Miscellaneous
             pendingInputFilePath = null;
             string path = GetFullPath();
 
-            if (!string.IsNullOrEmpty(path) && FileHelpers.Exists(path) && !string.IsNullOrWhiteSpace(inputPath))
+            if (!string.IsNullOrEmpty(path) && File.Exists(path) && !string.IsNullOrWhiteSpace(inputPath))
             {
                 inputPath = inputPath.Trim('"');
 
@@ -113,7 +113,7 @@ namespace ShareX.Core.Utils.Miscellaneous
                             process.WaitForExit();
                         }
 
-                        if (!string.IsNullOrEmpty(outputPath) && FileHelpers.Exists(outputPath))
+                        if (!string.IsNullOrEmpty(outputPath) && File.Exists(outputPath))
                         {
                             DebugHelper.WriteLine($"Action output: \"{outputPath}\" [{FileHelpers.GetFileSizeReadable(outputPath)}]");
 
@@ -139,7 +139,7 @@ namespace ShareX.Core.Utils.Miscellaneous
 
         public Task<string> RunAsync(string inputPath)
         {
-            return Task.Run(() => Run(inputPath));
+            return System.Threading.Tasks.Task.Run(() => Run(inputPath));
         }
 
         public bool CheckExtension(string path)
@@ -184,13 +184,13 @@ namespace ShareX.Core.Utils.Miscellaneous
         {
             string inputPath = pendingInputFilePath;
 
-            if (!string.IsNullOrEmpty(inputPath) && FileHelpers.Exists(inputPath))
+            if (!string.IsNullOrEmpty(inputPath) && File.Exists(inputPath))
             {
                 DebugHelper.WriteLine($"Deleting input file: \"{inputPath}\"");
 
                 try
                 {
-                    FileHelpers.Delete(inputPath);
+                    File.Delete(inputPath);
                     pendingInputFilePath = null;
                 }
                 catch (Exception e)

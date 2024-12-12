@@ -73,10 +73,10 @@ namespace ShareX.Core.Upload.File
         public string FolderID { get; set; }
         public string DriveID { get; set; }
 
-        public static GoogleDriveSharedDrive MyDrive = new GoogleDriveSharedDrive
+        public static GoogleDriveSharedDrive MyDrive = new()
         {
             id = "", // empty defaults to user drive
-            name = Resources.GoogleDrive_MyDrive_My_drive
+            name = "My drive"
         };
 
         public GoogleDrive(OAuth2Info oauth)

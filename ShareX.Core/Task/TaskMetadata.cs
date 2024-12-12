@@ -25,6 +25,7 @@
 
 using ShareX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace ShareX.Core.Task
 {
@@ -32,7 +33,7 @@ namespace ShareX.Core.Task
     {
         private const int WindowInfoMaxLength = 255;
 
-        public Image Image { get; set; }
+        public Image<Rgba64> Image { get; set; }
 
         private string windowTitle;
 
@@ -66,7 +67,7 @@ namespace ShareX.Core.Task
         {
         }
 
-        public TaskMetadata(Image image)
+        public TaskMetadata(Image<Rgba64> image)
         {
             Image = image;
         }

@@ -33,14 +33,16 @@ namespace ShareX.Core.Utils.Cryptographic
         // http://en.wikipedia.org/wiki/Binary_numeral_system
         public string[] Binary { get; private set; }
 
-        public string? BinaryText => string.IsNullOrWhiteSpace(Binary.Join()) ? string.Join(string.Empty, Binary) : null;
-
+        public string? BinaryText =>
+            Binary == null || Binary.Length == 0 ? null :
+                string.Join(" ", Binary);
 
         // http://en.wikipedia.org/wiki/Hexadecimal
         public string[] Hexadecimal { get; private set; }
 
-        public string? HexadecimalText => string.IsNullOrWhiteSpace(Hexadecimal.Join()) ? string.Join(string.Empty, Hexadecimal).ToUpperInvariant() : null;
-
+        public string? HexadecimalText =>
+            Hexadecimal == null || Hexadecimal.Length == 0 ? null :
+                string.Join(string.Empty, Hexadecimal).ToUpperInvariant();
 
         // http://en.wikipedia.org/wiki/ASCII
         public byte[] ASCII { get; private set; }

@@ -65,7 +65,7 @@ namespace ShareX.Core.Utils.Miscellaneous
                     {
                         cts = new CancellationTokenSource();
 
-                        Task.Run(ListenForConnectionsAsync, cts.Token);
+                        System.Threading.Tasks.Task.Run(ListenForConnectionsAsync, cts.Token);
                     }
                     else
                     {
@@ -85,11 +85,11 @@ namespace ShareX.Core.Utils.Miscellaneous
         {
             if (ArgumentsReceived != null)
             {
-                Task.Run(() => ArgumentsReceived?.Invoke(arguments));
+                System.Threading.Tasks.Task.Run(() => ArgumentsReceived?.Invoke(arguments));
             }
         }
 
-        private async Task ListenForConnectionsAsync()
+        private async System.Threading.Tasks.Task ListenForConnectionsAsync()
         {
             while (!cts.IsCancellationRequested)
             {

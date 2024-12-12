@@ -25,8 +25,9 @@
 
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
+using ShareX.Core.Upload.File;
 using ShareX.Core.Upload.Utils;
-using ShareX.UploadersLib.FileUploaders;
+using ShareX.Core.Utils;
 
 namespace ShareX.Core.Upload.SharingServices
 {
@@ -60,7 +61,7 @@ namespace ShareX.Core.Upload.SharingServices
 
             if (config.EmailAutomaticSend && !string.IsNullOrEmpty(config.EmailAutomaticSendTo))
             {
-                Email email = new Email()
+                var email = new Email()
                 {
                     SmtpServer = config.EmailSmtpServer,
                     SmtpPort = config.EmailSmtpPort,
@@ -102,7 +103,7 @@ namespace ShareX.Core.Upload.SharingServices
                 // }
             }
 
-            //URLHelpers.OpenURL("mailto:?body=" + URLHelpers.URLEncode(url));
+            URLHelpers.OpenURL("mailto:?body=" + URLHelpers.URLEncode(url));
 
             return result;
         }

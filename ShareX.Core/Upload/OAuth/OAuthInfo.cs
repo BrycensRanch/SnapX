@@ -71,7 +71,7 @@ namespace ShareX.Core.Upload.OAuth
 
         public OAuthInfo()
         {
-            Description = Resources.OAuthInfo_OAuthInfo_New_account;
+            Description = "New Account";
             OAuthVersion = "1.0";
         }
 

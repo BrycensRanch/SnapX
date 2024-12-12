@@ -23,8 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.HelpersLib;
-using System;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
 
