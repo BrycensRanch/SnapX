@@ -4,7 +4,7 @@ using ShareX.CLI;
 
 var sharex = new ShareX.Core.ShareX();
 sharex.silenceLogging();
-sharex.start();
+sharex.start(args);
 var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
 
 if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
