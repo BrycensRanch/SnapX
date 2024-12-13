@@ -99,7 +99,7 @@ public class ShareX
         internal static Stopwatch StartTimer { get; private set; }
         internal static HotkeyManager HotkeyManager { get; set; }
         internal static WatchFolderManager WatchFolderManager { get; set; }
-        internal static CLIManager CLIManager {get; set;}
+        public static CLIManager CLIManager {get; set;}
 
         #region Paths
 
@@ -356,7 +356,6 @@ public class ShareX
                 //Lock the zone to access the data. Remember to dispose the returned disposable to unlock again.
                 lock (fullscreen)
                 {
-                    using var locked = fullscreen.Lock();
                     ReadOnlySpan<byte> rawData = fullscreen.RawBuffer;
 
                     Console.WriteLine(fullscreen.Width + " x " + fullscreen.Height);

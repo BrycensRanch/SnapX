@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <!-- Enable single-file publish -->
     <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
 
     <!-- Make it self-contained -->
     <!-- This does not mean it doesn't need the GTK4 libraries on the host or right beside the executable.. This is only for .NET -->
@@ -24,12 +25,14 @@
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="logo.svg" />
+    <EmbeddedResource Include="..\ShareX.Core\Resources\ShareX_Logo.png" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="GirCore.GstVideo-1.0" Version="0.5.0" />
     <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
     <ProjectReference Include="..\ShareX.CommonUI\ShareX.CommonUI.csproj" />
 
-
+    <PackageReference Include="GirCore.Gst-1.0" Version="0.5.0" />
     <PackageReference Include="GirCore.Gtk-4.0" Version="0.5.0" />
     <PackageReference Include="GirCore.Adw-1" Version="0.5.0" />
     <PackageReference Include="GirCore.Gio-2.0" Version="0.5.0" />
