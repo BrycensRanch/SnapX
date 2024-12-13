@@ -20,7 +20,6 @@ namespace ShareX.Avalonia
                 Width = 400,
                 Height = 300,
                 Icon = null,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 IsVisible = true,
                 CanResize = false
             };

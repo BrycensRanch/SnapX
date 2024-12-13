@@ -14,10 +14,6 @@ public class App : Application
     {
 
         ShareX = new Core.ShareX();
-        ShareX.start();
-        var about = new AboutDialog();
-        about.Show();
-        DebugHelper.WriteLine($"{nameof(ShareX)}: {nameof(AboutDialog)}: {about}");
         AvaloniaXamlLoader.Load(this);
 
         // Default logic doesn't auto detect windows theme anymore in designer
@@ -39,11 +35,18 @@ public class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownRequested += Shutdown;
+            ShareX.start(desktop.Args ?? []);
+            DebugHelper.WriteLine("Internal Startup time: {0} ms", ShareX.getStartupTime());
+            if (ShareX.isSilent()) return;
+            var about = new AboutDialog();
+            about.Show();
+            DebugHelper.WriteLine($"{nameof(ShareX)}: {nameof(AboutDialog)}: {about}");
 
             // desktop.MainWindow = new MainWindow();
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
         {
+            if (ShareX.isSilent()) return;
             // singleView.MainView = new MainView();
         }
     }
