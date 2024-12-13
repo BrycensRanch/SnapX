@@ -37,15 +37,14 @@
 
 Name:           sharex
 Version:        %{version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
 URL:            https://github.com/BrycensRanch/ShareX-Linux-Port
-Source:         https://github.com/BrycensRanch/ShareX-Linux-Port/archive/refs/heads/develop.tar.gz
+Source:         %{url}/archive/refs/heads/develop.tar.gz
 
 BuildRequires:  dotnet-sdk-9.0
-Requires:       dotnet-runtime-9.0
 Requires:       /usr/bin/ffmpeg
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo
 
@@ -91,13 +90,14 @@ ShareX but with Avalonia. Works best on X11.
     %set_build_flags
 %endif
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+export AVALONIA_TELEMETRY_OPTOUT=1
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export PATH=$PATH:/usr/local/bin
 
 dotnet publish --configuration Release --runtime %{dotnet_runtime} \
     -p:DebugSymbols=false -p:DebugType=none ShareX.CLI
 dotnet publish --configuration Release --runtime %{dotnet_runtime} \
-    -p:DebugSymbols=false -p:DebugType=none -p:GitVersion=false ShareX.GTK4
+    -p:DebugSymbols=false -p:DebugType=none ShareX.GTK4
 dotnet publish --configuration Release --runtime %{dotnet_runtime} \
     -p:DebugSymbols=false -p:DebugType=none ShareX.Avalonia
 
@@ -106,11 +106,20 @@ ShareX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex --version
 
 
 %install
-%{__mkdir} -p %{buildroot}%{_libdir}/sharex %{buildroot}%{_bindir}
+%{__mkdir} -p %{buildroot}%{_libdir}/sharex %{buildroot}%{_bindir} %{buildroot}%{_datadir}/ShareX
 %{__cp} ShareX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex %{buildroot}%{_bindir}
 %{__cp} ShareX.GTK4/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex-gtk %{buildroot}%{_bindir}
-%{__cp} ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/ShareX.Avalonia %{buildroot}%{_bindir}
+%{__cp} ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/ShareX.Avalonia %{buildroot}%{_libdir}/sharex
+%{__cp} ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/*.so %{buildroot}%{_libdir}/sharex
+%{__cp} -r ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/Resources %{buildroot}%{_datadir}/ShareX
 
+# Create the wrapper shell script
+cat > %{buildroot}%{_bindir}/sharex-ui <<EOF
+#!/bin/sh
+# Wrapper script to invoke the actual binary
+exec %{_libdir}/%{name}/ShareX.Avalonia "\$@"
+EOF
+chmod +x %{buildroot}%{_bindir}/sharex-ui
 
 %files
 %{_bindir}/%{name}
@@ -121,7 +130,9 @@ ShareX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex --version
 %license LICENSE.md
 
 %files ui
-%{_bindir}/ShareX.Avalonia
+%{_bindir}/%{name}-ui
+%{_datadir}/ShareX
+%{_libdir}/%{name}
 %license LICENSE.md
 
 
