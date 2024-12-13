@@ -9,6 +9,17 @@ shareX.setQualifier(" GTK4");
 
 
 var application = Gtk.Application.New("ShareX.ShareX", ApplicationFlags.NonUnique);
+var sigintReceived = false;
+
+Console.CancelKeyPress += (_, ea) =>
+{
+    ea.Cancel = true;
+    sigintReceived = true;
+
+    DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
+    shareX.shutdown();
+    Environment.Exit(0);
+};
 application.OnActivate += (sender, eventArgs) =>
 {
     shareX.start(args);
@@ -30,6 +41,7 @@ application.OnActivate += (sender, eventArgs) =>
 };
 application.OnShutdown += (sender, eventArgs) =>
 {
+    sigintReceived = true;
     shareX.shutdown();
 };
 application.OnWindowAdded += (sender, eventArgs) =>

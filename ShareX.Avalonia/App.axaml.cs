@@ -25,16 +25,41 @@ public class App : Application
 
     }
 
-    public void Shutdown(object? sender, ShutdownRequestedEventArgs e)
-    {
-        ShareX.shutdown();
-    }
 
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.ShutdownRequested += Shutdown;
+            var sigintReceived = false;
+            desktop.ShutdownRequested += (_, _) => {
+                sigintReceived = true;
+                DebugHelper.WriteLine("Recieved Shutdown from Avalonia");
+                ShareX.shutdown();
+                desktop.Shutdown();
+            };
+
+            Console.CancelKeyPress += (_, ea) =>
+            {
+                ea.Cancel = true;
+                sigintReceived = true;
+
+                DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
+                desktop.Shutdown();
+            };
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                if (!sigintReceived)
+                {
+                    DebugHelper.WriteLine("Received SIGTERM");
+                    ShareX.shutdown();
+                    desktop.Shutdown();
+                }
+                else
+                {
+                    DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
+                }
+            };
+
             ShareX.start(desktop.Args ?? []);
             DebugHelper.WriteLine("Internal Startup time: {0} ms", ShareX.getStartupTime());
             if (ShareX.isSilent()) return;

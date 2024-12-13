@@ -285,7 +285,7 @@ public class ShareX
 
         private static void Run()
         {
-            DebugHelper.WriteLine("ShareX  (Linux) starting.");
+            DebugHelper.WriteLine("ShareX (Linux) starting.");
             DebugHelper.WriteLine("Version: " + VersionText);
             DebugHelper.WriteLine("Build: " + Build);
             DebugHelper.WriteLine("Command line: " + Environment.CommandLine);
