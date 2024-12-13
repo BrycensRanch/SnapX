@@ -12,6 +12,9 @@
     <PackageReference Include="JsonPath.Net" Version="2.0.0" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+    <PackageReference Include="ScreenCapture.NET" Version="3.0.0" />
+    <PackageReference Include="ScreenCapture.NET.DX11" Version="3.0.0" />
+    <PackageReference Include="ScreenCapture.NET.X11" Version="3.0.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />

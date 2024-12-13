@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using HPPH;
+using ScreenCapture.NET;
 using ShareX.Core.CLI;
 using ShareX.Core.Hotkey;
 using ShareX.Core.Task;
@@ -11,6 +13,11 @@ using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Watch;
+using SharpGen.Runtime;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using Xdg.Directories;
 
 namespace ShareX.Core;
@@ -92,6 +99,7 @@ public class ShareX
         internal static Stopwatch StartTimer { get; private set; }
         internal static HotkeyManager HotkeyManager { get; set; }
         internal static WatchFolderManager WatchFolderManager { get; set; }
+        internal static CLIManager CLIManager {get; set;}
 
         #region Paths
 
@@ -241,17 +249,18 @@ public class ShareX
 
             StartTimer = Stopwatch.StartNew();
             // TODO: Implement CLI in a better way than what it is now.
-            // CLI = new CLIManager(args);
-            // CLI.ParseCommands();
+            CLIManager = new CLIManager(args);
+            CLIManager.ParseCommands();
 
             if (CheckAdminTasks()) return; // If ShareX opened just for be able to execute task as Admin
 
             // SystemOptions.UpdateSystemOptions();
             UpdatePersonalPath();
+            if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
 
             DebugHelper.Init(LogsFilePath);
 
-            // MultiInstance = CLI.IsCommandExist("multi", "m");
+            MultiInstance = CLIManager.IsCommandExist("multi", "m");
 
             using var singleInstanceManager = new SingleInstanceManager(MutexName, PipeName, !MultiInstance, args);
             if (!singleInstanceManager.IsSingleInstance || singleInstanceManager.IsFirstInstance)
@@ -270,6 +279,9 @@ public class ShareX
             DebugHelper.Flush();
         }
 
+        public long getStartupTime() => StartTimer.ElapsedMilliseconds;
+
+        public bool isSilent() => SilentRun;
 
         private static void Run()
         {
@@ -278,7 +290,7 @@ public class ShareX
             DebugHelper.WriteLine("Build: " + Build);
             DebugHelper.WriteLine("Command line: " + Environment.CommandLine);
             DebugHelper.WriteLine("Personal path: " + PersonalFolder);
-            if (!string.IsNullOrEmpty(PersonalPathDetectionMethod))
+            if (!string.IsNullOrWhiteSpace(PersonalPathDetectionMethod))
             {
                 DebugHelper.WriteLine("Personal path detection method: " + PersonalPathDetectionMethod);
             }
@@ -286,17 +298,78 @@ public class ShareX
             IsAdmin = Helpers.IsAdministrator();
             DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
 
-            // SilentRun = CLI.IsCommandExist("silent", "s");
+            SilentRun = CLIManager.IsCommandExist("silent", "s");
 
-            // IgnoreHotkeyWarning = CLI.IsCommandExist("NoHotkeys");
+            IgnoreHotkeyWarning = CLIManager.IsCommandExist("NoHotkeys");
 
             CreateParentFolders();
             RegisterExtensions();
             CheckPuushMode();
             DebugWriteFlags();
-            SettingManager.LoadInitialSettings();
-            // SettingManager.LoadAllSettings();
+            // SettingManager.LoadInitialSettings();
+            SettingManager.LoadAllSettings();
+            if (CLIManager.IsCommandExist("screenshot", "ss")) {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                var screenCaptureService = new DX11ScreenCaptureService();
+                var graphicsCards = screenCaptureService.GetGraphicsCards();
+                var firstGraphicsCard = graphicsCards.First<GraphicsCard>();
+                var displays = screenCaptureService.GetDisplays(firstGraphicsCard);
+                Console.WriteLine($"First graphics card: {firstGraphicsCard.Name} ({firstGraphicsCard.VendorId})");
+                var screenCapture = screenCaptureService.GetScreenCapture(displays.First());
+                var fullscreen = screenCapture.RegisterCaptureZone(0, 0, screenCapture.Display.Width, screenCapture.Display.Height);
+                screenCapture.CaptureScreen();
 
+                using (fullscreen.Lock())
+                {
+                    ReadOnlySpan<byte> rawData = fullscreen.RawBuffer;
+
+                    using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
+
+                    theImage.SaveAsPng(Path.Combine(ScreenshotsParentFolder, "demo.png"));
+
+
+                }
+
+                } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+                if (Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") != null) Console.Error.WriteLine("Wayland support has not been added yet. This will likely fail with a mysterious error.");
+                var screenCaptureService = new X11ScreenCaptureService();
+                var graphicsCards = screenCaptureService.GetGraphicsCards();
+                foreach(var card in graphicsCards)
+                {
+                    Console.WriteLine(card.Index);
+                    Console.WriteLine(card.Name);
+                    Console.WriteLine(card.VendorId);
+                    Console.WriteLine(card.DeviceId);
+                }
+                var firstGraphicsCard = graphicsCards.First<GraphicsCard>();
+                Console.WriteLine($"First graphics card: {firstGraphicsCard.Name} ({firstGraphicsCard.VendorId})");
+                var displays = screenCaptureService.GetDisplays(firstGraphicsCard);
+                foreach (var display in displays)
+                {
+                    Console.WriteLine(display.DeviceName);
+                    Console.WriteLine(display.Width + " x " + display.Height);
+                }
+                var screenCapture = screenCaptureService.GetScreenCapture(displays.First());
+                var fullscreen = screenCapture.RegisterCaptureZone(0, 0, screenCapture.Display.Width, screenCapture.Display.Height);
+                screenCapture.CaptureScreen();
+
+                //Lock the zone to access the data. Remember to dispose the returned disposable to unlock again.
+                lock (fullscreen)
+                {
+                    using var locked = fullscreen.Lock();
+                    ReadOnlySpan<byte> rawData = fullscreen.RawBuffer;
+
+                    Console.WriteLine(fullscreen.Width + " x " + fullscreen.Height);
+                    using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
+                    var imageWithRightTypes = theImage.CloneAs<Rgba64>();
+
+                    theImage.SaveAsPng(Path.Combine(ScreenshotsParentFolder, "demo.png"));
+                    UploadManager.UploadImage(imageWithRightTypes);
+                }
+                } else {
+                    throw new UnauthorizedAccessException("Only the good Operating Systems can take screenshots");
+                }
+            }
             Uploader.UpdateServicePointManager();
             // CleanupManager.CleanupAsync();
 
@@ -304,17 +377,15 @@ public class ShareX
 
         public static void CloseSequence()
         {
-            if (!closeSequenceStarted)
-            {
-                closeSequenceStarted = true;
+            if (closeSequenceStarted) return;
+            closeSequenceStarted = true;
 
-                DebugHelper.WriteLine("ShareX closing.");
+            DebugHelper.WriteLine("ShareX closing.");
 
-                WatchFolderManager?.Dispose();
-                SettingManager.SaveAllSettings();
+            WatchFolderManager?.Dispose();
+            SettingManager.SaveAllSettings();
 
-                DebugHelper.WriteLine("ShareX closed.");
-            }
+            DebugHelper.WriteLine("ShareX closed.");
         }
 
         private static void SingleInstanceManager_ArgumentsReceived(string[] arguments)
@@ -336,14 +407,14 @@ public class ShareX
         private static void UpdatePersonalPath()
         {
             if (Sandbox) return;
-            // Sandbox = CLI.IsCommandExist("sandbox");
+            Sandbox = CLIManager.IsCommandExist("sandbox");
 
-            // if (CLI.IsCommandExist("portable", "p"))
-            // {
-            //     Portable = true;
-            //     CustomPersonalPath = PortablePersonalFolder;
-            //     PersonalPathDetectionMethod = "Portable CLI flag";
-            // }
+            if (CLIManager.IsCommandExist("portable", "p"))
+            {
+                Portable = true;
+                CustomPersonalPath = PortablePersonalFolder;
+                PersonalPathDetectionMethod = "Portable CLI flag";
+            }
             if (File.Exists(PortableCheckFilePath))
             {
                 Portable = true;
@@ -512,10 +583,10 @@ public class ShareX
 
         private static bool CheckAdminTasks()
         {
-            // if (CLI.IsCommandExist("dnschanger"))
-            // {
-            //     return true;
-            // }
+            if (CLIManager.IsCommandExist("dnschanger"))
+            {
+                return true;
+            }
 
             return false;
         }

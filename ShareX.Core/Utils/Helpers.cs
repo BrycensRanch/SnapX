@@ -193,6 +193,19 @@ namespace ShareX.Core.Utils
             }
             return result;
         }
+        public static string GetFileExtensionFromBytes(ReadOnlySpan<byte> rawData)
+        {
+            if (rawData.Length >= 8 && rawData[0] == 0x89 && rawData[1] == 0x50 && rawData[2] == 0x4E && rawData[3] == 0x47)
+            {
+                return ".png";
+            }
+            else if (rawData.Length >= 2 && rawData[0] == 0xFF && rawData[1] == 0xD8)
+            {
+                return ".jpg";
+            }
+
+            return ".png";
+        }
 
         /// <summary>
         /// If version1 newer than version2 = 1
