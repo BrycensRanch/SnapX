@@ -34,42 +34,5 @@
     <PackageReference Include="GirCore.Adw-1" Version="0.5.0" />
     <PackageReference Include="GirCore.Gio-2.0" Version="0.5.0" />
     <PackageReference Include="GirCore.Gdk-4.0" Version="0.5.0" />
-    <PackageReference Include="nulastudio.NetBeauty" Version="2.1.4.6" />
   </ItemGroup>
-  <PropertyGroup>
-    <BeautyLibsDir Condition="$(BeautySharedRuntimeMode) == 'True'">../libs</BeautyLibsDir>
-    <BeautyLibsDir Condition="$(BeautySharedRuntimeMode) != 'True'">./libs</BeautyLibsDir>
-    <!-- dlls that you don't want to be moved or can not be moved -->
-    <!-- <BeautyExcludes>dll1.dll;lib*;...</BeautyExcludes> -->
-    <!-- dlls that end users never needed, so hide them -->
-     <BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json</BeautyHiddens>
-    <!-- set to True if you want to disable -->
-    <DisableBeauty>False</DisableBeauty>
-    <!-- set to False if you want to beauty on build -->
-    <BeautyOnPublishOnly>False</BeautyOnPublishOnly>
-    <!-- DO NOT TOUCH THIS OPTION -->
-    <BeautyNoRuntimeInfo>False</BeautyNoRuntimeInfo>
-    <!-- valid values: auto|with|without -->
-    <BeautyNBLoaderVerPolicy>auto</BeautyNBLoaderVerPolicy>
-    <!-- set to True if you want to allow 3rd debuggers(like dnSpy) debugs the app -->
-    <BeautyEnableDebugging>False</BeautyEnableDebugging>
-    <!-- the patch can reduce the file count -->
-    <!-- set to False if you want to disable -->
-    <!-- SCD Mode Feature Only -->
-    <BeautyUsePatch>True</BeautyUsePatch>
-    <!-- App Entry Dll = BeautyDir + BeautyAppHostDir + BeautyAppHostEntry -->
-    <!-- see https://github.com/nulastudio/NetBeauty2#customize-apphost for more details -->
-    <!-- relative path based on AppHostDir -->
-    <!-- .NET Core Non Single-File Only -->
-    <!-- <BeautyAppHostEntry>bin/MyApp.dll</BeautyAppHostEntry> -->
-    <!-- relative path based on BeautyDir -->
-    <!-- .NET Core Non Single-File Only -->
-    <!-- <BeautyAppHostDir>..</BeautyAppHostDir> -->
-    <!-- <BeautyAfterTasks></BeautyAfterTasks> -->
-    <!-- valid values: Error|Detail|Info -->
-    <BeautyLogLevel>Info</BeautyLogLevel>
-    <!-- set to a repo mirror if you have troble in connecting github -->
-    <!-- <BeautyGitCDN>https://gitee.com/liesauer/HostFXRPatcher</BeautyGitCDN> -->
-    <!-- <BeautyGitTree>master</BeautyGitTree> -->
-  </PropertyGroup>
 </Project>
