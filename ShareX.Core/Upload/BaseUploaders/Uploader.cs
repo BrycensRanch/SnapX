@@ -261,7 +261,8 @@ namespace ShareX.Core.Upload.BaseUploaders
 
         protected UploadResult SendRequestFileRange(string url, Stream data, string fileName, long contentPosition = 0, long contentLength = -1,
             Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null, HttpMethod method = null)
-        {   if (method == null) method = HttpMethod.Put;
+        {
+            if (method == null) method = HttpMethod.Put;
             UploadResult result = new UploadResult();
 
             IsUploading = true;

@@ -24,7 +24,6 @@
 #endregion License Information (GPL v3)
 
 
-using ShareX.Core.Upload;
 using ShareX.Core.Upload.BaseUploaders;
 
 namespace ShareX.Core.Upload.URL;

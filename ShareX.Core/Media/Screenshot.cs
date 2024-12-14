@@ -25,10 +25,8 @@
 
 
 using ShareX.Core.Utils;
-using ShareX.Core.Utils.Native;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using Image = SixLabors.ImageSharp.Image;
 
 namespace ShareX.Core.Media
 {

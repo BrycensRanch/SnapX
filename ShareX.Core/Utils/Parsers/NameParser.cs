@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Text;
 using ShareX.Core.Utils.Extensions;
-using ShareX.Core.Utils.Random;
 
 namespace ShareX.Core.Utils.Parsers;
 

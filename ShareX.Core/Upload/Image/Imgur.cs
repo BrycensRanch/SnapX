@@ -248,90 +248,90 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return InternalUpload(stream, fileName, true);
     }
 
-private UploadResult InternalUpload(Stream stream, string fileName, bool refreshTokenOnError)
-{
-    Dictionary<string, string> args = new Dictionary<string, string>();
-    NameValueCollection headers;
-
-    if (UploadMethod == AccountType.User)
+    private UploadResult InternalUpload(Stream stream, string fileName, bool refreshTokenOnError)
     {
-        if (!CheckAuthorization()) return null;
+        Dictionary<string, string> args = new Dictionary<string, string>();
+        NameValueCollection headers;
 
-        if (!string.IsNullOrEmpty(UploadAlbumID))
-            args.Add("album", UploadAlbumID);
+        if (UploadMethod == AccountType.User)
+        {
+            if (!CheckAuthorization()) return null;
 
-        headers = GetAuthHeaders();
-    }
-    else
-    {
-        headers = new NameValueCollection { { "Authorization", "Client-ID " + AuthInfo.Client_ID } };
-    }
+            if (!string.IsNullOrEmpty(UploadAlbumID))
+                args.Add("album", UploadAlbumID);
 
-    ReturnResponseOnError = true;
+            headers = GetAuthHeaders();
+        }
+        else
+        {
+            headers = new NameValueCollection { { "Authorization", "Client-ID " + AuthInfo.Client_ID } };
+        }
 
-    string fileFormName = FileHelpers.IsVideoFile(fileName) ? "video" : "image";
+        ReturnResponseOnError = true;
 
-    UploadResult result = SendRequestFile("https://api.imgur.com/3/upload", stream, fileName, fileFormName, args, headers);
+        string fileFormName = FileHelpers.IsVideoFile(fileName) ? "video" : "image";
 
-    if (string.IsNullOrEmpty(result.Response)) return result;
+        UploadResult result = SendRequestFile("https://api.imgur.com/3/upload", stream, fileName, fileFormName, args, headers);
 
-    var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(result.Response);
+        if (string.IsNullOrEmpty(result.Response)) return result;
 
-    if (imgurResponse?.success != true || imgurResponse.status != 200)
-        return HandleUploadError(imgurResponse, stream, fileName, refreshTokenOnError);
+        var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(result.Response);
 
-    var imageData = JsonDocument.Parse(imgurResponse.data.ToString()).Deserialize<ImgurImageData>();
-    if (imageData == null || string.IsNullOrEmpty(imageData.link)) return result;
+        if (imgurResponse?.success != true || imgurResponse.status != 200)
+            return HandleUploadError(imgurResponse, stream, fileName, refreshTokenOnError);
 
-    result.URL = DirectLink
-        ? GetDirectLink(imageData)
-        : $"https://imgur.com/{imageData.id}";
+        var imageData = JsonDocument.Parse(imgurResponse.data.ToString()).Deserialize<ImgurImageData>();
+        if (imageData == null || string.IsNullOrEmpty(imageData.link)) return result;
 
-    result.ThumbnailURL = GetThumbnailURL(imageData);
-    result.DeletionURL = $"https://imgur.com/delete/{imageData.deletehash}";
+        result.URL = DirectLink
+            ? GetDirectLink(imageData)
+            : $"https://imgur.com/{imageData.id}";
 
-    return result;
-}
+        result.ThumbnailURL = GetThumbnailURL(imageData);
+        result.DeletionURL = $"https://imgur.com/delete/{imageData.deletehash}";
 
-private string GetDirectLink(ImgurImageData imageData)
-{
-    if (UseGIFV && !string.IsNullOrEmpty(imageData.gifv))
-        return imageData.gifv;
-
-    return imageData.link.TrimEnd('.');
-}
-
-private string GetThumbnailURL(ImgurImageData imageData)
-{
-    string thumbnail = ThumbnailType switch
-    {
-        ImgurThumbnailType.Small_Square => "s",
-        ImgurThumbnailType.Big_Square => "b",
-        ImgurThumbnailType.Small_Thumbnail => "t",
-        ImgurThumbnailType.Medium_Thumbnail => "m",
-        ImgurThumbnailType.Large_Thumbnail => "l",
-        ImgurThumbnailType.Huge_Thumbnail => "h",
-        _ => throw new ArgumentOutOfRangeException(nameof(imageData))
-    };
-
-    return $"https://i.imgur.com/{imageData.id}{thumbnail}.jpg";
-}
-
-private UploadResult HandleUploadError(ImgurResponse imgurResponse, Stream stream, string fileName, bool refreshTokenOnError)
-{
-    var errorData = ParseError(imgurResponse);
-
-    if (errorData != null && UploadMethod == AccountType.User && refreshTokenOnError &&
-        ((string)errorData.error).Equals("The access token provided is invalid.", StringComparison.OrdinalIgnoreCase) &&
-        RefreshAccessToken())
-    {
-        DebugHelper.WriteLine("Imgur access token refreshed, reuploading image.");
-        return InternalUpload(stream, fileName, false);
+        return result;
     }
 
-    Errors.AddFirst($"Imgur upload failed: ({imgurResponse.status}) {errorData?.error}");
-    return new UploadResult();
-}
+    private string GetDirectLink(ImgurImageData imageData)
+    {
+        if (UseGIFV && !string.IsNullOrEmpty(imageData.gifv))
+            return imageData.gifv;
+
+        return imageData.link.TrimEnd('.');
+    }
+
+    private string GetThumbnailURL(ImgurImageData imageData)
+    {
+        string thumbnail = ThumbnailType switch
+        {
+            ImgurThumbnailType.Small_Square => "s",
+            ImgurThumbnailType.Big_Square => "b",
+            ImgurThumbnailType.Small_Thumbnail => "t",
+            ImgurThumbnailType.Medium_Thumbnail => "m",
+            ImgurThumbnailType.Large_Thumbnail => "l",
+            ImgurThumbnailType.Huge_Thumbnail => "h",
+            _ => throw new ArgumentOutOfRangeException(nameof(imageData))
+        };
+
+        return $"https://i.imgur.com/{imageData.id}{thumbnail}.jpg";
+    }
+
+    private UploadResult HandleUploadError(ImgurResponse imgurResponse, Stream stream, string fileName, bool refreshTokenOnError)
+    {
+        var errorData = ParseError(imgurResponse);
+
+        if (errorData != null && UploadMethod == AccountType.User && refreshTokenOnError &&
+            ((string)errorData.error).Equals("The access token provided is invalid.", StringComparison.OrdinalIgnoreCase) &&
+            RefreshAccessToken())
+        {
+            DebugHelper.WriteLine("Imgur access token refreshed, reuploading image.");
+            return InternalUpload(stream, fileName, false);
+        }
+
+        Errors.AddFirst($"Imgur upload failed: ({imgurResponse.status}) {errorData?.error}");
+        return new UploadResult();
+    }
 
 
     private void HandleErrors(ImgurResponse response)

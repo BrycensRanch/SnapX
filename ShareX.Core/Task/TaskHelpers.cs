@@ -411,7 +411,7 @@ namespace ShareX.Core.Task
                 switch (taskSettings.ImageSettings.FileExistAction)
                 {
                     case FileExistAction.Ask:
-                            throw new NotImplementedException("FileExistAction.Ask not implemented");
+                        throw new NotImplementedException("FileExistAction.Ask not implemented");
                         break;
                     case FileExistAction.UniqueName:
                         filePath = FileHelpers.GetUniqueFilePath(filePath);
@@ -424,7 +424,7 @@ namespace ShareX.Core.Task
 
             return filePath;
         }
-        public static string HandleExistsFile(string folderPath, string fileName , TaskSettings taskSettings)
+        public static string HandleExistsFile(string folderPath, string fileName, TaskSettings taskSettings)
         {
             var filePath = Path.Combine(folderPath, fileName);
             return HandleExistsFile(filePath, taskSettings);

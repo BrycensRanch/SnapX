@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Nodes;
 using ShareX.CommonUI.Types;
 using ShareX.Core;
 
@@ -39,7 +38,8 @@ public abstract class Changelog
 
         return await GetRecentCommits();
     }
-    private bool IsValidChangelog(string changelog) {
+    private bool IsValidChangelog(string changelog)
+    {
         DebugHelper.WriteLine($"Validating changelog: {changelog}");
         return !string.IsNullOrWhiteSpace(changelog) && changelog.Any(char.IsLetter) && changelog.Length > 4;
     }
@@ -145,7 +145,7 @@ public abstract class Changelog
             .Select(run => $"Build #{run.RunNumber}:  {run.DisplayTitle} - {run.Status}")
             .ToList();
 
-        return buildSummaries.Count != 0  ? string.Join("\n", buildSummaries) : string.Empty;
+        return buildSummaries.Count != 0 ? string.Join("\n", buildSummaries) : string.Empty;
     }
 
 

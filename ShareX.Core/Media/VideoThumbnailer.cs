@@ -124,7 +124,7 @@ namespace ShareX.Core.Media
             {
                 if (Options.CombineScreenshots)
                 {
-                        throw new NotImplementedException("VideoThumbnailer Combine screenshots is not implemented.");
+                    throw new NotImplementedException("VideoThumbnailer Combine screenshots is not implemented.");
                 }
                 else
                 {

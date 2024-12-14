@@ -401,7 +401,7 @@ namespace ShareX.Core.Task
 
                 if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.ShowBeforeUploadWindow))
                 {
-                        throw new NotImplementedException("ShowBeforeUploadWindow");
+                    throw new NotImplementedException("ShowBeforeUploadWindow");
                 }
 
                 if (!cancelUpload)

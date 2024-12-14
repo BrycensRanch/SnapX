@@ -119,7 +119,7 @@ namespace ShareX.Core.Upload.File
             {
                 int chunkLength = chunkEnd - chunkStart;
                 byte[] plainBytes = new byte[chunkLength];
-                stream.Read(plainBytes, 0, chunkLength);
+                stream.ReadExactly(plainBytes, 0, chunkLength);
 
                 byte[] encryptedBytes = EncryptBytes(cryptoData, plainBytes);
 

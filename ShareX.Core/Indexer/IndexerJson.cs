@@ -55,7 +55,7 @@ namespace ShareX.Core.Indexer
 
         protected override void IndexFolder(FolderInfo dir, int level = 0)
         {
-                IndexFolderSimple(dir);
+            IndexFolderSimple(dir);
         }
 
         private void IndexFolderSimple(FolderInfo dir)

@@ -31,7 +31,8 @@ public class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var sigintReceived = false;
-            desktop.ShutdownRequested += (_, _) => {
+            desktop.ShutdownRequested += (_, _) =>
+            {
                 sigintReceived = true;
                 DebugHelper.WriteLine("Recieved Shutdown from Avalonia");
                 ShareX.shutdown();

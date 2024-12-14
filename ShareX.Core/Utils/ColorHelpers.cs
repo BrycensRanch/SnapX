@@ -343,7 +343,7 @@ public static class ColorHelpers
 
     public static Color Lerp(Rgba64 from, Rgba64 to, float amount)
     {
-        return Color.FromRgb((byte)Math.Lerp(from.G, to.G, amount), (byte)Math.Lerp(from.B, to.B, amount),(byte)Math.Lerp(from.R, to.R, amount));
+        return Color.FromRgb((byte)Math.Lerp(from.G, to.G, amount), (byte)Math.Lerp(from.B, to.B, amount), (byte)Math.Lerp(from.R, to.R, amount));
     }
 
     public static Color DeterministicStringToColor(string text)

@@ -265,7 +265,8 @@ public static class Helpers
 
     public static void PlaySoundAsync(Stream stream)
     {
-        if (stream == null) {
+        if (stream == null)
+        {
             return;
         }
         System.Threading.Tasks.Task.Run(() =>
@@ -409,20 +410,20 @@ public static class Helpers
     private static int GetCurrentUid()
     {
 
-    var processStartInfo = new ProcessStartInfo
-    {
-        FileName = "id",
-        Arguments = "-u",
-        RedirectStandardOutput = true,
-        UseShellExecute = false,
-        CreateNoWindow = true
-    };
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "id",
+            Arguments = "-u",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
 
-    using var process = Process.Start(processStartInfo);
-    if (process == null) return 1000;
-    using var reader = process.StandardOutput;
-    var output = reader.ReadToEnd();
-    return int.Parse(output.Trim());
+        using var process = Process.Start(processStartInfo);
+        if (process == null) return 1000;
+        using var reader = process.StandardOutput;
+        var output = reader.ReadToEnd();
+        return int.Parse(output.Trim());
     }
 
     public static bool IsRunning(string name)

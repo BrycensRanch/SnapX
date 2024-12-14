@@ -86,7 +86,8 @@ public static class WebHelpers
 
     public static async Task<string> DownloadStringAsync(string url)
     {
-        if (string.IsNullOrEmpty(url)) {
+        if (string.IsNullOrEmpty(url))
+        {
             return null;
         }
 

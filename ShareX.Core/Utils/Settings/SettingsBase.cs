@@ -200,16 +200,10 @@ public abstract class SettingsBase<T> where T : SettingsBase<T>, new()
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
             WriteIndented = true,
             Converters = { new JsonStringEnumConverter() },
-            DefaultIgnoreCondition = JsonIgnoreCondition.Never
-
+            DefaultIgnoreCondition = JsonIgnoreCondition.Never,
         };
 
-        using var jsonWriter = new Utf8JsonWriter(stream, new JsonWriterOptions
-        {
-            Indented = true
-        });
-
-        JsonSerializer.Serialize(jsonWriter, this, options);
+        JsonSerializer.Serialize(stream, this, options);
     }
 
     public static T Load(string filePath, string backupFolder = null, bool fallbackSupport = true)

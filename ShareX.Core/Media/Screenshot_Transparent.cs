@@ -23,11 +23,8 @@
 
 #endregion License Information (GPL v3)
 
-using System.Net.Mime;
-using ShareX.Core.Utils;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using Image = SixLabors.ImageSharp.Image;
 
 namespace ShareX.Core.Media
 {

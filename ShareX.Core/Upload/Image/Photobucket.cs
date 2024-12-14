@@ -23,7 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using System.Collections.Specialized;
 using System.Xml.Linq;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;

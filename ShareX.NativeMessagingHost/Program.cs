@@ -29,7 +29,8 @@ using System.Text;
 using System.Diagnostics;
 using ShareX.Core.Utils;
 
-if (args.Length == 0) {
+if (args.Length == 0)
+{
     Console.WriteLine("This executable is used to receive data from a browser addon and send it to ShareX.");
     return;
 }

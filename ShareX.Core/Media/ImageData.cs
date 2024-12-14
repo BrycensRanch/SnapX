@@ -1,4 +1,3 @@
-using System.Net.Mime;
 using ShareX.Core.Task;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;

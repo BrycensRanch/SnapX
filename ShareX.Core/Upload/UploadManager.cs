@@ -24,7 +24,6 @@
 #endregion License Information (GPL v3)
 
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Web;
 using ShareX.Core.Task;
 using ShareX.Core.Utils;

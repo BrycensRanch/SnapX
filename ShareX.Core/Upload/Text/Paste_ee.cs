@@ -95,7 +95,7 @@ public sealed class Paste_ee : TextUploader
 
         var json = JsonSerializer.Serialize(requestBody);
 
-        var headers = new NameValueCollection() { {"X-Auth-Token", APIKey}};
+        var headers = new NameValueCollection() { { "X-Auth-Token", APIKey } };
 
         ur.Response = SendRequest(HttpMethod.Post, "https://api.paste.ee/v1/pastes", json, RequestHelpers.ContentTypeJSON, null, headers);
 

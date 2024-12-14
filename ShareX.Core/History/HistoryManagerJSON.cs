@@ -68,30 +68,30 @@ namespace ShareX.Core.History
             using var fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096,
                 FileOptions.WriteThrough);
             using var streamWriter = new StreamWriter(fileStream);
-                var options = new JsonSerializerOptions
-                {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
-                    WriteIndented = false
-                };
+            var options = new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
+                WriteIndented = false
+            };
 
-                // Check if this is the first object being written
-                bool isFirstObject = fileStream.Length == 0;
+            // Check if this is the first object being written
+            bool isFirstObject = fileStream.Length == 0;
 
-                foreach (var historyItem in historyItems)
-                {
-                    if (!isFirstObject)
-                        streamWriter.Write(",\r\n");
+            foreach (var historyItem in historyItems)
+            {
+                if (!isFirstObject)
+                    streamWriter.Write(",\r\n");
 
-                    // Serialize the current HistoryItem and write it to the stream
-                    string json = JsonSerializer.Serialize(historyItem, options);
-                    streamWriter.Write(json);
+                // Serialize the current HistoryItem and write it to the stream
+                string json = JsonSerializer.Serialize(historyItem, options);
+                streamWriter.Write(json);
 
-                    isFirstObject = false;  // Ensure subsequent objects are properly comma-separated
-                }
+                isFirstObject = false;  // Ensure subsequent objects are properly comma-separated
+            }
 
             // Backup after appending
             Backup(filePath);
             return true;
         }
-}
+    }
 }

@@ -25,7 +25,6 @@
 
 using System.Collections.Specialized;
 using System.Text.Json;
-using ShareX.Core.Upload;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;

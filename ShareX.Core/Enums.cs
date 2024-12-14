@@ -418,7 +418,7 @@ public enum NotificationSound
     ActionCompleted,
     Error
 }
-    public enum EDataType // Localized
+public enum EDataType // Localized
 {
     Default,
     File,

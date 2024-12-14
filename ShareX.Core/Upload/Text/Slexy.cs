@@ -123,5 +123,5 @@ public class SlexySettings
         LineNumbers = true;
         Expiration = "2592000";
     }
-    }
+}
 

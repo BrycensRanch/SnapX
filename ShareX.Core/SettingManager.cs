@@ -31,7 +31,6 @@ using ShareX.Core.Upload;
 using ShareX.Core.Upload.Custom;
 using ShareX.Core.Upload.Zip;
 using ShareX.Core.Utils;
-using ShareX.Core.Utils.Extensions;
 
 namespace ShareX.Core;
 

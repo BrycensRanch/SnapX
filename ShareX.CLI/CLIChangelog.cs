@@ -1,5 +1,3 @@
-using ShareX.Core;
-
 namespace ShareX.CLI;
 public class CLIChangelog : CommonUI.Changelog
 {

@@ -36,7 +36,7 @@ namespace ShareX.Core.Utils;
 
 public static class FileHelpers
 {
-    public static readonly string[] ImageFileExtensions = new [] { "jpg", "jpeg", "png", "gif", "bmp", "ico", "tif", "tiff" };
+    public static readonly string[] ImageFileExtensions = new[] { "jpg", "jpeg", "png", "gif", "bmp", "ico", "tif", "tiff" };
     public static readonly string[] TextFileExtensions = new[] { "txt", "log", "nfo", "c", "cpp", "cc", "cxx", "h", "hpp", "hxx", "cs", "vb",
         "html", "htm", "xhtml", "xht", "xml", "css", "js", "php", "bat", "java", "lua", "py", "pl", "cfg", "ini", "dart", "go", "gohtml" };
     public static readonly string[] VideoFileExtensions = new[] { "mp4", "webm", "mkv", "avi", "vob", "ogv", "ogg", "mov", "qt", "wmv", "m4p",
@@ -248,7 +248,7 @@ public static class FileHelpers
         }
         else
         {
-                DebugHelper.WriteLine("File does not exist: " + filePath);
+            DebugHelper.WriteLine("File does not exist: " + filePath);
         }
 
         return false;
@@ -287,7 +287,7 @@ public static class FileHelpers
         }
         else if (allowMessageBox)
         {
-                throw new NotImplementedException("OpenFolder is not implemented.");
+            throw new NotImplementedException("OpenFolder is not implemented.");
         }
 
         return false;
@@ -311,7 +311,7 @@ public static class FileHelpers
         }
         else
         {
-                throw new NotImplementedException("OpenFolderWithFile is not implemented.");
+            throw new NotImplementedException("OpenFolderWithFile is not implemented.");
         }
 
         return false;

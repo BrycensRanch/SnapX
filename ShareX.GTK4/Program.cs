@@ -2,8 +2,6 @@ using System.Reflection;
 using GdkPixbuf;
 using Gio;
 using GObject;
-using GstVideo;
-using Gtk;
 using ShareX.Core.Utils;
 using ShareX.Core;
 using SixLabors.ImageSharp;
@@ -33,7 +31,8 @@ application.OnActivate += (sender, eventArgs) =>
     DebugHelper.WriteLine("Internal Startup time: {0} ms", shareX.getStartupTime());
     if (shareX.isSilent()) return;
 
-    if (ShareX.Core.ShareX.CLIManager.IsCommandExist("video")) {
+    if (ShareX.Core.ShareX.CLIManager.IsCommandExist("video"))
+    {
         Gst.Module.Initialize();
         GstVideo.Module.Initialize();
         Gst.Application.Init();
@@ -61,7 +60,7 @@ application.OnActivate += (sender, eventArgs) =>
 
 
     var pixbuf = PixbufLoader.FromBytes(imageBytes);
-    var logo =  Gdk.Texture.NewForPixbuf(pixbuf);
+    var logo = Gdk.Texture.NewForPixbuf(pixbuf);
     // dialog.SetDecorated(false);
     // dialog.SetFocusable(false);
     // dialog.SetOpacity(0.8);

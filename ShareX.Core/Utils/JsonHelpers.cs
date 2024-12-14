@@ -40,75 +40,75 @@ public static class JsonHelpers
         textWriter.Write(Encoding.UTF8.GetString(memoryStream.ToArray()));
     }
 
-public static string SerializeToString<T>(T obj, JsonSerializerOptions options = null)
-{
-    options ??= new JsonSerializerOptions
+    public static string SerializeToString<T>(T obj, JsonSerializerOptions options = null)
     {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-        Converters = { new JsonStringEnumConverter() },
-        WriteIndented = true
-    };
+        options ??= new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+            Converters = { new JsonStringEnumConverter() },
+            WriteIndented = true
+        };
 
-    return JsonSerializer.Serialize(obj, options);
-}
+        return JsonSerializer.Serialize(obj, options);
+    }
 
-public static void SerializeToStream<T>(T obj, Stream stream, JsonSerializerOptions options = null)
-{
-    if (stream == null) return;
-
-    options ??= new JsonSerializerOptions
+    public static void SerializeToStream<T>(T obj, Stream stream, JsonSerializerOptions options = null)
     {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-        Converters = { new JsonStringEnumConverter() },
-        WriteIndented = true
-    };
+        if (stream == null) return;
 
-    JsonSerializer.Serialize(stream, obj, options);
-}
+        options ??= new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+            Converters = { new JsonStringEnumConverter() },
+            WriteIndented = true
+        };
 
-public static MemoryStream SerializeToMemoryStream<T>(T obj, JsonSerializerOptions options = null)
-{
-    var memoryStream = new MemoryStream();
-    SerializeToStream(obj, memoryStream, options);
-    return memoryStream;
-}
+        JsonSerializer.Serialize(stream, obj, options);
+    }
 
-public static void SerializeToFile<T>(T obj, string filePath, JsonSerializerOptions options = null)
-{
-    if (string.IsNullOrEmpty(filePath)) return;
-    var directory = Path.GetDirectoryName(filePath);
-    if (directory == null) return;
-    Directory.CreateDirectory(directory);
+    public static MemoryStream SerializeToMemoryStream<T>(T obj, JsonSerializerOptions options = null)
+    {
+        var memoryStream = new MemoryStream();
+        SerializeToStream(obj, memoryStream, options);
+        return memoryStream;
+    }
 
-    using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
-    SerializeToStream(obj, fileStream, options);
-}
+    public static void SerializeToFile<T>(T obj, string filePath, JsonSerializerOptions options = null)
+    {
+        if (string.IsNullOrEmpty(filePath)) return;
+        var directory = Path.GetDirectoryName(filePath);
+        if (directory == null) return;
+        Directory.CreateDirectory(directory);
 
-public static T Deserialize<T>(TextReader textReader, JsonSerializerOptions options = null)
-{
-    if (textReader == null) return default;
+        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+        SerializeToStream(obj, fileStream, options);
+    }
 
-    var json = textReader.ReadToEnd();
-    return JsonSerializer.Deserialize<T>(json, options);
-}
+    public static T Deserialize<T>(TextReader textReader, JsonSerializerOptions options = null)
+    {
+        if (textReader == null) return default;
 
-public static T DeserializeFromString<T>(string json, JsonSerializerOptions options = null) =>
-    !string.IsNullOrEmpty(json) ? JsonSerializer.Deserialize<T>(json, options) : default;
+        var json = textReader.ReadToEnd();
+        return JsonSerializer.Deserialize<T>(json, options);
+    }
 
-public static T DeserializeFromStream<T>(Stream stream, JsonSerializerOptions options = null)
-{
-    if (stream == null) return default;
+    public static T DeserializeFromString<T>(string json, JsonSerializerOptions options = null) =>
+        !string.IsNullOrEmpty(json) ? JsonSerializer.Deserialize<T>(json, options) : default;
 
-    return JsonSerializer.Deserialize<T>(stream, options);
-}
+    public static T DeserializeFromStream<T>(Stream stream, JsonSerializerOptions options = null)
+    {
+        if (stream == null) return default;
 
-public static T DeserializeFromFile<T>(string filePath, JsonSerializerOptions options = null)
-{
-    if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return default;
+        return JsonSerializer.Deserialize<T>(stream, options);
+    }
 
-    using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-    return DeserializeFromStream<T>(fileStream, options);
-}
+    public static T DeserializeFromFile<T>(string filePath, JsonSerializerOptions options = null)
+    {
+        if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return default;
+
+        using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return DeserializeFromStream<T>(fileStream, options);
+    }
 
     public static bool QuickVerifyJsonFile(string filePath)
     {

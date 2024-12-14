@@ -24,7 +24,6 @@
 #endregion License Information (GPL v3)
 
 
-using ShareX.Core.Media;
 using ShareX.Core.Task;
 
 namespace ShareX.Core.Capture

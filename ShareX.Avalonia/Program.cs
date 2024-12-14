@@ -8,7 +8,7 @@ BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
 
 // Avalonia configuration, don't remove; also used by visual designer.
- AppBuilder BuildAvaloniaApp()
-    => AppBuilder.Configure<App>()
-        .UsePlatformDetect()
-        .LogToTrace();
+AppBuilder BuildAvaloniaApp()
+   => AppBuilder.Configure<App>()
+       .UsePlatformDetect()
+       .LogToTrace();
