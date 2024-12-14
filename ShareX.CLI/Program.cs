@@ -1,12 +1,13 @@
 ﻿using System.Reflection;
 using ShareX.CLI;
 using ShareX.Core;
+using ShareX.Core.Utils;
 
 
 var sharex = new ShareX.Core.ShareX();
 sharex.silenceLogging();
 sharex.start(args);
-var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
+var version = Helpers.GetApplicationVersion();
 
 if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
 {
@@ -26,9 +27,8 @@ var sigintReceived = false;
 Console.CancelKeyPress += (_, ea) =>
 {
     ea.Cancel = true;
-
-    Console.WriteLine("Received SIGINT (Ctrl+C)");
     sigintReceived = true;
+    Console.WriteLine("Received SIGINT (Ctrl+C)");
     sharex.shutdown();
     Environment.Exit(0);
 };
@@ -36,13 +36,14 @@ AppDomain.CurrentDomain.ProcessExit += (_, _) =>
 {
     if (!sigintReceived)
     {
-        Console.WriteLine("Received SIGTERM");
+        sigintReceived = true;
+        DebugHelper.WriteLine("Received SIGTERM");
         sharex.shutdown();
         Environment.Exit(0);
     }
     else
     {
-        Console.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
+        DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
     }
 };
 

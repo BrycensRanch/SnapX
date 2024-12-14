@@ -41,7 +41,7 @@ public class ShareX
     {
         get
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version!;
+            var version = Version.Parse(Helpers.GetApplicationVersion());
             var versionString = $"{version.Major}.{version.Minor}.{version.Revision}";
             if (version.Build > 0)
                 versionString += $".{version.Build}";
