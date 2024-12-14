@@ -1,112 +1,112 @@
 ﻿#region License Information (GPL v3)
 
 /*
-    ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2024 ShareX Team
+ShareX - A program that allows you to take screenshots and share any file type
+Copyright (c) 2007-2024 ShareX Team
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-    Optionally you can also view the license at <http://www.gnu.org/licenses/>.
+Optionally you can also view the license at <http://www.gnu.org/licenses/>.
 */
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.Core.Upload.File
+namespace ShareX.Core.Upload.File;
+
+public class LambdaFileUploaderService : FileUploaderService
 {
-    public class LambdaFileUploaderService : FileUploaderService
+    public override FileDestination EnumValue { get; } = FileDestination.Lambda;
+
+    public override bool CheckConfig(UploadersConfig config)
     {
-        public override FileDestination EnumValue { get; } = FileDestination.Lambda;
-
-        public override bool CheckConfig(UploadersConfig config)
-        {
-            return config.LambdaSettings != null && !string.IsNullOrEmpty(config.LambdaSettings.UserAPIKey);
-        }
-
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            // Correct old URLs
-            if (config.LambdaSettings != null && config.LambdaSettings.UploadURL == "https://λ.pw/")
-            {
-                config.LambdaSettings.UploadURL = "https://lbda.net/";
-            }
-
-            return new Lambda(config.LambdaSettings);
-        }
+        return config.LambdaSettings != null && !string.IsNullOrEmpty(config.LambdaSettings.UserAPIKey);
     }
 
-    public sealed class Lambda : FileUploader
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public LambdaSettings Config { get; private set; }
-
-        public Lambda(LambdaSettings config)
+        // Correct old URLs
+        if (config.LambdaSettings != null && config.LambdaSettings.UploadURL == "https://λ.pw/")
         {
-            Config = config;
+            config.LambdaSettings.UploadURL = "https://lbda.net/";
         }
 
-        private const string uploadUrl = "https://lbda.net/api/upload";
+        return new Lambda(config.LambdaSettings);
+    }
+}
 
-        public static string[] UploadURLs = new string[] { "https://lbda.net/", "https://lambda.sx/" };
+public sealed class Lambda : FileUploader
+{
+    public LambdaSettings Config { get; private set; }
 
-        public override UploadResult Upload(Stream stream, string fileName)
+    public Lambda(LambdaSettings config)
+    {
+        Config = config;
+    }
+
+    private const string uploadUrl = "https://lbda.net/api/upload";
+
+    public static string[] UploadURLs = new string[] { "https://lbda.net/", "https://lambda.sx/" };
+
+    public override UploadResult Upload(Stream stream, string fileName)
+    {
+        Dictionary<string, string> arguments = new Dictionary<string, string>();
+        arguments.Add("api_key", Config.UserAPIKey);
+        UploadResult result = SendRequestFile(uploadUrl, stream, fileName, "file", arguments, method: HttpMethod.Put);
+
+        if (result.Response == null)
         {
-            Dictionary<string, string> arguments = new Dictionary<string, string>();
-            arguments.Add("api_key", Config.UserAPIKey);
-            UploadResult result = SendRequestFile(uploadUrl, stream, fileName, "file", arguments, method: HttpMethod.Put);
-
-            if (result.Response == null)
-            {
-                Errors.Add("Upload failed for unknown reason. Check your API key.");
-                return result;
-            }
-
-            LambdaResponse response = JsonConvert.DeserializeObject<LambdaResponse>(result.Response);
-            if (result.IsSuccess)
-            {
-                result.URL = Config.UploadURL + response.url;
-            }
-            else
-            {
-                foreach (string e in response.errors)
-                {
-                    Errors.Add(e);
-                }
-            }
-
+            Errors.Add("Upload failed for unknown reason. Check your API key.");
             return result;
         }
 
-        internal class LambdaResponse
+        LambdaResponse response = JsonSerializer.Deserialize<LambdaResponse>(result.Response);
+        if (result.IsSuccess)
         {
-            public string url { get; set; }
-            public List<string> errors { get; set; }
+            result.URL = Config.UploadURL + response.url;
+        }
+        else
+        {
+            foreach (string e in response.errors)
+            {
+                Errors.Add(e);
+            }
         }
 
-        internal class LambdaFile
-        {
-            public string url { get; set; }
-        }
+        return result;
     }
 
-    public class LambdaSettings
+    internal class LambdaResponse
     {
-        public string UserAPIKey { get; set; } = "";
-        public string UploadURL { get; set; } = "https://lbda.net/";
+        public string url { get; set; }
+        public List<string> errors { get; set; }
+    }
+
+    internal class LambdaFile
+    {
+        public string url { get; set; }
     }
 }
+
+public class LambdaSettings
+{
+    public string UserAPIKey { get; set; } = "";
+    public string UploadURL { get; set; } = "https://lbda.net/";
+}
+

@@ -23,13 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-using FluentFTP;
-using FluentFTP.Exceptions;
 using System.Net;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using FluentFTP;
+using FluentFTP.Exceptions;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;

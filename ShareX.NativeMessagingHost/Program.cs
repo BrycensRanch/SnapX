@@ -24,9 +24,9 @@
 #endregion License Information (GPL v3)
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Diagnostics;
 using ShareX.Core.Utils;
 
 if (args.Length == 0)

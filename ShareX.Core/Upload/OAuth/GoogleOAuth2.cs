@@ -24,9 +24,9 @@
 #endregion License Information (GPL v3)
 
 using System.Collections.Specialized;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Utils;
-using System.Text.Json;
 
 namespace ShareX.Core.Upload.OAuth;
 

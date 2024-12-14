@@ -23,7 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.OAuth;
@@ -34,7 +34,7 @@ namespace ShareX.Core.Upload.Image
 {
     public class TwitterImageUploaderService : ImageUploaderService
     {
-        public override ImageDestination EnumValue { get; } = ImageDestination.Twitter;
+        public override ImageDestination EnumValue => ImageDestination.Twitter;
 
         public override bool CheckConfig(UploadersConfig config)
         {
@@ -123,7 +123,7 @@ namespace ShareX.Core.Upload.Image
 
             if (!string.IsNullOrEmpty(response))
             {
-                return JsonConvert.DeserializeObject<TwitterStatusResponse>(response);
+                return JsonSerializer.Deserialize<TwitterStatusResponse>(response);
             }
 
             return null;
@@ -146,7 +146,7 @@ namespace ShareX.Core.Upload.Image
 
             if (!string.IsNullOrEmpty(result.Response))
             {
-                TwitterStatusResponse status = JsonConvert.DeserializeObject<TwitterStatusResponse>(result.Response);
+                TwitterStatusResponse status = JsonSerializer.Deserialize<TwitterStatusResponse>(result.Response);
 
                 if (status != null && status.user != null)
                 {

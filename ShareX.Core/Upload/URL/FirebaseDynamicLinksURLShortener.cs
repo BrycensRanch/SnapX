@@ -23,7 +23,7 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
@@ -33,7 +33,7 @@ namespace ShareX.Core.Upload.URL;
 
 public class FirebaseDynamicLinksURLShortenerService : URLShortenerService
 {
-    public override UrlShortenerType EnumValue { get; } = UrlShortenerType.FirebaseDynamicLinks;
+    public override UrlShortenerType EnumValue => UrlShortenerType.FirebaseDynamicLinks;
 
     public override bool CheckConfig(UploadersConfig config)
     {
@@ -107,10 +107,10 @@ public sealed class FirebaseDynamicLinksURLShortener : URLShortener
             { "fields", "shortLink" }
         };
 
-        var serializedRequestOptions = JsonConvert.SerializeObject(requestOptions);
+        var serializedRequestOptions = JsonSerializer.Serialize(requestOptions);
         result.Response = SendRequest(HttpMethod.Post, "https://firebasedynamiclinks.googleapis.com/v1/shortLinks", serializedRequestOptions, RequestHelpers.ContentTypeJSON, args);
 
-        var firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse>(result.Response);
+        var firebaseResponse = JsonSerializer.Deserialize<FirebaseResponse>(result.Response);
 
         if (firebaseResponse != null)
         {

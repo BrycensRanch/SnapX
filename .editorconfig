@@ -18,6 +18,20 @@ dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_m
 dotnet_naming_symbols.non_field_members.applicable_kinds = *
 dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
 dotnet_naming_style.pascal_case.capitalization = pascal_case
+csharp_prefer_braces = false
+csharp_prefer_simple_using_statement = true
+resharper_csharp_blank_lines_after_file_scoped_namespace_directive = 1
+resharper_csharp_namespace_body = file_scoped
+
+
+
+# You will comply or be DESTROYED.
+csharp_style_var_elsewhere = true
+csharp_style_var_for_built_in_types = true
+csharp_style_var_when_type_is_apparent = true
+dotnet_sort_system_directives_first = true
+
+
 # IDE0051: Remove unused private member
 dotnet_diagnostic.IDE0051.severity = silent
 # IDE0005: Remove dead imports

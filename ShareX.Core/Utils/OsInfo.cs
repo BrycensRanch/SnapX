@@ -1,6 +1,6 @@
 #pragma warning disable CA1416 // I know what I'm doing. Windows registry is NOT called on Unix.
-using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
 namespace ShareX.Core.Utils;

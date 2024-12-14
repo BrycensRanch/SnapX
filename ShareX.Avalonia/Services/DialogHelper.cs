@@ -1,10 +1,10 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia;
 using Avalonia.Controls;
-using FluentAvalonia.UI.Controls;
-using Avalonia;
-using Avalonia.VisualTree;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
+using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Controls.Primitives;
 
 namespace ShareX.Avalonia.Services;

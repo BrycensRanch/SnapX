@@ -23,14 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Net;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
@@ -96,14 +95,14 @@ namespace ShareX.Core.Upload.File
 
         public override UploadResult Upload(Stream stream, string fileName)
         {
-            string parsedUploadPath = NameParser.Parse(NameParserType.FilePath, UploadPath);
-            string destinationPath = URLHelpers.CombineURL(parsedUploadPath, fileName);
+            var parsedUploadPath = NameParser.Parse(NameParserType.FilePath, UploadPath);
+            var destinationPath = URLHelpers.CombineURL(parsedUploadPath, fileName);
 
             // docs: https://www.backblaze.com/b2/docs/
 
             // STEP 1: authorize, get auth token, api url, download url
             DebugHelper.WriteLine($"B2 uploader: Attempting to authorize as '{ApplicationKeyId}'.");
-            B2Authorization auth = B2ApiAuthorize(ApplicationKeyId, ApplicationKey, out string authError);
+            var auth = B2ApiAuthorize(ApplicationKeyId, ApplicationKey, out string authError);
             if (authError != null)
             {
                 DebugHelper.WriteLine("B2 uploader: Failed to authorize.");
@@ -268,7 +267,7 @@ namespace ShareX.Core.Upload.File
                 string body = RequestHelpers.ResponseToString(res);
 
                 error = null;
-                return JsonConvert.DeserializeObject<B2Authorization>(body);
+                return JsonSerializer.Deserialize<B2Authorization>(body);
             }
         }
 
@@ -279,7 +278,7 @@ namespace ShareX.Core.Upload.File
         /// <param name="bucketName">The bucket to get the ID for.</param>
         /// <param name="error">Will be set to a non-null value on failure.</param>
         /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, the bucket ID.</returns>
-        private string B2ApiGetBucketId(B2Authorization auth, string bucketName, out string error)
+        public string B2ApiGetBucketId(B2Authorization auth, string bucketName, out string error)
         {
             NameValueCollection headers = new NameValueCollection()
             {
@@ -303,13 +302,13 @@ namespace ShareX.Core.Upload.File
                         return null;
                     }
 
-                    string body = RequestHelpers.ResponseToString(res);
+                    var body = RequestHelpers.ResponseToString(res);
 
-                    JObject json;
+                    JsonDocument jsonDocument;
 
                     try
                     {
-                        json = JObject.Parse(body);
+                        jsonDocument = JsonDocument.Parse(body);
                     }
                     catch (JsonException e)
                     {
@@ -318,8 +317,25 @@ namespace ShareX.Core.Upload.File
                         return null;
                     }
 
-                    string bucketId = json.SelectToken("buckets")?.FirstOrDefault(b => b["bucketName"].ToString() == bucketName)?.
-                        SelectToken("bucketId")?.ToString() ?? "";
+                    var root = jsonDocument.RootElement;
+
+                    string bucketId = null;
+
+                    if (root.TryGetProperty("buckets", out var bucketsElement) && bucketsElement.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var bucket in bucketsElement.EnumerateArray())
+                        {
+                            if (bucket.TryGetProperty("bucketName", out JsonElement bucketNameElement) &&
+                                bucketNameElement.GetString() == bucketName)
+                            {
+                                if (bucket.TryGetProperty("bucketId", out JsonElement bucketIdElement))
+                                {
+                                    bucketId = bucketIdElement.GetString() ?? string.Empty;
+                                }
+                                break;
+                            }
+                        }
+                    }
 
                     if (!string.IsNullOrWhiteSpace(bucketId))
                     {
@@ -340,29 +356,26 @@ namespace ShareX.Core.Upload.File
         /// <param name="bucketId">The bucket ID to get an upload URL for.</param>
         /// <param name="error">Will be set to a non-null value on failure.</param>
         /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, a <see cref="B2UploadUrl"/></returns>
-        private B2UploadUrl B2ApiGetUploadUrl(B2Authorization auth, string bucketId, out string error)
+        public B2UploadUrl B2ApiGetUploadUrl(B2Authorization auth, string bucketId, out string error)
         {
-            NameValueCollection headers = new NameValueCollection() { ["Authorization"] = auth.authorizationToken };
+            var headers = new NameValueCollection() { ["Authorization"] = auth.authorizationToken };
 
-            Dictionary<string, string> reqBody = new Dictionary<string, string> { ["bucketId"] = bucketId };
+            var reqBody = new Dictionary<string, string> { ["bucketId"] = bucketId };
 
-            using (Stream data = CreateJsonBody(reqBody))
+            using var data = CreateJsonBody(reqBody);
+            using var res = GetResponse(HttpMethod.Post, auth.apiUrl + B2GetUploadUrlPath,
+                contentType: ApplicationJson, headers: headers, data: data, allowNon2xxResponses: true);
+
+            if (res.StatusCode != HttpStatusCode.OK)
             {
-                using (HttpWebResponse res = GetResponse(HttpMethod.Post, auth.apiUrl + B2GetUploadUrlPath,
-                    contentType: ApplicationJson, headers: headers, data: data, allowNon2xxResponses: true))
-                {
-                    if (res.StatusCode != HttpStatusCode.OK)
-                    {
-                        error = StringifyB2Error(res);
-                        return null;
-                    }
-
-                    string body = RequestHelpers.ResponseToString(res);
-
-                    error = null;
-                    return JsonConvert.DeserializeObject<B2UploadUrl>(body);
-                }
+                error = StringifyB2Error(res);
+                return null;
             }
+
+            string body = RequestHelpers.ResponseToString(res);
+
+            error = null;
+            return JsonSerializer.Deserialize<B2UploadUrl>(body);
         }
 
         /// <summary>
@@ -428,7 +441,7 @@ namespace ShareX.Core.Upload.File
                 string body = RequestHelpers.ResponseToString(res);
                 DebugHelper.WriteLine($"B2 uploader: B2ApiUploadFile() reports success! '{body}'");
 
-                return new B2UploadResult((int)res.StatusCode, null, JsonConvert.DeserializeObject<B2Upload>(body));
+                return new B2UploadResult((int)res.StatusCode, null, JsonSerializer.Deserialize<B2Upload>(body));
             }
         }
 
@@ -492,7 +505,7 @@ namespace ShareX.Core.Upload.File
             {
                 string body = RequestHelpers.ResponseToString(res);
                 DebugHelper.WriteLine($"B2 uploader: ParseB2Error() got: {body}");
-                B2Error err = JsonConvert.DeserializeObject<B2Error>(body);
+                B2Error err = JsonSerializer.Deserialize<B2Error>(body);
                 return err;
             }
             catch (JsonException)
@@ -524,16 +537,16 @@ namespace ShareX.Core.Upload.File
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        private static Stream CreateJsonBody(Dictionary<string, string> args)
+        public static Stream CreateJsonBody(Dictionary<string, string> args)
         {
-            string body = JsonConvert.SerializeObject(args);
+            var body = JsonSerializer.Serialize(args);
             return new MemoryStream(Encoding.UTF8.GetBytes(body));
         }
 
         /// <summary>
         /// The result of <see cref="BackblazeB2.B2ApiUploadFile(B2UploadUrl, string, Stream)"/>.
         /// </summary>
-        private class B2UploadResult
+        public class B2UploadResult
         {
             /// <summary>
             /// The HTTP status code.
@@ -563,7 +576,7 @@ namespace ShareX.Core.Upload.File
         /// <summary>
         /// The b2_authorize_account API's optional 'allowed' field.
         /// </summary>
-        private class B2Allowed
+        public class B2Allowed
         {
             public List<string> capabilities { get; }
             public string bucketId { get; }  // may be null!
@@ -580,7 +593,7 @@ namespace ShareX.Core.Upload.File
         /// <summary>
         /// A parsed JSON response from the b2_authorize_account API.
         /// </summary>
-        private class B2Authorization
+        public class B2Authorization
         {
             public string accountId { get; }
             public string apiUrl { get; }
@@ -603,7 +616,7 @@ namespace ShareX.Core.Upload.File
         /// <summary>
         /// A parsed JSON response from failed B2 API calls, describing the error.
         /// </summary>
-        private class B2Error
+        public class B2Error
         {
             public int status { get; }
             public string code { get; }
@@ -620,7 +633,7 @@ namespace ShareX.Core.Upload.File
         /// <summary>
         /// A parsed JSON response from the b2_get_upload_url API.
         /// </summary>
-        private class B2UploadUrl
+        public class B2UploadUrl
         {
             public string bucketId { get; }
             public string uploadUrl { get; }
@@ -637,7 +650,7 @@ namespace ShareX.Core.Upload.File
         /// <summary>
         /// A parsed JSON response from the b2_upload_file API.
         /// </summary>
-        private class B2Upload
+        public class B2Upload
         {
             public string fileId { get; }
             public string fileName { get; }

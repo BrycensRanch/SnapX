@@ -23,11 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-using Microsoft.VisualBasic.FileIO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic.FileIO;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
 using Xdg.Directories;
