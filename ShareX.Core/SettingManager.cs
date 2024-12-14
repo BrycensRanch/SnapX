@@ -232,7 +232,7 @@ internal static class SettingManager
 
         if (Settings.IsUpgradeFrom("15.0.1"))
         {
-            foreach (TaskSettings taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
+            foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
             {
                 if (taskSettings != null && taskSettings.CaptureSettings != null)
                 {
@@ -245,7 +245,7 @@ internal static class SettingManager
 
     public static void CleanupHotkeysConfig()
     {
-        foreach (TaskSettings taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
+        foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
         {
             taskSettings.Cleanup();
         }

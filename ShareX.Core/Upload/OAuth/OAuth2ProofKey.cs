@@ -26,59 +26,54 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ShareX.Core.Upload.OAuth
+namespace ShareX.Core.Upload.OAuth;
+
+public enum OAuth2ChallengeMethod
 {
-    public enum OAuth2ChallengeMethod
+    Plain, SHA256
+}
+
+public class OAuth2ProofKey
+{
+    public string CodeVerifier { get; private set; }
+    public string CodeChallenge { get; private set; }
+    private OAuth2ChallengeMethod Method;
+    public string ChallengeMethod
     {
-        Plain, SHA256
+        get
+        {
+            switch (Method)
+            {
+                case OAuth2ChallengeMethod.Plain: return "plain";
+                case OAuth2ChallengeMethod.SHA256: return "S256";
+            }
+            return "";
+        }
     }
 
-    public class OAuth2ProofKey
+    public OAuth2ProofKey(OAuth2ChallengeMethod method)
     {
-        public string CodeVerifier { get; private set; }
-        public string CodeChallenge { get; private set; }
-        private OAuth2ChallengeMethod Method;
-        public string ChallengeMethod
-        {
-            get
-            {
-                switch (Method)
-                {
-                    case OAuth2ChallengeMethod.Plain: return "plain";
-                    case OAuth2ChallengeMethod.SHA256: return "S256";
-                }
-                return "";
-            }
-        }
+        Method = method;
 
-        public OAuth2ProofKey(OAuth2ChallengeMethod method)
-        {
-            Method = method;
-
-            byte[] buffer = RandomNumberGenerator.GetBytes(32);
+        var buffer = RandomNumberGenerator.GetBytes(32);
 
 
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(buffer);
-            }
-            CodeVerifier = CleanBase64(buffer);
-            CodeChallenge = CodeVerifier;
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(buffer);
+        CodeVerifier = CleanBase64(buffer);
+        CodeChallenge = CodeVerifier;
+        if (Method != OAuth2ChallengeMethod.SHA256) return;
 
-            if (Method == OAuth2ChallengeMethod.SHA256)
-            {
-                var hash = SHA256.HashData(Encoding.UTF8.GetBytes(CodeVerifier));
-                CodeChallenge = CleanBase64(hash);
-            }
-        }
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(CodeVerifier));
+        CodeChallenge = CleanBase64(hash);
+    }
 
-        private string CleanBase64(byte[] buffer)
-        {
-            StringBuilder sb = new StringBuilder(Convert.ToBase64String(buffer));
-            sb.Replace('+', '-');
-            sb.Replace('/', '_');
-            sb.Replace("=", "");
-            return sb.ToString();
-        }
+    private string CleanBase64(byte[] buffer)
+    {
+        return Convert.ToBase64String(buffer)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
     }
 }
+

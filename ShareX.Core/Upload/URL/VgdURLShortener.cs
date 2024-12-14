@@ -27,22 +27,22 @@ using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.Core.Upload.URL
+namespace ShareX.Core.Upload.URL;
+
+public class VgdURLShortenerService : URLShortenerService
 {
-    public class VgdURLShortenerService : URLShortenerService
+    public override UrlShortenerType EnumValue => UrlShortenerType.VGD;
+
+    public override bool CheckConfig(UploadersConfig config) => true;
+
+    public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public override UrlShortenerType EnumValue { get; } = UrlShortenerType.VGD;
-
-        public override bool CheckConfig(UploadersConfig config) => true;
-
-        public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new VgdURLShortener();
-        }
-    }
-
-    public class VgdURLShortener : IsgdURLShortener
-    {
-        protected override string APIURL { get { return "http://v.gd/create.php"; } }
+        return new VgdURLShortener();
     }
 }
+
+public class VgdURLShortener : IsgdURLShortener
+{
+    protected override string APIURL => "https://v.gd/create.php";
+}
+

@@ -28,89 +28,89 @@ using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.Core.Upload.Text
+namespace ShareX.Core.Upload.Text;
+
+public class UpasteTextUploaderService : TextUploaderService
 {
-    public class UpasteTextUploaderService : TextUploaderService
+    public override TextDestination EnumValue => TextDestination.Upaste;
+    public override bool CheckConfig(UploadersConfig config) => true;
+
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public override TextDestination EnumValue { get; } = TextDestination.Upaste;
-        public override bool CheckConfig(UploadersConfig config) => true;
-
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
+        return new Upaste(config.UpasteUserKey)
         {
-            return new Upaste(config.UpasteUserKey)
-            {
-                IsPublic = config.UpasteIsPublic
-            };
-        }
-    }
-
-    public sealed class Upaste : TextUploader
-    {
-        private const string APIURL = "http://upaste.me/api";
-
-        public string UserKey { get; private set; }
-        public bool IsPublic { get; set; }
-
-        public Upaste(string userKey)
-        {
-            UserKey = userKey;
-        }
-
-        public override UploadResult UploadText(string text, string fileName)
-        {
-            UploadResult ur = new UploadResult();
-
-            if (!string.IsNullOrEmpty(text))
-            {
-                Dictionary<string, string> arguments = new Dictionary<string, string>();
-                if (!string.IsNullOrEmpty(UserKey))
-                {
-                    arguments.Add("api_key", UserKey);
-                }
-                arguments.Add("paste", text);
-                //arguments.Add("syntax", "");
-                //arguments.Add("name", "");
-                arguments.Add("privacy", IsPublic ? "0" : "1"); // 0 public 1 private
-                arguments.Add("expire", "0");
-                arguments.Add("json", "true");
-
-                ur.Response = SendRequestMultiPart(APIURL, arguments);
-
-                if (!string.IsNullOrEmpty(ur.Response))
-                {
-                    UpasteResponse response = JsonSerializer.Deserialize<UpasteResponse>(ur.Response);
-
-                    if (response != null)
-                    {
-                        if (response.status.Equals("success", StringComparison.OrdinalIgnoreCase))
-                        {
-                            ur.URL = response.paste.link;
-                        }
-                        else
-                        {
-                            Errors.Add(response.error);
-                        }
-                    }
-                }
-            }
-
-            return ur;
-        }
-
-        public class UpastePaste
-        {
-            public string id { get; set; }
-            public string link { get; set; }
-            public string raw { get; set; }
-            public string download { get; set; }
-        }
-
-        public class UpasteResponse
-        {
-            public UpastePaste paste { get; set; }
-            public int errorcode { get; set; }
-            public string error { get; set; }
-            public string status { get; set; }
-        }
+            IsPublic = config.UpasteIsPublic
+        };
     }
 }
+
+public sealed class Upaste : TextUploader
+{
+    private const string APIURL = "https://upaste.me/api";
+
+    public string UserKey { get; private set; }
+    public bool IsPublic { get; set; }
+
+    public Upaste(string userKey)
+    {
+        UserKey = userKey;
+    }
+
+    public override UploadResult UploadText(string text, string fileName)
+    {
+        var ur = new UploadResult();
+
+        if (string.IsNullOrEmpty(text))
+            return ur;
+
+        var arguments = new Dictionary<string, string>
+        {
+            { "paste", text },
+            { "privacy", IsPublic ? "0" : "1" },
+            { "expire", "0" },
+            { "json", "true" }
+        };
+
+        if (!string.IsNullOrEmpty(UserKey))
+        {
+            arguments.Add("api_key", UserKey);
+        }
+
+        ur.Response = SendRequestMultiPart(APIURL, arguments);
+
+        if (string.IsNullOrEmpty(ur.Response))
+            return ur;
+
+        // Deserialize response
+        var response = JsonSerializer.Deserialize<UpasteResponse>(ur.Response);
+
+        if (response?.status?.Equals("success", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            ur.URL = response.paste.link;
+        }
+        else
+        {
+            Errors.Add(response?.error);
+        }
+
+        return ur;
+    }
+
+
+    public class UpastePaste
+    {
+        public string id { get; set; }
+        public string link { get; set; }
+        public string raw { get; set; }
+        public string download { get; set; }
+    }
+
+    public class UpasteResponse
+    {
+        public UpastePaste paste { get; set; }
+        public int errorcode { get; set; }
+        public string error { get; set; }
+        public string status { get; set; }
+    }
+}
+

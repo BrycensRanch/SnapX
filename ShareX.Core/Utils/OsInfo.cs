@@ -94,6 +94,7 @@ static string GetLinuxVersion()
                 CreateNoWindow = true
             };
             var process = Process.Start(processStartInfo);
+            if (process == null) throw new NullReferenceException("Process was null");
             var osName = process.StandardOutput.ReadLine().Trim();
             process.WaitForExit();
 

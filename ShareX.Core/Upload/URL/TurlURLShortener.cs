@@ -28,48 +28,46 @@ using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.Core.Upload.URL
+namespace ShareX.Core.Upload.URL;
+
+public class TurlURLShortenerService : URLShortenerService
 {
-    public class TurlURLShortenerService : URLShortenerService
+    public override UrlShortenerType EnumValue => UrlShortenerType.TURL;
+
+    public override bool CheckConfig(UploadersConfig config) => true;
+
+    public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public override UrlShortenerType EnumValue { get; } = UrlShortenerType.TURL;
-
-        public override bool CheckConfig(UploadersConfig config) => true;
-
-        public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new TurlURLShortener();
-        }
-    }
-
-    public sealed class TurlURLShortener : URLShortener
-    {
-        public override UploadResult ShortenURL(string url)
-        {
-            UploadResult result = new UploadResult { URL = url };
-
-            if (!string.IsNullOrEmpty(url))
-            {
-                Dictionary<string, string> arguments = new Dictionary<string, string>();
-                arguments.Add("url", url);
-
-                result.Response = SendRequest(HttpMethod.Get, "http://turl.ca/api.php", arguments);
-
-                if (!string.IsNullOrEmpty(result.Response))
-                {
-                    if (result.Response.StartsWith("SUCCESS:"))
-                    {
-                        result.ShortenedURL = "http://turl.ca/" + result.Response.Substring(8);
-                    }
-
-                    if (result.Response.StartsWith("ERROR:"))
-                    {
-                        Errors.Add(result.Response.Substring(6));
-                    }
-                }
-            }
-
-            return result;
-        }
+        return new TurlURLShortener();
     }
 }
+
+public sealed class TurlURLShortener : URLShortener
+{
+    public override UploadResult ShortenURL(string url)
+    {
+        var result = new UploadResult { URL = url };
+
+        if (!string.IsNullOrEmpty(url))
+        {
+            var arguments = new Dictionary<string, string> { { "url", url } };
+
+            result.Response = SendRequest(HttpMethod.Get, "https://turl.ca/api.php", arguments);
+
+            if (!string.IsNullOrEmpty(result.Response))
+            {
+                if (result.Response.StartsWith("SUCCESS:"))
+                {
+                    result.ShortenedURL = string.Concat("https://turl.ca/", result.Response.AsSpan(8));
+                }
+                else if (result.Response.StartsWith("ERROR:"))
+                {
+                    Errors.Add(result.Response.Substring(6));
+                }
+            }
+        }
+
+        return result;
+    }
+}
+

@@ -23,27 +23,30 @@
 
 #endregion License Information (GPL v3)
 
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.Core.Upload.Utils
+namespace ShareX.Core.Upload.Utils;
+
+public class SSLBypassHelper : IDisposable
 {
-    public class SSLBypassHelper : IDisposable
+    private readonly HttpClientHandler _httpClientHandler;
+    private readonly HttpClient _httpClient;
+
+    public SSLBypassHelper()
     {
-        public SSLBypassHelper()
+        _httpClientHandler = new HttpClientHandler
         {
-            ServicePointManager.ServerCertificateValidationCallback += ServerCertificateValidationCallback;
-        }
+            // Allow all SSL certificates
+            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+        };
 
-        public void Dispose()
-        {
-            ServicePointManager.ServerCertificateValidationCallback -= ServerCertificateValidationCallback;
-        }
+        _httpClient = HttpClientFactory.Create();
+    }
 
-        private bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
-        }
+    public void Dispose()
+    {
+        _httpClient.Dispose();
+        _httpClientHandler.Dispose();
     }
 }
+

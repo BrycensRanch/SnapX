@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.SharingServices
-{
-    public class DeliciousSharingService : SimpleURLSharingService
-    {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.Delicious;
+namespace ShareX.Core.Upload.SharingServices;
 
-        protected override string URLFormatString { get; } = "https://delicious.com/save?v=5&url={0}";
-    }
+public class DeliciousSharingService : SimpleURLSharingService
+{
+    public override URLSharingServices EnumValue => URLSharingServices.Delicious;
+
+    protected override string URLFormatString => "https://delicious.com/save?v=5&url={0}";
 }
+

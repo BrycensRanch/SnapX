@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.SharingServices
-{
-    public class FacebookSharingService : SimpleURLSharingService
-    {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.Facebook;
+namespace ShareX.Core.Upload.SharingServices;
 
-        protected override string URLFormatString { get; } = "https://www.facebook.com/sharer/sharer.php?u={0}";
-    }
+public class FacebookSharingService : SimpleURLSharingService
+{
+    public override URLSharingServices EnumValue => URLSharingServices.Facebook;
+
+    protected override string URLFormatString => "https://www.facebook.com/sharer/sharer.php?u={0}";
 }
+

@@ -23,11 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.Utils
+namespace ShareX.Core.Upload.Utils;
+
+public class AccountInfo
 {
-    public class AccountInfo
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
+    public string Username { get; set; }
+    public string Password { get; set; }
 }

@@ -27,69 +27,70 @@ using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.Core.Upload.Text
+namespace ShareX.Core.Upload.Text;
+
+public class Paste2TextUploaderService : TextUploaderService
 {
-    public class Paste2TextUploaderService : TextUploaderService
+    public override TextDestination EnumValue => TextDestination.Paste2;
+
+    public override bool CheckConfig(UploadersConfig config) => true;
+
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public override TextDestination EnumValue { get; } = TextDestination.Paste2;
-
-        public override bool CheckConfig(UploadersConfig config) => true;
-
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
+        Paste2Settings settings = new Paste2Settings()
         {
-            Paste2Settings settings = new Paste2Settings()
-            {
-                TextFormat = taskInfo.TextFormat
-            };
+            TextFormat = taskInfo.TextFormat
+        };
 
-            return new Paste2(settings);
-        }
-    }
-
-    public sealed class Paste2 : TextUploader
-    {
-        private Paste2Settings settings;
-
-        public Paste2()
-        {
-            settings = new Paste2Settings();
-        }
-
-        public Paste2(Paste2Settings settings)
-        {
-            this.settings = settings;
-        }
-
-        public override UploadResult UploadText(string text, string fileName)
-        {
-            UploadResult ur = new UploadResult();
-
-            if (!string.IsNullOrEmpty(text))
-            {
-                Dictionary<string, string> arguments = new Dictionary<string, string>();
-                arguments.Add("code", text);
-                arguments.Add("lang", settings.TextFormat);
-                arguments.Add("description", settings.Description);
-                arguments.Add("parent", "");
-
-                SendRequestMultiPart("https://paste2.org/", arguments);
-                ur.URL = LastResponseInfo.ResponseURL;
-            }
-
-            return ur;
-        }
-    }
-
-    public class Paste2Settings
-    {
-        public string TextFormat { get; set; }
-
-        public string Description { get; set; }
-
-        public Paste2Settings()
-        {
-            TextFormat = "text";
-            Description = "";
-        }
+        return new Paste2(settings);
     }
 }
+
+public sealed class Paste2 : TextUploader
+{
+    private Paste2Settings settings;
+
+    public Paste2()
+    {
+        settings = new Paste2Settings();
+    }
+
+    public Paste2(Paste2Settings settings)
+    {
+        this.settings = settings;
+    }
+
+    public override UploadResult UploadText(string text, string fileName)
+    {
+        var ur = new UploadResult();
+
+        if (string.IsNullOrEmpty(text)) return ur;
+
+        var arguments = new Dictionary<string, string>
+        {
+            { "code", text },
+            { "lang", settings.TextFormat },
+            { "description", settings.Description },
+            { "parent", string.Empty }
+        };
+
+        SendRequestMultiPart("https://paste2.org/", arguments);
+        ur.URL = LastResponseInfo.ResponseURL;
+
+        return ur;
+    }
+}
+
+public class Paste2Settings
+{
+    public string TextFormat { get; set; }
+
+    public string Description { get; set; }
+
+    public Paste2Settings()
+    {
+        TextFormat = "text";
+        Description = "";
+    }
+}
+

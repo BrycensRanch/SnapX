@@ -30,230 +30,224 @@ using System.Web;
 using ShareX.Core.Utils;
 using HttpMethod = System.Net.Http.HttpMethod;
 
-namespace ShareX.Core.Upload.OAuth
+namespace ShareX.Core.Upload.OAuth;
+
+public static class OAuthManager
 {
-    public static class OAuthManager
+    private const string ParameterConsumerKey = "oauth_consumer_key";
+    private const string ParameterSignatureMethod = "oauth_signature_method";
+    private const string ParameterSignature = "oauth_signature";
+    private const string ParameterTimestamp = "oauth_timestamp";
+    private const string ParameterNonce = "oauth_nonce";
+    private const string ParameterVersion = "oauth_version";
+    private const string ParameterToken = "oauth_token";
+    private const string ParameterTokenSecret = "oauth_token_secret";
+    private const string ParameterVerifier = "oauth_verifier";
+    internal const string ParameterCallback = "oauth_callback";
+
+    private const string PlainTextSignatureType = "PLAINTEXT";
+    private const string HMACSHA1SignatureType = "HMAC-SHA1";
+    private const string RSASHA1SignatureType = "RSA-SHA1";
+
+    public static string GenerateQuery(string url, Dictionary<string, string> args, HttpMethod httpMethod, OAuthInfo oauth)
     {
-        private const string ParameterConsumerKey = "oauth_consumer_key";
-        private const string ParameterSignatureMethod = "oauth_signature_method";
-        private const string ParameterSignature = "oauth_signature";
-        private const string ParameterTimestamp = "oauth_timestamp";
-        private const string ParameterNonce = "oauth_nonce";
-        private const string ParameterVersion = "oauth_version";
-        private const string ParameterToken = "oauth_token";
-        private const string ParameterTokenSecret = "oauth_token_secret";
-        private const string ParameterVerifier = "oauth_verifier";
-        internal const string ParameterCallback = "oauth_callback";
+        return GenerateQuery(url, args, httpMethod, oauth, out _);
+    }
 
-        private const string PlainTextSignatureType = "PLAINTEXT";
-        private const string HMACSHA1SignatureType = "HMAC-SHA1";
-        private const string RSASHA1SignatureType = "RSA-SHA1";
+    public static string GenerateQuery(
+        string url,
+        Dictionary<string, string> args,
+        HttpMethod httpMethod,
+        OAuthInfo oauth,
+        out Dictionary<string, string> parameters)
+    {
+        // Ensure OAuth credentials are valid
+        ValidateOAuthCredentials(oauth);
 
-        public static string GenerateQuery(string url, Dictionary<string, string> args, HttpMethod httpMethod, OAuthInfo oauth)
+        parameters = new Dictionary<string, string>
         {
-            return GenerateQuery(url, args, httpMethod, oauth, out _);
+            { ParameterVersion, oauth.OAuthVersion },
+            { ParameterNonce, GenerateNonce() },
+            { ParameterTimestamp, GenerateTimestamp() },
+            { ParameterConsumerKey, oauth.ConsumerKey }
+        };
+
+        // Add signature method
+        parameters.Add(ParameterSignatureMethod, oauth.SignatureMethod switch
+        {
+            OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1 => HMACSHA1SignatureType,
+            OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1 => RSASHA1SignatureType,
+            _ => throw new NotImplementedException("Unsupported signature method")
+        });
+
+        // Add token parameters if present
+        string secret = null;
+        if (!string.IsNullOrEmpty(oauth.UserToken) && !string.IsNullOrEmpty(oauth.UserSecret))
+        {
+            secret = oauth.UserSecret;
+            parameters.Add(ParameterToken, oauth.UserToken);
+        }
+        else if (!string.IsNullOrEmpty(oauth.AuthToken) && !string.IsNullOrEmpty(oauth.AuthSecret))
+        {
+            secret = oauth.AuthSecret;
+            parameters.Add(ParameterToken, oauth.AuthToken);
+
+            if (!string.IsNullOrEmpty(oauth.AuthVerifier))
+            {
+                parameters.Add(ParameterVerifier, oauth.AuthVerifier);
+            }
         }
 
-        public static string GenerateQuery(string url, Dictionary<string, string> args, HttpMethod httpMethod, OAuthInfo oauth, out Dictionary<string, string> parameters)
+        // Add custom arguments if present
+        if (args != null)
         {
-            if (string.IsNullOrEmpty(oauth.ConsumerKey) ||
-                (oauth.SignatureMethod == OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1 && string.IsNullOrEmpty(oauth.ConsumerSecret)) ||
-                (oauth.SignatureMethod == OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1 && string.IsNullOrEmpty(oauth.ConsumerPrivateKey)))
+            foreach (var arg in args)
             {
-                throw new Exception("ConsumerKey or ConsumerSecret or ConsumerPrivateKey empty.");
+                parameters[arg.Key] = arg.Value;
             }
-
-            parameters = new Dictionary<string, string>();
-            parameters.Add(ParameterVersion, oauth.OAuthVersion);
-            parameters.Add(ParameterNonce, GenerateNonce());
-            parameters.Add(ParameterTimestamp, GenerateTimestamp());
-            parameters.Add(ParameterConsumerKey, oauth.ConsumerKey);
-            switch (oauth.SignatureMethod)
-            {
-                case OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1:
-                    parameters.Add(ParameterSignatureMethod, HMACSHA1SignatureType);
-                    break;
-                case OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1:
-                    parameters.Add(ParameterSignatureMethod, RSASHA1SignatureType);
-                    break;
-                default:
-                    throw new NotImplementedException("Unsupported signature method");
-            }
-
-            string secret = null;
-
-            if (!string.IsNullOrEmpty(oauth.UserToken) && !string.IsNullOrEmpty(oauth.UserSecret))
-            {
-                secret = oauth.UserSecret;
-                parameters.Add(ParameterToken, oauth.UserToken);
-            }
-            else if (!string.IsNullOrEmpty(oauth.AuthToken) && !string.IsNullOrEmpty(oauth.AuthSecret))
-            {
-                secret = oauth.AuthSecret;
-                parameters.Add(ParameterToken, oauth.AuthToken);
-
-                if (!string.IsNullOrEmpty(oauth.AuthVerifier))
-                {
-                    parameters.Add(ParameterVerifier, oauth.AuthVerifier);
-                }
-            }
-
-            if (args != null)
-            {
-                foreach (KeyValuePair<string, string> arg in args)
-                {
-                    parameters[arg.Key] = arg.Value;
-                }
-            }
-
-            string normalizedUrl = NormalizeUrl(url);
-            string normalizedParameters = NormalizeParameters(parameters);
-            string signatureBase = GenerateSignatureBase(httpMethod, normalizedUrl, normalizedParameters);
-            byte[] signatureData;
-            switch (oauth.SignatureMethod)
-            {
-                case OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1:
-                    signatureData = GenerateSignature(signatureBase, oauth.ConsumerSecret, secret);
-                    break;
-                case OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1:
-                    signatureData = GenerateSignatureRSASHA1(signatureBase, oauth.ConsumerPrivateKey);
-                    break;
-                default:
-                    throw new NotImplementedException("Unsupported signature method");
-            }
-
-            string signature = Convert.ToBase64String(signatureData);
-            parameters[ParameterSignature] = signature;
-
-            return string.Format("{0}?{1}&{2}={3}", normalizedUrl, normalizedParameters, ParameterSignature, URLHelpers.URLEncode(signature));
         }
 
-        public static string GetAuthorizationURL(string requestTokenResponse, OAuthInfo oauth, string authorizeURL, string callback = null)
+        // Generate the signature
+        string normalizedUrl = NormalizeUrl(url);
+        string normalizedParameters = NormalizeParameters(parameters);
+        string signatureBase = GenerateSignatureBase(httpMethod, normalizedUrl, normalizedParameters);
+
+        byte[] signatureData = oauth.SignatureMethod switch
         {
-            string url = null;
+            OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1 => GenerateSignature(signatureBase, oauth.ConsumerSecret, secret),
+            OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1 => GenerateSignatureRSASHA1(signatureBase, oauth.ConsumerPrivateKey),
+            _ => throw new NotImplementedException("Unsupported signature method")
+        };
 
-            NameValueCollection args = HttpUtility.ParseQueryString(requestTokenResponse);
+        string signature = Convert.ToBase64String(signatureData);
+        parameters[ParameterSignature] = signature;
 
-            if (args[ParameterToken] != null)
-            {
-                oauth.AuthToken = args[ParameterToken];
-                url = string.Format("{0}?{1}={2}", authorizeURL, ParameterToken, oauth.AuthToken);
+        return $"{normalizedUrl}?{normalizedParameters}&{ParameterSignature}={URLHelpers.URLEncode(signature)}";
+    }
 
-                if (!string.IsNullOrEmpty(callback))
-                {
-                    url += string.Format("&{0}={1}", ParameterCallback, URLHelpers.URLEncode(callback));
-                }
-
-                if (args[ParameterTokenSecret] != null)
-                {
-                    oauth.AuthSecret = args[ParameterTokenSecret];
-                }
-            }
-
-            return url;
+    private static void ValidateOAuthCredentials(OAuthInfo oauth)
+    {
+        if (string.IsNullOrEmpty(oauth.ConsumerKey) ||
+            (oauth.SignatureMethod == OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1 && string.IsNullOrEmpty(oauth.ConsumerSecret)) ||
+            (oauth.SignatureMethod == OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1 && string.IsNullOrEmpty(oauth.ConsumerPrivateKey)))
+        {
+            throw new Exception("ConsumerKey, ConsumerSecret, or ConsumerPrivateKey is missing.");
         }
+    }
 
-        public static NameValueCollection ParseAccessTokenResponse(string accessTokenResponse, OAuthInfo oauth)
+
+    public static string GetAuthorizationURL(string requestTokenResponse, OAuthInfo oauth, string authorizeURL, string callback = null)
+    {
+        var args = HttpUtility.ParseQueryString(requestTokenResponse);
+
+        if (args[ParameterToken] == null)
         {
-            NameValueCollection args = HttpUtility.ParseQueryString(accessTokenResponse);
-
-            if (args != null && args[ParameterToken] != null)
-            {
-                oauth.UserToken = args[ParameterToken];
-
-                if (args[ParameterTokenSecret] != null)
-                {
-                    oauth.UserSecret = args[ParameterTokenSecret];
-
-                    return args;
-                }
-            }
-
             return null;
         }
 
-        private static string GenerateSignatureBase(HttpMethod httpMethod, string normalizedUrl, string normalizedParameters)
+        oauth.AuthToken = args[ParameterToken];
+        var url = $"{authorizeURL}?{ParameterToken}={oauth.AuthToken}";
+
+        if (!string.IsNullOrEmpty(callback))
         {
-            StringBuilder signatureBase = new StringBuilder();
-            signatureBase.AppendFormat("{0}&", httpMethod.ToString());
-            signatureBase.AppendFormat("{0}&", URLHelpers.URLEncode(normalizedUrl));
-            signatureBase.AppendFormat("{0}", URLHelpers.URLEncode(normalizedParameters));
-            return signatureBase.ToString();
+            url += $"&{ParameterCallback}={URLHelpers.URLEncode(callback)}";
         }
 
-        private static byte[] GenerateSignature(string signatureBase, string consumerSecret, string userSecret = null)
+        if (args[ParameterTokenSecret] != null)
         {
-            using (HMACSHA1 hmacsha1 = new HMACSHA1())
-            {
-                string key = string.Format("{0}&{1}", Uri.EscapeDataString(consumerSecret),
-                    string.IsNullOrEmpty(userSecret) ? "" : Uri.EscapeDataString(userSecret));
-
-                hmacsha1.Key = Encoding.ASCII.GetBytes(key);
-
-                byte[] dataBuffer = Encoding.ASCII.GetBytes(signatureBase);
-                return hmacsha1.ComputeHash(dataBuffer);
-            }
+            oauth.AuthSecret = args[ParameterTokenSecret];
         }
 
-        private static byte[] GenerateSignatureRSASHA1(string signatureBase, string privateKey)
-        {
-            byte[] dataBuffer = Encoding.ASCII.GetBytes(signatureBase);
+        return url;
+    }
 
-            using (var sha1 = GenerateSha1Hash(dataBuffer))
-            using (AsymmetricAlgorithm algorithm = new RSACryptoServiceProvider())
-            {
-                algorithm.FromXmlString(privateKey);
-                RSAPKCS1SignatureFormatter formatter = new RSAPKCS1SignatureFormatter(algorithm);
-                formatter.SetHashAlgorithm("MD5");
-                return formatter.CreateSignature(sha1);
-            }
+    public static NameValueCollection ParseAccessTokenResponse(string accessTokenResponse, OAuthInfo oauth)
+    {
+        var args = HttpUtility.ParseQueryString(accessTokenResponse);
+        if (args?.Get(ParameterToken) == null) return null;
+
+        oauth.UserToken = args[ParameterToken];
+
+        if (args[ParameterTokenSecret] != null)
+        {
+            oauth.UserSecret = args[ParameterTokenSecret];
+            return args;
         }
 
-        private static SHA1 GenerateSha1Hash(byte[] dataBuffer)
+        return null;
+    }
+
+
+    private static string GenerateSignatureBase(HttpMethod httpMethod, string normalizedUrl,
+        string normalizedParameters) =>
+        $"{httpMethod}&{URLHelpers.URLEncode(normalizedUrl)}&{URLHelpers.URLEncode(normalizedParameters)}";
+
+    private static byte[] GenerateSignature(string signatureBase, string consumerSecret, string userSecret = null)
+    {
+        using var hmacsha1 = new HMACSHA1();
+        var key = $"{Uri.EscapeDataString(consumerSecret)}&{(string.IsNullOrEmpty(userSecret) ? "" : Uri.EscapeDataString(userSecret))}";
+
+        hmacsha1.Key = Encoding.ASCII.GetBytes(key);
+
+        return hmacsha1.ComputeHash(Encoding.ASCII.GetBytes(signatureBase));
+    }
+
+    private static byte[] GenerateSignatureRSASHA1(string signatureBase, string privateKey)
+    {
+        var dataBuffer = Encoding.ASCII.GetBytes(signatureBase);
+
+        using var sha1 = GenerateSha1Hash(dataBuffer);
+        using var algorithm = new RSACryptoServiceProvider();
+        algorithm.FromXmlString(privateKey);
+        var formatter = new RSAPKCS1SignatureFormatter(algorithm);
+        formatter.SetHashAlgorithm("MD5");
+
+        return formatter.CreateSignature(sha1);
+    }
+
+    private static SHA1 GenerateSha1Hash(byte[] dataBuffer)
+    {
+        var sha1 = SHA1.Create();
+
+        using var cs = new CryptoStream(Stream.Null, sha1, CryptoStreamMode.Write);
+        cs.Write(dataBuffer, 0, dataBuffer.Length);
+
+        return sha1;
+    }
+
+    private static string GenerateTimestamp()
+    {
+        var ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        return Convert.ToInt64(ts.TotalSeconds).ToString();
+    }
+
+    private static string GenerateNonce()
+    {
+        return Helpers.GetRandomAlphanumeric(12);
+    }
+
+    private static string NormalizeUrl(string url)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri)) return uri.ToString();
+
+        var port = uri.Port switch
         {
-            var sha1 = SHA1.Create();
+            80 when uri.Scheme == "http" => string.Empty,
+            443 when uri.Scheme == "https" => string.Empty,
+            20 when uri.Scheme == "ftp" => string.Empty,
+            _ => $":{uri.Port}"
+        };
 
-            using (CryptoStream cs = new CryptoStream(Stream.Null, sha1, CryptoStreamMode.Write))
-            {
-                cs.Write(dataBuffer, 0, dataBuffer.Length);
-            }
+        return $"{uri.Scheme}://{uri.Host}{port}{uri.AbsolutePath}";
 
-            return sha1;
-        }
+    }
 
-        private static string GenerateTimestamp()
-        {
-            TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            return Convert.ToInt64(ts.TotalSeconds).ToString();
-        }
-
-        private static string GenerateNonce()
-        {
-            return Helpers.GetRandomAlphanumeric(12);
-        }
-
-        private static string NormalizeUrl(string url)
-        {
-            if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
-            {
-                string port = "";
-
-                if ((uri.Scheme == "http" && uri.Port != 80) ||
-                    (uri.Scheme == "https" && uri.Port != 443) ||
-                    (uri.Scheme == "ftp" && uri.Port != 20))
-                {
-                    port = ":" + uri.Port;
-                }
-
-                url = uri.Scheme + "://" + uri.Host + port + uri.AbsolutePath;
-            }
-
-            return url;
-        }
-
-        private static string NormalizeParameters(Dictionary<string, string> parameters)
-        {
-            return string.Join("&", parameters.OrderBy(x => x.Key).ThenBy(x => x.Value).Select(x => x.Key + "=" + URLHelpers.URLEncode(x.Value)).ToArray());
-        }
+    private static string NormalizeParameters(Dictionary<string, string> parameters)
+    {
+        return string.Join("&", parameters
+            .OrderBy(x => x.Key)
+            .ThenBy(x => x.Value)
+            .Select(x => $"{x.Key}={URLHelpers.URLEncode(x.Value)}"));
     }
 }
+

@@ -27,8 +27,8 @@ namespace ShareX.Core.Upload.SharingServices
 {
     public class VkSharingService : SimpleURLSharingService
     {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.VK;
+        public override URLSharingServices EnumValue => URLSharingServices.VK;
 
-        protected override string URLFormatString { get; } = "http://vk.com/share.php?url={0}";
+        protected override string URLFormatString => "http://vk.com/share.php?url={0}";
     }
 }

@@ -26,27 +26,26 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ShareX.Core.Utils.Settings
-{
-    public class SafeStringEnumConverter : JsonConverter<Enum>
-    {
-        public override Enum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            try
-            {
-                return (Enum)JsonSerializer.Deserialize(ref reader, typeToConvert, options);
-            }
-            catch (JsonException)
-            {
-                // Return the default value if deserialization fails
-                return default;
-            }
-        }
+namespace ShareX.Core.Utils.Settings;
 
-        public override void Write(Utf8JsonWriter writer, Enum value, JsonSerializerOptions options)
+public class SafeStringEnumConverter : JsonConverter<Enum>
+{
+    public override Enum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        try
         {
-            // Write the string representation of the Enum value
-            JsonSerializer.Serialize(writer, value.ToString(), options);
+            return (Enum)JsonSerializer.Deserialize(ref reader, typeToConvert, options);
         }
+        catch (JsonException)
+        {
+            // Return the default value if deserialization fails
+            return default;
+        }
+    }
+
+    public override void Write(Utf8JsonWriter writer, Enum value, JsonSerializerOptions options)
+    {
+        // Write the string representation of the Enum value
+        JsonSerializer.Serialize(writer, value.ToString(), options);
     }
 }

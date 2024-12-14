@@ -25,18 +25,18 @@
 
 using ShareX.Core.Utils;
 
-namespace ShareX.Core
-{
-    public static class ShareXResources
-    {
-        public static string Name { get; set; } = "ShareX-Linux";
+namespace ShareX.Core;
 
-        public static string UserAgent
+public static class ShareXResources
+{
+    public static string Name { get; set; } = "ShareX-Linux";
+
+    public static string UserAgent
+    {
+        get
         {
-            get
-            {
-                return $"{Name}/{Helpers.GetApplicationVersion()}";
-            }
+            return $"{Name}/{Helpers.GetApplicationVersion()}";
         }
     }
 }
+

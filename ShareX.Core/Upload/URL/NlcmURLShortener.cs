@@ -27,23 +27,20 @@
 using ShareX.Core.Upload;
 using ShareX.Core.Upload.BaseUploaders;
 
-namespace ShareX.Core.Upload.URL
+namespace ShareX.Core.Upload.URL;
+
+public sealed class NlcmURLShortener : URLShortener
 {
-    public sealed class NlcmURLShortener : URLShortener
+    public override UploadResult ShortenURL(string url)
     {
-        public override UploadResult ShortenURL(string url)
-        {
-            UploadResult result = new UploadResult { URL = url };
+        var result = new UploadResult { URL = url };
+        if (string.IsNullOrEmpty(url)) return result;
 
-            if (!string.IsNullOrEmpty(url))
-            {
-                Dictionary<string, string> arguments = new Dictionary<string, string>();
-                arguments.Add("url", url);
+        var arguments = new Dictionary<string, string> { { "url", url } };
 
-                result.Response = result.ShortenedURL = SendRequest(HttpMethod.Get, "http://nl.cm/api/", arguments);
-            }
+        result.Response = result.ShortenedURL = SendRequest(HttpMethod.Get, "http://nl.cm/api/", arguments);
 
-            return result;
-        }
+        return result;
     }
 }
+

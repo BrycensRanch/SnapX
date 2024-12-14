@@ -23,14 +23,14 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.OAuth
-{
-    public interface IOAuth2Loopback : IOAuth2
-    {
-        OAuthUserInfo GetUserInfo();
+namespace ShareX.Core.Upload.OAuth;
 
-        string RedirectURI { get; set; }
-        string State { get; set; }
-        string Scope { get; set; }
-    }
+public interface IOAuth2Loopback : IOAuth2
+{
+    OAuthUserInfo GetUserInfo();
+
+    string RedirectURI { get; set; }
+    string State { get; set; }
+    string Scope { get; set; }
 }
+

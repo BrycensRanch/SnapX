@@ -23,217 +23,222 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using ShareX.Core.Upload;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.UploadersLib.ImageUploaders
-{
-    public class ImageShackImageUploaderService : ImageUploaderService
-    {
-        public override ImageDestination EnumValue { get; } = ImageDestination.ImageShack;
-        public override bool CheckConfig(UploadersConfig config)
-        {
-            return config.ImageShackSettings != null && !string.IsNullOrEmpty(config.ImageShackSettings.Auth_token);
-        }
+namespace ShareX.Core.Upload.Image;
 
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new ImageShackUploader(APIKeys.ImageShackKey, config.ImageShackSettings);
-        }
+public class ImageShackImageUploaderService : ImageUploaderService
+{
+    public override ImageDestination EnumValue => ImageDestination.ImageShack;
+    public override bool CheckConfig(UploadersConfig config)
+    {
+        return config.ImageShackSettings != null && !string.IsNullOrEmpty(config.ImageShackSettings.Auth_token);
     }
 
-    public sealed class ImageShackUploader : ImageUploader
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        private const string URLAPI = "https://api.imageshack.com/v2/";
-        private const string URLAccessToken = URLAPI + "user/login";
-        private const string URLUpload = URLAPI + "images";
+        return new ImageShackUploader(APIKeys.ImageShackKey, config.ImageShackSettings);
+    }
+}
 
-        public ImageShackOptions Config { get; set; }
+public sealed class ImageShackUploader : ImageUploader
+{
+    private const string URLAPI = "https://api.imageshack.com/v2/";
+    private const string URLAccessToken = URLAPI + "user/login";
+    private const string URLUpload = URLAPI + "images";
 
-        private string APIKey;
+    public ImageShackOptions Config { get; set; }
 
-        public ImageShackUploader(string developerKey, ImageShackOptions config)
+    private string APIKey;
+
+    public ImageShackUploader(string developerKey, ImageShackOptions config)
+    {
+        APIKey = developerKey;
+        Config = config;
+    }
+
+    public bool GetAccessToken()
+    {
+        if (string.IsNullOrEmpty(Config.Username) || string.IsNullOrEmpty(Config.Password))
         {
-            APIKey = developerKey;
-            Config = config;
-        }
-
-        public bool GetAccessToken()
-        {
-            if (!string.IsNullOrEmpty(Config.Username) && !string.IsNullOrEmpty(Config.Password))
-            {
-                Dictionary<string, string> args = new Dictionary<string, string>();
-                args.Add("user", Config.Username);
-                args.Add("password", Config.Password);
-
-                string response = SendRequestMultiPart(URLAccessToken, args);
-
-                if (!string.IsNullOrEmpty(response))
-                {
-                    ImageShackLoginResponse resp = JsonConvert.DeserializeObject<ImageShackLoginResponse>(response);
-
-                    if (resp != null && resp.result != null && !string.IsNullOrEmpty(resp.result.auth_token))
-                    {
-                        Config.Auth_token = resp.result.auth_token;
-                        return true;
-                    }
-                }
-            }
-
             return false;
         }
 
-        public override UploadResult Upload(Stream stream, string fileName)
+        var args = new Dictionary<string, string>
         {
-            Dictionary<string, string> arguments = new Dictionary<string, string>();
-            arguments.Add("api_key", APIKey);
-            arguments.Add("auth_token", Config.Auth_token);
-            arguments.Add("public", Config.IsPublic ? "y" : "n");
+            { "user", Config.Username },
+            { "password", Config.Password }
+        };
 
-            UploadResult result = SendRequestFile(URLUpload, stream, fileName, "file", arguments);
+        var response = SendRequestMultiPart(URLAccessToken, args);
 
-            if (!string.IsNullOrEmpty(result.Response))
-            {
-                JToken jsonResponse = JToken.Parse(result.Response);
+        if (string.IsNullOrEmpty(response))
+        {
+            return false;
+        }
 
-                if (jsonResponse != null)
-                {
-                    bool isSuccess = jsonResponse["success"].Value<bool>();
+        var resp = JsonSerializer.Deserialize<ImageShackLoginResponse>(response);
+        if (resp?.result?.auth_token == null) return false;
 
-                    if (isSuccess)
-                    {
-                        ImageShackUploadResult uploadResult = jsonResponse["result"].ToObject<ImageShackUploadResult>();
+        Config.Auth_token = resp.result.auth_token;
+        return true;
+    }
 
-                        if (uploadResult != null && uploadResult.images.Count > 0)
-                        {
-                            ImageShackImage image = uploadResult.images[0];
-                            result.URL = string.Format("https://imagizer.imageshack.com/a/img{0}/{1}/{2}", image.server, image.bucket, image.filename);
-                            result.ThumbnailURL = string.Format("https://imagizer.imageshack.us/v2/{0}x{1}q90/{2}/{3}",
-                                Config.ThumbnailWidth, Config.ThumbnailHeight, image.server, image.filename);
-                        }
-                    }
-                    else
-                    {
-                        ImageShackErrorInfo errorInfo = jsonResponse["error"].ToObject<ImageShackErrorInfo>();
-                        Errors.Add(errorInfo.ToString());
-                    }
-                }
-            }
 
+    public override UploadResult Upload(Stream stream, string fileName)
+    {
+        var arguments = new Dictionary<string, string>
+        {
+            { "api_key", APIKey },
+            { "auth_token", Config.Auth_token },
+            { "public", Config.IsPublic ? "y" : "n" }
+        };
+
+        var result = SendRequestFile(URLUpload, stream, fileName, "file", arguments);
+
+        if (string.IsNullOrEmpty(result.Response))
             return result;
+
+        using var jsonDoc = JsonDocument.Parse(result.Response);
+        var root = jsonDoc.RootElement;
+
+        if (!root.TryGetProperty("success", out var success) || !success.GetBoolean())
+            return HandleError(root);
+
+        var uploadResult = root.GetProperty("result");
+
+        if (uploadResult.TryGetProperty("images", out var images) && images.GetArrayLength() > 0)
+        {
+            var image = images[0];
+            result.URL = $"https://imagizer.imageshack.com/a/img{image.GetProperty("server").GetString()}/{image.GetProperty("bucket").GetString()}/{image.GetProperty("filename").GetString()}";
+            result.ThumbnailURL = $"https://imagizer.imageshack.us/v2/{Config.ThumbnailWidth}x{Config.ThumbnailHeight}q90/{image.GetProperty("server").GetString()}/{image.GetProperty("filename").GetString()}";
         }
 
-        public class ImageShackErrorInfo
-        {
-            public int error_code { get; set; }
-            public string error_message { get; set; }
+        return result;
+    }
 
-            public override string ToString()
-            {
-                return string.Format("Error message: {0}\r\nError code: {1}", error_message, error_code);
-            }
+    private UploadResult HandleError(JsonElement root)
+    {
+        if (root.TryGetProperty("error", out var error))
+        {
+            var errorInfo = JsonSerializer.Deserialize<ImageShackErrorInfo>(error.GetRawText());
+            Errors.Add(errorInfo?.ToString());
         }
 
-        public class ImageShackLoginResponse
-        {
-            public bool success { get; set; }
-            public int process_time { get; set; }
-            public ImageShackLogin result { get; set; }
-        }
+        return new UploadResult();
+    }
 
-        public class ImageShackLogin
-        {
-            public string auth_token { get; set; }
-            public int user_id { get; set; }
-            public string email { get; set; }
-            public string username { get; set; }
-            public ImageShackeUserAvatar avatar { get; set; }
-            public string membership { get; set; }
-            public string membership_item_number { get; set; }
-            public string membership_cookie { get; set; }
-        }
 
-        public class ImageShackUser
-        {
-            public bool is_owner { get; set; }
-            public int cache_version { get; set; }
-            public string username { get; set; }
-            public string description { get; set; }
-            public int creation_date { get; set; }
-            public string location { get; set; }
-            public string first_name { get; set; }
-            public string last_name { get; set; }
-            public ImageShackeUserAvatar Avatar { get; set; }
-        }
+    public class ImageShackErrorInfo
+    {
+        public int error_code { get; set; }
+        public string error_message { get; set; }
 
-        public class ImageShackeUserAvatar
+        public override string ToString()
         {
-            public int image_id { get; set; }
-            public int server { get; set; }
-            public string filename { get; set; }
-        }
-
-        public class ImageShackUploadResponse
-        {
-            public bool success { get; set; }
-            public int process_time { get; set; }
-            public ImageShackUploadResult result { get; set; }
-        }
-
-        public class ImageShackUploadResult
-        {
-            public int max_filesize { get; set; }
-            public int space_limit { get; set; }
-            public int space_used { get; set; }
-            public int space_left { get; set; }
-            public int passed { get; set; }
-            public int failed { get; set; }
-            public int total { get; set; }
-            public List<ImageShackImage> images { get; set; }
-        }
-
-        public class ImageShackImage
-        {
-            public string id { get; set; }
-            public int server { get; set; }
-            public int bucket { get; set; }
-            public string lp_hash { get; set; }
-            public string filename { get; set; }
-            public string original_filename { get; set; }
-            public string direct_link { get; set; }
-            public object title { get; set; }
-            public object description { get; set; }
-            public List<string> tags { get; set; }
-            public int likes { get; set; }
-            public bool liked { get; set; }
-            public int views { get; set; }
-            public int comments_count { get; set; }
-            public bool comments_disabled { get; set; }
-            public int filter { get; set; }
-            public int filesize { get; set; }
-            public int creation_date { get; set; }
-            public int width { get; set; }
-            public int height { get; set; }
-            public bool @public { get; set; }
-            public bool is_owner { get; set; }
-            public ImageShackUser owner { get; set; }
-            public List<ImageShackImage> next_images { get; set; }
-            public List<ImageShackImage> prev_images { get; set; }
-            public object related_images { get; set; }
+            return string.Format("Error message: {0}\r\nError code: {1}", error_message, error_code);
         }
     }
 
-    public class ImageShackOptions
+    public class ImageShackLoginResponse
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public bool IsPublic { get; set; }
-        public string Auth_token { get; set; }
-        public int ThumbnailWidth { get; set; } = 256;
-        public int ThumbnailHeight { get; set; }
+        public bool success { get; set; }
+        public int process_time { get; set; }
+        public ImageShackLogin result { get; set; }
+    }
+
+    public class ImageShackLogin
+    {
+        public string auth_token { get; set; }
+        public int user_id { get; set; }
+        public string email { get; set; }
+        public string username { get; set; }
+        public ImageShackeUserAvatar avatar { get; set; }
+        public string membership { get; set; }
+        public string membership_item_number { get; set; }
+        public string membership_cookie { get; set; }
+    }
+
+    public class ImageShackUser
+    {
+        public bool is_owner { get; set; }
+        public int cache_version { get; set; }
+        public string username { get; set; }
+        public string description { get; set; }
+        public int creation_date { get; set; }
+        public string location { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public ImageShackeUserAvatar Avatar { get; set; }
+    }
+
+    public class ImageShackeUserAvatar
+    {
+        public int image_id { get; set; }
+        public int server { get; set; }
+        public string filename { get; set; }
+    }
+
+    public class ImageShackUploadResponse
+    {
+        public bool success { get; set; }
+        public int process_time { get; set; }
+        public ImageShackUploadResult result { get; set; }
+    }
+
+    public class ImageShackUploadResult
+    {
+        public int max_filesize { get; set; }
+        public int space_limit { get; set; }
+        public int space_used { get; set; }
+        public int space_left { get; set; }
+        public int passed { get; set; }
+        public int failed { get; set; }
+        public int total { get; set; }
+        public List<ImageShackImage> images { get; set; }
+    }
+
+    public class ImageShackImage
+    {
+        public string id { get; set; }
+        public int server { get; set; }
+        public int bucket { get; set; }
+        public string lp_hash { get; set; }
+        public string filename { get; set; }
+        public string original_filename { get; set; }
+        public string direct_link { get; set; }
+        public object title { get; set; }
+        public object description { get; set; }
+        public List<string> tags { get; set; }
+        public int likes { get; set; }
+        public bool liked { get; set; }
+        public int views { get; set; }
+        public int comments_count { get; set; }
+        public bool comments_disabled { get; set; }
+        public int filter { get; set; }
+        public int filesize { get; set; }
+        public int creation_date { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        public bool @public { get; set; }
+        public bool is_owner { get; set; }
+        public ImageShackUser owner { get; set; }
+        public List<ImageShackImage> next_images { get; set; }
+        public List<ImageShackImage> prev_images { get; set; }
+        public object related_images { get; set; }
     }
 }
+
+public class ImageShackOptions
+{
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public bool IsPublic { get; set; }
+    public string Auth_token { get; set; }
+    public int ThumbnailWidth { get; set; } = 256;
+    public int ThumbnailHeight { get; set; }
+}
+

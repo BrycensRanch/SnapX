@@ -29,130 +29,131 @@ using ShareX.Core.Utils;
 using ShareX.UploadersLib;
 using System.Text.Json;
 
-namespace ShareX.Core.Upload.OAuth
+namespace ShareX.Core.Upload.OAuth;
+
+public class GoogleOAuth2 : IOAuth2Loopback
 {
-    public class GoogleOAuth2 : IOAuth2Loopback
+    private const string AuthorizationEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
+    private const string TokenEndpoint = "https://oauth2.googleapis.com/token";
+    private const string UserInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
+
+    public OAuth2Info AuthInfo { get; private set; }
+    private Uploader GoogleUploader { get; set; }
+    public string RedirectURI { get; set; }
+    public string State { get; set; }
+    public string Scope { get; set; }
+
+    public GoogleOAuth2(OAuth2Info oauth, Uploader uploader)
     {
-        private const string AuthorizationEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
-        private const string TokenEndpoint = "https://oauth2.googleapis.com/token";
-        private const string UserInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
+        AuthInfo = oauth;
+        GoogleUploader = uploader;
+    }
 
-        public OAuth2Info AuthInfo { get; private set; }
-        private Uploader GoogleUploader { get; set; }
-        public string RedirectURI { get; set; }
-        public string State { get; set; }
-        public string Scope { get; set; }
-
-        public GoogleOAuth2(OAuth2Info oauth, Uploader uploader)
+    public string GetAuthorizationURL()
+    {
+        var args = new Dictionary<string, string>
         {
-            AuthInfo = oauth;
-            GoogleUploader = uploader;
-        }
+            { "response_type", "code" },
+            { "client_id", AuthInfo.Client_ID },
+            { "redirect_uri", RedirectURI },
+            { "state", State },
+            { "scope", Scope }
+        };
 
-        public string GetAuthorizationURL()
+        return URLHelpers.CreateQueryString(AuthorizationEndpoint, args);
+    }
+
+
+    public bool GetAccessToken(string code)
+    {
+        var args = new Dictionary<string, string>
         {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("response_type", "code");
-            args.Add("client_id", AuthInfo.Client_ID);
-            args.Add("redirect_uri", RedirectURI);
-            args.Add("state", State);
-            args.Add("scope", Scope);
+            { "code", code },
+            { "client_id", AuthInfo.Client_ID },
+            { "client_secret", AuthInfo.Client_Secret },
+            { "redirect_uri", RedirectURI },
+            { "grant_type", "authorization_code" }
+        };
 
-            return URLHelpers.CreateQueryString(AuthorizationEndpoint, args);
-        }
+        var response = GoogleUploader.SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
 
-        public bool GetAccessToken(string code)
-        {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("code", code);
-            args.Add("client_id", AuthInfo.Client_ID);
-            args.Add("client_secret", AuthInfo.Client_Secret);
-            args.Add("redirect_uri", RedirectURI);
-            args.Add("grant_type", "authorization_code");
+        if (string.IsNullOrEmpty(response)) return false;
 
-            string response = GoogleUploader.SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        if (token?.access_token == null) return false;
 
-            if (!string.IsNullOrEmpty(response))
-            {
-                OAuth2Token token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        token.UpdateExpireDate();
+        AuthInfo.Token = token;
+        return true;
+    }
 
-                if (token != null && !string.IsNullOrEmpty(token.access_token))
-                {
-                    token.UpdateExpireDate();
-                    AuthInfo.Token = token;
-                    return true;
-                }
-            }
 
+    public bool RefreshAccessToken()
+    {
+        if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token))
             return false;
-        }
 
-        public bool RefreshAccessToken()
+        var args = new Dictionary<string, string>
         {
-            if (OAuth2Info.CheckOAuth(AuthInfo) && !string.IsNullOrEmpty(AuthInfo.Token.refresh_token))
-            {
-                Dictionary<string, string> args = new Dictionary<string, string>();
-                args.Add("refresh_token", AuthInfo.Token.refresh_token);
-                args.Add("client_id", AuthInfo.Client_ID);
-                args.Add("client_secret", AuthInfo.Client_Secret);
-                args.Add("grant_type", "refresh_token");
+            { "refresh_token", AuthInfo.Token.refresh_token },
+            { "client_id", AuthInfo.Client_ID },
+            { "client_secret", AuthInfo.Client_Secret },
+            { "grant_type", "refresh_token" }
+        };
 
-                string response = GoogleUploader.SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
+        var response = GoogleUploader.SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
 
-                if (!string.IsNullOrEmpty(response))
-                {
-                    OAuth2Token token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        if (string.IsNullOrEmpty(response)) return false;
 
-                    if (token != null && !string.IsNullOrEmpty(token.access_token))
-                    {
-                        token.UpdateExpireDate();
-                        string refresh_token = AuthInfo.Token.refresh_token;
-                        AuthInfo.Token = token;
-                        AuthInfo.Token.refresh_token = refresh_token;
-                        return true;
-                    }
-                }
-            }
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response);
 
-            return false;
-        }
+        if (token?.access_token == null) return false;
 
-        public bool CheckAuthorization()
+        token.UpdateExpireDate();
+
+        AuthInfo.Token = token;
+
+        return true;
+    }
+
+
+    public bool CheckAuthorization()
+    {
+        if (OAuth2Info.CheckOAuth(AuthInfo))
         {
-            if (OAuth2Info.CheckOAuth(AuthInfo))
+            if (AuthInfo.Token.IsExpired && !RefreshAccessToken())
             {
-                if (AuthInfo.Token.IsExpired && !RefreshAccessToken())
-                {
-                    GoogleUploader.Errors.Add("Refresh access token failed.");
-                    return false;
-                }
-            }
-            else
-            {
-                GoogleUploader.Errors.Add("Login is required.");
+                GoogleUploader.Errors.Add("Refresh access token failed.");
                 return false;
             }
-
-            return true;
         }
-
-        public NameValueCollection GetAuthHeaders()
+        else
         {
-            NameValueCollection headers = new NameValueCollection();
-            headers.Add("Authorization", "Bearer " + AuthInfo.Token.access_token);
-            return headers;
+            GoogleUploader.Errors.Add("Login is required.");
+            return false;
         }
 
-        public OAuthUserInfo GetUserInfo()
-        {
-            string response = GoogleUploader.SendRequest(HttpMethod.Get, UserInfoEndpoint, null, GetAuthHeaders());
-
-            if (!string.IsNullOrEmpty(response))
-            {
-                return JsonSerializer.Deserialize<OAuthUserInfo>(response);
-            }
-
-            return null;
-        }
+        return true;
     }
+
+    public NameValueCollection GetAuthHeaders()
+    {
+        var headers = new NameValueCollection
+        {
+            { "Authorization", $"Bearer {AuthInfo.Token.access_token}" }
+        };
+
+        return headers;
+    }
+
+    public OAuthUserInfo GetUserInfo()
+    {
+        var response = GoogleUploader.SendRequest(HttpMethod.Get, UserInfoEndpoint, null, GetAuthHeaders());
+
+        return !string.IsNullOrEmpty(response)
+            ? JsonSerializer.Deserialize<OAuthUserInfo>(response)
+            : null;
+    }
+
 }
+

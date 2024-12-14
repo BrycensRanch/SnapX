@@ -25,50 +25,52 @@
 
 using System.Net.Http.Headers;
 
-namespace ShareX.Core.Utils.Miscellaneous
+namespace ShareX.Core.Utils.Miscellaneous;
+public static class HttpClientFactory
 {
-    public static class HttpClientFactory
+    // Using Lazy<T> to handle thread-safe initialization of the HttpClient
+    private static Lazy<HttpClient> _lazyClient = new Lazy<HttpClient>(() =>
     {
-        private static readonly object lockObject = new object();
-
-        private static HttpClient client;
-
-        public static HttpClient Create()
+        var clientHandler = new HttpClientHandler
         {
-            if (client == null)
-            {
-                lock (lockObject)
-                {
-                    if (client == null)
-                    {
-                        HttpClientHandler clientHandler = new HttpClientHandler()
-                        {
-                            Proxy = HelpersOptions.CurrentProxy.GetWebProxy()
-                        };
+            Proxy = HelpersOptions.CurrentProxy.GetWebProxy()
+        };
 
-                        client = new HttpClient(clientHandler);
-                        client.DefaultRequestHeaders.UserAgent.ParseAdd(ShareXResources.UserAgent);
-                        client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue()
-                        {
-                            NoCache = true
-                        };
-                    }
-                }
-            }
-
-            return client;
-        }
-
-        public static void Reset()
+        var httpClient = new HttpClient(clientHandler);
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(ShareXResources.UserAgent);
+        httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
         {
-            lock (lockObject)
+            NoCache = true
+        };
+
+        return httpClient;
+    });
+
+    public static HttpClient Create() => _lazyClient.Value;
+
+    // Resets the HttpClient, disposing the current instance if it exists
+    public static void Reset()
+    {
+        if (_lazyClient.IsValueCreated)
+        {
+            _lazyClient.Value.Dispose();
+            _lazyClient = new Lazy<HttpClient>(() =>
             {
-                if (client != null)
+                var clientHandler = new HttpClientHandler
                 {
-                    client.Dispose();
-                    client = null;
-                }
-            }
+                    Proxy = HelpersOptions.CurrentProxy.GetWebProxy()
+                };
+
+                var httpClient = new HttpClient(clientHandler);
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(ShareXResources.UserAgent);
+                httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+                {
+                    NoCache = true
+                };
+
+                return httpClient;
+            });
         }
     }
 }
+

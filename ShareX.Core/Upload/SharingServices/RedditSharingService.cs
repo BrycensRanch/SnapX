@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.SharingServices
-{
-    public class RedditSharingService : SimpleURLSharingService
-    {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.Reddit;
+namespace ShareX.Core.Upload.SharingServices;
 
-        protected override string URLFormatString { get; } = "http://www.reddit.com/submit?url={0}";
-    }
+public class RedditSharingService : SimpleURLSharingService
+{
+    public override URLSharingServices EnumValue => URLSharingServices.Reddit;
+
+    protected override string URLFormatString => "https://www.reddit.com/submit?url={0}";
 }
+

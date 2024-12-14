@@ -23,13 +23,13 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Watch
+namespace ShareX.Core.Watch;
+
+public class WatchFolderSettings
 {
-    public class WatchFolderSettings
-    {
-        public string FolderPath { get; set; }
-        public string Filter { get; set; }
-        public bool IncludeSubdirectories { get; set; }
-        public bool MoveFilesToScreenshotsFolder { get; set; }
-    }
+    public string FolderPath { get; set; }
+    public string Filter { get; set; }
+    public bool IncludeSubdirectories { get; set; }
+    public bool MoveFilesToScreenshotsFolder { get; set; }
 }
+

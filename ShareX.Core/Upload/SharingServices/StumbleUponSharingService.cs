@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.SharingServices
-{
-    public class StumbleUponSharingService : SimpleURLSharingService
-    {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.StumbleUpon;
+namespace ShareX.Core.Upload.SharingServices;
 
-        protected override string URLFormatString { get; } = "http://www.stumbleupon.com/submit?url={0}";
-    }
+public class StumbleUponSharingService : SimpleURLSharingService
+{
+    public override URLSharingServices EnumValue => URLSharingServices.StumbleUpon;
+
+    protected override string URLFormatString => "https://www.stumbleupon.com/submit?url={0}";
 }
+

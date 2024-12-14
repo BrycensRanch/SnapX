@@ -25,23 +25,25 @@
 
 using ShareX.Core.Upload.BaseUploaders;
 
-namespace ShareX.Core.Upload.Image
+namespace ShareX.Core.Upload.Image;
+
+public sealed class Img1Uploader : ImageUploader
 {
-    public sealed class Img1Uploader : ImageUploader
+    private const string uploadURL = "https://img1.us/?app";
+
+    public override UploadResult Upload(Stream stream, string fileName)
     {
-        private const string uploadURL = "http://img1.us/?app";
+        var result = SendRequestFile(uploadURL, stream, fileName, "fileup");
 
-        public override UploadResult Upload(Stream stream, string fileName)
-        {
-            UploadResult result = SendRequestFile(uploadURL, stream, fileName, "fileup");
-
-            if (result.IsSuccess)
-            {
-                string lastLine = result.Response.Remove(0, result.Response.LastIndexOf('\n') + 1).Trim();
-                result.URL = lastLine;
-            }
-
+        if (!result.IsSuccess || string.IsNullOrEmpty(result.Response))
             return result;
-        }
+
+        var lastLine = result.Response.Split('\n').LastOrDefault()?.Trim();
+
+        if (!string.IsNullOrEmpty(lastLine))
+            result.URL = lastLine;
+
+        return result;
     }
 }
+

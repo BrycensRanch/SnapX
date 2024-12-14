@@ -26,30 +26,29 @@
 
 using System.Text.Json.Serialization;
 
-namespace ShareX.Core.Upload.OAuth
+namespace ShareX.Core.Upload.OAuth;
+
+public class OAuth2Token
 {
-    public class OAuth2Token
+    public string access_token { get; set; }
+    public string refresh_token { get; set; }
+    public int expires_in { get; set; }
+    public string token_type { get; set; }
+    public string scope { get; set; }
+
+    public DateTime ExpireDate { get; set; }
+
+    [JsonIgnore]
+    public bool IsExpired
     {
-        public string access_token { get; set; }
-        public string refresh_token { get; set; }
-        public int expires_in { get; set; }
-        public string token_type { get; set; }
-        public string scope { get; set; }
-
-        public DateTime ExpireDate { get; set; }
-
-        [JsonIgnore]
-        public bool IsExpired
+        get
         {
-            get
-            {
-                return ExpireDate == DateTime.MinValue || DateTime.UtcNow > ExpireDate;
-            }
+            return ExpireDate == DateTime.MinValue || DateTime.UtcNow > ExpireDate;
         }
+    }
 
-        public void UpdateExpireDate()
-        {
-            ExpireDate = DateTime.UtcNow + TimeSpan.FromSeconds(expires_in - 10);
-        }
+    public void UpdateExpireDate()
+    {
+        ExpireDate = DateTime.UtcNow + TimeSpan.FromSeconds(expires_in - 10);
     }
 }

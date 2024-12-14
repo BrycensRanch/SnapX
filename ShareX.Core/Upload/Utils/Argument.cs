@@ -23,21 +23,21 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.Utils
+namespace ShareX.Core.Upload.Utils;
+
+public class Argument
 {
-    public class Argument
+    public string Name { get; set; }
+    public string Value { get; set; }
+
+    public Argument()
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
+    }
 
-        public Argument()
-        {
-        }
-
-        public Argument(string name, string value)
-        {
-            Name = name;
-            Value = value;
-        }
+    public Argument(string name, string value)
+    {
+        Name = name;
+        Value = value;
     }
 }
+

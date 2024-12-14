@@ -26,72 +26,68 @@
 using System.Diagnostics;
 using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.Core.Upload.Utils
+namespace ShareX.Core.Upload.Utils;
+
+public class ProgressManager
 {
-    public class ProgressManager
+    public long Position { get; private set; }
+    public long Length { get; private set; }
+
+    public double Percentage => (double)Position / Length * 100;
+
+    public double Speed { get; private set; }
+
+    public TimeSpan Elapsed => startTimer.Elapsed;
+
+    public TimeSpan Remaining
     {
-        public long Position { get; private set; }
-        public long Length { get; private set; }
-
-        public double Percentage => (double)Position / Length * 100;
-
-        public double Speed { get; private set; }
-
-        public TimeSpan Elapsed => startTimer.Elapsed;
-
-        public TimeSpan Remaining
+        get
         {
-            get
+            if (Speed > 0)
             {
-                if (Speed > 0)
-                {
-                    return TimeSpan.FromSeconds((Length - Position) / Speed);
-                }
-
-                return TimeSpan.Zero;
-            }
-        }
-
-        private Stopwatch startTimer = new Stopwatch();
-        private Stopwatch smoothTimer = new Stopwatch();
-        private int smoothTime = 250;
-        private long speedTest;
-        private FixedSizedQueue<double> averageSpeed = new FixedSizedQueue<double>(10);
-
-        public ProgressManager(long length, long position = 0)
-        {
-            Length = length;
-            Position = position;
-            startTimer.Start();
-            smoothTimer.Start();
-        }
-
-        public bool UpdateProgress(long bytesRead)
-        {
-            Position += bytesRead;
-            speedTest += bytesRead;
-
-            if (Position >= Length)
-            {
-                startTimer.Stop();
-
-                return true;
+                return TimeSpan.FromSeconds((Length - Position) / Speed);
             }
 
-            if (smoothTimer.ElapsedMilliseconds > smoothTime)
-            {
-                averageSpeed.Enqueue(speedTest / smoothTimer.Elapsed.TotalSeconds);
-
-                Speed = averageSpeed.Average();
-
-                speedTest = 0;
-                smoothTimer.Reset();
-                smoothTimer.Start();
-
-                return true;
-            }
-
-            return false;
+            return TimeSpan.Zero;
         }
     }
+
+    private Stopwatch startTimer = new();
+    private Stopwatch smoothTimer = new();
+    private int smoothTime = 250;
+    private long speedTest;
+    private FixedSizedQueue<double> averageSpeed = new(10);
+
+    public ProgressManager(long length, long position = 0)
+    {
+        Length = length;
+        Position = position;
+        startTimer.Start();
+        smoothTimer.Start();
+    }
+
+    public bool UpdateProgress(long bytesRead)
+    {
+        Position += bytesRead;
+        speedTest += bytesRead;
+
+        if (Position >= Length)
+        {
+            startTimer.Stop();
+            return true;
+        }
+
+        if (smoothTimer.ElapsedMilliseconds <= smoothTime)
+            return false;
+
+        averageSpeed.Enqueue(speedTest / smoothTimer.Elapsed.TotalSeconds);
+        Speed = averageSpeed.Average();
+
+        speedTest = 0;
+        smoothTimer.Reset();
+        smoothTimer.Start();
+
+        return true;
+    }
 }
+

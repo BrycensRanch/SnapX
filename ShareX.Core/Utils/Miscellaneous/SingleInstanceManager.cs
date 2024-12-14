@@ -26,160 +26,158 @@
 using System.IO.Pipes;
 using System.Text;
 
-namespace ShareX.Core.Utils.Miscellaneous
+namespace ShareX.Core.Utils.Miscellaneous;
+
+public class SingleInstanceManager : IDisposable
 {
-    public class SingleInstanceManager : IDisposable
+    public event Action<string[]> ArgumentsReceived;
+
+    public string MutexName { get; private set; }
+    public string PipeName { get; private set; }
+    public bool IsSingleInstance { get; private set; }
+    public bool IsFirstInstance { get; private set; }
+
+    private const int MaxArgumentsLength = 100;
+    private const int ConnectTimeout = 5000;
+
+    private readonly Mutex mutex;
+    private CancellationTokenSource cts;
+
+    public SingleInstanceManager(string mutexName, string pipeName, string[] args) : this(mutexName, pipeName, true, args)
     {
-        public event Action<string[]> ArgumentsReceived;
+    }
 
-        public string MutexName { get; private set; }
-        public string PipeName { get; private set; }
-        public bool IsSingleInstance { get; private set; }
-        public bool IsFirstInstance { get; private set; }
+    public SingleInstanceManager(string mutexName, string pipeName, bool isSingleInstance, string[] args)
+    {
+        MutexName = mutexName;
+        PipeName = pipeName;
+        IsSingleInstance = isSingleInstance;
 
-        private const int MaxArgumentsLength = 100;
-        private const int ConnectTimeout = 5000;
+        mutex = new Mutex(false, MutexName);
 
-        private readonly Mutex mutex;
-        private CancellationTokenSource cts;
-
-        public SingleInstanceManager(string mutexName, string pipeName, string[] args) : this(mutexName, pipeName, true, args)
+        try
         {
+            IsFirstInstance = mutex.WaitOne(100, false);
+
+            if (IsSingleInstance)
+            {
+                if (IsFirstInstance)
+                {
+                    cts = new CancellationTokenSource();
+
+                    System.Threading.Tasks.Task.Run(ListenForConnectionsAsync, cts.Token);
+                }
+                else
+                {
+                    RedirectArgumentsToFirstInstance(args);
+                }
+            }
         }
-
-        public SingleInstanceManager(string mutexName, string pipeName, bool isSingleInstance, string[] args)
+        catch (AbandonedMutexException)
         {
-            MutexName = mutexName;
-            PipeName = pipeName;
-            IsSingleInstance = isSingleInstance;
+            DebugHelper.WriteLine("Single instance mutex found abandoned from another process.");
 
-            mutex = new Mutex(false, MutexName);
+            IsFirstInstance = true;
+        }
+    }
+
+    protected virtual void OnArgumentsReceived(string[] arguments)
+    {
+        if (ArgumentsReceived != null)
+        {
+            System.Threading.Tasks.Task.Run(() => ArgumentsReceived?.Invoke(arguments));
+        }
+    }
+
+    private async System.Threading.Tasks.Task ListenForConnectionsAsync()
+    {
+        while (!cts.IsCancellationRequested)
+        {
+            var namedPipeServerCreated = false;
 
             try
             {
-                IsFirstInstance = mutex.WaitOne(100, false);
+                await using var namedPipeServer = new NamedPipeServerStream(PipeName, PipeDirection.InOut,
+                    1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
 
-                if (IsSingleInstance)
+                namedPipeServerCreated = true;
+
+                await namedPipeServer.WaitForConnectionAsync(cts.Token).ConfigureAwait(false);
+
+                using var reader = new BinaryReader(namedPipeServer, Encoding.UTF8);
+
+                var length = reader.ReadInt32();
+
+                if (length < 0 || length > MaxArgumentsLength)
                 {
-                    if (IsFirstInstance)
-                    {
-                        cts = new CancellationTokenSource();
-
-                        System.Threading.Tasks.Task.Run(ListenForConnectionsAsync, cts.Token);
-                    }
-                    else
-                    {
-                        RedirectArgumentsToFirstInstance(args);
-                    }
+                    throw new Exception("Invalid length: " + length);
                 }
+
+                var args = new string[length];
+
+                for (int i = 0; i < length; i++)
+                {
+                    args[i] = reader.ReadString();
+                }
+
+                OnArgumentsReceived(args);
+
+
             }
-            catch (AbandonedMutexException)
+            catch (OperationCanceledException)
             {
-                DebugHelper.WriteLine("Single instance mutex found abandoned from another process.");
-
-                IsFirstInstance = true;
-            }
-        }
-
-        protected virtual void OnArgumentsReceived(string[] arguments)
-        {
-            if (ArgumentsReceived != null)
-            {
-                System.Threading.Tasks.Task.Run(() => ArgumentsReceived?.Invoke(arguments));
-            }
-        }
-
-        private async System.Threading.Tasks.Task ListenForConnectionsAsync()
-        {
-            while (!cts.IsCancellationRequested)
-            {
-                bool namedPipeServerCreated = false;
-
-                try
-                {
-                    using (NamedPipeServerStream namedPipeServer = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
-                    {
-                        namedPipeServerCreated = true;
-
-                        await namedPipeServer.WaitForConnectionAsync(cts.Token).ConfigureAwait(false);
-
-                        using (BinaryReader reader = new BinaryReader(namedPipeServer, Encoding.UTF8))
-                        {
-                            int length = reader.ReadInt32();
-
-                            if (length < 0 || length > MaxArgumentsLength)
-                            {
-                                throw new Exception("Invalid length: " + length);
-                            }
-
-                            string[] args = new string[length];
-
-                            for (int i = 0; i < length; i++)
-                            {
-                                args[i] = reader.ReadString();
-                            }
-
-                            OnArgumentsReceived(args);
-                        }
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception e)
-                {
-                    DebugHelper.WriteException(e);
-
-                    if (!namedPipeServerCreated)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        private void RedirectArgumentsToFirstInstance(string[] args)
-        {
-            try
-            {
-                using (NamedPipeClientStream namedPipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
-                {
-                    namedPipeClient.Connect(ConnectTimeout);
-
-                    using (BinaryWriter writer = new BinaryWriter(namedPipeClient, Encoding.UTF8))
-                    {
-                        writer.Write(args.Length);
-
-                        foreach (string argument in args)
-                        {
-                            writer.Write(argument);
-                        }
-                    }
-                }
             }
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
-            }
-        }
 
-        public void Dispose()
-        {
-            if (cts != null)
-            {
-                cts.Cancel();
-                cts.Dispose();
-            }
-
-            if (mutex != null)
-            {
-                if (IsFirstInstance)
+                if (!namedPipeServerCreated)
                 {
-                    mutex.ReleaseMutex();
+                    break;
                 }
-
-                mutex.Dispose();
             }
         }
     }
+
+    private void RedirectArgumentsToFirstInstance(string[] args)
+    {
+        try
+        {
+            using var namedPipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+
+            namedPipeClient.Connect(ConnectTimeout);
+
+            using var writer = new BinaryWriter(namedPipeClient, Encoding.UTF8);
+            writer.Write(args.Length);
+
+            foreach (string argument in args)
+            {
+                writer.Write(argument);
+            }
+        }
+        catch (Exception e)
+        {
+            DebugHelper.WriteException(e);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (cts != null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+
+        if (mutex != null)
+        {
+            if (IsFirstInstance)
+            {
+                mutex.ReleaseMutex();
+            }
+
+            mutex.Dispose();
+        }
+    }
 }
+

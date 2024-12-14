@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.SharingServices
-{
-    public class PinterestSharingService : SimpleURLSharingService
-    {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.Pinterest;
+namespace ShareX.Core.Upload.SharingServices;
 
-        protected override string URLFormatString { get; } = "http://pinterest.com/pin/create/button/?url={0}&media={0}";
-    }
+public class PinterestSharingService : SimpleURLSharingService
+{
+    public override URLSharingServices EnumValue => URLSharingServices.Pinterest;
+
+    protected override string URLFormatString => "https://pinterest.com/pin/create/button/?url={0}&media={0}";
 }
+

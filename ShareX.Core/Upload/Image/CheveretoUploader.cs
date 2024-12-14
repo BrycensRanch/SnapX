@@ -26,26 +26,26 @@
 
 using ShareX.Core.Utils;
 
-namespace ShareX.Core.Upload.Image
+namespace ShareX.Core.Upload.Image;
+
+public class CheveretoUploader
 {
-    public class CheveretoUploader
+    public string UploadURL { get; set; }
+    public string APIKey { get; set; }
+
+    public CheveretoUploader()
     {
-        public string UploadURL { get; set; }
-        public string APIKey { get; set; }
+    }
 
-        public CheveretoUploader()
-        {
-        }
+    public CheveretoUploader(string uploadURL, string apiKey)
+    {
+        UploadURL = uploadURL;
+        APIKey = apiKey;
+    }
 
-        public CheveretoUploader(string uploadURL, string apiKey)
-        {
-            UploadURL = uploadURL;
-            APIKey = apiKey;
-        }
-
-        public override string ToString()
-        {
-            return URLHelpers.GetHostName(UploadURL);
-        }
+    public override string ToString()
+    {
+        return URLHelpers.GetHostName(UploadURL);
     }
 }
+

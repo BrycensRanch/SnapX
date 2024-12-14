@@ -321,7 +321,7 @@ public class ShareX
 
                 using (fullscreen.Lock())
                 {
-                    ReadOnlySpan<byte> rawData = fullscreen.RawBuffer;
+                    var rawData = fullscreen.RawBuffer;
 
                     using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
 
@@ -356,7 +356,7 @@ public class ShareX
                 //Lock the zone to access the data. Remember to dispose the returned disposable to unlock again.
                 lock (fullscreen)
                 {
-                    ReadOnlySpan<byte> rawData = fullscreen.RawBuffer;
+                    var rawData = fullscreen.RawBuffer;
 
                     Console.WriteLine(fullscreen.Width + " x " + fullscreen.Height);
                     using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
@@ -515,49 +515,37 @@ public class ShareX
 
         public static string ReadPersonalPathConfig()
         {
-            if (File.Exists(PersonalPathConfigFilePath))
-            {
-                return File.ReadAllText(PersonalPathConfigFilePath, Encoding.UTF8).Trim();
-            }
-
-            return "";
+            return File.Exists(PersonalPathConfigFilePath)
+                ? File.ReadAllText(PersonalPathConfigFilePath, Encoding.UTF8).Trim()
+                : string.Empty;
         }
 
         public static bool WritePersonalPathConfig(string path)
         {
-            if (path == null)
+            path = path?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrEmpty(path) && !File.Exists(PersonalPathConfigFilePath))
+                return false;
+
+            var currentPath = ReadPersonalPathConfig();
+
+            if (path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            try
             {
-                path = "";
+                FileHelpers.CreateDirectoryFromFilePath(PersonalPathConfigFilePath);
+                File.WriteAllText(PersonalPathConfigFilePath, path, Encoding.UTF8);
+                return true;
             }
-            else
+            catch (UnauthorizedAccessException e)
             {
-                path = path.Trim();
+                DebugHelper.WriteException(e);
             }
-
-            bool isDefaultPath = string.IsNullOrEmpty(path) && !File.Exists(PersonalPathConfigFilePath);
-
-            if (!isDefaultPath)
+            catch (Exception e)
             {
-                string currentPath = ReadPersonalPathConfig();
-
-                if (!path.Equals(currentPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    try
-                    {
-                        FileHelpers.CreateDirectoryFromFilePath(PersonalPathConfigFilePath);
-                        File.WriteAllText(PersonalPathConfigFilePath, path, Encoding.UTF8);
-                        return true;
-                    }
-                    catch (UnauthorizedAccessException e)
-                    {
-                        DebugHelper.WriteException(e);
-                    }
-                    catch (Exception e)
-                    {
-                        DebugHelper.WriteException(e);
-                        e.ShowError();
-                    }
-                }
+                DebugHelper.WriteException(e);
+                e.ShowError();
             }
 
             return false;

@@ -23,60 +23,58 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
-using System.Collections.Generic;
+using System.Text.Json;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.Core.Upload.URL
+namespace ShareX.Core.Upload.URL;
+
+public class TwoGPURLShortenerService : URLShortenerService
 {
-    public class TwoGPURLShortenerService : URLShortenerService
+    public override UrlShortenerType EnumValue => UrlShortenerType.TwoGP;
+
+    public override bool CheckConfig(UploadersConfig config) => true;
+
+    public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public override UrlShortenerType EnumValue { get; } = UrlShortenerType.TwoGP;
-
-        public override bool CheckConfig(UploadersConfig config) => true;
-
-        public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new TwoGPURLShortener();
-        }
-    }
-
-    public sealed class TwoGPURLShortener : URLShortener
-    {
-        private const string API_ENDPOINT = "http://2.gp/api/short";
-
-        public override UploadResult ShortenURL(string url)
-        {
-            UploadResult result = new UploadResult { URL = url };
-
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("longurl", url);
-
-            string response = SendRequest(HttpMethod.Get, API_ENDPOINT, args);
-
-            if (!string.IsNullOrEmpty(response))
-            {
-                TwoGPURLShortenerResponse jsonResponse = JsonConvert.DeserializeObject<TwoGPURLShortenerResponse>(response);
-
-                if (jsonResponse != null)
-                {
-                    result.ShortenedURL = jsonResponse.url;
-                }
-            }
-
-            return result;
-        }
-    }
-
-    public class TwoGPURLShortenerResponse
-    {
-        public string facebook_url { get; set; }
-        public string stat_url { get; set; }
-        public string twitter_url { get; set; }
-        public string url { get; set; }
-        public string target_host { get; set; }
-        public string host { get; set; }
+        return new TwoGPURLShortener();
     }
 }
+
+public sealed class TwoGPURLShortener : URLShortener
+{
+    private const string API_ENDPOINT = "https://2.gp/api/short";
+
+    public override UploadResult ShortenURL(string url)
+    {
+        var result = new UploadResult { URL = url };
+
+        var args = new Dictionary<string, string> { { "longurl", url } };
+
+        var response = SendRequest(HttpMethod.Get, API_ENDPOINT, args);
+
+        if (string.IsNullOrEmpty(response))
+            return result;
+
+        var jsonResponse = JsonSerializer.Deserialize<TwoGPURLShortenerResponse>(response);
+
+        if (jsonResponse != null)
+        {
+            result.ShortenedURL = jsonResponse.url;
+        }
+
+        return result;
+    }
+}
+
+public class TwoGPURLShortenerResponse
+{
+    public string facebook_url { get; set; }
+    public string stat_url { get; set; }
+    public string twitter_url { get; set; }
+    public string url { get; set; }
+    public string target_host { get; set; }
+    public string host { get; set; }
+}
+

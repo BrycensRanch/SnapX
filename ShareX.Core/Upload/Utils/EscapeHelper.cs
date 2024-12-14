@@ -25,33 +25,33 @@
 
 using ShareX.Core.Utils;
 
-namespace ShareX.Core.Upload.Utils
+namespace ShareX.Core.Upload.Utils;
+
+public class EscapeHelper
 {
-    public class EscapeHelper
+    public string EscapeCharacter { get; set; } = @"\";
+    public string EscapeableCharacter { get; set; } = "%";
+    public bool KeepEscapeCharacter { get; set; }
+
+    private string escapeCharacterReserve = Helpers.GetRandomAlphanumeric(32);
+    private string escapeableCharacterReserve = Helpers.GetRandomAlphanumeric(32);
+
+    public string Parse(string input, Func<string, string> action)
     {
-        public string EscapeCharacter { get; set; } = @"\";
-        public string EscapeableCharacter { get; set; } = "%";
-        public bool KeepEscapeCharacter { get; set; }
-
-        private string escapeCharacterReserve = Helpers.GetRandomAlphanumeric(32);
-        private string escapeableCharacterReserve = Helpers.GetRandomAlphanumeric(32);
-
-        public string Parse(string input, Func<string, string> action)
+        input = input.Replace(EscapeCharacter + EscapeCharacter, escapeCharacterReserve);
+        input = input.Replace(EscapeCharacter + EscapeableCharacter, escapeableCharacterReserve);
+        input = action(input);
+        if (KeepEscapeCharacter)
         {
-            input = input.Replace(EscapeCharacter + EscapeCharacter, escapeCharacterReserve);
-            input = input.Replace(EscapeCharacter + EscapeableCharacter, escapeableCharacterReserve);
-            input = action(input);
-            if (KeepEscapeCharacter)
-            {
-                input = input.Replace(escapeableCharacterReserve, EscapeCharacter + EscapeableCharacter);
-                input = input.Replace(escapeCharacterReserve, EscapeCharacter + EscapeCharacter);
-            }
-            else
-            {
-                input = input.Replace(escapeableCharacterReserve, EscapeableCharacter);
-                input = input.Replace(escapeCharacterReserve, EscapeCharacter);
-            }
-            return input;
+            input = input.Replace(escapeableCharacterReserve, EscapeCharacter + EscapeableCharacter);
+            input = input.Replace(escapeCharacterReserve, EscapeCharacter + EscapeCharacter);
         }
+        else
+        {
+            input = input.Replace(escapeableCharacterReserve, EscapeableCharacter);
+            input = input.Replace(escapeCharacterReserve, EscapeCharacter);
+        }
+        return input;
     }
 }
+

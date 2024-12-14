@@ -24,25 +24,25 @@
 #endregion License Information (GPL v3)
 
 
-namespace ShareX.Core.Utils.Miscellaneous
+namespace ShareX.Core.Utils.Miscellaneous;
+
+public class FixedSizedQueue<T> : Queue<T>
 {
-    public class FixedSizedQueue<T> : Queue<T>
+    public int Size { get; private set; }
+
+    public FixedSizedQueue(int size)
     {
-        public int Size { get; private set; }
+        Size = size;
+    }
 
-        public FixedSizedQueue(int size)
+    public new void Enqueue(T obj)
+    {
+        base.Enqueue(obj);
+
+        while (Count > Size)
         {
-            Size = size;
-        }
-
-        public new void Enqueue(T obj)
-        {
-            base.Enqueue(obj);
-
-            while (Count > Size)
-            {
-                Dequeue();
-            }
+            Dequeue();
         }
     }
 }
+

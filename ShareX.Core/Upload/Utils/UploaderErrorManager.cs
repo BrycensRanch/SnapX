@@ -23,49 +23,48 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.Utils
+namespace ShareX.Core.Upload.Utils;
+public class UploaderErrorManager
 {
-    public class UploaderErrorManager
+    public List<UploaderErrorInfo> Errors { get; private set; }
+
+    public int Count => Errors.Count;
+
+    public string DefaultTitle { get; set; } = "Error";
+
+    public UploaderErrorManager()
     {
-        public List<UploaderErrorInfo> Errors { get; private set; }
+        Errors = new List<UploaderErrorInfo>();
+    }
 
-        public int Count => Errors.Count;
+    public void Add(string text)
+    {
+        Add(DefaultTitle, text);
+    }
 
-        public string DefaultTitle { get; set; } = "Error";
+    private void Add(string title, string text)
+    {
+        Errors.Add(new UploaderErrorInfo(title, text));
+    }
 
-        public UploaderErrorManager()
-        {
-            Errors = new List<UploaderErrorInfo>();
-        }
+    public void Add(UploaderErrorManager manager)
+    {
+        Errors.AddRange(manager.Errors);
+    }
 
-        public void Add(string text)
-        {
-            Add(DefaultTitle, text);
-        }
+    public void AddFirst(string text)
+    {
+        AddFirst(DefaultTitle, text);
+    }
 
-        private void Add(string title, string text)
-        {
-            Errors.Add(new UploaderErrorInfo(title, text));
-        }
+    private void AddFirst(string title, string text)
+    {
+        Errors.Insert(0, new UploaderErrorInfo(title, text));
+    }
 
-        public void Add(UploaderErrorManager manager)
-        {
-            Errors.AddRange(manager.Errors);
-        }
-
-        public void AddFirst(string text)
-        {
-            AddFirst(DefaultTitle, text);
-        }
-
-        private void AddFirst(string title, string text)
-        {
-            Errors.Insert(0, new UploaderErrorInfo(title, text));
-        }
-
-        public override string ToString()
-        {
-            return string.Join(Environment.NewLine + Environment.NewLine, Errors.Select(x => x.Text));
-        }
+    public override string ToString()
+    {
+        return string.Join(Environment.NewLine + Environment.NewLine, Errors.Select(x => x.Text));
     }
 }
+

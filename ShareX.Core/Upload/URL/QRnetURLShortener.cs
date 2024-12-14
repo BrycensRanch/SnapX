@@ -25,59 +25,58 @@
 
 
 using System.Text.Json;
-using ShareX.Core.Upload;
 using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 
-namespace ShareX.Core.Upload.URL
+namespace ShareX.Core.Upload.URL;
+
+public class QRnetURLShortenerService : URLShortenerService
 {
-    public class QRnetURLShortenerService : URLShortenerService
+    public override UrlShortenerType EnumValue => UrlShortenerType.QRnet;
+
+    public override bool CheckConfig(UploadersConfig config) => true;
+
+    public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public override UrlShortenerType EnumValue { get; } = UrlShortenerType.QRnet;
+        return new QRnetURLShortener();
+    }
+}
 
-        public override bool CheckConfig(UploadersConfig config) => true;
+public sealed class QRnetURLShortener : URLShortener
+{
+    private const string API_ENDPOINT = "http://qr.net/api/short";
 
-        public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
+    public override UploadResult ShortenURL(string url)
+    {
+        var result = new UploadResult { URL = url };
+
+        var args = new Dictionary<string, string>
         {
-            return new QRnetURLShortener();
-        }
-    }
+            { "longurl", url }
+        };
 
-    public sealed class QRnetURLShortener : URLShortener
-    {
-        private const string API_ENDPOINT = "http://qr.net/api/short";
+        var response = SendRequest(HttpMethod.Get, API_ENDPOINT, args);
 
-        public override UploadResult ShortenURL(string url)
+        if (string.IsNullOrEmpty(response)) return result;
+
+        var jsonResponse = JsonSerializer.Deserialize<QRnetURLShortenerResponse>(response);
+
+        if (jsonResponse != null)
         {
-            UploadResult result = new UploadResult { URL = url };
-
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("longurl", url);
-
-            string response = SendRequest(HttpMethod.Get, API_ENDPOINT, args);
-
-            if (!string.IsNullOrEmpty(response))
-            {
-                QRnetURLShortenerResponse jsonResponse = JsonSerializer.Deserialize<QRnetURLShortenerResponse>(response);
-
-                if (jsonResponse != null)
-                {
-                    result.ShortenedURL = jsonResponse.url;
-                }
-            }
-
-            return result;
+            result.ShortenedURL = jsonResponse.url;
         }
-    }
 
-    public class QRnetURLShortenerResponse
-    {
-        public string facebook_url { get; set; }
-        public string stat_url { get; set; }
-        public string twitter_url { get; set; }
-        public string url { get; set; }
-        public string target_host { get; set; }
-        public string host { get; set; }
+        return result;
     }
+}
+
+public class QRnetURLShortenerResponse
+{
+    public string facebook_url { get; set; }
+    public string stat_url { get; set; }
+    public string twitter_url { get; set; }
+    public string url { get; set; }
+    public string target_host { get; set; }
+    public string host { get; set; }
 }

@@ -23,12 +23,11 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.SharingServices
-{
-    public class LinkedInSharingService : SimpleURLSharingService
-    {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.LinkedIn;
+namespace ShareX.Core.Upload.SharingServices;
 
-        protected override string URLFormatString { get; } = "https://www.linkedin.com/shareArticle?url={0}";
-    }
+public class LinkedInSharingService : SimpleURLSharingService
+{
+    public override URLSharingServices EnumValue => URLSharingServices.LinkedIn;
+
+    protected override string URLFormatString => "https://www.linkedin.com/shareArticle?url={0}";
 }

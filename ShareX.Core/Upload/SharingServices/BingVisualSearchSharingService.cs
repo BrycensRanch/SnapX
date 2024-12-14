@@ -25,12 +25,12 @@
 
 using ShareX.Core.Upload;
 
-namespace ShareX.Core.Upload.SharingServices
-{
-    public class BingVisualSearchSharingService : SimpleURLSharingService
-    {
-        public override URLSharingServices EnumValue { get; } = URLSharingServices.BingVisualSearch;
+namespace ShareX.Core.Upload.SharingServices;
 
-        protected override string URLFormatString { get; } = "https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:{0}";
-    }
+public class BingVisualSearchSharingService : SimpleURLSharingService
+{
+    public override URLSharingServices EnumValue => URLSharingServices.BingVisualSearch;
+
+    protected override string URLFormatString => "https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:{0}";
 }
+

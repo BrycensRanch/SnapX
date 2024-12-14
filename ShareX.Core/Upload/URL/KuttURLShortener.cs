@@ -35,7 +35,7 @@ namespace ShareX.Core.Upload.URL
 {
     public class KuttURLShortenerService : URLShortenerService
     {
-        public override UrlShortenerType EnumValue { get; } = UrlShortenerType.Kutt;
+        public override UrlShortenerType EnumValue => UrlShortenerType.Kutt;
         public override bool CheckConfig(UploadersConfig config)
         {
             return !string.IsNullOrEmpty(config.KuttSettings.APIKey);
@@ -58,7 +58,7 @@ namespace ShareX.Core.Upload.URL
 
         public override UploadResult ShortenURL(string url)
         {
-            UploadResult result = new UploadResult { URL = url };
+            var result = new UploadResult { URL = url };
             result.ShortenedURL = Submit(url);
             return result;
         }
@@ -74,9 +74,9 @@ namespace ShareX.Core.Upload.URL
                 Settings.Host = URLHelpers.FixPrefix(Settings.Host);
             }
 
-            string requestURL = URLHelpers.CombineURL(Settings.Host, "/api/v2/links");
+            var requestURL = URLHelpers.CombineURL(Settings.Host, "/api/v2/links");
 
-            KuttShortenLinkBody body = new KuttShortenLinkBody()
+            var body = new KuttShortenLinkBody()
             {
                 target = url,
                 password = Settings.Password,
@@ -85,24 +85,17 @@ namespace ShareX.Core.Upload.URL
                 domain = Settings.Domain
             };
 
-            string json = JsonSerializer.Serialize(body);
+            var json = JsonSerializer.Serialize(body);
 
-            NameValueCollection headers = new NameValueCollection();
-            headers.Add("X-API-KEY", Settings.APIKey);
+            var headers = new NameValueCollection { { "X-API-KEY", Settings.APIKey } };
 
-            string response = SendRequest(HttpMethod.Post, requestURL, json, RequestHelpers.ContentTypeJSON, headers: headers);
+            var response = SendRequest(HttpMethod.Post, requestURL, json, RequestHelpers.ContentTypeJSON, headers: headers);
 
-            if (!string.IsNullOrEmpty(response))
-            {
-                KuttShortenLinkResponse shortenLinkResponse = JsonSerializer.Deserialize<KuttShortenLinkResponse>(response);
+            if (string.IsNullOrEmpty(response)) return null;
 
-                if (shortenLinkResponse != null)
-                {
-                    return shortenLinkResponse.link;
-                }
-            }
+            var shortenLinkResponse = JsonSerializer.Deserialize<KuttShortenLinkResponse>(response);
 
-            return null;
+            return shortenLinkResponse != null ? shortenLinkResponse.link : null;
         }
 
         private class KuttShortenLinkBody

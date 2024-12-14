@@ -23,12 +23,12 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.OAuth
-{
-    public interface IOAuth2 : IOAuth2Basic
-    {
-        bool RefreshAccessToken();
+namespace ShareX.Core.Upload.OAuth;
 
-        bool CheckAuthorization();
-    }
+public interface IOAuth2 : IOAuth2Basic
+{
+    bool RefreshAccessToken();
+
+    bool CheckAuthorization();
 }
+

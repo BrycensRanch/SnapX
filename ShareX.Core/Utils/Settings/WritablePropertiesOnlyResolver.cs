@@ -26,31 +26,31 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ShareX.Core.Utils.Settings
+namespace ShareX.Core.Utils.Settings;
+
+public class WritablePropertiesOnlyConverter<T> : JsonConverter<T>
 {
-    public class WritablePropertiesOnlyConverter<T> : JsonConverter<T>
+    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        return JsonSerializer.Deserialize<T>(ref reader, options) ?? throw new JsonException("Unexpected end when reading properties");
+    }
+
+    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+    {
+        var properties = value.GetType().GetProperties()
+            .Where(p => p.CanWrite)
+            .ToList();
+
+        writer.WriteStartObject();
+
+        foreach (var property in properties)
         {
-            return JsonSerializer.Deserialize<T>(ref reader, options) ?? throw new JsonException("Unexpected end when reading properties");
+            // Get property value
+            var propertyValue = property.GetValue(value);
+            JsonSerializer.Serialize(writer, propertyValue, property.PropertyType, options);
         }
 
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        {
-            var properties = value.GetType().GetProperties()
-                .Where(p => p.CanWrite)
-                .ToList();
-
-            writer.WriteStartObject();
-
-            foreach (var property in properties)
-            {
-                // Get property value
-                var propertyValue = property.GetValue(value);
-                JsonSerializer.Serialize(writer, propertyValue, property.PropertyType, options);
-            }
-
-            writer.WriteEndObject();
-        }
+        writer.WriteEndObject();
     }
 }
+

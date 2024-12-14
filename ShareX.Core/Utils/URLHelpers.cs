@@ -33,537 +33,384 @@ using System.Text.RegularExpressions;
 using System.Web;
 using ShareX.Core.Utils.Miscellaneous;
 
-namespace ShareX.Core.Utils
+namespace ShareX.Core.Utils;
+
+public static class URLHelpers
 {
-    public static class URLHelpers
+    public const string URLCharacters = Helpers.Alphanumeric + "-._~"; // 45 46 95 126
+    public const string URLPathCharacters = URLCharacters + "/"; // 47
+    public const string ValidURLCharacters = URLPathCharacters + ":?#[]@!$&'()*+,;= ";
+
+    private static readonly string[] URLPrefixes = new[] { "http://", "https://", "ftp://", "ftps://", "file://", "//" };
+    private static readonly char[] BidiControlCharacters = new[] { '\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E' };
+
+    public static void OpenURL(string url)
     {
-        public const string URLCharacters = Helpers.Alphanumeric + "-._~"; // 45 46 95 126
-        public const string URLPathCharacters = URLCharacters + "/"; // 47
-        public const string ValidURLCharacters = URLPathCharacters + ":?#[]@!$&'()*+,;= ";
-
-        private static readonly string[] URLPrefixes = new string[] { "http://", "https://", "ftp://", "ftps://", "file://", "//" };
-        private static readonly char[] BidiControlCharacters = new char[] { '\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E' };
-
-        public static void OpenURL(string url)
+        if (string.IsNullOrEmpty(url)) return;
+        System.Threading.Tasks.Task.Run(() =>
         {
-            if (!string.IsNullOrEmpty(url))
+            try
             {
-                System.Threading.Tasks.Task.Run(() =>
+                using var process = new Process();
+                var psi = new ProcessStartInfo
                 {
-                    try
-                    {
-                        using (Process process = new Process())
-                        {
-                            ProcessStartInfo psi = new ProcessStartInfo
-                            {
-                                UseShellExecute = true,
-                            };
-                            if (!string.IsNullOrEmpty(HelpersOptions.BrowserPath))
-                            {
-                                psi.FileName = HelpersOptions.BrowserPath;
-                                psi.Arguments = url;
-                            }
-                            else
-                            {
-                                psi.FileName = url;
-                            }
-
-                            process.StartInfo = psi;
-                            process.Start();
-                        }
-
-                        DebugHelper.WriteLine("URL opened: " + url);
-                    }
-                    catch (Exception e)
-                    {
-                        DebugHelper.WriteException(e, $"OpenURL({url}) failed");
-                    }
-                });
-            }
-        }
-
-        public static string URLEncode(string text, bool isPath = false, bool ignoreEmoji = false)
-        {
-            if (ignoreEmoji)
-            {
-                return URLEncodeIgnoreEmoji(text, isPath);
-            }
-
-            StringBuilder sb = new StringBuilder();
-
-            if (!string.IsNullOrEmpty(text))
-            {
-                string unreservedCharacters;
-
-                if (isPath)
+                    UseShellExecute = true,
+                };
+                if (!string.IsNullOrEmpty(HelpersOptions.BrowserPath))
                 {
-                    unreservedCharacters = URLPathCharacters;
+                    psi.FileName = HelpersOptions.BrowserPath;
+                    psi.Arguments = url;
                 }
                 else
                 {
-                    unreservedCharacters = URLCharacters;
+                    psi.FileName = url;
                 }
 
-                foreach (char c in Encoding.UTF8.GetBytes(text))
-                {
-                    if (unreservedCharacters.IndexOf(c) != -1)
-                    {
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        sb.AppendFormat(CultureInfo.InvariantCulture, "%{0:X2}", (int)c);
-                    }
-                }
+                process.StartInfo = psi;
+                process.Start();
+
+                DebugHelper.WriteLine("URL opened: " + url);
             }
-
-            return sb.ToString();
-        }
-
-        public static string URLEncodeIgnoreEmoji(string text, bool isPath = false)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < text.Length; i++)
+            catch (Exception e)
             {
-                string remainingText = text.Substring(i);
-                sb.Append(URLEncode(remainingText.Substring(0, 1), isPath));
+                DebugHelper.WriteException(e, $"OpenURL({url}) failed");
             }
+        });
+    }
 
-            return sb.ToString();
+    public static string URLEncode(string text, bool isPath = false, bool ignoreEmoji = false)
+    {
+        if (ignoreEmoji)
+        {
+            return URLEncodeIgnoreEmoji(text, isPath);
         }
 
-        public static string RemoveBidiControlCharacters(string text)
+        var sb = new StringBuilder();
+        if (string.IsNullOrEmpty(text)) return sb.ToString();
+
+
+        var unreservedCharacters = isPath ? URLPathCharacters : URLCharacters;
+
+        foreach (char c in Encoding.UTF8.GetBytes(text))
         {
-            return new string(text.Where(c => !BidiControlCharacters.Contains(c)).ToArray());
-        }
-
-        public static string ReplaceReservedCharacters(string text, string replace)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            string last = null;
-
-            foreach (char c in text)
+            if (unreservedCharacters.Contains(c))
             {
-                if (URLCharacters.Contains(c))
-                {
-                    last = c.ToString();
-                }
-                else if (last != replace)
-                {
-                    last = replace;
-                }
-                else
-                {
-                    continue;
-                }
-
-                sb.Append(last);
-            }
-
-            return sb.ToString();
-        }
-
-        public static string HtmlEncode(string text)
-        {
-            char[] chars = HttpUtility.HtmlEncode(text).ToCharArray();
-            StringBuilder result = new StringBuilder(chars.Length + (int)(chars.Length * 0.1));
-
-            foreach (char c in chars)
-            {
-                int value = Convert.ToInt32(c);
-
-                if (value > 127)
-                {
-                    result.AppendFormat("&#{0};", value);
-                }
-                else
-                {
-                    result.Append(c);
-                }
-            }
-
-            return result.ToString();
-        }
-
-        public static string JSONEncode(string text)
-        {
-            text = JsonSerializer.Serialize(text);
-
-            // Remove the surrounding quotes added during serialization
-            return text[1..^1];
-        }
-
-        public static string XMLEncode(string text)
-        {
-            return SecurityElement.Escape(text);
-        }
-
-        public static string URLDecode(string url, int count = 1)
-        {
-            string temp = null;
-
-            for (int i = 0; i < count && url != temp; i++)
-            {
-                temp = url;
-                url = HttpUtility.UrlDecode(url);
-            }
-
-            return url;
-        }
-
-        public static string CombineURL(string url1, string url2)
-        {
-            bool url1Empty = string.IsNullOrEmpty(url1);
-            bool url2Empty = string.IsNullOrEmpty(url2);
-
-            if (url1Empty && url2Empty)
-            {
-                return "";
-            }
-
-            if (url1Empty)
-            {
-                return url2;
-            }
-
-            if (url2Empty)
-            {
-                return url1;
-            }
-
-            if (url1.EndsWith("/"))
-            {
-                url1 = url1.Substring(0, url1.Length - 1);
-            }
-
-            if (url2.StartsWith("/"))
-            {
-                url2 = url2.Remove(0, 1);
-            }
-
-            return url1 + "/" + url2;
-        }
-
-        public static string CombineURL(params string[] urls)
-        {
-            return urls.Aggregate(CombineURL);
-        }
-
-        public static bool IsValidURL(string url, bool useRegex = true)
-        {
-            if (string.IsNullOrEmpty(url)) return false;
-
-            url = url.Trim();
-
-            if (useRegex)
-            {
-                // Source: https://gist.github.com/729294
-                string pattern =
-                    "^" +
-                    // protocol identifier
-                    "(?:(?:https?|ftp)://)" +
-                    // user:pass authentication
-                    "(?:\\S+(?::\\S*)?@)?" +
-                    "(?:" +
-                    // IP address exclusion
-                    // private & local networks
-                    "(?!(?:10|127)(?:\\.\\d{1,3}){3})" +
-                    "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" +
-                    "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" +
-                    // IP address dotted notation octets
-                    // excludes loopback network 0.0.0.0
-                    // excludes reserved space >= 224.0.0.0
-                    // excludes network & broacast addresses
-                    // (first & last IP address of each class)
-                    "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" +
-                    "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" +
-                    "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" +
-                    "|" +
-                    // host name
-                    "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" +
-                    // domain name
-                    "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" +
-                    // TLD identifier
-                    "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" +
-                    // TLD may end with dot
-                    "\\.?" +
-                    ")" +
-                    // port number
-                    "(?::\\d{2,5})?" +
-                    // resource path
-                    "(?:[/?#]\\S*)?" +
-                    "$";
-
-                return Regex.IsMatch(url, pattern, RegexOptions.IgnoreCase);
-            }
-
-            return !url.StartsWith("file://") && Uri.IsWellFormedUriString(url, UriKind.Absolute);
-        }
-
-        public static string AddSlash(string url, SlashType slashType)
-        {
-            return AddSlash(url, slashType, 1);
-        }
-
-        public static string AddSlash(string url, SlashType slashType, int count)
-        {
-            if (slashType == SlashType.Prefix)
-            {
-                if (url.StartsWith("/"))
-                {
-                    url = url.Remove(0, 1);
-                }
-
-                for (int i = 0; i < count; i++)
-                {
-                    url = "/" + url;
-                }
+                sb.Append(c);
             }
             else
             {
-                if (url.EndsWith("/"))
-                {
-                    url = url.Substring(0, url.Length - 1);
-                }
-
-                for (int i = 0; i < count; i++)
-                {
-                    url += "/";
-                }
+                sb.AppendFormat(CultureInfo.InvariantCulture, "%{0:X2}", (int)c);
             }
-
-            return url;
         }
 
-        public static string GetFileName(string path)
+        return sb.ToString();
+    }
+
+    public static string URLEncodeIgnoreEmoji(string text, bool isPath = false)
+    {
+        var sb = new StringBuilder();
+
+        for (var i = 0; i < text.Length; i++)
         {
-            if (path.Contains('/'))
+            var remainingText = text[i..];
+
+            sb.Append(URLEncode(remainingText[0..1], isPath));
+        }
+
+        return sb.ToString();
+    }
+
+    public static string RemoveBidiControlCharacters(string text)
+    {
+        return new string(text.Where(c => !BidiControlCharacters.Contains(c)).ToArray());
+    }
+
+    public static string ReplaceReservedCharacters(string text, string replace)
+    {
+        var sb = new StringBuilder();
+
+        string last = null;
+
+        foreach (var c in text)
+        {
+            if (URLCharacters.Contains(c))
             {
-                path = path.Substring(path.LastIndexOf('/') + 1);
+                last = c.ToString();
             }
-
-            if (path.Contains('?'))
+            else if (last != replace)
             {
-                path = path.Remove(path.IndexOf('?'));
+                last = replace;
             }
-
-            if (path.Contains('#'))
+            else
             {
-                path = path.Remove(path.IndexOf('#'));
+                continue;
             }
 
-            return path;
+            sb.Append(last);
         }
 
-        public static bool IsFileURL(string url)
-        {
-            int index = url.LastIndexOf('/');
+        return sb.ToString();
+    }
 
-            if (index < 0)
+    public static string HtmlEncode(string text)
+    {
+        var chars = HttpUtility.HtmlEncode(text).ToCharArray();
+        var result = new StringBuilder(chars.Length + (int)(chars.Length * 0.1));
+
+        foreach (var c in chars)
+        {
+            var value = Convert.ToInt32(c);
+
+            if (value > 127)
             {
-                return false;
+                result.AppendFormat("&#{0};", value);
             }
-
-            string path = url.Substring(index + 1);
-
-            return !string.IsNullOrEmpty(path) && path.Contains(".");
-        }
-
-        public static string GetDirectoryPath(string path)
-        {
-            if (path.Contains("/"))
+            else
             {
-                path = path.Substring(0, path.LastIndexOf('/'));
+                result.Append(c);
             }
-
-            return path;
         }
 
-        public static List<string> GetPaths(string path)
-        {
-            List<string> paths = new List<string>();
+        return result.ToString();
+    }
 
-            for (int i = 0; i < path.Length; i++)
+    public static string JSONEncode(string text)
+    {
+        text = JsonSerializer.Serialize(text);
+
+        // Remove the surrounding quotes added during serialization
+        return text[1..^1];
+    }
+
+    public static string XMLEncode(string text)
+    {
+        return SecurityElement.Escape(text);
+    }
+
+    public static string URLDecode(string url, int count = 1)
+    {
+        string temp = null;
+
+        for (var i = 0; i < count && url != temp; i++)
+        {
+            temp = url;
+            url = HttpUtility.UrlDecode(url);
+        }
+
+        return url;
+    }
+
+    public static string CombineURL(string url1, string url2)
+    {
+        if (string.IsNullOrEmpty(url1)) return url2 ?? "";
+        if (string.IsNullOrEmpty(url2)) return url1;
+
+        url1 = url1.TrimEnd('/');
+        url2 = url2.TrimStart('/');
+
+        return $"{url1}/{url2}";
+    }
+
+    public static string CombineURL(params string[] urls) => urls.Aggregate(CombineURL);
+    public static bool IsValidURL(string url, bool useRegex = true)
+    {
+        if (string.IsNullOrEmpty(url)) return false;
+
+        url = url.Trim();
+
+        if (useRegex)
+        {
+            const string pattern = @"^
+            (?:(?:https?|ftp)://)                             # protocol identifier
+            (?:\S+(?::\S*)?@)?                                # user:pass authentication
+            (?:(?!(?:10|127)(?:\.\d{1,3}){3})                 # IP address exclusion
+               (?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})
+               (?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})
+               (?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])            # valid IP address range
+               (?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}
+               (?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))
+            |                                                 # OR host name
+            (?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)
+            (?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)* # domain name
+            (?:\.(?:[a-z\u00a1-\uffff]{2,}))                    # TLD
+            \.?
+            )
+            (?::\d{2,5})?                                     # optional port number
+            (?:[/?#]\S*)?                                     # optional resource path
+            $";
+
+            return Regex.IsMatch(url, pattern, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        }
+
+        return !url.StartsWith("file://") && Uri.IsWellFormedUriString(url, UriKind.Absolute);
+    }
+
+    public static string AddSlash(string url, SlashType slashType) => AddSlash(url, slashType, 1);
+
+    public static string AddSlash(string url, SlashType slashType, int count)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return slashType == SlashType.Prefix ? new string('/', count) : url;
+        }
+
+        return slashType switch
+        {
+            SlashType.Prefix => $"{new string('/', count)}{url.TrimStart('/')}",
+            SlashType.Suffix => $"{url.TrimEnd('/')}{new string('/', count)}",
+            _ => throw new ArgumentException("Invalid slash type.", nameof(slashType))
+        };
+    }
+
+    public static string GetFileName(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        var fileName = Path.GetFileName(path);
+        var cleanFileName = fileName.Split(new[] { '?', '#' })[0];
+
+        return cleanFileName;
+    }
+
+    public static bool IsFileURL(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+
+        var path = url.Substring(url.LastIndexOf('/') + 1);
+
+        return !string.IsNullOrEmpty(path) && path.Contains('.');
+    }
+
+    public static string GetDirectoryPath(string path)
+    {
+        return path.Contains("/") ? path.Substring(0, path.LastIndexOf('/')) : path;
+    }
+
+    public static List<string> GetPaths(string path)
+    {
+        return path.Split('/')
+            .Where(p => !string.IsNullOrEmpty(p))
+            .Aggregate(new List<string>(), (list, part) =>
             {
-                if (path[i] == '/')
-                {
-                    string currentPath = path.Remove(i);
+                list.Add(part);
+                return list;
+            });
+    }
 
-                    if (!string.IsNullOrEmpty(currentPath))
-                    {
-                        paths.Add(currentPath);
-                    }
-                }
-                else if (i == path.Length - 1)
-                {
-                    paths.Add(path);
-                }
-            }
+    public static bool HasPrefix(string url)
+    {
+        return URLPrefixes.Any(x => url.StartsWith(x, StringComparison.OrdinalIgnoreCase));
+    }
 
-            return paths;
+    public static string GetPrefix(string url)
+    {
+        return URLPrefixes.FirstOrDefault(x => url.StartsWith(x, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static string FixPrefix(string url, string prefix = "https://")
+    {
+        if (!string.IsNullOrEmpty(url) && !HasPrefix(url))
+        {
+            return prefix + url;
         }
 
-        public static bool HasPrefix(string url)
+        return url;
+    }
+
+    public static string ForcePrefix(string url, string prefix = "https://")
+    {
+        if (!string.IsNullOrEmpty(url))
         {
-            return URLPrefixes.Any(x => url.StartsWith(x, StringComparison.OrdinalIgnoreCase));
+            url = prefix + RemovePrefixes(url);
         }
 
-        public static string GetPrefix(string url)
+        return url;
+    }
+
+    public static string RemovePrefixes(string url)
+    {
+        foreach (var prefix in URLPrefixes)
         {
-            return URLPrefixes.FirstOrDefault(x => url.StartsWith(x, StringComparison.OrdinalIgnoreCase));
+            if (!url.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            url = url.Remove(0, prefix.Length);
+            break;
         }
 
-        public static string FixPrefix(string url, string prefix = "https://")
+        return url;
+    }
+
+    public static string GetHostName(string url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out Uri uri) && !string.IsNullOrEmpty(uri.Host)
+            ? uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase)
+                ? uri.Host.Substring(4)
+                : uri.Host
+            : url;
+    }
+
+    public static string CreateQueryString(Dictionary<string, string> args, bool customEncoding = false)
+    {
+        if (args == null || args.Count == 0)
         {
-            if (!string.IsNullOrEmpty(url) && !HasPrefix(url))
+            return string.Empty;
+        }
+
+        var pairs = new List<string>();
+
+        foreach (var arg in args)
+        {
+            string pair;
+            if (string.IsNullOrEmpty(arg.Value))
             {
-                return prefix + url;
+                pair = arg.Key;
             }
-
-            return url;
-        }
-
-        public static string ForcePrefix(string url, string prefix = "https://")
-        {
-            if (!string.IsNullOrEmpty(url))
+            else
             {
-                url = prefix + RemovePrefixes(url);
+                var value = customEncoding ? URLEncode(arg.Value) : HttpUtility.UrlEncode(arg.Value);
+                pair = $"{arg.Key}={value}";
             }
-
-            return url;
+            pairs.Add(pair);
         }
 
-        public static string RemovePrefixes(string url)
-        {
-            foreach (string prefix in URLPrefixes)
-            {
-                if (url.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    url = url.Remove(0, prefix.Length);
-                    break;
-                }
-            }
+        return string.Join("&", pairs);
+    }
 
-            return url;
-        }
+    public static string CreateQueryString(string url, Dictionary<string, string> args, bool customEncoding = false)
+    {
+        var query = CreateQueryString(args, customEncoding);
 
-        public static string GetHostName(string url)
-        {
-            if (!string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
-            {
-                string host = uri.Host;
+        if (string.IsNullOrEmpty(query)) return url;
 
-                if (!string.IsNullOrEmpty(host))
-                {
-                    if (host.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
-                    {
-                        host = host.Substring(4);
-                    }
+        return url.Contains("?") ? $"{url}&{query}" : $"{url}?{query}";
+    }
 
-                    return host;
-                }
-            }
+    public static string RemoveQueryString(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return url;
 
-            return url;
-        }
+        int index = url.IndexOf("?");
+        return index > -1 ? url.Remove(index) : url;
+    }
 
-        public static string CreateQueryString(Dictionary<string, string> args, bool customEncoding = false)
-        {
-            if (args != null && args.Count > 0)
-            {
-                List<string> pairs = new List<string>();
 
-                foreach (KeyValuePair<string, string> arg in args)
-                {
-                    string pair;
+    public static NameValueCollection ParseQueryString(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return null;
 
-                    if (string.IsNullOrEmpty(arg.Value))
-                    {
-                        pair = arg.Key;
-                    }
-                    else
-                    {
-                        string value;
+        var index = url.IndexOf("?");
+        return index > -1 && index + 1 < url.Length
+            ? HttpUtility.ParseQueryString(url.Substring(index + 1))
+            : null;
+    }
 
-                        if (customEncoding)
-                        {
-                            value = URLEncode(arg.Value);
-                        }
-                        else
-                        {
-                            value = HttpUtility.UrlEncode(arg.Value);
-                        }
-
-                        pair = arg.Key + "=" + value;
-                    }
-
-                    pairs.Add(pair);
-                }
-
-                return string.Join("&", pairs);
-            }
-
-            return "";
-        }
-
-        public static string CreateQueryString(string url, Dictionary<string, string> args, bool customEncoding = false)
-        {
-            string query = CreateQueryString(args, customEncoding);
-
-            if (!string.IsNullOrEmpty(query))
-            {
-                if (url.Contains("?"))
-                {
-                    return url + "&" + query;
-                }
-                else
-                {
-                    return url + "?" + query;
-                }
-            }
-
-            return url;
-        }
-
-        public static string RemoveQueryString(string url)
-        {
-            if (!string.IsNullOrEmpty(url))
-            {
-                int index = url.IndexOf("?");
-
-                if (index > -1)
-                {
-                    return url.Remove(index);
-                }
-            }
-
-            return url;
-        }
-
-        public static NameValueCollection ParseQueryString(string url)
-        {
-            if (!string.IsNullOrEmpty(url))
-            {
-                int index = url.IndexOf("?");
-
-                if (index > -1 && index + 1 < url.Length)
-                {
-                    string query = url.Substring(index + 1);
-                    return HttpUtility.ParseQueryString(query);
-                }
-            }
-
-            return null;
-        }
-
-        public static string BuildUri(string root, string path, string query = null)
-        {
-            UriBuilder builder = new UriBuilder(root);
-            builder.Path = path;
-            builder.Query = query;
-            return builder.Uri.AbsoluteUri;
-        }
+    public static string BuildUri(string root, string path, string query = null)
+    {
+        var builder = new UriBuilder(root) { Path = path, Query = query };
+        return builder.Uri.AbsoluteUri;
     }
 }

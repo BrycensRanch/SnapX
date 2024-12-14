@@ -23,10 +23,10 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.OAuth
+namespace ShareX.Core.Upload.OAuth;
+
+public interface IOAuth : IOAuthBase
 {
-    public interface IOAuth : IOAuthBase
-    {
-        OAuthInfo AuthInfo { get; }
-    }
+    OAuthInfo AuthInfo { get; }
 }
+

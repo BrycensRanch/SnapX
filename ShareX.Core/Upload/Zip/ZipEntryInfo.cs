@@ -23,32 +23,25 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.Zip
+namespace ShareX.Core.Upload.Zip;
+
+public class ZipEntryInfo
 {
-    public class ZipEntryInfo
+    public string EntryName { get; set; }
+    public string SourcePath { get; set; }
+    public Stream Data { get; set; }
+
+    public ZipEntryInfo(string sourcePath, string entryName = null)
     {
-        public string EntryName { get; set; }
-        public string SourcePath { get; set; }
-        public Stream Data { get; set; }
+        SourcePath = sourcePath;
 
-        public ZipEntryInfo(string sourcePath, string entryName = null)
-        {
-            SourcePath = sourcePath;
+        EntryName = string.IsNullOrEmpty(entryName) ? sourcePath : entryName;
+    }
 
-            if (string.IsNullOrEmpty(entryName))
-            {
-                EntryName = Path.GetFileName(sourcePath);
-            }
-            else
-            {
-                EntryName = entryName;
-            }
-        }
-
-        public ZipEntryInfo(Stream data, string entryName)
-        {
-            Data = data;
-            EntryName = entryName;
-        }
+    public ZipEntryInfo(Stream data, string entryName)
+    {
+        Data = data;
+        EntryName = entryName;
     }
 }
+

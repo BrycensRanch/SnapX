@@ -28,82 +28,88 @@ using ShareX.Core.Upload.BaseServices;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils;
-using ShareX.UploadersLib;
 
-namespace ShareX.Core.Upload.Image
+namespace ShareX.Core.Upload.Image;
+
+public class CheveretoImageUploaderService : ImageUploaderService
 {
-    public class CheveretoImageUploaderService : ImageUploaderService
+    public override ImageDestination EnumValue => ImageDestination.Chevereto;
+    public override bool CheckConfig(UploadersConfig config)
     {
-        public override ImageDestination EnumValue { get; } = ImageDestination.Chevereto;
-        public override bool CheckConfig(UploadersConfig config)
-        {
-            return config.CheveretoUploader != null && !string.IsNullOrEmpty(config.CheveretoUploader.UploadURL) &&
-                !string.IsNullOrEmpty(config.CheveretoUploader.APIKey);
-        }
-
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new Chevereto(config.CheveretoUploader)
-            {
-                DirectURL = config.CheveretoDirectURL
-            };
-        }
+        return config.CheveretoUploader != null && !string.IsNullOrEmpty(config.CheveretoUploader.UploadURL) &&
+            !string.IsNullOrEmpty(config.CheveretoUploader.APIKey);
     }
 
-    public sealed class Chevereto : ImageUploader
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public CheveretoUploader Uploader { get; private set; }
-
-        public bool DirectURL { get; set; }
-
-        public Chevereto(CheveretoUploader uploader)
+        return new Chevereto(config.CheveretoUploader)
         {
-            Uploader = uploader;
-        }
+            DirectURL = config.CheveretoDirectURL
+        };
+    }
+}
 
-        public override UploadResult Upload(Stream stream, string fileName)
+public sealed class Chevereto : ImageUploader
+{
+    public CheveretoUploader Uploader { get; private set; }
+
+    public bool DirectURL { get; set; }
+
+    public Chevereto(CheveretoUploader uploader)
+    {
+        Uploader = uploader;
+    }
+
+    public override UploadResult Upload(Stream stream, string fileName)
+    {
+        var args = new Dictionary<string, string>
         {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("key", Uploader.APIKey);
-            args.Add("format", "json");
+            { "key", Uploader.APIKey },
+            { "format", "json" }
+        };
 
-            string url = URLHelpers.FixPrefix(Uploader.UploadURL);
+        string url = URLHelpers.FixPrefix(Uploader.UploadURL);
 
-            UploadResult result = SendRequestFile(url, stream, fileName, "source", args);
+        var result = SendRequestFile(url, stream, fileName, "source", args);
 
-            if (result.IsSuccess)
-            {
-                CheveretoResponse response = JsonSerializer.Deserialize<CheveretoResponse>(result.Response);
-
-                if (response != null && response.Image != null)
-                {
-                    result.URL = DirectURL ? response.Image.URL : response.Image.URL_Viewer;
-
-                    if (response.Image.Thumb != null)
-                    {
-                        result.ThumbnailURL = response.Image.Thumb.URL;
-                    }
-                }
-            }
-
+        if (!result.IsSuccess)
+        {
             return result;
         }
 
-        private class CheveretoResponse
+        var response = JsonSerializer.Deserialize<CheveretoResponse>(result.Response);
+
+        if (response?.Image == null)
         {
-            public CheveretoImage Image { get; set; }
+            return result;
         }
 
-        private class CheveretoImage
+        result.URL = DirectURL ? response.Image.URL : response.Image.URL_Viewer;
+
+        if (response.Image.Thumb?.URL != null)
         {
-            public string URL { get; set; }
-            public string URL_Viewer { get; set; }
-            public CheveretoThumb Thumb { get; set; }
+            result.ThumbnailURL = response.Image.Thumb.URL;
         }
 
-        private class CheveretoThumb
-        {
-            public string URL { get; set; }
-        }
+        return result;
+    }
+
+
+    private class CheveretoResponse
+    {
+        public CheveretoImage Image { get; set; }
+    }
+
+    private class CheveretoImage
+    {
+        public string URL { get; set; }
+        public string URL_Viewer { get; set; }
+        public CheveretoThumb Thumb { get; set; }
+    }
+
+    private class CheveretoThumb
+    {
+        public string URL { get; set; }
     }
 }
+

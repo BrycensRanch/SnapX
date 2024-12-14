@@ -29,76 +29,72 @@ using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Upload.Utils;
 using ShareX.Core.Utils;
 
-namespace ShareX.Core.Upload.URL
+namespace ShareX.Core.Upload.URL;
+
+public class PolrURLShortenerService : URLShortenerService
 {
-    public class PolrURLShortenerService : URLShortenerService
+    public override UrlShortenerType EnumValue => UrlShortenerType.Polr;
+
+    public override bool CheckConfig(UploadersConfig config)
     {
-        public override UrlShortenerType EnumValue { get; } = UrlShortenerType.Polr;
-
-        public override bool CheckConfig(UploadersConfig config)
-        {
-            return !string.IsNullOrEmpty(config.PolrAPIHostname) && !string.IsNullOrEmpty(config.PolrAPIKey);
-        }
-
-        public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new PolrURLShortener
-            {
-                Host = config.PolrAPIHostname,
-                Key = config.PolrAPIKey,
-                IsSecret = config.PolrIsSecret,
-                UseAPIv1 = config.PolrUseAPIv1
-            };
-        }
+        return !string.IsNullOrEmpty(config.PolrAPIHostname) && !string.IsNullOrEmpty(config.PolrAPIKey);
     }
 
-    public sealed class PolrURLShortener : URLShortener
+    public override URLShortener CreateShortener(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public string Host { get; set; }
-        public string Key { get; set; }
-        public bool IsSecret { get; set; }
-        public bool UseAPIv1 { get; set; }
-
-        public override UploadResult ShortenURL(string url)
+        return new PolrURLShortener
         {
-            UploadResult result = new UploadResult { URL = url };
-
-            Host = URLHelpers.FixPrefix(Host);
-
-            Dictionary<string, string> args = new Dictionary<string, string>();
-
-            if (!string.IsNullOrEmpty(Key))
-            {
-                if (UseAPIv1)
-                {
-                    args.Add("apikey", Key);
-                }
-                else
-                {
-                    args.Add("key", Key);
-                }
-            }
-
-            if (UseAPIv1)
-            {
-                args.Add("action", "shorten");
-            }
-
-            args.Add("url", url);
-
-            if (IsSecret && !UseAPIv1)
-            {
-                args.Add("is_secret", "true");
-            }
-
-            string response = SendRequest(HttpMethod.Get, Host, args);
-
-            if (!string.IsNullOrEmpty(response))
-            {
-                result.ShortenedURL = response;
-            }
-
-            return result;
-        }
+            Host = config.PolrAPIHostname,
+            Key = config.PolrAPIKey,
+            IsSecret = config.PolrIsSecret,
+            UseAPIv1 = config.PolrUseAPIv1
+        };
     }
 }
+
+public sealed class PolrURLShortener : URLShortener
+{
+    public string Host { get; set; }
+    public string Key { get; set; }
+    public bool IsSecret { get; set; }
+    public bool UseAPIv1 { get; set; }
+
+    public override UploadResult ShortenURL(string url)
+    {
+        var result = new UploadResult { URL = url };
+
+        Host = URLHelpers.FixPrefix(Host);
+
+        var args = new Dictionary<string, string>
+        {
+            { "url", url }
+        };
+
+        if (!string.IsNullOrEmpty(Key))
+        {
+            if (UseAPIv1)
+            {
+                args.Add("apikey", Key);
+                args.Add("action", "shorten");
+            }
+            else
+            {
+                args.Add("key", Key);
+                if (IsSecret)
+                {
+                    args.Add("is_secret", "true");
+                }
+            }
+        }
+
+        var response = SendRequest(HttpMethod.Get, Host, args);
+
+        if (!string.IsNullOrEmpty(response))
+        {
+            result.ShortenedURL = response;
+        }
+
+        return result;
+    }
+}
+

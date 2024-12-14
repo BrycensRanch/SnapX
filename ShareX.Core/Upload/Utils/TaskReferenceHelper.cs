@@ -23,16 +23,15 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload.Utils
+namespace ShareX.Core.Upload.Utils;
+
+public class TaskReferenceHelper
 {
-    public class TaskReferenceHelper
-    {
-        public EDataType DataType { get; set; }
-        public bool StopRequested { get; set; }
-        public bool OverrideFTP { get; set; }
-        public int FTPIndex { get; set; }
-        public bool OverrideCustomUploader { get; set; }
-        public int CustomUploaderIndex { get; set; }
-        public string TextFormat { get; set; }
-    }
+    public EDataType DataType { get; set; }
+    public bool StopRequested { get; set; }
+    public bool OverrideFTP { get; set; }
+    public int FTPIndex { get; set; }
+    public bool OverrideCustomUploader { get; set; }
+    public int CustomUploaderIndex { get; set; }
+    public string TextFormat { get; set; }
 }

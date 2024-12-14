@@ -23,56 +23,42 @@
 
 #endregion License Information (GPL v3)
 
-namespace ShareX.Core.Upload
+namespace ShareX.Core.Upload;
+
+public static class UploadersConfigValidator
 {
-    public static class UploadersConfigValidator
+    public static bool Validate<T>(int index, UploadersConfig config)
     {
-        public static bool Validate<T>(int index, UploadersConfig config)
+        var destination = (Enum)Enum.ToObject(typeof(T), index);
+
+        return destination switch
         {
-            Enum destination = (Enum)Enum.ToObject(typeof(T), index);
-
-            switch (destination)
-            {
-                case ImageDestination imageDestination:
-                    return Validate(imageDestination, config);
-                case TextDestination textDestination:
-                    return Validate(textDestination, config);
-                case FileDestination fileDestination:
-                    return Validate(fileDestination, config);
-                case UrlShortenerType urlShortenerType:
-                    return Validate(urlShortenerType, config);
-                case URLSharingServices urlSharingServices:
-                    return Validate(urlSharingServices, config);
-            }
-
-            return true;
-        }
-
-        public static bool Validate(ImageDestination destination, UploadersConfig config)
-        {
-            if (destination == ImageDestination.FileUploader) return true;
-            return UploaderFactory.ImageUploaderServices[destination].CheckConfig(config);
-        }
-
-        public static bool Validate(TextDestination destination, UploadersConfig config)
-        {
-            if (destination == TextDestination.FileUploader) return true;
-            return UploaderFactory.TextUploaderServices[destination].CheckConfig(config);
-        }
-
-        public static bool Validate(FileDestination destination, UploadersConfig config)
-        {
-            return UploaderFactory.FileUploaderServices[destination].CheckConfig(config);
-        }
-
-        public static bool Validate(UrlShortenerType destination, UploadersConfig config)
-        {
-            return UploaderFactory.URLShortenerServices[destination].CheckConfig(config);
-        }
-
-        public static bool Validate(URLSharingServices destination, UploadersConfig config)
-        {
-            return UploaderFactory.URLSharingServices[destination].CheckConfig(config);
-        }
+            ImageDestination imageDestination => Validate(imageDestination, config),
+            TextDestination textDestination => Validate(textDestination, config),
+            FileDestination fileDestination => Validate(fileDestination, config),
+            UrlShortenerType urlShortenerType => Validate(urlShortenerType, config),
+            URLSharingServices urlSharingServices => Validate(urlSharingServices, config),
+            _ => true
+        };
     }
+
+    public static bool Validate(ImageDestination destination, UploadersConfig config) =>
+        destination == ImageDestination.FileUploader ||
+        UploaderFactory.ImageUploaderServices[destination].CheckConfig(config);
+
+    public static bool Validate(TextDestination destination, UploadersConfig config) =>
+        destination == TextDestination.FileUploader ||
+        UploaderFactory.TextUploaderServices[destination].CheckConfig(config);
+
+
+    public static bool Validate(FileDestination destination, UploadersConfig config) =>
+        UploaderFactory.FileUploaderServices[destination].CheckConfig(config);
+
+    public static bool Validate(UrlShortenerType destination, UploadersConfig config) =>
+        UploaderFactory.URLShortenerServices[destination].CheckConfig(config);
+
+    public static bool Validate(URLSharingServices destination, UploadersConfig config) =>
+        UploaderFactory.URLSharingServices[destination].CheckConfig(config);
+
 }
+

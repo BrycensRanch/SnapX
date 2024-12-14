@@ -27,33 +27,33 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ShareX.Core.Utils.Settings
+namespace ShareX.Core.Utils.Settings;
+
+public class KnownTypesJsonConverter : JsonConverter<object>
 {
-    public class KnownTypesJsonConverter : JsonConverter<object>
+    public IEnumerable<Type> KnownTypes { get; set; }
+
+    public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public IEnumerable<Type> KnownTypes { get; set; }
+        var typeName = reader.GetString();
 
-        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        // Find the type that matches the name in KnownTypes
+        var matchedType = KnownTypes.SingleOrDefault(t => t.Name == typeName);
+
+        if (matchedType == null)
         {
-            var typeName = reader.GetString();
-
-            // Find the type that matches the name in KnownTypes
-            var matchedType = KnownTypes.SingleOrDefault(t => t.Name == typeName);
-
-            if (matchedType == null)
-            {
-                throw new JsonException($"Unknown type: {typeName}");
-            }
-
-            // Deserialize to the matched type
-            return JsonSerializer.Deserialize(ref reader, matchedType, options);
+            throw new JsonException($"Unknown type: {typeName}");
         }
 
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
-        {
-            // Write just the type name (no assembly info needed)
-            var typeName = value.GetType().Name;
-            writer.WriteStringValue(typeName);
-        }
+        // Deserialize to the matched type
+        return JsonSerializer.Deserialize(ref reader, matchedType, options);
+    }
+
+    public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
+    {
+        // Write just the type name (no assembly info needed)
+        var typeName = value.GetType().Name;
+        writer.WriteStringValue(typeName);
     }
 }
+
