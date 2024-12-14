@@ -37,7 +37,7 @@
 
 Name:           sharex
 Version:        %{version}
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
