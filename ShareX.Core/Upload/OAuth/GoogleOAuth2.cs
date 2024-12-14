@@ -26,7 +26,6 @@
 using System.Collections.Specialized;
 using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Utils;
-using ShareX.UploadersLib;
 using System.Text.Json;
 
 namespace ShareX.Core.Upload.OAuth;

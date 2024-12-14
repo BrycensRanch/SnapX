@@ -23,7 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using ShareX.UploadersLib.ImageUploaders;
 using ShareX.Core.Upload.Custom;
 using ShareX.Core.Upload.File;
 using ShareX.Core.Upload.Image;
