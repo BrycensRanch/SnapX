@@ -29,7 +29,7 @@ namespace ShareX.Core;
 
 public static class ShareXResources
 {
-    public static string Name { get; set; } = "ShareX-Linux";
+    public static string Name => "ShareX-Linux";
 
     public static string UserAgent
     {

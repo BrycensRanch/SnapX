@@ -138,13 +138,13 @@ namespace ShareX.Core.Upload.File
                         client.Config.EncryptionMode = FtpEncryptionMode.Implicit;
                         break;
                 }
-
-                client.Config.SslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
+                // The Operating System knows best about what SSL Protocols it should use with .NET
+                // client.Config.SslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
                 client.Config.DataConnectionEncryption = true;
 
                 if (!string.IsNullOrEmpty(account.FTPSCertificateLocation) && System.IO.File.Exists(account.FTPSCertificateLocation))
                 {
-                    X509Certificate cert = X509Certificate2.CreateFromSignedFile(Account.FTPSCertificateLocation);
+                    var cert = X509CertificateLoader.LoadCertificateFromFile(account.FTPSCertificateLocation);
                     client.Config.ClientCertificates.Add(cert);
                 }
                 else

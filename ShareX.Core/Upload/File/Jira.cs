@@ -81,17 +81,17 @@ public class Jira : FileUploader, IOAuth
         // (Based on: http://nick-howard.blogspot.fr/2011/05/makecert-x509-certificates-and-rsa.html)
 
         using var stream = Assembly.GetExecutingAssembly()
-            .GetManifestResourceStream("ShareX.Core.APIKeys.jira_sharex.pfx");
+            .GetManifestResourceStream("ShareX.Core.jira_sharex.pfx");
         var pfx = new byte[stream.Length];
         stream.ReadExactly(pfx);
-        jiraCertificate = new X509Certificate2(pfx, string.Empty, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
+        jiraCertificate = X509CertificateLoader.LoadPkcs12(pfx, string.Empty, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
     }
 
     internal static string PrivateKey
     {
         get
         {
-            return jiraCertificate.PrivateKey.ToXmlString(true);
+            return jiraCertificate.GetRSAPrivateKey()?.ToXmlString(true);
         }
     }
 
@@ -187,7 +187,7 @@ public class Jira : FileUploader, IOAuth
         {
             AuthInfo.AuthVerifier = verificationCode;
 
-            NameValueCollection nv = GetAccessTokenEx(jiraAccessToken.ToString(), AuthInfo, HttpMethod.Post);
+            var nv = GetAccessTokenEx(jiraAccessToken.ToString(), AuthInfo, HttpMethod.Post);
 
             return nv != null;
         }
