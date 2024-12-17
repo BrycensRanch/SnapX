@@ -256,22 +256,8 @@ public class ShareX
         DebugHelper.Init(LogsFilePath);
 
         MultiInstance = CLIManager.IsCommandExist("multi", "m");
-
-        using var singleInstanceManager = new SingleInstanceManager(MutexName, PipeName, !MultiInstance, args);
-        if (!singleInstanceManager.IsSingleInstance || singleInstanceManager.IsFirstInstance)
-        {
-            singleInstanceManager.ArgumentsReceived += SingleInstanceManager_ArgumentsReceived;
-
-
-            Run();
-
-            if (restartRequested)
-            {
-                DebugHelper.WriteLine("Restart is not implemented.");
-            }
-        }
-
-        DebugHelper.Flush();
+        
+        Run();
     }
 
     public long getStartupTime() => StartTimer.ElapsedMilliseconds;
