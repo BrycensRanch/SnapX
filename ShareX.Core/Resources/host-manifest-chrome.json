@@ -1,6 +1,6 @@
 ﻿{
-  "name": "com.getsharex.sharex",
-  "description": "ShareX",
+  "name": "io.github.brycensranch.ShareX",
+  "description": "ShareX Linux",
   "path": "ShareX_NativeMessagingHost.exe",
   "type": "stdio",
   "allowed_origins": [
