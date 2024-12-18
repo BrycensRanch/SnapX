@@ -23,6 +23,7 @@
 
 #endregion License Information (GPL v3)
 
+using System.Text.Json.Serialization;
 using ShareX.Core.Upload.Custom;
 using ShareX.Core.Upload.File;
 using ShareX.Core.Upload.Image;
@@ -32,7 +33,7 @@ using ShareX.Core.Upload.URL;
 using ShareX.Core.Utils.Settings;
 
 namespace ShareX.Core.Upload;
-
+[JsonSerializable(typeof(UploadersConfig))]
 public class UploadersConfig : SettingsBase<UploadersConfig>
 {
     #region Image uploaders

@@ -40,35 +40,35 @@ public abstract class SettingsBase<T> where T : SettingsBase<T>, new()
     public event SettingsSaveFailedEventHandler SettingsSaveFailed;
 
     // Use JsonIgnore for properties that should not be serialized
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     [Browsable(false)] // Still can use Browsable if you're working with UI components
     public string FilePath { get; private set; }
 
     // Use JsonIgnore to prevent this property from being serialized
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     [Browsable(false)]
     public bool IsFirstTimeRun { get; private set; }
 
     // Use JsonIgnore for properties that should not be serialized
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     [Browsable(false)]
     public bool IsUpgrade { get; private set; }
 
     // This property can still be serialized
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     [Browsable(false)]
     public string ApplicationVersion { get; set; }
 
     // These properties are not ignored and will be serialized
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     [Browsable(false)]
     public string BackupFolder { get; set; }
 
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     [Browsable(false)]
     public bool CreateBackup { get; set; }
 
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     [Browsable(false)]
     public bool CreateWeeklyBackup { get; set; }
 
@@ -201,6 +201,7 @@ public abstract class SettingsBase<T> where T : SettingsBase<T>, new()
             WriteIndented = true,
             Converters = { new JsonStringEnumConverter() },
             DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+            // TypeInfoResolver = new SourceGenerationContext()
         };
 
         JsonSerializer.Serialize(stream, this, options);
@@ -268,7 +269,7 @@ public abstract class SettingsBase<T> where T : SettingsBase<T>, new()
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                AllowTrailingCommas = true
+                AllowTrailingCommas = true,
             };
 
             var settings = JsonSerializer.Deserialize<T>(fileStream, options);

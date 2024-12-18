@@ -24,6 +24,8 @@
 #endregion License Information (GPL v3)
 
 
+using Esatto.Win32.Registry;
+using Microsoft.Extensions.Configuration;
 using ShareX.Core.History;
 using ShareX.Core.Hotkey;
 using ShareX.Core.Task;
@@ -58,14 +60,14 @@ internal static class SettingManager
 
             string uploadersConfigFolder;
 
-            if (Settings != null && !string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
-            {
-                uploadersConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
-            }
-            else
-            {
-                uploadersConfigFolder = ShareX.PersonalFolder;
-            }
+            // if (Settings != null && !string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
+            // {
+            //     uploadersConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
+            // }
+            // else
+            // {
+            uploadersConfigFolder = ShareX.PersonalFolder;
+            // }
 
             return Path.Combine(uploadersConfigFolder, UploadersConfigFileName);
         }
@@ -81,14 +83,14 @@ internal static class SettingManager
 
             string hotkeysConfigFolder;
 
-            if (Settings != null && !string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
-            {
-                hotkeysConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
-            }
-            else
-            {
-                hotkeysConfigFolder = ShareX.PersonalFolder;
-            }
+            // if (Settings != null && !string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
+            // {
+            //     hotkeysConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
+            // }
+            // else
+            // {
+            hotkeysConfigFolder = ShareX.PersonalFolder;
+            // }
 
             return Path.Combine(hotkeysConfigFolder, HotkeysConfigFileName);
         }
@@ -96,7 +98,7 @@ internal static class SettingManager
 
     public static string BackupFolder => Path.Combine(ShareX.PersonalFolder, "Backup");
 
-    private static ApplicationConfig Settings { get => ShareX.Settings; set => ShareX.Settings = value; }
+    private static IConfiguration Settings { get => ShareX.Settings; set => ShareX.Settings = value; }
     private static TaskSettings DefaultTaskSettings { get => ShareX.DefaultTaskSettings; set => ShareX.DefaultTaskSettings = value; }
     private static UploadersConfig UploadersConfig { get => ShareX.UploadersConfig; set => ShareX.UploadersConfig = value; }
     private static HotkeysConfig HotkeysConfig { get => ShareX.HotkeysConfig; set => ShareX.HotkeysConfig = value; }
@@ -136,27 +138,19 @@ internal static class SettingManager
 
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
-        Settings = ApplicationConfig.Load(ApplicationConfigFilePath, BackupFolder, fallbackSupport);
-        Settings.CreateBackup = true;
-        Settings.CreateWeeklyBackup = true;
-        Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
-        DefaultTaskSettings = Settings.DefaultTaskSettings;
+
+        Settings = new ConfigurationBuilder()
+            .AddJsonFile(ApplicationConfigFileName, optional: true, reloadOnChange: true)
+            .AddInMemoryCollection()
+            // Allows ALL settings to be managed via the Windows Registry.
+            // This call does nothing on non-Windows Operating Systems
+            .AddRegistry(@"Software\ShareX\ShareX")
+            .AddEnvironmentVariables(prefix: "SHAREX_")
+            .AddCommandLine(Environment.GetCommandLineArgs())
+            .SetBasePath(ShareX.PersonalFolder)
+            .Build();
         ApplicationConfigBackwardCompatibilityTasks();
         MigrateHistoryFile();
-    }
-
-    private static void Settings_SettingsSaveFailed(Exception e)
-    {
-        string message;
-
-        if (e is UnauthorizedAccessException || e is FileNotFoundException)
-        {
-            message = "Your antivirus software could be blocking ShareX or some other Windows feature";
-        }
-        else
-        {
-            message = e.Message;
-        }
     }
 
     public static void LoadUploadersConfig(bool fallbackSupport = true)
@@ -184,13 +178,13 @@ internal static class SettingManager
 
     private static void ApplicationConfigBackwardCompatibilityTasks()
     {
-        if (Settings.IsUpgradeFrom("16.0.2"))
-        {
-            if (Settings.CheckPreReleaseUpdates)
-            {
-                Settings.UpdateChannel = UpdateChannel.PreRelease;
-            }
-        }
+        // if (Settings.IsUpgradeFrom("16.0.2"))
+        // {
+        //     if (Settings.CheckPreReleaseUpdates)
+        //     {
+        //         Settings.UpdateChannel = UpdateChannel.PreRelease;
+        //     }
+        // }
     }
 
     private static void MigrateHistoryFile()
@@ -229,17 +223,17 @@ internal static class SettingManager
     private static void HotkeysConfigBackwardCompatibilityTasks()
     {
 
-        if (Settings.IsUpgradeFrom("15.0.1"))
-        {
-            foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
-            {
-                if (taskSettings != null && taskSettings.CaptureSettings != null)
-                {
-                    // taskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
-                    // taskSettings.CaptureSettings.FFmpegOptions.FixSources();
-                }
-            }
-        }
+        // if (Settings.IsUpgradeFrom("15.0.1"))
+        // {
+        //     foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
+        //     {
+        //         if (taskSettings != null && taskSettings.CaptureSettings != null)
+        //         {
+        //             // taskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
+        //             // taskSettings.CaptureSettings.FFmpegOptions.FixSources();
+        //         }
+        //     }
+        // }
     }
 
     public static void CleanupHotkeysConfig()
@@ -254,7 +248,7 @@ internal static class SettingManager
     {
         if (Settings != null)
         {
-            Settings.Save(ApplicationConfigFilePath);
+            // Settings.Save(ApplicationConfigFilePath);
         }
 
         if (UploadersConfig != null)
@@ -271,10 +265,10 @@ internal static class SettingManager
 
     public static void SaveApplicationConfigAsync()
     {
-        if (Settings != null)
-        {
-            Settings.SaveAsync(ApplicationConfigFilePath);
-        }
+        // if (Settings != null)
+        // {
+        //     Settings.SaveAsync(ApplicationConfigFilePath);
+        // }
     }
 
     public static void SaveUploadersConfigAsync()
@@ -323,14 +317,14 @@ internal static class SettingManager
 
             if (settings)
             {
-                msApplicationConfig = Settings.SaveToMemoryStream(false);
-                entries.Add(new ZipEntryInfo(msApplicationConfig, ApplicationConfigFileName));
-
-                msUploadersConfig = UploadersConfig.SaveToMemoryStream(false);
-                entries.Add(new ZipEntryInfo(msUploadersConfig, UploadersConfigFileName));
-
-                msHotkeysConfig = HotkeysConfig.SaveToMemoryStream(false);
-                entries.Add(new ZipEntryInfo(msHotkeysConfig, HotkeysConfigFileName));
+                // msApplicationConfig = Settings.SaveToMemoryStream(false);
+                // entries.Add(new ZipEntryInfo(msApplicationConfig, ApplicationConfigFileName));
+                //
+                // msUploadersConfig = UploadersConfig.SaveToMemoryStream(false);
+                // entries.Add(new ZipEntryInfo(msUploadersConfig, UploadersConfigFileName));
+                //
+                // msHotkeysConfig = HotkeysConfig.SaveToMemoryStream(false);
+                // entries.Add(new ZipEntryInfo(msHotkeysConfig, HotkeysConfigFileName));
             }
 
             if (history)

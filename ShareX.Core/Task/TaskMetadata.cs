@@ -1,24 +1,24 @@
 ﻿#region License Information (GPL v3)
 
 /*
-    ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2024 ShareX Team
+ShareX - A program that allows you to take screenshots and share any file type
+Copyright (c) 2007-2024 ShareX Team
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-    Optionally you can also view the license at <http://www.gnu.org/licenses/>.
+Optionally you can also view the license at <http://www.gnu.org/licenses/>.
 */
 
 #endregion License Information (GPL v3)
@@ -27,64 +27,64 @@ using ShareX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace ShareX.Core.Task
+namespace ShareX.Core.Task;
+
+public class TaskMetadata : IDisposable
 {
-    public class TaskMetadata : IDisposable
+    private const int WindowInfoMaxLength = 255;
+
+    public Image<Rgba64> Image { get; set; }
+
+    private string windowTitle;
+
+    public string WindowTitle
     {
-        private const int WindowInfoMaxLength = 255;
-
-        public Image<Rgba64> Image { get; set; }
-
-        private string windowTitle;
-
-        public string WindowTitle
+        get
         {
-            get
-            {
-                return windowTitle;
-            }
-            set
-            {
-                windowTitle = value.Truncate(WindowInfoMaxLength);
-            }
+            return windowTitle;
         }
-
-        private string processName;
-
-        public string ProcessName
+        set
         {
-            get
-            {
-                return processName;
-            }
-            set
-            {
-                processName = value.Truncate(WindowInfoMaxLength);
-            }
-        }
-
-        public TaskMetadata()
-        {
-        }
-
-        public TaskMetadata(Image<Rgba64> image)
-        {
-            Image = image;
-        }
-        // This code should be removed after ShareX.Core compiles
-        public void UpdateInfo<T>(T windowInfo)
-        {
-            // TODO: Migrate API consumers to ShareX.CommonUI
-            // if (windowInfo != null)
-            // {
-            //     WindowTitle = windowInfo.Text;
-            //     ProcessName = windowInfo.ProcessName;
-            // }
-        }
-
-        public void Dispose()
-        {
-            Image?.Dispose();
+            windowTitle = value.Truncate(WindowInfoMaxLength);
         }
     }
+
+    private string processName;
+
+    public string ProcessName
+    {
+        get
+        {
+            return processName;
+        }
+        set
+        {
+            processName = value.Truncate(WindowInfoMaxLength);
+        }
+    }
+
+    public TaskMetadata()
+    {
+    }
+
+    public TaskMetadata(Image<Rgba64> image)
+    {
+        Image = image;
+    }
+    // This code should be removed after ShareX.Core compiles
+    public void UpdateInfo<T>(T windowInfo)
+    {
+        // TODO: Migrate API consumers to ShareX.CommonUI
+        // if (windowInfo != null)
+        // {
+        //     WindowTitle = windowInfo.Text;
+        //     ProcessName = windowInfo.ProcessName;
+        // }
+    }
+
+    public void Dispose()
+    {
+        Image?.Dispose();
+    }
 }
+

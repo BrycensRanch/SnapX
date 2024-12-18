@@ -23,7 +23,6 @@ Optionally you can also view the license at <http://www.gnu.org/licenses/>.
 
 #endregion License Information (GPL v3)
 
-using System.Collections.Specialized;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;

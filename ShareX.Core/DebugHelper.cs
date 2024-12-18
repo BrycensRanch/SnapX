@@ -36,7 +36,10 @@ public static class DebugHelper
     public static void Init(string logFilePath)
     {
         var loggerConfig = new LoggerConfiguration()
-            .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day);
+            .ReadFrom.Configuration(ShareX.Settings)
+            .Enrich.WithThreadId()
+            .Enrich.WithThreadName()
+            .WriteTo.Async(a => a.File(logFilePath, rollingInterval: RollingInterval.Day, buffered: true));
         if (ShareX.LogToConsole)
         {
             loggerConfig = loggerConfig.WriteTo.Console();
@@ -77,7 +80,7 @@ public static class DebugHelper
     // Write an exception (serilog will log Exception details)
     public static void WriteException(Exception exception, string message = "Exception")
     {
-        WriteException(exception.ToString(), message); // Pass exception string representation
+        WriteException(exception.ToString(), message);
     }
 
     // This can be omitted if you don't specifically need to flush logs manually

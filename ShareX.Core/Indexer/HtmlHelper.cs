@@ -1,61 +1,61 @@
 ﻿#region License Information (GPL v3)
 
 /*
-    ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2024 ShareX Team
+ShareX - A program that allows you to take screenshots and share any file type
+Copyright (c) 2007-2024 ShareX Team
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-    Optionally you can also view the license at <http://www.gnu.org/licenses/>.
+Optionally you can also view the license at <http://www.gnu.org/licenses/>.
 */
 
 #endregion License Information (GPL v3)
 
 using ShareX.Core.Utils;
 
-namespace ShareX.Core.Indexer
+namespace ShareX.Core.Indexer;
+
+public static class HtmlHelper
 {
-    public static class HtmlHelper
+    public static string StartTag(string tag, string style = "", string otherFields = "")
     {
-        public static string StartTag(string tag, string style = "", string otherFields = "")
+        string css = "";
+
+        if (!string.IsNullOrEmpty(style))
         {
-            string css = "";
-
-            if (!string.IsNullOrEmpty(style))
-            {
-                css = $" style=\"{style}\"";
-            }
-
-            string fields = "";
-
-            if (!string.IsNullOrEmpty(otherFields))
-            {
-                fields = $" {otherFields}";
-            }
-
-            return $"<{tag}{css}{fields}>";
+            css = $" style=\"{style}\"";
         }
 
-        public static string EndTag(string tag)
+        string fields = "";
+
+        if (!string.IsNullOrEmpty(otherFields))
         {
-            return $"</{tag}>";
+            fields = $" {otherFields}";
         }
 
-        public static string Tag(string tag, string content, string style = "", string otherFields = "")
-        {
-            return StartTag(tag, style, otherFields) + URLHelpers.HtmlEncode(content) + EndTag(tag);
-        }
+        return $"<{tag}{css}{fields}>";
+    }
+
+    public static string EndTag(string tag)
+    {
+        return $"</{tag}>";
+    }
+
+    public static string Tag(string tag, string content, string style = "", string otherFields = "")
+    {
+        return StartTag(tag, style, otherFields) + URLHelpers.HtmlEncode(content) + EndTag(tag);
     }
 }
+
