@@ -4,8 +4,8 @@ public class CodeMenuEntryActions : CodeMenuEntry
 {
     protected override string Prefix { get; } = "$";
 
-    public static readonly CodeMenuEntryActions input = new CodeMenuEntryActions("input", "File path");
-    public static readonly CodeMenuEntryActions output = new CodeMenuEntryActions("output", "File path with output file name extension");
+    public static readonly CodeMenuEntryActions input = new("input", "File path");
+    public static readonly CodeMenuEntryActions output = new("output", "File path with output file name extension");
 
     public CodeMenuEntryActions(string value, string description) : base(value, description)
     {

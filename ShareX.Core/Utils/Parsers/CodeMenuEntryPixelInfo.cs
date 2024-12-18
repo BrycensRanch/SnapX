@@ -9,32 +9,32 @@ public class CodeMenuEntryPixelInfo : CodeMenuEntry
     protected override string Prefix { get; } = "$";
 
     // This shouldn't show up in the list of options, but will continue to work for backwards compatibility's sake.
-    private static readonly CodeMenuEntryPixelInfo r = new CodeMenuEntryPixelInfo("r", "Red color (0-255)");
-    private static readonly CodeMenuEntryPixelInfo g = new CodeMenuEntryPixelInfo("g", "Green color (0-255)");
-    private static readonly CodeMenuEntryPixelInfo b = new CodeMenuEntryPixelInfo("b", "Blue color (0-255)");
+    private static readonly CodeMenuEntryPixelInfo r = new("r", "Red color (0-255)");
+    private static readonly CodeMenuEntryPixelInfo g = new("g", "Green color (0-255)");
+    private static readonly CodeMenuEntryPixelInfo b = new("b", "Blue color (0-255)");
 
-    public static readonly CodeMenuEntryPixelInfo r255 = new CodeMenuEntryPixelInfo("r255", "Red color (0-255)");
-    public static readonly CodeMenuEntryPixelInfo g255 = new CodeMenuEntryPixelInfo("g255", "Green color (0-255)");
-    public static readonly CodeMenuEntryPixelInfo b255 = new CodeMenuEntryPixelInfo("b255", "Blue color (0-255)");
-    public static readonly CodeMenuEntryPixelInfo r1 = new CodeMenuEntryPixelInfo("r1", "Red color (0-1). Specify decimal precision with {n}, defaults to 3.");
-    public static readonly CodeMenuEntryPixelInfo g1 = new CodeMenuEntryPixelInfo("g1", "Green color (0-1). Specify decimal precision with {n}, defaults to 3.");
-    public static readonly CodeMenuEntryPixelInfo b1 = new CodeMenuEntryPixelInfo("b1", "Blue color (0-1). Specify decimal precision with {n}, defaults to 3.");
-    public static readonly CodeMenuEntryPixelInfo hex = new CodeMenuEntryPixelInfo("hex", "Hex color value (Lowercase)");
-    public static readonly CodeMenuEntryPixelInfo rhex = new CodeMenuEntryPixelInfo("rhex", "Red hex color value (00-ff)");
-    public static readonly CodeMenuEntryPixelInfo ghex = new CodeMenuEntryPixelInfo("ghex", "Green hex color value (00-ff)");
-    public static readonly CodeMenuEntryPixelInfo bhex = new CodeMenuEntryPixelInfo("bhex", "Blue hex color value (00-ff)");
-    public static readonly CodeMenuEntryPixelInfo HEX = new CodeMenuEntryPixelInfo("HEX", "Hex color value (Uppercase)");
-    public static readonly CodeMenuEntryPixelInfo rHEX = new CodeMenuEntryPixelInfo("rHEX", "Red hex color value (00-FF)");
-    public static readonly CodeMenuEntryPixelInfo gHEX = new CodeMenuEntryPixelInfo("gHEX", "Green hex color value (00-FF)");
-    public static readonly CodeMenuEntryPixelInfo bHEX = new CodeMenuEntryPixelInfo("bHEX", "Blue hex color value (00-FF)");
-    public static readonly CodeMenuEntryPixelInfo c100 = new CodeMenuEntryPixelInfo("c100", "Cyan color (0-100)");
-    public static readonly CodeMenuEntryPixelInfo m100 = new CodeMenuEntryPixelInfo("m100", "Magenta color (0-100)");
-    public static readonly CodeMenuEntryPixelInfo y100 = new CodeMenuEntryPixelInfo("y100", "Yellow color (0-100)");
-    public static readonly CodeMenuEntryPixelInfo k100 = new CodeMenuEntryPixelInfo("k100", "Key color (0-100)");
-    public static readonly CodeMenuEntryPixelInfo name = new CodeMenuEntryPixelInfo("name", "Color name");
-    public static readonly CodeMenuEntryPixelInfo x = new CodeMenuEntryPixelInfo("x", "X position");
-    public static readonly CodeMenuEntryPixelInfo y = new CodeMenuEntryPixelInfo("y", "Y position");
-    public static readonly CodeMenuEntryPixelInfo n = new CodeMenuEntryPixelInfo("n", "New line");
+    public static readonly CodeMenuEntryPixelInfo r255 = new("r255", "Red color (0-255)");
+    public static readonly CodeMenuEntryPixelInfo g255 = new("g255", "Green color (0-255)");
+    public static readonly CodeMenuEntryPixelInfo b255 = new("b255", "Blue color (0-255)");
+    public static readonly CodeMenuEntryPixelInfo r1 = new("r1", "Red color (0-1). Specify decimal precision with {n}, defaults to 3.");
+    public static readonly CodeMenuEntryPixelInfo g1 = new("g1", "Green color (0-1). Specify decimal precision with {n}, defaults to 3.");
+    public static readonly CodeMenuEntryPixelInfo b1 = new("b1", "Blue color (0-1). Specify decimal precision with {n}, defaults to 3.");
+    public static readonly CodeMenuEntryPixelInfo hex = new("hex", "Hex color value (Lowercase)");
+    public static readonly CodeMenuEntryPixelInfo rhex = new("rhex", "Red hex color value (00-ff)");
+    public static readonly CodeMenuEntryPixelInfo ghex = new("ghex", "Green hex color value (00-ff)");
+    public static readonly CodeMenuEntryPixelInfo bhex = new("bhex", "Blue hex color value (00-ff)");
+    public static readonly CodeMenuEntryPixelInfo HEX = new("HEX", "Hex color value (Uppercase)");
+    public static readonly CodeMenuEntryPixelInfo rHEX = new("rHEX", "Red hex color value (00-FF)");
+    public static readonly CodeMenuEntryPixelInfo gHEX = new("gHEX", "Green hex color value (00-FF)");
+    public static readonly CodeMenuEntryPixelInfo bHEX = new("bHEX", "Blue hex color value (00-FF)");
+    public static readonly CodeMenuEntryPixelInfo c100 = new("c100", "Cyan color (0-100)");
+    public static readonly CodeMenuEntryPixelInfo m100 = new("m100", "Magenta color (0-100)");
+    public static readonly CodeMenuEntryPixelInfo y100 = new("y100", "Yellow color (0-100)");
+    public static readonly CodeMenuEntryPixelInfo k100 = new("k100", "Key color (0-100)");
+    public static readonly CodeMenuEntryPixelInfo name = new("name", "Color name");
+    public static readonly CodeMenuEntryPixelInfo x = new("x", "X position");
+    public static readonly CodeMenuEntryPixelInfo y = new("y", "Y position");
+    public static readonly CodeMenuEntryPixelInfo n = new("n", "New line");
 
     public CodeMenuEntryPixelInfo(string value, string description) : base(value, description)
     {
