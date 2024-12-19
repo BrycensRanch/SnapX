@@ -98,7 +98,7 @@ internal static class SettingManager
 
     public static string BackupFolder => Path.Combine(ShareX.PersonalFolder, "Backup");
 
-    private static IConfiguration Settings { get => ShareX.Settings; set => ShareX.Settings = value; }
+    private static RootConfiguration Settings { get => ShareX.Settings; set => ShareX.Settings = value; }
     private static TaskSettings DefaultTaskSettings { get => ShareX.DefaultTaskSettings; set => ShareX.DefaultTaskSettings = value; }
     private static UploadersConfig UploadersConfig { get => ShareX.UploadersConfig; set => ShareX.UploadersConfig = value; }
     private static HotkeysConfig HotkeysConfig { get => ShareX.HotkeysConfig; set => ShareX.HotkeysConfig = value; }
@@ -139,7 +139,7 @@ internal static class SettingManager
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
 
-        Settings = new ConfigurationBuilder()
+        var configurationBuilder = new ConfigurationBuilder()
             .AddJsonFile(ApplicationConfigFileName, optional: true, reloadOnChange: true)
             .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
@@ -149,6 +149,10 @@ internal static class SettingManager
             .AddCommandLine(Environment.GetCommandLineArgs())
             .SetBasePath(ShareX.PersonalFolder)
             .Build();
+        ShareX.Configuration = configurationBuilder;
+        var settings = new RootConfiguration();
+        configurationBuilder.Bind(settings);
+        Settings = settings;
         ApplicationConfigBackwardCompatibilityTasks();
         MigrateHistoryFile();
     }

@@ -1,15 +1,14 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using ScreenCapture.NET;
 using ShareX.Core.CLI;
 using ShareX.Core.Hotkey;
 using ShareX.Core.Task;
 using ShareX.Core.Upload;
-using ShareX.Core.Upload.BaseUploaders;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;
-using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Watch;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -21,13 +20,11 @@ public class ShareX
 {
     public const string AppName = "ShareX";
     public static string Qualifier = "";
-    public const string MutexName = "82E6AC09-0FEF-4390-AD9F-0DD3F5561EFC";
-    public static readonly string PipeName = $"{Environment.MachineName}-{Environment.UserName}-{AppName}";
     public const ShareXBuild Build =
 #if RELEASE
             ShareXBuild.Release;
 #elif DEBUG
-        ShareXBuild.Debug;
+            ShareXBuild.Debug;
 #else
             ShareXBuild.Unknown;
 #endif
@@ -40,8 +37,8 @@ public class ShareX
             var versionString = $"{version.Major}.{version.Minor}.{version.Revision}";
             if (version.Build > 0)
                 versionString += $".{version.Build}";
-            if (Dev)
-                versionString += " Dev";
+            // if (Settings.DevMode)
+            //     versionString += " Dev";
             if (Portable)
                 versionString += " Portable";
 
@@ -57,25 +54,24 @@ public class ShareX
     {
         get
         {
-            string title = $"{AppName}{Qualifier}";
+            var title = $"{AppName}{Qualifier}";
 
-            if (Settings != null && Settings.DevMode)
-            {
-                string info = Build.ToString();
-
-                if (IsAdmin)
-                {
-                    info += ", Admin";
-                }
-
-                title += $" ({info})";
-            }
+            // if (Settings.DevMode)
+            // {
+            //     var info = Build.ToString();
+            //
+            //     if (IsAdmin)
+            //     {
+            //         info += ", Admin";
+            //     }
+            //
+            //     title += $" ({info})";
+            // }
 
             return title;
         }
     }
 
-    public static bool Dev { get; } = true;
     public static bool MultiInstance { get; private set; }
     public static bool Portable { get; private set; }
     public static bool LogToConsole { get; private set; } = true;
@@ -86,7 +82,9 @@ public class ShareX
     public static bool IgnoreHotkeyWarning { get; private set; }
     public static bool PuushMode { get; private set; }
 
-    internal static ApplicationConfig Settings { get; set; }
+    internal static RootConfiguration Settings { get; set; }
+
+    internal static IConfiguration Configuration { get; set; }
     internal static TaskSettings DefaultTaskSettings { get; set; }
     internal static UploadersConfig UploadersConfig { get; set; }
     internal static HotkeysConfig HotkeysConfig { get; set; }
@@ -100,7 +98,8 @@ public class ShareX
 
     private const string PersonalPathConfigFileName = "PersonalPath.cfg";
 
-    // Many Windows users consider %USERPROFILE%\Documents\ShareX the correct location and I'm not here to subvert expectations.
+    // Many Windows users consider %USERPROFILE%\Documents\ShareX the correct location,
+    // and I'm not here to subvert expectations.
     public static readonly string DefaultPersonalFolder = Path.Combine(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? UserDirectory.DocumentsDir : BaseDirectory.DataHome, AppName);
     public static readonly string PortablePersonalFolder = FileHelpers.GetAbsolutePath(AppName);
 
@@ -249,14 +248,12 @@ public class ShareX
 
         if (CheckAdminTasks()) return; // If ShareX opened just for be able to execute task as Admin
 
-        // SystemOptions.UpdateSystemOptions();
         UpdatePersonalPath();
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
 
         DebugHelper.Init(LogsFilePath);
 
         MultiInstance = CLIManager.IsCommandExist("multi", "m");
-        
         Run();
     }
 
@@ -309,6 +306,8 @@ public class ShareX
                     using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
 
                     theImage.SaveAsPng(Path.Combine(ScreenshotsParentFolder, "demo.png"));
+                    var imageWithRightTypes = theImage.CloneAs<Rgba64>();
+                    UploadManager.UploadImage(imageWithRightTypes);
 
 
                 }
@@ -356,7 +355,6 @@ public class ShareX
                 throw new UnauthorizedAccessException("Only the good Operating Systems can take screenshots");
             }
         }
-        Uploader.UpdateServicePointManager();
         // CleanupManager.CleanupAsync();
 
     }
@@ -372,22 +370,6 @@ public class ShareX
         SettingManager.SaveAllSettings();
 
         DebugHelper.WriteLine("ShareX closed.");
-    }
-
-    private static void SingleInstanceManager_ArgumentsReceived(string[] arguments)
-    {
-        string message = "Arguments received: ";
-
-        if (arguments == null)
-        {
-            message += "null";
-        }
-        else
-        {
-            message += "\"" + string.Join(" ", arguments) + "\"";
-        }
-
-        DebugHelper.WriteLine(message);
     }
 
     private static void UpdatePersonalPath()
@@ -576,7 +558,7 @@ public class ShareX
     {
         var flags = new List<string>();
 
-        if (Dev) flags.Add(nameof(Dev));
+        // if (ShareX.Settings.DevMode) flags.Add(nameof(ShareX.Settings.DevMode));
         if (MultiInstance) flags.Add(nameof(MultiInstance));
         if (Portable) flags.Add(nameof(Portable));
         if (SilentRun) flags.Add(nameof(SilentRun));
