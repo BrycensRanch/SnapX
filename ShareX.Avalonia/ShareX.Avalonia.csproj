@@ -18,6 +18,7 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <AvaloniaResource Include="*.xaml" />
+    <EmbeddedResource Include="..\ShareX.Core\Resources\ShareX_Logo.png" />
 
     <TrimmerRootDescriptor Include="Roots.xml" />
   </ItemGroup>

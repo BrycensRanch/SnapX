@@ -5,7 +5,7 @@
     <ui:SymbolIconSource x:Key="SaveIcon" Symbol="Save" />
     <ui:FontIconSource x:Key="FontIcon" Glyph="F" />
     <ui:PathIconSource x:Key="PathIcon" Data="M0,0 L 50,0 L 25,50Z" />
-    <ui:BitmapIconSource x:Key="BmpIcon" UriSource="avares://ShareX.Avalonia/Assets/avalonia-logo.ico" />
+    <ui:BitmapIconSource x:Key="BmpIcon" UriSource="avares://ShareX.Avalonia/ShareX_Icon.ico" />
 
     <!-- Override this so content doesn't appear in title bar area -->
     <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
