@@ -37,6 +37,11 @@ using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Utils.Parsers;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.PixelFormats;
 using ZXing;
 using ZXing.Common;
@@ -339,10 +344,10 @@ namespace ShareX.Core.Task
                 taskSettings.ImageSettings.ImageJPEGQuality, taskSettings.ImageSettings.ImageGIFQuality);
         }
 
-        public static MemoryStream SaveImageAsStream(SixLabors.ImageSharp.Image img, EImageFormat imageFormat, PNGBitDepth pngBitDepth = PNGBitDepth.Automatic,
+        public static MemoryStream SaveImageAsStream(SixLabors.ImageSharp.Image image, EImageFormat imageFormat, PNGBitDepth pngBitDepth = PNGBitDepth.Automatic,
             int jpegQuality = 90, GIFQuality gifQuality = GIFQuality.Default)
         {
-            MemoryStream ms = new MemoryStream();
+            var ms = new MemoryStream();
 
             try
             {
@@ -354,24 +359,31 @@ namespace ShareX.Core.Task
                         {
                             using (ms)
                             {
-                                // return MediaTypeNames.Image.PNGStripColorSpaceInformation(ms);
+                                image.Metadata.IccProfile = null;
+                                image.Save(ms, new PngEncoder());
                             }
+                            ms.Position = 0;
+
+                            return ms;
                         }
+                        image.Save(ms, new PngEncoder());
+                        ms.Position = 0;
                         break;
                     case EImageFormat.JPEG:
-                        // using (Bitmap newImage = MediaTypeNames.Image.FillBackground(img, Color.White))
-                        // {
-                        //     MediaTypeNames.Image.SaveJPEG(newImage, ms, jpegQuality);
-                        // }
+                        image.Save(ms, new JpegEncoder());
+                        ms.Position = 0;
                         break;
                     case EImageFormat.GIF:
-                        // MediaTypeNames.Image.SaveGIF(img, ms, gifQuality);
+                        image.Save(ms, new GifEncoder());
+                        ms.Position = 0;
                         break;
                     case EImageFormat.BMP:
-                        // img.Save(ms, ImageFormat.Bmp);
+                        image.Save(ms, new BmpEncoder());
+                        ms.Position = 0;
                         break;
                     case EImageFormat.TIFF:
-                        // img.Save(ms, ImageFormat.Tiff);
+                        image.Save(ms, new TiffEncoder());
+                        ms.Position = 0;
                         break;
                 }
             }

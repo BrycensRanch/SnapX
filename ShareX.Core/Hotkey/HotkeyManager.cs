@@ -1,24 +1,24 @@
 ﻿#region License Information (GPL v3)
 
 /*
-    ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2024 ShareX Team
+ShareX - A program that allows you to take screenshots and share any file type
+Copyright (c) 2007-2024 ShareX Team
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-    Optionally you can also view the license at <http://www.gnu.org/licenses/>.
+Optionally you can also view the license at <http://www.gnu.org/licenses/>.
 */
 
 #endregion License Information (GPL v3)
@@ -26,155 +26,154 @@
 
 using ShareX.Core.Task;
 
-namespace ShareX.Core.Hotkey
+namespace ShareX.Core.Hotkey;
+public class HotkeyManager
 {
-    public class HotkeyManager
+    public List<HotkeySettings> Hotkeys { get; private set; }
+    public bool IgnoreHotkeys { get; set; }
+
+    public delegate void HotkeyTriggerEventHandler(HotkeySettings hotkeySetting);
+    public delegate void HotkeysToggledEventHandler(bool hotkeysEnabled);
+
+    public HotkeyTriggerEventHandler HotkeyTrigger;
+    public HotkeysToggledEventHandler HotkeysToggledTrigger;
+
+    public void UpdateHotkeys(List<HotkeySettings> hotkeys, bool showFailedHotkeys)
     {
-        public List<HotkeySettings> Hotkeys { get; private set; }
-        public bool IgnoreHotkeys { get; set; }
-
-        public delegate void HotkeyTriggerEventHandler(HotkeySettings hotkeySetting);
-        public delegate void HotkeysToggledEventHandler(bool hotkeysEnabled);
-
-        public HotkeyTriggerEventHandler HotkeyTrigger;
-        public HotkeysToggledEventHandler HotkeysToggledTrigger;
-
-        public void UpdateHotkeys(List<HotkeySettings> hotkeys, bool showFailedHotkeys)
+        if (Hotkeys != null)
         {
-            if (Hotkeys != null)
-            {
-                UnregisterAllHotkeys();
-            }
-
-            Hotkeys = hotkeys;
-
-            RegisterAllHotkeys();
+            UnregisterAllHotkeys();
         }
 
-        protected void OnHotkeyTrigger(HotkeySettings hotkeySetting)
-        {
-            HotkeyTrigger?.Invoke(hotkeySetting);
-        }
+        Hotkeys = hotkeys;
 
-        public void RegisterHotkey(HotkeySettings hotkeySetting)
+        RegisterAllHotkeys();
+    }
+
+    protected void OnHotkeyTrigger(HotkeySettings hotkeySetting)
+    {
+        HotkeyTrigger?.Invoke(hotkeySetting);
+    }
+
+    public void RegisterHotkey(HotkeySettings hotkeySetting)
+    {
+        if (!ShareX.Settings.DisableHotkeys || hotkeySetting.TaskSettings.Job == HotkeyType.DisableHotkeys)
         {
-            if (!ShareX.Settings.DisableHotkeys || hotkeySetting.TaskSettings.Job == HotkeyType.DisableHotkeys)
+            UnregisterHotkey(hotkeySetting, false);
+
+            if (hotkeySetting.HotkeyInfo.Status != HotkeyStatus.Registered && hotkeySetting.HotkeyInfo.IsValidHotkey)
             {
-                UnregisterHotkey(hotkeySetting, false);
+                // hotkeyForm.RegisterHotkey(hotkeySetting.HotkeyInfo);
 
-                if (hotkeySetting.HotkeyInfo.Status != HotkeyStatus.Registered && hotkeySetting.HotkeyInfo.IsValidHotkey)
+                if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Registered)
                 {
-                    // hotkeyForm.RegisterHotkey(hotkeySetting.HotkeyInfo);
-
-                    if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Registered)
-                    {
-                        DebugHelper.WriteLine("Hotkey registered: " + hotkeySetting);
-                    }
-                    else if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Failed)
-                    {
-                        DebugHelper.WriteLine("Hotkey register failed: " + hotkeySetting);
-                    }
-                }
-                else
-                {
-                    hotkeySetting.HotkeyInfo.Status = HotkeyStatus.NotConfigured;
-                }
-            }
-
-            if (!Hotkeys.Contains(hotkeySetting))
-            {
-                Hotkeys.Add(hotkeySetting);
-            }
-        }
-
-        public void RegisterAllHotkeys()
-        {
-            foreach (HotkeySettings hotkeySetting in Hotkeys.ToArray())
-            {
-                RegisterHotkey(hotkeySetting);
-            }
-        }
-
-        public void RegisterFailedHotkeys()
-        {
-            foreach (HotkeySettings hotkeySetting in Hotkeys.Where(x => x.HotkeyInfo.Status == HotkeyStatus.Failed))
-            {
-                RegisterHotkey(hotkeySetting);
-            }
-        }
-
-        public void UnregisterHotkey(HotkeySettings hotkeySetting, bool removeFromList = true)
-        {
-            if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Registered)
-            {
-                DebugHelper.WriteLine("UnregisterHotkey(hotkeySetting.HotkeyInfo) " + hotkeySetting);
-
-                if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.NotConfigured)
-                {
-                    DebugHelper.WriteLine("Hotkey unregistered: " + hotkeySetting);
+                    DebugHelper.WriteLine("Hotkey registered: " + hotkeySetting);
                 }
                 else if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Failed)
                 {
-                    DebugHelper.WriteLine("Hotkey unregister failed: " + hotkeySetting);
+                    DebugHelper.WriteLine("Hotkey register failed: " + hotkeySetting);
                 }
-            }
-
-            if (removeFromList)
-            {
-                Hotkeys.Remove(hotkeySetting);
-            }
-        }
-
-        public void UnregisterAllHotkeys(bool removeFromList = true, bool temporary = false)
-        {
-            if (Hotkeys != null)
-            {
-                foreach (HotkeySettings hotkeySetting in Hotkeys.ToArray())
-                {
-                    if (!temporary || hotkeySetting.TaskSettings.Job != HotkeyType.DisableHotkeys)
-                    {
-                        UnregisterHotkey(hotkeySetting, removeFromList);
-                    }
-                }
-            }
-        }
-
-        public void ToggleHotkeys(bool hotkeysDisabled)
-        {
-            if (!hotkeysDisabled)
-            {
-                RegisterAllHotkeys();
             }
             else
             {
-                UnregisterAllHotkeys(false, true);
-            }
-
-            HotkeysToggledTrigger?.Invoke(hotkeysDisabled);
-        }
-
-        public void ResetHotkeys()
-        {
-            UnregisterAllHotkeys();
-            Hotkeys.AddRange(GetDefaultHotkeyList());
-            RegisterAllHotkeys();
-
-            if (ShareX.Settings.DisableHotkeys)
-            {
-                TaskHelpers.ToggleHotkeys();
+                hotkeySetting.HotkeyInfo.Status = HotkeyStatus.NotConfigured;
             }
         }
 
-        public static List<HotkeySettings> GetDefaultHotkeyList()
+        if (!Hotkeys.Contains(hotkeySetting))
         {
-            return new List<HotkeySettings>
-            {
-                new HotkeySettings(HotkeyType.RectangleRegion, Keys.Control | Keys.PrintScreen),
-                new HotkeySettings(HotkeyType.PrintScreen, Keys.PrintScreen),
-                new HotkeySettings(HotkeyType.ActiveWindow, Keys.Alt | Keys.PrintScreen),
-                new HotkeySettings(HotkeyType.ScreenRecorder, Keys.Shift | Keys.PrintScreen),
-                new HotkeySettings(HotkeyType.ScreenRecorderGIF, Keys.Control | Keys.Shift | Keys.PrintScreen)
-            };
+            Hotkeys.Add(hotkeySetting);
         }
     }
+
+    public void RegisterAllHotkeys()
+    {
+        foreach (HotkeySettings hotkeySetting in Hotkeys.ToArray())
+        {
+            RegisterHotkey(hotkeySetting);
+        }
+    }
+
+    public void RegisterFailedHotkeys()
+    {
+        foreach (HotkeySettings hotkeySetting in Hotkeys.Where(x => x.HotkeyInfo.Status == HotkeyStatus.Failed))
+        {
+            RegisterHotkey(hotkeySetting);
+        }
+    }
+
+    public void UnregisterHotkey(HotkeySettings hotkeySetting, bool removeFromList = true)
+    {
+        if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Registered)
+        {
+            DebugHelper.WriteLine("UnregisterHotkey(hotkeySetting.HotkeyInfo) " + hotkeySetting);
+
+            if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.NotConfigured)
+            {
+                DebugHelper.WriteLine("Hotkey unregistered: " + hotkeySetting);
+            }
+            else if (hotkeySetting.HotkeyInfo.Status == HotkeyStatus.Failed)
+            {
+                DebugHelper.WriteLine("Hotkey unregister failed: " + hotkeySetting);
+            }
+        }
+
+        if (removeFromList)
+        {
+            Hotkeys.Remove(hotkeySetting);
+        }
+    }
+
+    public void UnregisterAllHotkeys(bool removeFromList = true, bool temporary = false)
+    {
+        if (Hotkeys != null)
+        {
+            foreach (HotkeySettings hotkeySetting in Hotkeys.ToArray())
+            {
+                if (!temporary || hotkeySetting.TaskSettings.Job != HotkeyType.DisableHotkeys)
+                {
+                    UnregisterHotkey(hotkeySetting, removeFromList);
+                }
+            }
+        }
+    }
+
+    public void ToggleHotkeys(bool hotkeysDisabled)
+    {
+        if (!hotkeysDisabled)
+        {
+            RegisterAllHotkeys();
+        }
+        else
+        {
+            UnregisterAllHotkeys(false, true);
+        }
+
+        HotkeysToggledTrigger?.Invoke(hotkeysDisabled);
+    }
+
+    public void ResetHotkeys()
+    {
+        UnregisterAllHotkeys();
+        Hotkeys.AddRange(GetDefaultHotkeyList());
+        RegisterAllHotkeys();
+
+        if (ShareX.Settings.DisableHotkeys)
+        {
+            TaskHelpers.ToggleHotkeys();
+        }
+    }
+
+    public static List<HotkeySettings> GetDefaultHotkeyList()
+    {
+        return new List<HotkeySettings>
+        {
+            new HotkeySettings(HotkeyType.RectangleRegion, Keys.Control | Keys.PrintScreen),
+            new HotkeySettings(HotkeyType.PrintScreen, Keys.PrintScreen),
+            new HotkeySettings(HotkeyType.ActiveWindow, Keys.Alt | Keys.PrintScreen),
+            new HotkeySettings(HotkeyType.ScreenRecorder, Keys.Shift | Keys.PrintScreen),
+            new HotkeySettings(HotkeyType.ScreenRecorderGIF, Keys.Control | Keys.Shift | Keys.PrintScreen)
+        };
+    }
 }
+
