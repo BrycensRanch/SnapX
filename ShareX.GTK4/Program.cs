@@ -64,6 +64,7 @@ application.OnActivate += (sender, eventArgs) =>
 
     var dialog = new AboutDialog();
     dialog.SetApplication(application);
+    dialog.AddCreditSection("Mentions", new[] { "benbryant0" });
     var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
     var osInfo = OsInfo.GetFancyOSNameAndVersion();
     var assembly = Assembly.GetExecutingAssembly();
