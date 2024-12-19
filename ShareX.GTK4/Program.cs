@@ -1,11 +1,17 @@
 using System.Reflection;
+using System.Text;
+using System.Web;
 using GdkPixbuf;
 using Gio;
 using GObject;
+using Gtk;
 using ShareX.Core;
 using ShareX.Core.Utils;
+using ShareX.Core.Utils.Miscellaneous;
+using ShareX.Core.Utils.Native;
 using SixLabors.ImageSharp;
 using AboutDialog = ShareX.GTK4.AboutDialog;
+using Application = Gio.Application;
 using MessageType = Gst.MessageType;
 
 var shareX = new ShareX.Core.ShareX();
@@ -13,7 +19,7 @@ shareX.setQualifier(" GTK4");
 
 
 
-var application = Gtk.Application.New("ShareX.ShareX", ApplicationFlags.NonUnique);
+var application = Gtk.Application.New("io.github.brycensranch.ShareX", ApplicationFlags.NonUnique);
 var sigintReceived = false;
 
 Console.CancelKeyPress += (_, ea) =>
@@ -27,8 +33,21 @@ Console.CancelKeyPress += (_, ea) =>
 };
 application.OnActivate += (sender, eventArgs) =>
 {
-    shareX.start(args);
-    DebugHelper.WriteLine("Internal Startup time: {0} ms", shareX.getStartupTime());
+    var errorStarting = false;
+    try
+    {
+        shareX.start(args);
+    }
+    catch (Exception e)
+    {
+        errorStarting = true;
+        DebugHelper.Logger.Fatal(e.ToString());
+        ShowErrorDialog(e, application);
+
+    }
+
+    if (!errorStarting)
+    { DebugHelper.WriteLine("Internal Startup time: {0} ms", shareX.getStartupTime());
     if (shareX.isSilent()) return;
 
     if (ShareX.Core.ShareX.CLIManager.IsCommandExist("video"))
@@ -50,7 +69,7 @@ application.OnActivate += (sender, eventArgs) =>
     var assembly = Assembly.GetExecutingAssembly();
     foreach (var resourceName in assembly.GetManifestResourceNames())
     {
-        DebugHelper.WriteLine(resourceName);
+        Console.WriteLine(resourceName);
     }
     var bytes = assembly.ReadResourceAsByteArray("ShareX.GTK4.ShareX_Logo.png");
     var image = SixLabors.ImageSharp.Image.Load(bytes);
@@ -80,7 +99,104 @@ application.OnActivate += (sender, eventArgs) =>
     // window.Title = "Gtk4 Window";
     // window.SetDefaultSize(300, 300);
     // window.Show();
+    }
 };
+static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
+{
+    // Create the error dialog window
+    var errorDialog = new Window()
+    {
+        DefaultWidth = 600,
+        DefaultHeight = 400,
+        Application = application,
+        Title = "ShareX Failed to Start",
+        Modal = true,
+    };
+
+    // Create a vertical container for message and buttons
+    var vbox = new Box();
+    vbox.SetOrientation(Orientation.Vertical);
+    vbox.SetSpacing(10);
+
+    // Build the error message with exception message and stack trace
+    var messageBuilder = new StringBuilder();
+    messageBuilder.AppendLine(ex.Message);
+    messageBuilder.AppendLine();
+    messageBuilder.AppendLine(ex.StackTrace);
+    messageBuilder.AppendLine(Assembly.GetExecutingAssembly().GetName().Name + ": " + Assembly.GetExecutingAssembly().GetName().Version);
+
+    // TextView to show the error message
+    var textView = new TextView
+    {
+        Editable = false,
+        WrapMode = WrapMode.WordChar,
+        LeftMargin = 10,
+        RightMargin = 10,
+    };
+    textView.Buffer!.Text = messageBuilder.ToString();
+
+    // Scroll the text view inside a scrolled window
+    var scrolledWindow = new ScrolledWindow
+    {
+        Child = textView
+    };
+    scrolledWindow.SetMinContentHeight(640);
+    scrolledWindow.SetMinContentWidth(900);
+    scrolledWindow.SetPropagateNaturalWidth(true);
+    scrolledWindow.SetPropagateNaturalHeight(true);
+    vbox.Append(scrolledWindow);
+
+    var buttonBox = new Box()
+    {
+        Halign = Align.Center,
+        Spacing = 10,
+        MarginBottom = 10
+    };
+
+    // "Report Error" button
+    var reportButton = new Button();
+    reportButton.Label = "Report Error to Sentry";
+    reportButton.OnClicked += (sender, e) => OnReportErrorClicked(ex);
+    buttonBox.Append(reportButton);
+
+    var githubButton = new Button();
+    githubButton.Label = "Create GitHub Issue";
+    githubButton.OnClicked += (sender, e) => onGitHubButtonClicked(ex);
+    buttonBox.Append(githubButton);
+
+    // "Copy Error" button
+    var copyButton = new Button();
+    copyButton.Label = "Copy to Clipboard";
+    copyButton.OnClicked += (sender, e) => OnCopyErrorClicked(ex);
+    buttonBox.Append(copyButton);
+
+    // Pack the buttons into the main vertical box
+    vbox.Append(buttonBox);
+
+    // Add everything to the window
+    errorDialog.SetChild(vbox);
+
+    errorDialog.Show();
+
+    errorDialog.OnDestroy += (o, e) => Environment.Exit(1);
+}
+
+static void OnReportErrorClicked(Exception ex)
+{
+    DebugHelper.WriteLine("Sentry error reporting is not implemented.");
+}
+
+static void onGitHubButtonClicked(Exception ex)
+{
+    var newIssueURL = Helpers.GitHubIssueReport(ex);
+    if (newIssueURL == null) return;
+    URLHelpers.OpenURL(newIssueURL);
+}
+static void OnCopyErrorClicked(Exception ex)
+{
+    Clipboard.CopyText(ex.ToString());
+    DebugHelper.WriteLine("Copied error to clipboard");
+}
 application.OnShutdown += (sender, eventArgs) =>
 {
     sigintReceived = true;

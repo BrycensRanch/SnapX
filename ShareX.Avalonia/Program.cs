@@ -3,7 +3,7 @@
 using Avalonia;
 using ShareX.Avalonia;
 
-Console.WriteLine("Hello, World!");
+Console.WriteLine("Initializing Dark Avalonia Core");
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
 

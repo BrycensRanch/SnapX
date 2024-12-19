@@ -35,6 +35,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using ShareX.Core.Utils.Extensions;
+using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Utils.Random;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
@@ -81,6 +82,32 @@ public static class Helpers
     public static char GetRandomChar(string chars)
     {
         return chars[RandomCrypto.Next(chars.Length - 1)];
+    }
+
+    public static string? GitHubIssueReport(Exception ex)
+    {
+        try
+        {
+            // Format the title and body for the issue
+            var title = "[BUG] " + ex.Message;  // Prefix the title with [BUG]
+            var body = $"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n{ex.StackTrace}\n\nAssembly: {Assembly.GetExecutingAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}";
+
+            var encodedTitle = HttpUtility.UrlEncode(title);
+            var encodedBody = HttpUtility.UrlEncode(body);
+            var labels = new[] { "bug", "high severity" };
+            var encodedLabels = HttpUtility.UrlEncode(string.Join(",", labels));
+
+            // Construct the GitHub issue creation URL
+            var issueUrl = $"{Links.GitHub}/issues/new?title={encodedTitle}&body={encodedBody}&labels={encodedLabels}";
+
+            // Return the generated URL
+            return issueUrl;
+        }
+        catch (Exception e)
+        {
+            DebugHelper.Logger.Error($"Error generating GitHub issue URL: {e.Message}");
+            return null;
+        }
     }
 
     public static string GetRandomString(string chars, int length)
@@ -319,37 +346,7 @@ public static class Helpers
 
     public static string GetUniqueID()
     {
-        return Guid.NewGuid().ToString("N");
-    }
-
-
-    public static Size MeasureText(string text, string fontFilePath, float fontSize)
-    {
-        var fontCollection = new FontCollection();
-        var font = fontCollection.Add(fontFilePath);
-
-        var fontInstance = font.CreateFont(fontSize);
-
-        var measuredSize = TextMeasurer.MeasureSize(text, new TextOptions(fontInstance));
-
-        return new Size((int)measuredSize.Width, (int)measuredSize.Height);
-    }
-
-    public static Size MeasureText(string text, Font font, int width)
-    {
-        var fontCollection = new FontCollection();
-        var imageFont = fontCollection.Add(font.Name);
-
-        var fontInstance = imageFont.CreateFont(font.Size);
-
-        var textOptions = new TextOptions(fontInstance)
-        {
-            WrappingLength = width
-        };
-
-        var measuredSize = TextMeasurer.MeasureSize(text, textOptions);
-
-        return new Size((int)measuredSize.Width, (int)measuredSize.Height);
+        return Guid.CreateVersion7().ToString("N");
     }
     public static async Task<string> SendPing(string host)
     {
