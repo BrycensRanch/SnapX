@@ -37,7 +37,7 @@
 
 Name:           sharex
 Version:        %{version}
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -97,6 +97,8 @@ export PATH=$PATH:/usr/local/bin
 dotnet publish --configuration Release --runtime %{dotnet_runtime} \
     -p:DebugSymbols=false -p:DebugType=none ShareX.CLI
 dotnet publish --configuration Release --runtime %{dotnet_runtime} \
+    -p:DebugSymbols=false -p:DebugType=none ShareX.NativeMessagingHost
+dotnet publish --configuration Release --runtime %{dotnet_runtime} \
     -p:DebugSymbols=false -p:DebugType=none ShareX.GTK4
 dotnet publish --configuration Release --runtime %{dotnet_runtime} \
     -p:DebugSymbols=false -p:DebugType=none ShareX.Avalonia
@@ -109,9 +111,11 @@ ShareX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex --version
 %{__mkdir} -p %{buildroot}%{_libdir}/sharex %{buildroot}%{_bindir} %{buildroot}%{_datadir}/ShareX
 %{__cp} ShareX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex %{buildroot}%{_bindir}
 %{__cp} ShareX.GTK4/bin/Release/%{net}/%{dotnet_runtime}/publish/sharex-gtk %{buildroot}%{_bindir}
+%{__cp} ShareX.NativeMessagingHost/bin/Release/%{net}/%{dotnet_runtime}/native/ShareX_NativeMessagingHost %{buildroot}%{_datadir}/ShareX
 %{__cp} ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/ShareX.Avalonia %{buildroot}%{_libdir}/sharex
 %{__cp} ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/*.so %{buildroot}%{_libdir}/sharex
 %{__cp} -r ShareX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/Resources %{buildroot}%{_datadir}/ShareX
+
 
 # Create the wrapper shell script
 cat > %{buildroot}%{_bindir}/sharex-ui <<EOF

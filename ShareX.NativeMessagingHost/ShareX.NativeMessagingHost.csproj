@@ -11,16 +11,17 @@
     <SelfContained>true</SelfContained>
 
     <!-- Strip out debug symbols for smaller file size -->
-    <DebugType>embedded</DebugType>
+    <DebugType>none</DebugType>
 
     <!-- Ready to Run compilation -->
     <PublishReadyToRun>true</PublishReadyToRun>
     <!-- Enable AOT compilation -->
     <PublishAot>true</PublishAot>
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
+    <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" PrivateAssets="All" Exclude="Microsoft.EntityFrameworkCore.Sqlite" />
   </ItemGroup>
   <!-- Cross-platform copy command using MSBuild -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
