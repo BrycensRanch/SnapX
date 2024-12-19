@@ -37,7 +37,7 @@ using ShareX.Core.Utils.Parsers;
 namespace ShareX.Core.Upload.File;
 public class AzureStorageUploaderService : FileUploaderService
 {
-    public override FileDestination EnumValue { get; } = FileDestination.AzureStorage;
+    public override FileDestination EnumValue => FileDestination.AzureStorage;
 
     public override bool CheckConfig(UploadersConfig config)
     {

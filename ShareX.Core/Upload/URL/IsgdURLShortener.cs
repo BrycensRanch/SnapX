@@ -44,7 +44,7 @@ public class IsgdURLShortenerService : URLShortenerService
 
 public class IsgdURLShortener : URLShortener
 {
-    protected virtual string APIURL => "http://is.gd/create.php";
+    protected virtual string APIURL => "https://is.gd/create.php";
 
     public override UploadResult ShortenURL(string url)
     {

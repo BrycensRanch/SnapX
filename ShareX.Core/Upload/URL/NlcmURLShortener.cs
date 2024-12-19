@@ -37,7 +37,7 @@ public sealed class NlcmURLShortener : URLShortener
 
         var arguments = new Dictionary<string, string> { { "url", url } };
 
-        result.Response = result.ShortenedURL = SendRequest(HttpMethod.Get, "http://nl.cm/api/", arguments);
+        result.Response = result.ShortenedURL = SendRequest(HttpMethod.Get, "https://nl.cm/api/", arguments);
 
         return result;
     }

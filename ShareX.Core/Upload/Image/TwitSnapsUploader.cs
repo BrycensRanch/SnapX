@@ -34,7 +34,7 @@ namespace ShareX.Core.Upload.Image
     {
         public OAuthInfo AuthInfo { get; set; }
 
-        private const string APIURL = "http://twitsnaps.com/dev/image/upload.xml";
+        private const string APIURL = "https://twitsnaps.com/dev/image/upload.xml";
 
         private string APIKey;
 
@@ -56,19 +56,21 @@ namespace ShareX.Core.Upload.Image
 
         private UploadResult Upload(Stream stream, string fileName, string msg)
         {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("appKey", APIKey);
-            args.Add("consumerKey", AuthInfo.ConsumerKey);
-            args.Add("consumerSecret", AuthInfo.ConsumerSecret);
-            args.Add("oauthToken", AuthInfo.UserToken);
-            args.Add("oauthSecret", AuthInfo.UserSecret);
+            var args = new Dictionary<string, string>
+            {
+                { "appKey", APIKey },
+                { "consumerKey", AuthInfo.ConsumerKey },
+                { "consumerSecret", AuthInfo.ConsumerSecret },
+                { "oauthToken", AuthInfo.UserToken },
+                { "oauthSecret", AuthInfo.UserSecret }
+            };
 
             if (!string.IsNullOrEmpty(msg))
             {
                 args.Add("message", msg);
             }
 
-            UploadResult result = SendRequestFile(APIURL, stream, fileName, "media", args);
+            var result = SendRequestFile(APIURL, stream, fileName, "media", args);
 
             return ParseResult(result);
         }
@@ -84,8 +86,8 @@ namespace ShareX.Core.Upload.Image
                 if (xe != null)
                 {
                     string id = xe.GetElementValue("id");
-                    result.URL = "http://twitsnaps.com/snap/" + id;
-                    result.ThumbnailURL = "http://twitsnaps.com/thumb/" + id;
+                    result.URL = "https://twitsnaps.com/snap/" + id;
+                    result.ThumbnailURL = "https://twitsnaps.com/thumb/" + id;
                 }
                 else
                 {

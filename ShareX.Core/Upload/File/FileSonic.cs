@@ -35,7 +35,7 @@ namespace ShareX.Core.Upload.File
 
         public string Password { get; set; }
 
-        private const string APIURL = "http://api.filesonic.com/upload";
+        private const string APIURL = "https://api.filesonic.com/upload";
 
         public FileSonic(string username, string password)
         {

@@ -247,7 +247,7 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #region Jira
 
-    public string JiraHost { get; set; } = "http://";
+    public string JiraHost { get; set; } = "https://";
     public string JiraIssuePrefix { get; set; } = "PROJECT-";
     public OAuthInfo JiraOAuthInfo { get; set; } = null;
 
@@ -416,7 +416,7 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #region yourls.org
 
-    public string YourlsAPIURL { get; set; } = "http://yoursite.com/yourls-api.php";
+    public string YourlsAPIURL { get; set; } = "https://yoursite.com/yourls-api.php";
     public string YourlsSignature { get; set; } = "";
     public string YourlsUsername { get; set; } = "";
     public string YourlsPassword { get; set; } = "";

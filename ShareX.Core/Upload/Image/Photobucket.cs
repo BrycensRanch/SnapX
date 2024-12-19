@@ -49,9 +49,9 @@ public class PhotobucketImageUploaderService : ImageUploaderService
 
 public sealed class Photobucket : ImageUploader, IOAuth
 {
-    private const string URLRequestToken = "http://api.photobucket.com/login/request";
-    private const string URLAuthorize = "http://photobucket.com/apilogin/login";
-    private const string URLAccessToken = "http://api.photobucket.com/login/access";
+    private const string URLRequestToken = "https://api.photobucket.com/login/request";
+    private const string URLAuthorize = "https://photobucket.com/apilogin/login";
+    private const string URLAccessToken = "https://api.photobucket.com/login/access";
 
     public OAuthInfo AuthInfo { get; set; }
     public PhotobucketAccountInfo AccountInfo { get; set; }
@@ -134,7 +134,7 @@ public sealed class Photobucket : ImageUploader, IOAuth
             { "name", albumName } // Name of result. Must be between 2 and 50 characters.
         };
 
-        var url = "http://api.photobucket.com/album/!";
+        var url = "https://api.photobucket.com/album/!";
         var query = OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo);
         query = FixURL(query);
 

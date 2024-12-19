@@ -45,7 +45,7 @@ namespace ShareX.Core.Upload.Image
             arguments.Add("xmlOutput", "1");
             //arguments.Add("testMode", "1");
 
-            UploadResult result = SendRequestFile("http://img1.uploadscreenshot.com/api-upload.php", stream, fileName, "userfile", arguments);
+            UploadResult result = SendRequestFile("https://img1.uploadscreenshot.com/api-upload.php", stream, fileName, "userfile", arguments);
 
             return ParseResult(result);
         }
