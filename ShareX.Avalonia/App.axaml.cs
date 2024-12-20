@@ -1,19 +1,13 @@
-using System.Reflection;
-using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Avalonia.Styling;
-using Avalonia.Threading;
-using FluentAvalonia.UI.Controls;
 using ShareX.Core;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Native;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace ShareX.Avalonia;
 
@@ -46,17 +40,20 @@ public class App : Application
 
         };
 
-        stackPanel.Children.Add(new SelectableTextBlock {
-            Text = ex.Message,
+        stackPanel.Children.Add(new SelectableTextBlock
+        {
+            Text = ex.GetType() + ": " + ex.Message,
             FontWeight = FontWeight.Bold,
             Padding = new Thickness(10)
         });
-        stackPanel.Children.Add(new SelectableTextBlock {
+        stackPanel.Children.Add(new SelectableTextBlock
+        {
             Text = ex.StackTrace,
             FontWeight = FontWeight.SemiLight,
             Padding = new Thickness(10),
         });
-        stackPanel.Children.Add(new SelectableTextBlock {
+        stackPanel.Children.Add(new SelectableTextBlock
+        {
             Text = GetType().Assembly.GetName().Name + ": " + GetType().Assembly.GetName().Version,
             FontWeight = FontWeight.SemiLight,
             FontSize = 16,
