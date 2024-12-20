@@ -1,17 +1,15 @@
 using System.Reflection;
 using System.Text;
-using System.Web;
 using GdkPixbuf;
 using Gio;
 using GObject;
 using Gtk;
 using ShareX.Core;
+using ShareX.Core.Upload;
 using ShareX.Core.Utils;
-using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Utils.Native;
 using SixLabors.ImageSharp;
 using AboutDialog = ShareX.GTK4.AboutDialog;
-using Application = Gio.Application;
 using MessageType = Gst.MessageType;
 
 var shareX = new ShareX.Core.ShareX();
@@ -47,59 +45,87 @@ application.OnActivate += (sender, eventArgs) =>
     }
 
     if (!errorStarting)
-    { DebugHelper.WriteLine("Internal Startup time: {0} ms", shareX.getStartupTime());
-    if (shareX.isSilent()) return;
-
-    if (ShareX.Core.ShareX.CLIManager.IsCommandExist("video"))
     {
-        Gst.Module.Initialize();
-        GstVideo.Module.Initialize();
-        Gst.Application.Init();
-        var ret = Gst.Functions.ParseLaunch("playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
-        ret.SetState(Gst.State.Playing);
-        var bus = ret.GetBus();
-        bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
-        ret.SetState(Gst.State.Null);
-    }
+        DebugHelper.WriteLine("Internal Startup time: {0} ms", shareX.getStartupTime());
+        if (shareX.isSilent()) return;
 
-    var dialog = new AboutDialog();
-    dialog.SetApplication(application);
-    dialog.AddCreditSection("Mentions", new[] { "benbryant0" });
-    var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
-    var osInfo = OsInfo.GetFancyOSNameAndVersion();
-    var assembly = Assembly.GetExecutingAssembly();
-    foreach (var resourceName in assembly.GetManifestResourceNames())
-    {
-        Console.WriteLine(resourceName);
-    }
-    var bytes = assembly.ReadResourceAsByteArray("ShareX.GTK4.ShareX_Logo.png");
-    var image = SixLabors.ImageSharp.Image.Load(bytes);
-    using var memoryStream = new MemoryStream();
-    image.SaveAsPng(memoryStream);
-    var imageBytes = memoryStream.ToArray();
+        if (ShareX.Core.ShareX.CLIManager.IsCommandExist("video"))
+        {
+            Gst.Module.Initialize();
+            GstVideo.Module.Initialize();
+            Gst.Application.Init();
+            var ret = Gst.Functions.ParseLaunch("playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
+            ret.SetState(Gst.State.Playing);
+            var bus = ret.GetBus();
+            bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
+            ret.SetState(Gst.State.Null);
+        }
+        var mainWindow = new ApplicationWindow();
+        mainWindow.SetApplication(application);
+        mainWindow.SetName("ShareX");
+        var box = new Box();
+        box.SetOrientation(Orientation.Vertical);
+        var imageURLTextBox = new Entry();
+        imageURLTextBox.PlaceholderText = "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
+        imageURLTextBox.SetText(imageURLTextBox.PlaceholderText);
+        var demoTestButton = new Button();
+        demoTestButton.Label = "Upload Remote Image";
+        demoTestButton.OnClicked += (_, __) =>
+        {
+            DebugHelper.WriteLine("Upload Demo Image triggered");
+
+            try
+            {
+                UploadManager.DownloadAndUploadFile(imageURLTextBox.GetText());
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.Logger.Error(ex.ToString());
+                ShowErrorDialog(ex, application);
+            }
+        };
+        box.Append(imageURLTextBox);
+        box.Append(demoTestButton);
+        mainWindow.SetChild(box);
+        mainWindow.SetVisible(true);
+        var dialog = new AboutDialog();
+        dialog.SetApplication(application);
+        dialog.AddCreditSection("Mentions", new[] { "benbryant0" });
+        var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
+        var osInfo = OsInfo.GetFancyOSNameAndVersion();
+        var assembly = Assembly.GetExecutingAssembly();
+        foreach (var resourceName in assembly.GetManifestResourceNames())
+        {
+            Console.WriteLine(resourceName);
+        }
+        var bytes = assembly.ReadResourceAsByteArray("ShareX.GTK4.ShareX_Logo.png");
+        var image = SixLabors.ImageSharp.Image.Load(bytes);
+        using var memoryStream = new MemoryStream();
+        image.SaveAsPng(memoryStream);
+        var imageBytes = memoryStream.ToArray();
 
 
-    var pixbuf = PixbufLoader.FromBytes(imageBytes);
-    var logo = Gdk.Texture.NewForPixbuf(pixbuf);
-    // dialog.SetDecorated(false);
-    // dialog.SetFocusable(false);
-    // dialog.SetOpacity(0.8);
-    // dialog.SetResizable(false);
-    // dialog.SetCanTarget(false);
-    // dialog.SetCanFocus(false);
-    // dialog.SetDeletable(false);
-    // dialog.SetSensitive(false);
-    // dialog.SetFocusVisible(false);
-    dialog.SetModal(true);
-    dialog.SetLogo(logo);
+        var pixbuf = PixbufLoader.FromBytes(imageBytes);
+        var logo = Gdk.Texture.NewForPixbuf(pixbuf);
+        // dialog.SetDecorated(false);
+        // dialog.SetFocusable(false);
+        // dialog.SetOpacity(0.8);
+        // dialog.SetResizable(false);
+        // dialog.SetCanTarget(false);
+        // dialog.SetCanFocus(false);
+        // dialog.SetDeletable(false);
+        // dialog.SetSensitive(false);
+        // dialog.SetFocusVisible(false);
+        dialog.SetModal(true);
+        dialog.SetLogo(logo);
 
-    dialog.SystemInformation = $"OS: {osInfo}\nGTK Version: {gtkVersion}\n.NET Version: {dialog.internalAboutDialog.GetRuntime()}\nPlatform: {dialog.internalAboutDialog.GetOsPlatform()}";
+        dialog.SystemInformation = $"OS: {osInfo}\nGTK Version: {gtkVersion}\n.NET Version: {dialog.internalAboutDialog.GetRuntime()}\nPlatform: {dialog.internalAboutDialog.GetOsPlatform()}";
 
-    dialog.Show();
-    // var window = Gtk.ApplicationWindow.New((Gtk.Application) sender);
-    // window.Title = "Gtk4 Window";
-    // window.SetDefaultSize(300, 300);
-    // window.Show();
+        dialog.Show();
+        // var window = Gtk.ApplicationWindow.New((Gtk.Application) sender);
+        // window.Title = "Gtk4 Window";
+        // window.SetDefaultSize(300, 300);
+        // window.Show();
     }
 };
 static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
@@ -121,8 +147,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
 
     // Build the error message with exception message and stack trace
     var messageBuilder = new StringBuilder();
-    messageBuilder.AppendLine(ex.Message);
-    messageBuilder.AppendLine();
+    messageBuilder.AppendLine(ex.GetType() + ": " + ex.Message);
     messageBuilder.AppendLine(ex.StackTrace);
     messageBuilder.AppendLine(Assembly.GetExecutingAssembly().GetName().Name + ": " + Assembly.GetExecutingAssembly().GetName().Version);
 
