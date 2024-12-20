@@ -24,11 +24,11 @@
   </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.2.2" />
-      <PackageReference Include="Avalonia.Desktop" Version="11.2.2" />
+      <PackageReference Include="Avalonia" Version="11.2.3" />
+      <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
       <PackageReference Include="FluentAvaloniaUI" Version="2.2.0" />
-      <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.2.2" />
-      <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2" />
+      <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.2.3" />
+      <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.3" />
       <ProjectReference Include="..\ShareX.Core\ShareX.Core.csproj" />
       <ProjectReference Include="..\ShareX.CommonUI\ShareX.CommonUI.csproj" />
     </ItemGroup>
