@@ -127,18 +127,20 @@ public class ShareX
 
     private static string CustomPersonalPath { get; set; }
 
-    public static string PersonalFolder
-    {
-        get
-        {
-            if (!string.IsNullOrEmpty(CustomPersonalPath))
-            {
-                return FileHelpers.ExpandFolderVariables(CustomPersonalPath);
-            }
+    private static string CustomConfigPath { get; set; }
 
-            return DefaultPersonalFolder;
-        }
-    }
+    public static string PersonalFolder =>
+        !string.IsNullOrEmpty(CustomPersonalPath)
+            ? FileHelpers.ExpandFolderVariables(CustomPersonalPath)
+            : DefaultPersonalFolder;
+
+    public static string ConfigFolder => string.IsNullOrEmpty(CustomConfigPath)
+        ? Path.Combine(
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? UserDirectory.DocumentsDir
+                : BaseDirectory.ConfigHome,
+            AppName)
+        : CustomConfigPath;
 
     public const string HistoryFileName = "History.json";
 
@@ -267,7 +269,9 @@ public class ShareX
         DebugHelper.WriteLine("Version: " + VersionText);
         DebugHelper.WriteLine("Build: " + Build);
         DebugHelper.WriteLine("Command line: " + Environment.CommandLine);
-        DebugHelper.WriteLine("Personal path: " + PersonalFolder);
+        DebugHelper.WriteLine("Data folder: " + PersonalFolder);
+        DebugHelper.WriteLine("Config folder: " + ConfigFolder);
+
         if (!string.IsNullOrWhiteSpace(PersonalPathDetectionMethod))
         {
             DebugHelper.WriteLine("Personal path detection method: " + PersonalPathDetectionMethod);
@@ -284,8 +288,8 @@ public class ShareX
         RegisterExtensions();
         CheckPuushMode();
         DebugWriteFlags();
-        // SettingManager.LoadInitialSettings();
-        SettingManager.LoadAllSettings();
+        SettingManager.LoadInitialSettings();
+        // SettingManager.LoadAllSettings();
         if (CLIManager.IsCommandExist("screenshot", "ss"))
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -415,7 +419,7 @@ public class ShareX
             }
             catch (Exception e)
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
 
                 sb.AppendFormat("{0} \"{1}\"", "Unable to create personal folder!", PersonalFolder);
                 sb.AppendLine();
@@ -431,6 +435,7 @@ public class ShareX
                 CustomPersonalPath = "";
             }
         }
+        if (!Directory.Exists(ConfigFolder)) Directory.CreateDirectory(ConfigFolder);
     }
 
     private static void CreateParentFolders()
@@ -457,6 +462,7 @@ public class ShareX
                 if (!File.Exists(CurrentPersonalPathConfigFilePath))
                 {
                     FileHelpers.CreateDirectoryFromFilePath(CurrentPersonalPathConfigFilePath);
+                    FileHelpers.CreateDirectoryFromFilePath(ConfigFolder);
                     File.Move(PreviousPersonalPathConfigFilePath, CurrentPersonalPathConfigFilePath);
                 }
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

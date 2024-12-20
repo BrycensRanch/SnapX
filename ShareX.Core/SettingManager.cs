@@ -25,7 +25,7 @@ internal static class SettingManager
         {
             if (ShareX.Sandbox) return null;
 
-            return Path.Combine(ShareX.PersonalFolder, ApplicationConfigFileName);
+            return Path.Combine(ShareX.ConfigFolder, ApplicationConfigFileName);
         }
     }
 
@@ -45,7 +45,7 @@ internal static class SettingManager
             // }
             // else
             // {
-            uploadersConfigFolder = ShareX.PersonalFolder;
+            uploadersConfigFolder = ShareX.ConfigFolder;
             // }
 
             return Path.Combine(uploadersConfigFolder, UploadersConfigFileName);
@@ -68,7 +68,7 @@ internal static class SettingManager
             // }
             // else
             // {
-            hotkeysConfigFolder = ShareX.PersonalFolder;
+            hotkeysConfigFolder = ShareX.ConfigFolder;
             // }
 
             return Path.Combine(hotkeysConfigFolder, HotkeysConfigFileName);
@@ -117,20 +117,22 @@ internal static class SettingManager
 
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
-
         var configurationBuilder = new ConfigurationBuilder()
-            .AddJsonFile(ApplicationConfigFileName, optional: true, reloadOnChange: true)
             .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
             .AddRegistry(@"Software\ShareX\ShareX")
             .AddEnvironmentVariables(prefix: "SHAREX_")
             .AddCommandLine(Environment.GetCommandLineArgs())
-            .SetBasePath(ShareX.PersonalFolder)
-            .Build();
-        ShareX.Configuration = configurationBuilder;
+            .SetBasePath(ShareX.ConfigFolder);
+
+        if (!ShareX.Sandbox)
+        {
+            configurationBuilder.AddJsonFile(ApplicationConfigFileName, optional: true, reloadOnChange: true);
+        }
+        ShareX.Configuration = configurationBuilder.Build();
         var settings = new RootConfiguration();
-        configurationBuilder.Bind(settings);
+        ShareX.Configuration.Bind(settings);
         Settings = settings;
         ApplicationConfigBackwardCompatibilityTasks();
         MigrateHistoryFile();
@@ -336,9 +338,9 @@ internal static class SettingManager
     {
         try
         {
-            ZipManager.Extract(archivePath, ShareX.PersonalFolder, true, entry =>
+            ZipManager.Extract(archivePath, ShareX.ConfigFolder, true, entry =>
             {
-                return FileHelpers.CheckExtension(entry.Name, new string[] { "json", "xml" });
+                return FileHelpers.CheckExtension(entry.Name, new[] { "json", "xml" });
             }, 1_000_000_000);
 
             return true;
