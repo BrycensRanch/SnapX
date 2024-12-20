@@ -5,7 +5,6 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using ShareX.Core.Indexer;
-using ShareX.Core.Media;
 using ShareX.Core.Upload;
 using ShareX.Core.Utils;
 using ShareX.Core.Utils.Extensions;

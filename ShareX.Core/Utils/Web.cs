@@ -22,7 +22,7 @@ public static class WebHelpers
 
         FileHelpers.CreateDirectoryFromFilePath(filePath);
 
-        using var client = HttpClientFactory.Create();
+        var client = HttpClientFactory.Get();
         using var responseMessage = await client.GetAsync(url);
 
         if (!responseMessage.IsSuccessStatusCode)
@@ -70,7 +70,7 @@ public static class WebHelpers
             return null;
         }
 
-        using var client = HttpClientFactory.Create();
+        var client = HttpClientFactory.Get();
         using var responseMessage = await client.GetAsync(url);
 
         return responseMessage.IsSuccessStatusCode
@@ -84,7 +84,7 @@ public static class WebHelpers
     {
         if (string.IsNullOrEmpty(url)) return null;
 
-        using var client = HttpClientFactory.Create();
+        var client = HttpClientFactory.Get();
         using var requestMessage = new HttpRequestMessage(HttpMethod.Head, url);
 
         using var responseMessage = await client.SendAsync(requestMessage);
@@ -97,7 +97,7 @@ public static class WebHelpers
     {
         if (string.IsNullOrEmpty(url)) return null;
 
-        using var client = HttpClientFactory.Create();
+        var client = HttpClientFactory.Get();
 
         using var responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 

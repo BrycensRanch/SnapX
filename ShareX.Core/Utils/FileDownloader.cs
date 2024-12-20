@@ -71,7 +71,7 @@ public class FileDownloader
     {
         try
         {
-            var client = HttpClientFactory.Create();
+            var client = HttpClientFactory.Get();
 
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, URL);
             if (!string.IsNullOrEmpty(AcceptHeader))

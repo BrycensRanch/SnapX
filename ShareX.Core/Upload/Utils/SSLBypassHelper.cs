@@ -19,13 +19,12 @@ public class SSLBypassHelper : IDisposable
             ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
         };
 
-        _httpClient = HttpClientFactory.Create();
+        _httpClient = HttpClientFactory.Get();
     }
 
     public void Dispose()
     {
-        _httpClient.Dispose();
-        _httpClientHandler.Dispose();
+            // I will not dispose the HttpClient. Say it with me.
     }
 }
 

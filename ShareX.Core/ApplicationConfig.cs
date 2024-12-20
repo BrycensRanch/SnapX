@@ -3,7 +3,6 @@ using System.Reflection;
 using ShareX.Core.Indexer;
 using ShareX.Core.Task;
 using ShareX.Core.Utils.Miscellaneous;
-using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 
 namespace ShareX.Core;
@@ -347,7 +346,8 @@ public class UploadSettings
     {
         get => _customTimeZone ??= TimeZoneInfo.Local;
         set => _customTimeZone = value;
-    }    public string NameFormatPattern { get; set; }
+    }
+    public string NameFormatPattern { get; set; }
     public string NameFormatPatternActiveWindow { get; set; }
     public bool FileUploadUseNamePattern { get; set; }
     public bool FileUploadReplaceProblematicCharacters { get; set; }

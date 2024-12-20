@@ -8,14 +8,21 @@ namespace ShareX.Core.Utils.Miscellaneous;
 public static class HttpClientFactory
 {
     // Using Lazy<T> to handle thread-safe initialization of the HttpClient
-    private static Lazy<HttpClient> _lazyClient = new Lazy<HttpClient>(() =>
+    private static Lazy<HttpClient> _lazyClient = new(() =>
     {
         var clientHandler = new HttpClientHandler
         {
             Proxy = HelpersOptions.CurrentProxy.GetWebProxy()
         };
 
-        var httpClient = new HttpClient(clientHandler);
+        HttpMessageHandler handler = clientHandler;
+
+#if DEBUG
+        // Only for DEBUG. Do not enable in production. Or you'll be fired.
+        var loggingHandler = new LoggingHttpMessageHandler(clientHandler, DebugHelper.Logger);
+        handler = loggingHandler;
+#endif
+        var httpClient = new HttpClient(handler);
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(ShareXResources.UserAgent);
         httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
         {
@@ -25,31 +32,7 @@ public static class HttpClientFactory
         return httpClient;
     });
 
-    public static HttpClient Create() => _lazyClient.Value;
 
-    // Resets the HttpClient, disposing the current instance if it exists
-    public static void Reset()
-    {
-        if (_lazyClient.IsValueCreated)
-        {
-            _lazyClient.Value.Dispose();
-            _lazyClient = new Lazy<HttpClient>(() =>
-            {
-                var clientHandler = new HttpClientHandler
-                {
-                    Proxy = HelpersOptions.CurrentProxy.GetWebProxy()
-                };
-
-                var httpClient = new HttpClient(clientHandler);
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(ShareXResources.UserAgent);
-                httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-                {
-                    NoCache = true
-                };
-
-                return httpClient;
-            });
-        }
-    }
+    public static HttpClient Get() => _lazyClient.Value;
 }
 

@@ -16,7 +16,6 @@ using System.Xml;
 using ShareX.Core.Utils.Extensions;
 using ShareX.Core.Utils.Miscellaneous;
 using ShareX.Core.Utils.Random;
-using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 
 namespace ShareX.Core.Utils;
