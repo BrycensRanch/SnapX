@@ -1,4 +1,4 @@
-name: Build ShareX
+name: Build SnapX
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
           - Any CPU
 
     env:
-      SOLUTION_FILE_PATH: ShareX.sln
+      SOLUTION_FILE_PATH: SnapX.sln
       ASSEMBLY_INFO_PATH: Directory.build.props
 
     outputs:
@@ -61,7 +61,7 @@ jobs:
         if: matrix.configuration == 'Debug'
         uses: actions/upload-artifact@v4
         with:
-          name: ShareX-Vendored-Source
+          name: SnapX-Vendored-Source
           path: .
           include-hidden-files: false
           compression-level: 9

@@ -1,9 +1,0 @@
-﻿{
-  "name": "ShareX",
-  "description": "ShareX Linux",
-  "path": "ShareX_NativeMessagingHost.exe",
-  "type": "stdio",
-  "allowed_extensions": [
-    "brycengranville@outlook.com"
-  ]
-}

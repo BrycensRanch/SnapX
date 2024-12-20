@@ -1,0 +1,9 @@
+﻿{
+  "name": "io.github.brycensranch.SnapX",
+  "description": "Cross platform ShareX Hard Fork",
+  "path": "SnapX_NativeMessagingHost.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://nlkoigbdolhchiicbonbihbphgamnaoc/"
+  ]
+}

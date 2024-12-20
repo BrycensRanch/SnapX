@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>SnapX_NativeMessagingHost</AssemblyName>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <DebugType>none</DebugType>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishAot>true</PublishAot>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" PrivateAssets="All" Exclude="Microsoft.EntityFrameworkCore.Sqlite" />
+  </ItemGroup>
+  <!-- Cross-platform copy command using MSBuild -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy
+      SourceFiles="$(TargetPath)"
+      DestinationFolder="$(SolutionDir)\ShareX.Core\$(OutDir)"
+      SkipUnchangedFiles="true" />
+  </Target>
+</Project>

@@ -14,16 +14,14 @@
 - [ ] Log files should be a daily log file, not a whole MONTH (wtf?)
 - [ ] Symlink ~/Documents/ShareX-Linux to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
-- [ ] Create bindings for `go-keyring` so we're not storing API Credentials in plain text on the filesystem. It's also cross-platform. That way, if need be, porting this to every major OS should be less cumbersome.
-- [ ] Learn Rust and a hint of C++ to use XCap and other cross-platform screen capture libraries. (This will make the port take much longer)
-- [ ] Rust interop bindings
-- [x] Cry myself to sleep after a long refactor and the builds still not passing despite thousands and thousands of lines of dead code
+- [ ] Port `go-keyring` to C#
+- [ ] Bring in CppSharp to access XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
 
 ## Studying ShareX's behavior on Windows 11 24H2
 
 It's important to know how the program *should* behave in accordance with user expectations. As such, I've done a little recording of it.
 
-With GTK4, this is going to be a interesting task.
+With GTK4, this is going to be an interesting endeavor.
 
 
 ## Rewrite
@@ -58,13 +56,25 @@ ShareX on Windows has auto update functionality. This is a feature that I would 
 
 The idea is for ShareX to check for updates on startup. Since the goal is to have the application with one singular binary with no DLLs/.so files to worry about. Like Electron apps. It'll replace the application binary to the latest version that is the same major version. This will allow for easy updates and bug fixes to be distributed to users. Downgrades will not be allowed.
 
+`ShareNoSnap` variant will be not auto update, in fact, it shouldn't ship the code to do it at all.
+
 #### Telemetry
 
-I'm aiming to add telemetry to the application. This will allow for the collection of anonymous usage data. This data will be used to improve the application and fix bugs. Coming in the form of [Sentry](https://sentry.io/). This will allow for the collection of crash reports and other useful data. This will be opt-out and can be disabled in the settings. This will be ***enabled*** by default. Telemetry is best when it represents the majority of the user base. I kindly ask you to not disable it. It's for the greater good. I know companies continue to abuse telemetry for their own gain, but this is not the case here. This is for the betterment of the application and the user experience. I'm not selling your data to advertisers. I'm not selling your data to anyone.
+I'm aiming to add telemetry to the application.
+This will allow for the collection of anonymous usage data.
+
+This data will be used to improve the application and fix bugs.
+Coming in the form of [Sentry](https://sentry.io/).
+
+Allowing for the automatic collection of crash reports and other useful data for debugging.
+
+It is opt-out and can be disabled in the settings. Additionally, the `ShareNoSnap` variant will not include telemetry, as you'd expect. Nor will the code even exist for it to do so.
+
+Telemetry will be ***enabled*** by default. Telemetry is best when it represents the majority of the user base. I kindly ask you to not disable it. It's for the greater good. I know companies continue to abuse telemetry for their own gain, but this is not the case here. This is for the betterment of the application and the user experience. I'm not selling your data to advertisers. I'm not selling your data to anyone.
 
 #### Why are you doing this?
 
-WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 9 and GTK4, but with this port, it should become a Linux application
+WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 9 and GTK4, but with this port, it should become a cross platform application
 
 #### How are screenshots going to work?
 
@@ -72,14 +82,13 @@ I am going to use a library I have decided to do it. I might keep the Windows co
 
 ### GTK on Windows sucks!
 
-I agree! That's why In the future, I want to use WPF again as a separate "Project" (it'd still be under the GitHub repository)
-https://github.com/lepoco/wpfui looks like a great start.
+I agree! That's what SnapX.Avalonia is for.
 
 
 
 
 
-<https://sixlabors.com/products/imagesharp/> This library is a cross-platform library that can be used to manipulate images. This library is used by the Avalonia project to handle images. This library will be used to handle images in this project.
+<https://sixlabors.com/products/imagesharp/> This library is a cross-platform library that can be used to manipulate images. This library will be used to handle images in this project.
 
 
 #### Snap & Flatpak
@@ -107,3 +116,6 @@ so it is only on talk
 ````
 
 "Talk is cheap, show me the code"—Linus Torvalds
+
+Hence, the broadening of the scope from Linux port to cross-platform modern hard fork.
+We are stronger together than divided.

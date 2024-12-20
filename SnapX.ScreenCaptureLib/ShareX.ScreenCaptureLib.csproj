@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Design" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ShareX.ImageEffectsLib\ShareX.ImageEffectsLib.csproj" />
+    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+        <!--    This will have to be implmented in our codebase. There's nothing like it for our use case.-->
+<!--    <PackageReference Include="ImageListView" Version="13.8.2" />-->
+  </ItemGroup>
+</Project>

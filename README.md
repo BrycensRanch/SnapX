@@ -1,28 +1,37 @@
-<p align="center"><a href="https://getsharex.com"><img src="./Linux.png" alt="ShareX Banner"/></a></p>
-<h3 align="center">Screen capture, file sharing and productivity tool. Now on Linux</h3>
+<p align="center"><a href="https://getsharex.com"><img src="./Linux.png" alt="SnapX Banner"/></a></p>
+<h1 align="center">SnapX</h1>
+<h3 align="center">Screen capture, file sharing and productivity tool. All for you.</h3>
 <br>
 <div align="center">
-  <a href="https://github.com/BrycensRanch/ShareX-Linux-Port/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrycensRanch/ShareX-Linux-Port/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status"/></a>
-  <a href="./LICENSE.txt"><img src="https://img.shields.io/github/license/BrycensRanch/ShareX-Linux-Port?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/></a>
-  <a href="https://github.com/BrycensRanch/ShareX-Linux-Port/releases/latest"><img src="https://img.shields.io/github/v/release/BrycensRanch/ShareX-Linux-Port?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/></a>
-  <a href="https://getsharex.com/downloads"><img src="https://img.shields.io/github/downloads/BrycensRanch/ShareX-Linux-Port/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
+  <a href="https://github.com/BrycensRanch/SnapX/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrycensRanch/SnapX/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status"/></a>
+  <a href="./LICENSE.txt"><img src="https://img.shields.io/github/license/BrycensRanch/SnapX?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/></a>
+  <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/v/release/BrycensRanch/SnapX?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/></a>
+  <a href="https://getsharex.com/downloads"><img src="https://img.shields.io/github/downloads/BrycensRanch/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
   <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://img.shields.io/discord/1267996919922430063?label=Discord&cacheSeconds=3600" alt="Discord"/></a>
 </div>
 <br>
-<p align="center"><a href="https://github.com/BrycensRanch/ShareX-Linux-Port"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
-<p align="center">For further information please check the source code.</p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
 
 # :construction: This project is under development and is not ready for use. :construction:
-
-Focusing on Wayland, with GTK4 to replace the dependency on Windows Forms.
-
 ## :warning: Disclaimer
 
-This is a port of the original ShareX application to Linux. It is not an official release and is not affiliated with the original ShareX project. The original ShareX project is licensed under the GNU General Public License v3.0, and this project is licensed under the same license. This project is not endorsed by the original ShareX project.
+SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the application [ShareX](https://github.com/ShareX/ShareX).
+- It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image manipulation library)
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to store history.
+- Additionally, all uploaders are now forced to use HTTPS.
+- Keeps compatability with uploader configuration
+- As a user, you do **NOT** need to have .NET installed. Whether you be on Windows, Linux, or macOS.
 
-You can find the original ShareX project [here](https://github.com/ShareX/ShareX).
+What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and _modern_ application.
 
-You will not receive any support from the original ShareX project for this port. If you have any issues with this port, please open an issue on this repository. However, it's important to note that this project is maintained by volunteers, and we may not be able to provide support for all issues. We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
+You will _not_ receive any support from the ShareX project for this software.
+If you have any issues with this project, please **open an issue** in this repository.
+
+However, it's important to note that this project is maintained by volunteers,
+and we may not be able to provide support for all issues.
+We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
+
+<p align="center">For further information, please check the source code.</p>
 
 ## Supported Linux Distributions
 
@@ -35,21 +44,21 @@ If you're using a different distribution, there will be a Flatpak package availa
 
 ## Other platforms
 
-When I initially started this port, I only came with one main objective: ShareX on Modern Linux on native Wayland.
-Now, I realize my work could be used on other platforms such as macOS or Windows...
+When I initially started this port, I only came with one main goal: ShareX on Modern Linux on native Wayland.
+I realized my work could be used on other platforms such as macOS or Windows...
 
-That's why ShareX.Avalonia was created. I hope down the line it'll be able to be worked on.
+That's why SnapX.Avalonia was created.
 
 It's powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), can look something like this. Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](image.png)
 
 And yet, it runs on Windows, Linux, and macOS.
-Additionally, it looks the literal same on every OS.
+Additionally, it looks the same on every OS. (besides fonts)
 
-Regarding screenshotting, there's a lot of solutions to the problem. I want this port to be easier to maintain than upstream. Personally, I'm open to PRing any missing spots in any cross platform screenshot/capture library instead of maintaining it in the repository.
+Regarding screenshotting, there are a lot of solutions to the problem. I want this port to be easier to maintain than upstream. Personally, I'm open to PRing any missing spots in any cross platform screenshot/capture library instead of maintaining it in the repository.
 
 ## Development Dependencies
 
-ShareX.GTK4 remains the main focus of this port. Instructions for other projects within the ShareX solution is not provided.
+ShareX.GTK4 remains the main focus of this port. Instructions for other projects within the SnapX solution are not provided yet.
 
 - `git`
 - `gtk4-devel` on Fedora or `libgtk-4-dev` on Ubuntu
@@ -67,7 +76,7 @@ sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg
 ### Fedora 40
 
 ```bash
-sudo dnf install git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
+sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
 ```
 
 ## Building from Source
@@ -75,8 +84,8 @@ sudo dnf install git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
 I don't think it will build... at all for some time.
 
 ```bash
-git clone https://github.com/BrycensRanch/ShareX-Linux-Port
-cd ShareX-Linux-Port
+git clone https://github.com/BrycensRanch/SnapX
+cd SnapX
 dotnet build
 ```
 

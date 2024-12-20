@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+
+    <!-- Make it self-contained -->
+    <!-- This does not mean it doesn't need the GTK4 libraries on the host or right beside the executable.. This is only for .NET -->
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishAot>true</PublishAot>
+    <ApplicationVersion>0.0.0-DEV</ApplicationVersion>
+    <Description>Screen capture, file sharing and productivity tool</Description>
+    <!-- ShareX.GTK4 is Linux only. -->
+    <RuntimeIdentifiers>linux-x64;linux-musl-x64;linux-bionic-arm64;linux-musl-arm64;linux-arm;linux-arm64</RuntimeIdentifiers>
+    <AssemblyName>snapx-gtk</AssemblyName>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
+      <Link>SnapX_Logo.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="logo.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GirCore.GstVideo-1.0" Version="0.5.0" />
+    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
+    <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
+
+    <PackageReference Include="GirCore.Gst-1.0" Version="0.5.0" />
+    <PackageReference Include="GirCore.Gtk-4.0" Version="0.5.0" />
+    <PackageReference Include="GirCore.Gio-2.0" Version="0.5.0" />
+    <PackageReference Include="GirCore.Gdk-4.0" Version="0.5.0" />
+  </ItemGroup>
+</Project>

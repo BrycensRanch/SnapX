@@ -331,6 +331,6 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder
 .mfractor/
 
-# ShareX
+# SnapX
 Output/
 APIKeysLocal.cs
