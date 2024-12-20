@@ -8,11 +8,11 @@
 - [ ] Port `ScreenCaptureLib` to .NET 9 and GTK and unknown dependencies (Requires investigation)
 - [x] Investigate `UploadersLib` (What is it? What does it do?)
 - It's where the uploaders are located and apply their own variables like %host%. This is a obvious code design flaw as you'll find time and time again, the functions are producing side effects everywhere that makes ShareX impossible to test.
-- [ ] Investigate `IndexerLib` (What is it? What does it do?)
-- [ ] Investigate `HistoryLib` (What is it? What does it do?)
-- [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://docs.servicestack.net/ormlite/>
-- [ ] Log files should be a daily log file, not a whole MONTH (wtf?)
-- [ ] Symlink ~/Documents/ShareX-Linux to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
+- [x] Investigate `IndexerLib` (What is it? What does it do?)
+- [x] Investigate `HistoryLib` (What is it? What does it do?)
+- [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
+- [x] Log files should be a daily log file, not a whole MONTH (wtf?)
+- [ ] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
 - [ ] Port `go-keyring` to C#
 - [ ] Bring in CppSharp to access XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
