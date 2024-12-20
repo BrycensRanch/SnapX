@@ -58,7 +58,7 @@ Regarding screenshotting, there are a lot of solutions to the problem. I want th
 
 ## Development Dependencies
 
-ShareX.GTK4 remains the main focus of this port. Instructions for other projects within the SnapX solution are not provided yet.
+Instructions for other projects within the SnapX solution are not provided yet.
 
 - `git`
 - `gtk4-devel` on Fedora or `libgtk-4-dev` on Ubuntu
