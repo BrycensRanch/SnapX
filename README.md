@@ -38,7 +38,7 @@ We will do our best to help you, but we cannot guarantee that we will be able to
 This project is built on Ubuntu 24.04 and is tested on the following distributions:
 
 - Ubuntu 24.04
-- Fedora 40
+- Fedora 41
 
 If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can build the project from source.
 
@@ -70,10 +70,11 @@ Instructions for other projects within the SnapX solution are not provided yet.
 ```bash
 sudo apt update -q && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged
+sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
 sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg
 ```
 
-### Fedora 40
+### Fedora 41
 
 ```bash
 sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
