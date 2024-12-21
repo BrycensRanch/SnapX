@@ -428,13 +428,13 @@ public class TaskSettingsTools
     public string ScreenColorPickerFormat = "$hex";
     public string ScreenColorPickerFormatCtrl = "$r255, $g255, $b255";
     public string ScreenColorPickerInfoText = "RGB: $r255, $g255, $b255$nHex: $hex$nX: $x Y: $y";
-    // public PinToScreenOptions PinToScreenOptions = new PinToScreenOptions();
-    public IndexerSettings IndexerSettings = new IndexerSettings();
-    // public ImageBeautifierOptions ImageBeautifierOptions = new ImageBeautifierOptions();
-    public ImageCombinerOptions ImageCombinerOptions = new ImageCombinerOptions();
-    public VideoConverterOptions VideoConverterOptions = new VideoConverterOptions();
-    public VideoThumbnailOptions VideoThumbnailOptions = new VideoThumbnailOptions();
-    // public BorderlessWindowSettings BorderlessWindowSettings = new BorderlessWindowSettings();
+    public PinToScreenOptions PinToScreenOptions = new();
+    public IndexerSettings IndexerSettings = new();
+    public ImageBeautifierOptions ImageBeautifierOptions = new();
+    public ImageCombinerOptions ImageCombinerOptions = new();
+    public VideoConverterOptions VideoConverterOptions = new();
+    public VideoThumbnailOptions VideoThumbnailOptions = new();
+    public BorderlessWindowSettings BorderlessWindowSettings = new();
 }
 
 public class TaskSettingsAdvanced

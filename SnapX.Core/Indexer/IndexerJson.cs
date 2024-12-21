@@ -9,6 +9,9 @@ namespace SnapX.Core.Indexer;
 public class IndexerJson : Indexer
 {
     private Utf8JsonWriter jsonWriter;
+    public IndexerJson(IndexerSettings indexerSettings) : base(indexerSettings)
+    {
+    }
 
     private string Index(string folderPath)
     {

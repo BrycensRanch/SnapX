@@ -12,7 +12,9 @@ public class IndexerHtml : Indexer
 {
     protected StringBuilder sbContent = new StringBuilder();
     protected int prePathTrim = 0;
-
+    public IndexerHtml(IndexerSettings indexerSettings) : base(indexerSettings)
+    {
+    }
 
     public string Index(string folderPath)
     {

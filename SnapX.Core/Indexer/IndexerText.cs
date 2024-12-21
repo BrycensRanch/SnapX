@@ -9,7 +9,9 @@ namespace SnapX.Core.Indexer;
 public class IndexerText : Indexer
 {
     protected StringBuilder sbContent = new StringBuilder();
-
+    public IndexerText(IndexerSettings indexerSettings) : base(indexerSettings)
+    {
+    }
 
     public string Index(string folderPath)
     {

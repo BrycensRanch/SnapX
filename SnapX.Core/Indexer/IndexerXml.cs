@@ -9,7 +9,9 @@ namespace SnapX.Core.Indexer;
 public class IndexerXml : Indexer
 {
     protected XmlWriter xmlWriter;
-
+    public IndexerXml(IndexerSettings indexerSettings) : base(indexerSettings)
+    {
+    }
 
     public string Index(string folderPath)
     {
