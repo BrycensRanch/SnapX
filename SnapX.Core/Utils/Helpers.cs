@@ -240,16 +240,6 @@ public static class Helpers
         return Version.Parse(version).Normalize(ignoreRevision);
     }
 
-    public static bool IsWindowsVista()
-    {
-        return OSVersion.Major == 6;
-    }
-
-    public static bool IsWindows7()
-    {
-        return OSVersion.Major == 6 && OSVersion.Minor == 1;
-    }
-
     public static bool IsWindows10OrGreater(int build = -1)
     {
         return OSVersion.Major >= 10 && OSVersion.Build >= build;

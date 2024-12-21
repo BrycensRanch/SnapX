@@ -33,17 +33,23 @@ public class OsInfo
         try
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-            if (key == null) return $"Windows {Environment.OSVersion.Version}";
+
+            if (key == null)
+                return $"Windows {Environment.OSVersion.Version}";
+
             var productName = key.GetValue("ProductName")?.ToString() ?? "Unknown Windows";
             var releaseId = key.GetValue("ReleaseId")?.ToString() ?? "Unknown Release";
-            var currentVersion = key.GetValue("CurrentVersion")?.ToString() ?? "Unknown Version";
+            var currentBuild = key.GetValue("CurrentBuild")?.ToString() ?? "Unknown Version";
 
-            return $"{productName} {releaseId} {currentVersion}";
+            if (Helpers.IsWindows11OrGreater())
+                productName = productName.Replace("10", "11");
+
+            return $"{productName} {releaseId} {currentBuild}";
 
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting Windows version, hmm. {ex.Message}");
+            Console.WriteLine($"Error getting Windows version, hmm.{Environment.NewLine}{ex.ToString}");
             return $"Windows {Environment.OSVersion.Version}";
         }
     }
