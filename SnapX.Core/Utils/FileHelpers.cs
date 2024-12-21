@@ -649,8 +649,9 @@ public static class FileHelpers
 
     public static string GetTempFilePath(string extension)
     {
-        var tempFilePath = Path.Combine(BaseDirectory.CacheHome, SnapX.AppName, Path.GetRandomFileName());
-        Directory.CreateDirectory(tempFilePath);
+        var tempFolder = Path.Combine(BaseDirectory.CacheHome, SnapX.AppName);
+        Directory.CreateDirectory(tempFolder);
+        var tempFilePath = Path.Combine(tempFolder, Path.GetRandomFileName());
         System.IO.File.Create(tempFilePath).Dispose();
         return Path.ChangeExtension(tempFilePath, extension);
     }
