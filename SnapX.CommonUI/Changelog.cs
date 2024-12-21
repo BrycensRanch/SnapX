@@ -24,17 +24,17 @@ public abstract class Changelog
     {
         DebugHelper.WriteLine("GetChangeSummary called.");
         var releaseSummary = await GetLatestReleasesSinceVersion();
-        if (!IsValidChangelog(releaseSummary))
+        if (IsValidChangelog(releaseSummary))
             return releaseSummary;
         DebugHelper.WriteLine("No GitHub release available. Checking tags instead.");
         //
         var tagSummary = await GetTagsSinceVersion();
-        if (!IsValidChangelog(tagSummary))
+        if (IsValidChangelog(tagSummary))
             return tagSummary;
         DebugHelper.WriteLine("No GitHub tags available. Checking GHA Builds instead.");
 
         var actionSummary = await GetBuildSummaryFromActions();
-        if (!IsValidChangelog(actionSummary))
+        if (IsValidChangelog(actionSummary))
             return actionSummary;
         DebugHelper.WriteLine("No GHA Builds available. Outputting recent commits instead.");
 
@@ -43,7 +43,7 @@ public abstract class Changelog
     private bool IsValidChangelog(string changelog)
     {
         DebugHelper.WriteLine($"Validating changelog: {changelog}");
-        return !string.IsNullOrWhiteSpace(changelog) && changelog.Any(char.IsLetter) && changelog.Length > 4;
+        return !string.IsNullOrWhiteSpace(changelog) && changelog.Length > 4;
     }
 
     private async Task<string> GetLatestReleasesSinceVersion()
