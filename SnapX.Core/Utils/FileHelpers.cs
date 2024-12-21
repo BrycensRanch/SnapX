@@ -649,7 +649,7 @@ public static class FileHelpers
 
     public static string GetTempFilePath(string extension)
     {
-        var tempFilePath = Path.Combine(BaseDirectory.CacheHome, "sharex", Path.GetRandomFileName());
+        var tempFilePath = Path.Combine(BaseDirectory.CacheHome, SnapX.AppName, Path.GetRandomFileName());
         Directory.CreateDirectory(tempFilePath);
         System.IO.File.Create(tempFilePath).Dispose();
         return Path.ChangeExtension(tempFilePath, extension);
