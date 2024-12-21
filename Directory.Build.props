@@ -1,0 +1,22 @@
+﻿<Project>
+<ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
+      <PrivateAssets>all</PrivateAssets>
+      <Version>3.7.112</Version>
+    </PackageReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <Company>BrycensRanch and ShareX Team</Company>
+    <Product>SnapX</Product>
+    <Title>SnapX</Title>
+    <!-- Set automatically -->
+    <Version>0.0.0</Version>
+    <ApplicationVersion>0.0.0</ApplicationVersion>
+    <Description>Screen capture, file sharing and productivity tool</Description>
+    <Copyright>Copyright (c) 2024 BrycensRanch and ShareX Team</Copyright>
+    <!-- Breaks builds on my computer -->
+<!--    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+</Project>

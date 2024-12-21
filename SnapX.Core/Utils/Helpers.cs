@@ -187,12 +187,10 @@ public static class Helpers
     }
 
 
-    public static string GetApplicationVersion(bool includeBuild = false)
+    public static string GetApplicationVersion()
     {
         var version = Assembly.GetExecutingAssembly().GetName()?.Version ?? new Version(0, 0, 0);
-        var result = $"{version.Major}.{version.Minor}.{version.Revision}";
-
-        return includeBuild ? $"{result}.{version.Build}" : result;
+        return version.ToString();
     }
 
     public static string GetFileExtensionFromBytes(ReadOnlySpan<byte> rawData)
@@ -230,9 +228,9 @@ public static class Helpers
     /// If version equal to ApplicationVersion = 0
     /// If version older than ApplicationVersion = -1
     /// </summary>
-    public static int CompareApplicationVersion(string version, bool includeRevision = false)
+    public static int CompareApplicationVersion(string version)
     {
-        return CompareVersion(version, GetApplicationVersion(includeRevision));
+        return CompareVersion(version, GetApplicationVersion());
     }
 
     public static Version NormalizeVersion(string version, bool ignoreRevision = false)

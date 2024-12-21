@@ -15,10 +15,10 @@
     <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" PrivateAssets="All" Exclude="Microsoft.EntityFrameworkCore.Sqlite" />
   </ItemGroup>
   <!-- Cross-platform copy command using MSBuild -->
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="Test" AfterTargets="Build">
     <Copy
       SourceFiles="$(TargetPath)"
-      DestinationFolder="$(SolutionDir)\ShareX.Core\$(OutDir)"
+      DestinationFolder="$(SolutionDir)\SnapX.Core\$(OutDir)"
       SkipUnchangedFiles="true" />
   </Target>
 </Project>
