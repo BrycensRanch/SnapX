@@ -651,9 +651,9 @@ public static class FileHelpers
     {
         var tempFolder = Path.Combine(BaseDirectory.CacheHome, SnapX.AppName);
         Directory.CreateDirectory(tempFolder);
-        var tempFilePath = Path.Combine(tempFolder, Path.GetRandomFileName());
+        var tempFilePath = Path.ChangeExtension(Path.Combine(tempFolder, Path.GetRandomFileName()), extension);
         System.IO.File.Create(tempFilePath).Dispose();
-        return Path.ChangeExtension(tempFilePath, extension);
+        return tempFilePath;
     }
 
     public static void CreateEmptyFile(string filePath)
