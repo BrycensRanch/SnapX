@@ -334,6 +334,7 @@ public class SnapX
         SettingManager.SaveAllSettings();
 
         DebugHelper.WriteLine("SnapX closed.");
+        Environment.Exit(0);
     }
 
     private static void UpdatePersonalPath()

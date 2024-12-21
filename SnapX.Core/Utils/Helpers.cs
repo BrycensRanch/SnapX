@@ -293,9 +293,32 @@ public static class Helpers
         return Version.Parse(version).Normalize(ignoreRevision);
     }
 
-    public static bool IsWindows10OrGreater(int build = -1)
+    public static string? FindSnapXBinary()
     {
-        return OSVersion.Major >= 10 && OSVersion.Build >= build;
+        var currentDirectory = Directory.GetCurrentDirectory();
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // On Windows, it is expected that SnapX_NativeMessaginHost is right beside the binary.
+            var snapxmatches = Directory.GetFiles(currentDirectory, "SnapX*.exe", SearchOption.AllDirectories);
+            return snapxmatches.FirstOrDefault();
+        }
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            // On Linux, it's possible that the binary could be named snapx, snapx-gtk, and snapx-ui
+            // However, SnapX_NativeMessagingHost should live in /usr/share/SnapX/SnapX_MessagingHost
+            // So instead, search $PATH
+            var path = "/usr/bin";
+            var validPathsToSearch = path?.Split(Path.PathSeparator);
+            foreach (var searchPath in validPathsToSearch)
+            {
+                Console.WriteLine(searchPath);
+                var snapxmatches = Directory.GetFiles(searchPath, "snapx*",
+                    SearchOption.AllDirectories);
+                if (snapxmatches.Length != 0) return snapxmatches[0];
+            }
+        }
+        return null;
     }
 
     public static bool IsWindows11OrGreater(int build = -1)
