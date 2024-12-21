@@ -4,7 +4,9 @@ using SnapX.Core.Utils;
 
 
 var sharex = new SnapX.Core.SnapX();
+#if RELEASE
 sharex.silenceLogging();
+#endif
 sharex.start(args);
 var version = Helpers.GetApplicationVersion();
 
@@ -25,11 +27,14 @@ var sigintReceived = false;
 
 Console.CancelKeyPress += (_, ea) =>
 {
-    ea.Cancel = true;
-    sigintReceived = true;
-    Console.WriteLine("Received SIGINT (Ctrl+C)");
-    sharex.shutdown();
-    Environment.Exit(0);
+    if (!sigintReceived)
+    {
+        ea.Cancel = true;
+        sigintReceived = true;
+        Console.WriteLine("Received SIGINT (Ctrl+C)");
+        sharex.shutdown();
+        Environment.Exit(0);
+    }
 };
 AppDomain.CurrentDomain.ProcessExit += (_, _) =>
 {
