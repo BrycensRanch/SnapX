@@ -191,6 +191,10 @@ PublishScripts/
 *.nuget.props
 *.nuget.targets
 
+# Avalonia
+
+*.dxvk-cache
+
 # Microsoft Azure Build Output
 csx/
 *.build.csdef
