@@ -4,11 +4,11 @@
 
 using System.Text.Json.Nodes;
 using FluentFTP.Helpers;
-using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Upload.File
 {

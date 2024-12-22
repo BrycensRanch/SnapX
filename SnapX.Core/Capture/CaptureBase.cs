@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using SnapX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
 using SnapX.Core.Task;
 using SnapX.Core.Upload;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
 
 namespace SnapX.Core.Capture;

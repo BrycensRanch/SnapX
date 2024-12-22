@@ -8,12 +8,12 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using FluentFTP;
 using FluentFTP.Exceptions;
-using SnapX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.File

@@ -11,7 +11,6 @@ using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
-using Math = SnapX.Core.Utils.Math;
 
 namespace SnapX.Core.Upload.File;
 public class Vault_oooFileUploaderService : FileUploaderService

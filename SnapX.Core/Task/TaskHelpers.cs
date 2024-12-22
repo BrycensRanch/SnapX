@@ -5,7 +5,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using SnapX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
@@ -20,6 +19,7 @@ using SnapX.Core.Upload;
 using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.SharingServices;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
 using ZXing;

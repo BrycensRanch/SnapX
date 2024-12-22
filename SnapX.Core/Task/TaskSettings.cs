@@ -4,11 +4,11 @@
 
 using System.ComponentModel;
 using System.Text.Json.Serialization;
-using SnapX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
 using SnapX.Core.Indexer;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Watch;
 

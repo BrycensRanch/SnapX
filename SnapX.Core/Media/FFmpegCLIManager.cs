@@ -2,9 +2,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using SnapX.Core.Utils.Extensions;
 using SixLabors.ImageSharp;
 using SnapX.Core.CLI;
+using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Media;
 

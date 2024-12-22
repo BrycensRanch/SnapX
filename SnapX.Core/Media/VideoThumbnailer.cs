@@ -3,8 +3,8 @@
 
 
 using System.Diagnostics;
-using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Random;
 
 namespace SnapX.Core.Media;

@@ -5,7 +5,6 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using SnapX.Core.Utils.Extensions;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Upload;
@@ -13,6 +12,7 @@ using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Native;
 using Math = System.Math;

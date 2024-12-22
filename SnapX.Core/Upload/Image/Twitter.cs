@@ -3,11 +3,11 @@
 
 
 using System.Text.Json;
-using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
+using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Upload.Image
 {

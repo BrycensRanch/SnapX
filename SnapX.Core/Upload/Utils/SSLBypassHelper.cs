@@ -24,7 +24,7 @@ public class SSLBypassHelper : IDisposable
 
     public void Dispose()
     {
-            // I will not dispose the HttpClient. Say it with me.
+        // I will not dispose the HttpClient. Say it with me.
     }
 }
 

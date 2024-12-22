@@ -5,8 +5,8 @@
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.History
 {
