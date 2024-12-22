@@ -23,6 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        os: [ ubuntu-24.04, macos-latest, macos-13, windows-latest ]
         configuration:
           - Release
           - Debug
@@ -32,9 +33,6 @@ jobs:
     env:
       SOLUTION_FILE_PATH: SnapX.sln
       ASSEMBLY_INFO_PATH: Directory.build.props
-
-    outputs:
-      APP_VERSION: ${{ env.APP_VERSION }}
 
     steps:
       - name: Checkout
@@ -49,7 +47,9 @@ jobs:
       - name: Cache .NET NuGet packages
         uses: actions/cache@v3
         with:
-          path: ~/.nuget/packages
+          path: |
+            ~/.nuget/packages
+            C:\Users\runner\.nuget\packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
@@ -58,20 +58,22 @@ jobs:
         run: dotnet restore --locked-mode
       # Needed for offline building :3
       - name: Upload Source With Dependencies
-        if: matrix.configuration == 'Debug'
+        if: matrix.configuration == 'Debug' && matrix.os == 'ubuntu-24.04'
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-Vendored-Source
           path: .
           include-hidden-files: false
           compression-level: 9
-
       - name: Build
         run: dotnet build "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
+
+      - name: Publish
+        run: dotnet publish "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
 
       - name: Upload artifact (Debug)
         if: matrix.configuration == 'Debug'
         uses: actions/upload-artifact@v4
         with:
           name: Debug
-          path: Output
+          path: "**/publish"
