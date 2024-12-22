@@ -229,7 +229,7 @@ public static class TaskManager
         {
             HistoryManager history = new HistoryManagerJSON(SnapX.HistoryFilePath)
             {
-                BackupFolder = SettingManager.BackupFolder,
+                BackupFolder = SettingManager.SnapshotFolder,
                 CreateBackup = false,
                 CreateWeeklyBackup = true
             };

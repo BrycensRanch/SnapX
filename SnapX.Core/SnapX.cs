@@ -434,7 +434,7 @@ public class SnapX
     {
         if (!Sandbox && Directory.Exists(PersonalFolder))
         {
-            FileHelpers.CreateDirectory(SettingManager.BackupFolder);
+            FileHelpers.CreateDirectory(SettingManager.SnapshotFolder);
             FileHelpers.CreateDirectory(ImageEffectsFolder);
             FileHelpers.CreateDirectory(ScreenshotsParentFolder);
         }

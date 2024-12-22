@@ -132,7 +132,10 @@ internal static class SettingManager
         }
         SnapX.Configuration = configurationBuilder.Build();
         var settings = new RootConfiguration();
-        SnapX.Configuration.Bind(settings);
+        // SnapX.Configuration.Bind(settings);
+        SnapX.Configuration.GetSection("DefaultTaskSettings").Bind(new TaskSettings());
+        SnapX.DefaultTaskSettings = SnapX.Configuration.GetSection("DefaultTaskSettings").Get<TaskSettings>();
+        DebugHelper.WriteLine(DefaultTaskSettings.ToString());
         Settings = settings;
         ApplicationConfigBackwardCompatibilityTasks();
         MigrateHistoryFile();

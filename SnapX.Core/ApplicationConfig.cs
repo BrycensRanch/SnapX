@@ -9,61 +9,41 @@ namespace SnapX.Core;
 
 public class GeneralSettings
 {
-    public bool PlaySoundAfterCapture { get; set; }
-    public bool PlaySoundAfterUpload { get; set; }
-    public bool ShowToastNotificationAfterTaskCompleted { get; set; }
-    public double ToastWindowDuration { get; set; }
-    public double ToastWindowFadeDuration { get; set; }
-    public string ToastWindowPlacement { get; set; }
-    public string ToastWindowSize { get; set; }
-    public string ToastWindowLeftClickAction { get; set; }
-    public string ToastWindowRightClickAction { get; set; }
-    public string ToastWindowMiddleClickAction { get; set; }
-    public bool ToastWindowAutoHide { get; set; }
-    public bool UseCustomCaptureSound { get; set; }
-    public string CustomCaptureSoundPath { get; set; }
-    public bool UseCustomTaskCompletedSound { get; set; }
-    public string CustomTaskCompletedSoundPath { get; set; }
-    public bool UseCustomErrorSound { get; set; }
-    public string CustomErrorSoundPath { get; set; }
-    public bool DisableNotifications { get; set; }
-    public bool DisableNotificationsOnFullscreen { get; set; }
-}
-
-public class ImageSettings
-{
-    public string ImageFormat { get; set; }
-    public string ImagePNGBitDepth { get; set; }
-    public int ImageJPEGQuality { get; set; }
-    public string ImageGIFQuality { get; set; }
-    public bool ImageAutoUseJPEG { get; set; }
-    public int ImageAutoUseJPEGSize { get; set; }
-    public bool ImageAutoUseJPEGQuality { get; set; }
-    public string FileExistAction { get; set; }
-    public List<ImageEffectPreset> ImageEffectPresets { get; set; }
-    public int SelectedImageEffectPreset { get; set; }
-    public bool ShowImageEffectsWindowAfterCapture { get; set; }
-    public bool ImageEffectOnlyRegionCapture { get; set; }
-    public bool UseRandomImageEffect { get; set; }
-    public int ThumbnailWidth { get; set; }
-    public int ThumbnailHeight { get; set; }
-    public string ThumbnailName { get; set; }
-    public bool ThumbnailCheckSize { get; set; }
+    public bool PlaySoundAfterCapture { get; set; } = true;
+    public bool PlaySoundAfterUpload { get; set; } = true;
+    public bool ShowToastNotificationAfterTaskCompleted { get; set; } = true;
+    public double ToastWindowDuration { get; set; } = 3.0;
+    public double ToastWindowFadeDuration { get; set; } = 1.0;
+    public string ToastWindowPlacement { get; set; } = "BottomRight";
+    public string ToastWindowSize { get; set; } = "400, 300";
+    public string ToastWindowLeftClickAction { get; set; } = "OpenUrl";
+    public string ToastWindowRightClickAction { get; set; } = "CloseNotification";
+    public string ToastWindowMiddleClickAction { get; set; } = "AnnotateImage";
+    public bool ToastWindowAutoHide { get; set; } = true;
+    public bool UseCustomCaptureSound { get; set; } = false;
+    public string CustomCaptureSoundPath { get; set; } = "";
+    public bool UseCustomTaskCompletedSound { get; set; } = false;
+    public string CustomTaskCompletedSoundPath { get; set; } = "";
+    public bool UseCustomErrorSound { get; set; } = false;
+    public string CustomErrorSoundPath { get; set; } = "";
+    public bool DisableNotifications { get; set; } = false;
+    public bool DisableNotificationsOnFullscreen { get; set; } = false;
 }
 
 
 public class ImageEffectPreset
 {
-    public string Name { get; set; }
-    public List<ImageEffect> Effects { get; set; }
+    public string Name { get; set; } = "";
+    public List<ImageEffect> Effects { get; set; } = new();
 }
-
+// This is working around the fact that ImageEffectsLib is still infested with System.Drawing and WPF.
 public class ImageEffect
 {
+    public string Name { get; set; } = "";
     public string Margin { get; set; }
     public string MarginMode { get; set; }
     public string Color { get; set; }
-    public bool Enabled { get; set; }
+    public bool Enabled { get; set; } = true;
     public string Text { get; set; }
     public string Placement { get; set; }
     public string Offset { get; set; }
@@ -583,7 +563,6 @@ public class RootConfiguration
     public string FileUploadDefaultDirectory = "";
     public int NameParserAutoIncrementNumber = 0;
     public List<QuickTaskInfo> QuickTaskPresets = QuickTaskInfo.DefaultPresets;
-
     // Main window
     public bool FirstTimeMinimizeToTray = true;
     public List<int> TaskListViewColumnWidths = new();
@@ -595,8 +574,8 @@ public class RootConfiguration
     public bool TaskbarProgressEnabled = true;
     public bool UseWhiteShareXIcon = false;
     public bool RememberMainFormSize = false;
-    public string MainFormPosition { get; set; }
-    public string MainFormSize { get; set; }
+    //public string MainFormPosition { get; set; }
+    //public string MainFormSize { get; set; }
     public HotkeyType TrayLeftClickAction = HotkeyType.RectangleRegion;
     public HotkeyType TrayLeftDoubleClickAction = HotkeyType.OpenMainWindow;
     public HotkeyType TrayMiddleClickAction = HotkeyType.ClipboardUploadWithContentViewer;
@@ -626,7 +605,7 @@ public class RootConfiguration
     public ProxyInfo ProxySettings = new();
     public int UploadLimit = 5;
     public int BufferSizePower = 5;
-    public List<string> ClipboardContentFormats { get; set; }
+    public List<string> ClipboardContentFormats { get; set; } = new();
     public int MaxUploadFailRetry = 1;
     public bool UseSecondaryUploaders = false;
     public List<Upload.ImageDestination> SecondaryImageUploaders = new();
@@ -658,41 +637,43 @@ public class RootConfiguration
     public List<Color> RecentColors = new();
     [Category("Application"), DefaultValue(false), Description("Calculate and show file sizes in binary units (KiB, MiB etc.)")]
     public bool BinaryUnits { get; set; }
-
+    //
     [Category("Application"), DefaultValue(false), Description("Show most recent task first in main window.")]
     public bool ShowMostRecentTaskFirst { get; set; }
-
+    //
     [Category("Application"), DefaultValue(false), Description("Show only customized tasks in main window workflows.")]
     public bool WorkflowsOnlyShowEdited { get; set; }
-
+    //
     [Category("Application"), DefaultValue(false), Description("Automatically expand capture menu when you open the tray menu.")]
     public bool TrayAutoExpandCaptureMenu { get; set; }
-
+    //
     [Category("Application"), DefaultValue(true), Description("Show tips and hotkeys in main window when task list is empty.")]
     public bool ShowMainWindowTip { get; set; }
-
-    [Category("Application"), DefaultValue(false),
+    //
+    [Category("Application"), DefaultValue(""),
      Description("Browser path for your favorite browser for SnapX Web Extension.")]
     public string BrowserPath = "";
-
-
-    [Category("Application"), DefaultValue(false), Description("Save settings after task completed but only if there is no other active tasks.")]
-    public bool SaveSettingsAfterTaskCompleted { get; set; }
-
-    [Category("Application"), DefaultValue(false), Description("In main window when task is completed automatically select it.")]
-    public bool AutoSelectLastCompletedTask { get; set; }
-
+    //
+    //
+    [Category("Application"), DefaultValue(false),
+     Description("Save settings after task completed but only if there is no other active tasks.")]
+    public bool SaveSettingsAfterTaskCompleted { get; set; } = false;
+    //
+    [Category("Application"), DefaultValue(false),
+     Description("In main window when task is completed automatically select it.")]
+    public bool AutoSelectLastCompletedTask { get; set; } = false;
+    //
     [Category("Application"), DefaultValue(false), Description("Ultra secret mode.")]
     public bool DevMode = false;
-
+    //
     [Category("Hotkey"), DefaultValue(false), Description("Disables hotkeys.")]
     public bool DisableHotkeys { get; set; }
-
+    //
     [Category("Hotkey"), DefaultValue(false), Description("If active window is fullscreen then hotkeys won't be executed.")]
     public bool DisableHotkeysOnFullscreen { get; set; }
-
+    //
     private int hotkeyRepeatLimit;
-
+    //
     [Category("Hotkey"), DefaultValue(500), Description("If you hold hotkeys then it will only trigger every this milliseconds.")]
     public int HotkeyRepeatLimit
     {
@@ -707,52 +688,52 @@ public class RootConfiguration
     }
     [Category("Clipboard"), DefaultValue(true), Description("Show clipboard content viewer when using clipboard upload in main window.")]
     public bool ShowClipboardContentViewer { get; set; }
-
+    //
     [Category("Image"), DefaultValue(false), Description("Strip color space information chunks from PNG image.")]
     public bool PNGStripColorSpaceInformation { get; set; }
-
+    //
     [Category("Image"), DefaultValue(true), Description("If JPEG exif contains orientation data then rotate image accordingly.")]
     public bool RotateImageByExifOrientationData { get; set; }
-
+    //
     [Category("Upload"), DefaultValue(false), Description("Can be used to disable uploading application wide.")]
     public bool DisableUpload { get; set; }
-
+    //
     [Category("Upload"), DefaultValue(false), Description("Accept invalid SSL certificates when uploading.")]
     public bool AcceptInvalidSSLCertificates { get; set; }
-
+    //
     [Category("Upload"), DefaultValue(true), Description("Ignore emojis while URL encoding upload results.")]
     public bool URLEncodeIgnoreEmoji { get; set; }
-
+    //
     [Category("Upload"), DefaultValue(true), Description("Show first time upload warning.")]
     public bool ShowUploadWarning { get; set; }
-
+    //
     [Category("Upload"), DefaultValue(true), Description("Show more than 10 files upload warning.")]
     public bool ShowMultiUploadWarning { get; set; }
-
+    //
     [Category("Upload"), DefaultValue(100), Description("Large file size defined in MB. SnapX will warn before uploading large files. 0 disables this feature.")]
     public int ShowLargeFileSizeWarning { get; set; }
-
+    //
     [Category("Paths"),
      Description(
          "Custom uploaders configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting SnapX.")]
     public string CustomUploadersConfigPath = "";
-
+    //
     [Category("Paths"), Description("Custom hotkeys configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting SnapX.")]
     public string CustomHotkeysConfigPath = "";
     [Category("Paths"), Description("Custom screenshot path (secondary location). If custom screenshot path is temporarily unavailable (e.g. network share), SnapX will use this location (recommended to be a local path).")]
     public string CustomScreenshotsPath2 = "";
-
-    [Category("Drag and drop window"), DefaultValue(150), Description("Size of drop window.")]
-    public int DropSize { get; set; }
-
-    [Category("Drag and drop window"), DefaultValue(5), Description("Position offset of drop window.")]
-    public int DropOffset { get; set; }
-    [Category("Drag and drop window"), DefaultValue(100), Description("Opacity of drop window.")]
-    public int DropOpacity { get; set; }
-
-    [Category("Drag and drop window"), DefaultValue(255), Description("When you drag file to drop window then opacity will change to this.")]
-    public int DropHoverOpacity { get; set; }
-
+    //
+    // [Category("Drag and drop window"), DefaultValue(150), Description("Size of drop window.")]
+    // public int DropSize { get; set; }
+    //
+    // [Category("Drag and drop window"), DefaultValue(5), Description("Position offset of drop window.")]
+    // public int DropOffset { get; set; }
+    // [Category("Drag and drop window"), DefaultValue(100), Description("Opacity of drop window.")]
+    // public int DropOpacity { get; set; }
+    //
+    // [Category("Drag and drop window"), DefaultValue(255), Description("When you drag file to drop window then opacity will change to this.")]
+    // public int DropHoverOpacity { get; set; }
+    //
     // [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
     // public ContentAlignment DropAlignment { get; set; }
     public string ApplicationVersion => Assembly.GetExecutingAssembly().GetName().Version!.ToString();
