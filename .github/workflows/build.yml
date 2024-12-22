@@ -17,8 +17,8 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    runs-on: ${{matrix.os}}
+    timeout-minutes: 65
 
     strategy:
       fail-fast: false
