@@ -11,6 +11,7 @@ using SnapX.Core.Hotkey;
 using SnapX.Core.Task;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Watch;
 using Xdg.Directories;
 
@@ -292,72 +293,63 @@ public class SnapX
         // SettingManager.LoadAllSettings();
         if (CLIManager.IsCommandExist("screenshot", "ss"))
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var screenCaptureService = new DX11ScreenCaptureService();
-                var graphicsCards = screenCaptureService.GetGraphicsCards();
-                var firstGraphicsCard = graphicsCards.First<GraphicsCard>();
-                var displays = screenCaptureService.GetDisplays(firstGraphicsCard);
-                Console.WriteLine($"First graphics card: {firstGraphicsCard.Name} ({firstGraphicsCard.VendorId})");
-                var screenCapture = screenCaptureService.GetScreenCapture(displays.First());
-                var fullscreen = screenCapture.RegisterCaptureZone(0, 0, screenCapture.Display.Width, screenCapture.Display.Height);
-                screenCapture.CaptureScreen();
+#if WINDOWS
+    var screenCaptureService = new DX11ScreenCaptureService();
+    var graphicsCards = screenCaptureService.GetGraphicsCards();
+    var firstGraphicsCard = graphicsCards.First<GraphicsCard>();
+    var displays = screenCaptureService.GetDisplays(firstGraphicsCard);
+    Console.WriteLine($"First graphics card: {firstGraphicsCard.Name} ({firstGraphicsCard.VendorId})");
+    var screenCapture = screenCaptureService.GetScreenCapture(displays.First());
+    var fullscreen = screenCapture.RegisterCaptureZone(0, 0, screenCapture.Display.Width, screenCapture.Display.Height);
+    screenCapture.CaptureScreen();
 
-                using (fullscreen.Lock())
-                {
-                    var rawData = fullscreen.RawBuffer;
+    using (fullscreen.Lock())
+    {
+        var rawData = fullscreen.RawBuffer;
+        using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
+        theImage.SaveAsPng(Path.Combine(ScreenshotsParentFolder, "demo.png"));
+        var imageWithRightTypes = theImage.CloneAs<Rgba64>();
+        UploadManager.UploadImage(imageWithRightTypes);
+    }
+#elif LINUX
+    if (Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") != null)
+    {
+        Console.Error.WriteLine("Wayland support has not been added yet. This will likely fail with a mysterious error.");
+    }
 
-                    using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
+    var screenCaptureService = new X11ScreenCaptureService();
+    var graphicsCards = screenCaptureService.GetGraphicsCards();
+    foreach (var card in graphicsCards)
+    {
+        Console.WriteLine(card.Index);
+        Console.WriteLine(card.Name);
+        Console.WriteLine(card.VendorId);
+        Console.WriteLine(card.DeviceId);
+    }
+    var firstGraphicsCard = graphicsCards.First<GraphicsCard>();
+    Console.WriteLine($"First graphics card: {firstGraphicsCard.Name} ({firstGraphicsCard.VendorId})");
+    var displays = screenCaptureService.GetDisplays(firstGraphicsCard);
+    foreach (var display in displays)
+    {
+        Console.WriteLine(display.DeviceName);
+        Console.WriteLine(display.Width + " x " + display.Height);
+    }
+    var screenCapture = screenCaptureService.GetScreenCapture(displays.First());
+    var fullscreen = screenCapture.RegisterCaptureZone(0, 0, screenCapture.Display.Width, screenCapture.Display.Height);
+    screenCapture.CaptureScreen();
 
-                    theImage.SaveAsPng(Path.Combine(ScreenshotsParentFolder, "demo.png"));
-                    var imageWithRightTypes = theImage.CloneAs<Rgba64>();
-                    UploadManager.UploadImage(imageWithRightTypes);
-
-
-                }
-
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                if (Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") != null) Console.Error.WriteLine("Wayland support has not been added yet. This will likely fail with a mysterious error.");
-                var screenCaptureService = new X11ScreenCaptureService();
-                var graphicsCards = screenCaptureService.GetGraphicsCards();
-                foreach (var card in graphicsCards)
-                {
-                    Console.WriteLine(card.Index);
-                    Console.WriteLine(card.Name);
-                    Console.WriteLine(card.VendorId);
-                    Console.WriteLine(card.DeviceId);
-                }
-                var firstGraphicsCard = graphicsCards.First<GraphicsCard>();
-                Console.WriteLine($"First graphics card: {firstGraphicsCard.Name} ({firstGraphicsCard.VendorId})");
-                var displays = screenCaptureService.GetDisplays(firstGraphicsCard);
-                foreach (var display in displays)
-                {
-                    Console.WriteLine(display.DeviceName);
-                    Console.WriteLine(display.Width + " x " + display.Height);
-                }
-                var screenCapture = screenCaptureService.GetScreenCapture(displays.First());
-                var fullscreen = screenCapture.RegisterCaptureZone(0, 0, screenCapture.Display.Width, screenCapture.Display.Height);
-                screenCapture.CaptureScreen();
-
-                //Lock the zone to access the data. Remember to dispose the returned disposable to unlock again.
-                lock (fullscreen)
-                {
-                    var rawData = fullscreen.RawBuffer;
-
-                    Console.WriteLine(fullscreen.Width + " x " + fullscreen.Height);
-                    using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
-                    var imageWithRightTypes = theImage.CloneAs<Rgba64>();
-
-                    theImage.SaveAsPng(Path.Combine(ScreenshotsParentFolder, "demo.png"));
-                    UploadManager.UploadImage(imageWithRightTypes);
-                }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Only the good Operating Systems can take screenshots");
-            }
+    lock (fullscreen)
+    {
+        var rawData = fullscreen.RawBuffer;
+        Console.WriteLine(fullscreen.Width + " x " + fullscreen.Height);
+        using var theImage = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(rawData, fullscreen.Width, fullscreen.Height);
+        var imageWithRightTypes = theImage.CloneAs<Rgba64>();
+        theImage.SaveAsPng(Path.Combine(ScreenshotsParentFolder, "demo.png"));
+        UploadManager.UploadImage(imageWithRightTypes);
+    }
+#else
+            throw new UnauthorizedAccessException("Only the good Operating Systems can take screenshots");
+#endif
         }
         // CleanupManager.CleanupAsync();
 
