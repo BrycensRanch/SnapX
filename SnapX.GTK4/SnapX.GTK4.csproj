@@ -22,7 +22,6 @@
     <EmbeddedResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
       <Link>SnapX_Logo.png</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="logo.svg" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GirCore.GstVideo-1.0" Version="0.5.0" />

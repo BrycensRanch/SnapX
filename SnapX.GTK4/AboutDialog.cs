@@ -1,6 +1,8 @@
 using System.Reflection;
 using GdkPixbuf;
 using GObject;
+using SnapX.Core;
+
 namespace SnapX.GTK4;
 
 public class AboutDialog : Gtk.AboutDialog
@@ -12,7 +14,7 @@ public class AboutDialog : Gtk.AboutDialog
         Comments = internalAboutDialog.GetDescription();
         Copyright = internalAboutDialog.GetCopyright();
         License = internalAboutDialog.GetLicense();
-        Logo = LoadFromResource("SnapX.GTK4.logo.svg");
+        Logo = LoadFromResource("SnapX.GTK4.SnapX_Logo.png");
         Version = internalAboutDialog.GetVersion();
         Website = internalAboutDialog.GetWebsite();
         LicenseType = Gtk.License.Gpl30;
@@ -28,7 +30,7 @@ public class AboutDialog : Gtk.AboutDialog
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Unable to load image resource '{resourceName}': {e.Message}");
+            DebugHelper.WriteLine($"Unable to load image resource '{resourceName}': {e.ToString()}");
             return null;
         }
     }
