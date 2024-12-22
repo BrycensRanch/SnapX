@@ -75,5 +75,5 @@ jobs:
         if: matrix.configuration == 'Debug'
         uses: actions/upload-artifact@v4
         with:
-          name: Debug-${{runner.os}}
+          name: ${{matrix.configuration}}-${{ runner.os }}
           path: "**/publish"
