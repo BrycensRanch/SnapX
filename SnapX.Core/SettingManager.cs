@@ -75,7 +75,7 @@ internal static class SettingManager
         }
     }
 
-    public static string BackupFolder => Path.Combine(SnapX.PersonalFolder, "Backup");
+    public static string SnapshotFolder => Path.Combine(SnapX.PersonalFolder, "Snapshots");
 
     private static RootConfiguration Settings { get => SnapX.Settings; set => SnapX.Settings = value; }
     private static TaskSettings DefaultTaskSettings { get => SnapX.DefaultTaskSettings; set => SnapX.DefaultTaskSettings = value; }
@@ -140,7 +140,7 @@ internal static class SettingManager
 
     public static void LoadUploadersConfig(bool fallbackSupport = true)
     {
-        UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, BackupFolder, fallbackSupport);
+        UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, SnapshotFolder, fallbackSupport);
         UploadersConfig.CreateBackup = true;
         UploadersConfig.CreateWeeklyBackup = true;
         UploadersConfigBackwardCompatibilityTasks();
@@ -148,7 +148,7 @@ internal static class SettingManager
 
     public static void LoadHotkeysConfig(bool fallbackSupport = true)
     {
-        HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, BackupFolder, fallbackSupport);
+        HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, SnapshotFolder, fallbackSupport);
         HotkeysConfig.CreateBackup = true;
         HotkeysConfig.CreateWeeklyBackup = true;
         HotkeysConfigBackwardCompatibilityTasks();
@@ -190,7 +190,7 @@ internal static class SettingManager
                 }
             }
 
-            FileHelpers.MoveFile(SnapX.HistoryFilePathOld, BackupFolder);
+            FileHelpers.MoveFile(SnapX.HistoryFilePathOld, SnapshotFolder);
         }
     }
 
