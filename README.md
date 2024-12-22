@@ -64,6 +64,8 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `gtk4-devel` on Fedora or `libgtk-4-dev` on Ubuntu
 - `dotnet-sdk-9.0`
 - `ffmpeg` (7.0.0)
+- `clang`
+- `zlib-devel`
 
 ### Ubuntu 24.04
 
@@ -71,13 +73,13 @@ Instructions for other projects within the SnapX solution are not provided yet.
 sudo apt update -q && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg
+sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg clang zlib1g-dev
 ```
 
 ### Fedora 41
 
 ```bash
-sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg
+sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel
 ```
 
 ## Building from Source
