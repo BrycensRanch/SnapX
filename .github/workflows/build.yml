@@ -71,9 +71,9 @@ jobs:
       - name: Publish
         run: dotnet publish "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
 
-      - name: Upload artifact (Debug)
+      - name: Upload Publish artifact (Debug)
         if: matrix.configuration == 'Debug'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.configuration}}-${{ runner.os }}
+          name: ${{ matrix.configuration }}-${{ runner.os }}${{ runner.os == 'macos-13' && format('-{0}', matrix.os) || '' }}
           path: "**/publish"
