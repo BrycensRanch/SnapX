@@ -427,12 +427,12 @@ public static class Helpers
         return assembly.GetTypes().Where(t => t.IsSubclassOf(baseType));
     }
 
-    public static string GetOperatingSystemProductName(bool includeBit = false)
+    public static string GetOperatingSystemProductName(bool includeArch = false)
     {
         var productName = OsInfo.GetFancyOSNameAndVersion();
-        if (!includeBit) return productName;
-        var bit = Environment.Is64BitOperatingSystem ? "64" : "32";
-        productName = $"{productName} ({bit}-bit)";
+        if (!includeArch) return productName;
+        var architecture = RuntimeInformation.OSArchitecture.ToString();
+        productName = $"{productName} ({architecture})";
 
         return productName;
     }
