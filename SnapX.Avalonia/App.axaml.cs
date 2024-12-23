@@ -19,6 +19,11 @@ public class App : Application
 
         SnapX = new SnapX.Core.SnapX();
         AvaloniaXamlLoader.Load(this);
+        // for macOS
+        Current!.Name = Core.SnapX.AppName;
+        #if DEBUG
+          Current.AttachDevTools();
+        #endif
 
         // Default logic doesn't auto detect windows theme anymore in designer
         // to stop light mode, force here
@@ -204,6 +209,19 @@ public class App : Application
             if (SnapX.isSilent()) return;
             var about = new AboutDialog();
             about.Show();
+            var demoUploadRemoteImageURL = new Window();
+            demoUploadRemoteImageURL.Content = "Upload Remote Image";
+            demoUploadRemoteImageURL.Width = 300;
+            demoUploadRemoteImageURL.Height = 300;
+            demoUploadRemoteImageURL.Background = Brushes.Gray;
+            demoUploadRemoteImageURL.BorderThickness = new Thickness(1);
+            demoUploadRemoteImageURL.Padding = new Thickness(5);
+            demoUploadRemoteImageURL.CornerRadius = new CornerRadius(5);
+            // Add a button
+            var demoUploadRemoteImage = new Image();
+            demoUploadRemoteImage.Width = 100;
+            demoUploadRemoteImage.Height = 100;
+
             DebugHelper.WriteLine($"{nameof(SnapX)}: {nameof(AboutDialog)}: {about}");
 
             // desktop.MainWindow = new MainWindow();
