@@ -49,7 +49,7 @@ I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
 
-It's powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), can look something like this. Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](image.png)
+It's powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *can* look something like this. Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](image.png)
 
 And yet, it runs on Windows, Linux, and macOS.
 Additionally, it looks the same on every OS. (besides fonts)
