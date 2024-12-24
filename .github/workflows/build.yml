@@ -27,8 +27,6 @@ jobs:
         configuration:
           - Release
           - Debug
-        platform:
-          - Any CPU
 
     env:
       SOLUTION_FILE_PATH: SnapX.sln
@@ -66,13 +64,14 @@ jobs:
           include-hidden-files: false
           compression-level: 9
       - name: Build
-        run: dotnet build "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
+        run: dotnet build "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" --no-restore
 
       - name: Publish
-        run: dotnet publish "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" -p:Platform="${{ matrix.platform }}" --no-restore
+        run: dotnet publish "${{ env.SOLUTION_FILE_PATH }}" -c "${{ matrix.configuration }}" --no-restore
 
       - name: Upload Publish artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "**/publish"
+          compression-level: 9
