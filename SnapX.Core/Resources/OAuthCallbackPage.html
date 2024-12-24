@@ -1,42 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Authorization - SnapX</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #242424;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
             color: #fafafa;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 40px 60px;
+            box-shadow: 0px 20px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
         }
 
-        .container h1 {
-            margin: 0px 0px 30px 0px;
-            font-size: 80px;
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 70px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6), 0px 0px 25px rgba(0, 0, 0, 0.5);
+            letter-spacing: 5px;
+            animation: slideIn 1s ease-out forwards;
         }
 
-        .container p {
-            font-size: 20px;
+        p {
+            font-size: 18px;
+            color: #f1f1f1;
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            color: #ffbc00;
+            font-weight: bold;
+        }
+
+        .button {
+            background-color: #2575fc;
+            color: #ffffff;
+            font-size: 18px;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .button:hover {
+            background-color: #6a11cb;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 40px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+
+            .container {
+                padding: 30px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>SnapX</h1>
-        <p>{0}</p>
-        <p>You can now close this page.</p>
-    </div>
+<div class="container">
+    <h1>SnapX</h1>
+    <p><span class="highlight">{0}</span></p>
+    <p>You can now close this page.</p>
+    <p>See ya  'around, buddy boy.</p>
+    <button class="button" onclick="window.close();">Close</button>
+</div>
 </body>
-
 </html>
