@@ -787,6 +787,25 @@ namespace SnapX.Core.Task
                 }
             }
         }
+        public static void ImportImageEffect(string json)
+        {
+            ImageEffectPreset preset = null;
+
+            try
+            {
+                preset = JsonHelpers.DeserializeFromString<ImageEffectPreset>(json);
+            }
+            catch (Exception e)
+            {
+                DebugHelper.WriteException(e);
+                e.ShowError();
+            }
+
+            if (preset != null && preset.Effects.Count > 0)
+            {
+                throw new NotImplementedException("ImportImageEffect is not implemented. It relies on SnapX.ImageEffectsLib which is not ported yet.");
+            }
+        }
 
         public static async System.Threading.Tasks.Task HandleNativeMessagingInput(string filePath, TaskSettings taskSettings = null)
         {
