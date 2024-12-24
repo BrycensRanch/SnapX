@@ -12,7 +12,7 @@
     <!-- Set automatically -->
     <Version>0.0.0</Version>
     <ApplicationVersion>0.0.0</ApplicationVersion>
-    <Description>Screen capture, file sharing and productivity tool</Description>
+    <Description>Capture, share, and boost productivity. All in one.</Description>
     <Copyright>Copyright (c) 2024 BrycensRanch and ShareX Team</Copyright>
     <!-- Breaks builds on my computer -->
 <!--    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->

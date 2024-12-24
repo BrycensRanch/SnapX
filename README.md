@@ -1,6 +1,6 @@
 <p align="center"><a href="https://getsharex.com"><img src="./Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
-<h3 align="center">Screen capture, file sharing and productivity tool. All for you.</h3>
+<h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
 <div align="center">
   <a href="https://github.com/BrycensRanch/SnapX/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrycensRanch/SnapX/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status"/></a>
