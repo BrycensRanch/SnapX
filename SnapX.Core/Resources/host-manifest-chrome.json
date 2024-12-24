@@ -1,6 +1,6 @@
 ﻿{
-  "name": "io.github.brycensranch.SnapX",
-  "description": "Cross platform ShareX Hard Fork",
+  "name": "io.github.brycensranch.snapx",
+  "description": "Extension that enables you to upload & share images, text, & audio. Powered by SnapX, the cross platform ShareX hard fork.",
   "path": "SnapX_NativeMessagingHost.exe",
   "type": "stdio",
   "allowed_origins": [
