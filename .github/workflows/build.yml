@@ -56,7 +56,7 @@ jobs:
         run: dotnet restore --locked-mode
       # Needed for offline building :3
       - name: Upload Source With Dependencies
-        if: matrix.configuration == 'Debug' && matrix.os == 'ubuntu-24.04'
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-Vendored-Source
@@ -83,6 +83,7 @@ jobs:
           compression-level: 9
       - name: Upload Publish artifact (GTK4)
         uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
         with:
           name: SnapX-GTK4-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX.GTK4/bin/${{ matrix.configuration }}/**/**/publish"
@@ -91,5 +92,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-NMH-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "SnapX.NativeMessagingHost/bin/${{ matrix.configuration }}/**/**/native"
+          path: "SnapX.NativeMessagingHost/bin/${{ matrix.configuration }}/**/**/publish/SnapX_NativeMessagingHost"
           compression-level: 9
