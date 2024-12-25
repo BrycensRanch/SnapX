@@ -29,6 +29,12 @@
 %ifarch aarch64
 %global runtime_arch arm64
 %endif
+%ifarch arm
+%global runtime_arch arm
+%endif
+%ifarch armhf
+%global runtime_arch arm
+%endif
 
 # The dotnet version folder path
 %global         net             net9.0
@@ -37,7 +43,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
