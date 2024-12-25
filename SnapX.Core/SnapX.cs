@@ -36,6 +36,18 @@ public class SnapX
                 versionString += $".{version.Build}";
             // if (Settings.DevMode)
             //     versionString += " Dev";
+            if (Environment.GetEnvironmentVariable("CONTAINER")?.ToLower() == "flatpak")
+            {
+                versionString += " Flatpak";
+            }
+            if (Environment.GetEnvironmentVariable("SNAP") != null)
+            {
+                versionString += " Snap";
+            }
+            if (Environment.GetEnvironmentVariable("APPIMAGE") != null)
+            {
+                versionString += " AppImage";
+            }
             if (Portable)
                 versionString += " Portable";
 
