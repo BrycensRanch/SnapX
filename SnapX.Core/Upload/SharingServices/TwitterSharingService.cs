@@ -4,7 +4,7 @@
 
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
-using SnapX.Core.Upload.Image;
+using SnapX.Core.Upload.Img;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils.Extensions;

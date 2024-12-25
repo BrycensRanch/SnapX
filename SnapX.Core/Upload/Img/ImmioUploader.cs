@@ -5,7 +5,7 @@
 using System.Text.Json;
 using SnapX.Core.Upload.BaseUploaders;
 
-namespace SnapX.Core.Upload.Image;
+namespace SnapX.Core.Upload.Img;
 
 public sealed class ImmioUploader : ImageUploader
 {

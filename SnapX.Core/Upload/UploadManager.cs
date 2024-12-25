@@ -4,6 +4,7 @@
 
 using System.Runtime.InteropServices;
 using System.Web;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Job;
 using SnapX.Core.Utils;
@@ -119,7 +120,7 @@ public static class UploadManager
         // }
     }
 
-    public static void ProcessImageUpload(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings)
+    public static void ProcessImageUpload(Image<Rgba64> image, TaskSettings taskSettings)
     {
         if (image != null)
         {
@@ -187,7 +188,7 @@ public static class UploadManager
         {
             if (Clipboard.ContainsImage())
             {
-                SixLabors.ImageSharp.Image<Rgba64> image;
+                Image<Rgba64> image;
 
 
                 image = Clipboard.GetImage();
@@ -240,12 +241,12 @@ public static class UploadManager
             DownloadAndUploadFile(url, taskSettings);
         }
     }
-    public static void RunImageTask(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings)
+    public static void RunImageTask(Image<Rgba64> image, TaskSettings taskSettings)
     {
         var metadata = new TaskMetadata(image);
         RunImageTask(metadata, taskSettings);
     }
-    public static void RunImageTask(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
+    public static void RunImageTask(Image<Rgba64> image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
     {
         var metadata = new TaskMetadata(image);
         RunImageTask(metadata, taskSettings, skipQuickTaskMenu, skipAfterCaptureWindow);
@@ -271,7 +272,7 @@ public static class UploadManager
         }
     }
 
-    public static void UploadImage(SixLabors.ImageSharp.Image<Rgba64> image, TaskSettings taskSettings = null)
+    public static void UploadImage(Image<Rgba64> image, TaskSettings taskSettings = null)
     {
         if (image != null)
         {
@@ -290,7 +291,7 @@ public static class UploadManager
         }
     }
 
-    public static void UploadImage(SixLabors.ImageSharp.Image<Rgba64> image, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
+    public static void UploadImage(Image<Rgba64> image, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
     {
         if (image != null)
         {

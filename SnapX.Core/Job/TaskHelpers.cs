@@ -317,13 +317,13 @@ namespace SnapX.Core.Job
         //     return null;
         // }
 
-        public static MemoryStream SaveImageAsStream(SixLabors.ImageSharp.Image img, EImageFormat imageFormat, TaskSettings taskSettings)
+        public static MemoryStream SaveImageAsStream(Image img, EImageFormat imageFormat, TaskSettings taskSettings)
         {
             return SaveImageAsStream(img, imageFormat, taskSettings.ImageSettings.ImagePNGBitDepth,
                 taskSettings.ImageSettings.ImageJPEGQuality, taskSettings.ImageSettings.ImageGIFQuality);
         }
 
-        public static MemoryStream SaveImageAsStream(SixLabors.ImageSharp.Image image, EImageFormat imageFormat, PNGBitDepth pngBitDepth = PNGBitDepth.Automatic,
+        public static MemoryStream SaveImageAsStream(Image image, EImageFormat imageFormat, PNGBitDepth pngBitDepth = PNGBitDepth.Automatic,
             int jpegQuality = 90, GIFQuality gifQuality = GIFQuality.Default)
         {
             var ms = new MemoryStream();
@@ -630,19 +630,19 @@ namespace SnapX.Core.Job
             }
         }
 
-        public static async Task OCRImage(SixLabors.ImageSharp.Image image, TaskSettings taskSettings = null)
+        public static async Task OCRImage(Image image, TaskSettings taskSettings = null)
         {
             await OCRImage(image, null, taskSettings);
         }
 
-        public static async Task OCRImage(SixLabors.ImageSharp.Image image, string filePath = null, TaskSettings taskSettings = null)
+        public static async Task OCRImage(Image image, string filePath = null, TaskSettings taskSettings = null)
         {
             if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
             throw new NotImplementedException("OCRImage not implemented");
         }
 
-        private static async Task AsyncOCRImage(SixLabors.ImageSharp.Image bmp, string filePath = null, TaskSettings taskSettings = null)
+        private static async Task AsyncOCRImage(Image bmp, string filePath = null, TaskSettings taskSettings = null)
         {
             throw new NotImplementedException("AsyncOCRImage not implemented");
         }
@@ -894,7 +894,7 @@ namespace SnapX.Core.Job
                 }
             }
         }
-        public static SixLabors.ImageSharp.Image<Rgba64> GenerateQRCode(string text, int size)
+        public static Image<Rgba64> GenerateQRCode(string text, int size)
         {
             if (CheckQRCodeContent(text))
             {

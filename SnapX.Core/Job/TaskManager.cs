@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using SixLabors.ImageSharp;
 using SnapX.Core.History;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Utils;
@@ -90,7 +91,7 @@ public static class TaskManager
         DebugHelper.WriteLine("Task status: " + task.Status);
     }
 
-    private static void Task_ImageReady(WorkerTask task, SixLabors.ImageSharp.Image image)
+    private static void Task_ImageReady(WorkerTask task, Image image)
     {
     }
 

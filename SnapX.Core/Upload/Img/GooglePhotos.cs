@@ -9,7 +9,7 @@ using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 
-namespace SnapX.Core.Upload.Image;
+namespace SnapX.Core.Upload.Img;
 
 public class GooglePhotosImageUploaderService : ImageUploaderService
 {

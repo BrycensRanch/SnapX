@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.Upload.Image
+namespace SnapX.Core.Upload.Img
 {
     public class UploadScreenshot : ImageUploader
     {

@@ -9,7 +9,7 @@ using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.Upload.Image
+namespace SnapX.Core.Upload.Img
 {
     public class TwitterImageUploaderService : ImageUploaderService
     {

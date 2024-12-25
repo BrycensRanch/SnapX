@@ -5,7 +5,7 @@
 using System.Text.RegularExpressions;
 using SnapX.Core.Upload.BaseUploaders;
 
-namespace SnapX.Core.Upload.Image;
+namespace SnapX.Core.Upload.Img;
 
 public sealed class ImageBin : ImageUploader
 {

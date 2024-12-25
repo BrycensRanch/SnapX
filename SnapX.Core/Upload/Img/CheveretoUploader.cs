@@ -4,7 +4,7 @@
 
 using SnapX.Core.Utils;
 
-namespace SnapX.Core.Upload.Image;
+namespace SnapX.Core.Upload.Img;
 
 public class CheveretoUploader
 {

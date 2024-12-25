@@ -7,7 +7,7 @@ using System.Text.Json;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
 
-namespace SnapX.Core.Upload.Image
+namespace SnapX.Core.Upload.Img
 {
     public enum TwitPicUploadType
     {

@@ -9,6 +9,7 @@ using System.Text;
 using FluentFTP;
 using FluentFTP.Exceptions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -254,7 +255,7 @@ namespace SnapX.Core.Upload.File
             }
         }
 
-        public void UploadImage(SixLabors.ImageSharp.Image image, string remotePath)
+        public void UploadImage(Image<Rgba64> image, string remotePath)
         {
             using (MemoryStream stream = new MemoryStream())
             {

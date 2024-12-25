@@ -9,7 +9,7 @@ using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 
-namespace SnapX.Core.Upload.Image;
+namespace SnapX.Core.Upload.Img;
 
 public class CustomImageUploaderService : ImageUploaderService
 {

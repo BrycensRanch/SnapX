@@ -13,7 +13,7 @@ public class Clipboard
     public static bool ContainsData() => false;
     public static bool ContainsFileDropList() => false;
     public static StringCollection GetFileDropList() => new();
-    public static SixLabors.ImageSharp.Image<Rgba64> GetImage() => new Image<Rgba64>(1, 1);
+    public static Image<Rgba64> GetImage() => new(1, 1);
     public static string GetText() => string.Empty;
     public static void CopyText(string text) => DebugHelper.WriteLine($"Clipboard.CopyText: {text}");
     public static void CopyImage(string imagePath) => DebugHelper.WriteLine($"Clipboard.CopyImage: {imagePath}");

@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Upload;
@@ -22,7 +23,7 @@ namespace SnapX.Core.Job;
 public class WorkerTask : IDisposable
 {
     public delegate void TaskEventHandler(WorkerTask task);
-    public delegate void TaskImageEventHandler(WorkerTask task, SixLabors.ImageSharp.Image image);
+    public delegate void TaskImageEventHandler(WorkerTask task, Image image);
     public delegate void UploaderServiceEventHandler(IUploaderService uploaderService);
 
     public event TaskEventHandler StatusChanged, UploadStarted, UploadProgressChanged, UploadCompleted, TaskCompleted;
@@ -37,7 +38,7 @@ public class WorkerTask : IDisposable
     public bool RequestSettingUpdate { get; private set; }
     public bool EarlyURLCopied { get; private set; }
     public Stream Data { get; private set; }
-    public SixLabors.ImageSharp.Image<Rgba64> Image { get; private set; }
+    public Image<Rgba64> Image { get; private set; }
     public bool KeepImage { get; set; }
     public string Text { get; private set; }
 
@@ -1086,7 +1087,7 @@ public class WorkerTask : IDisposable
     {
         if (ImageReady != null)
         {
-            SixLabors.ImageSharp.Image image = null;
+            Image image = null;
 
             if (SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView && Image != null)
             {

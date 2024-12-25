@@ -5,7 +5,7 @@
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.File;
-using SnapX.Core.Upload.Image;
+using SnapX.Core.Upload.Img;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Text;
 using SnapX.Core.Upload.URL;
