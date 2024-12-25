@@ -18,9 +18,7 @@
 <!--    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <Optimize>true</Optimize>
-    <PropertyGroup>
-      <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
-      <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
-    </PropertyGroup>
+    <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
+    <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
   </PropertyGroup>
 </Project>
