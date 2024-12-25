@@ -34,8 +34,8 @@ public class SnapX
             var versionString = $"{version.Major}.{version.Minor}.{version.Revision}";
             if (version.Build > 0)
                 versionString += $".{version.Build}";
-            // if (Settings.DevMode)
-            //     versionString += " Dev";
+            if (Settings.DevMode)
+                versionString += " Dev";
             if (Environment.GetEnvironmentVariable("CONTAINER")?.ToLower() == "flatpak")
             {
                 versionString += " Flatpak";
@@ -65,17 +65,17 @@ public class SnapX
         {
             var title = $"{AppName}{Qualifier}";
 
-            // if (Settings.DevMode)
-            // {
-            //     var info = Build.ToString();
-            //
-            //     if (IsAdmin)
-            //     {
-            //         info += ", Admin";
-            //     }
-            //
-            //     title += $" ({info})";
-            // }
+            if (Settings.DevMode)
+            {
+                var info = Build.ToString();
+
+                if (IsAdmin)
+                {
+                    info += ", Admin";
+                }
+
+                title += $" ({info})";
+            }
 
             return title;
         }
@@ -91,7 +91,7 @@ public class SnapX
     public static bool IgnoreHotkeyWarning { get; private set; }
     public static bool PuushMode { get; private set; }
 
-    internal static RootConfiguration Settings { get; set; }
+    internal static RootConfiguration Settings { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
     internal static TaskSettings DefaultTaskSettings { get; set; }

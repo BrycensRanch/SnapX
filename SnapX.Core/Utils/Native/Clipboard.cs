@@ -15,9 +15,16 @@ public class Clipboard
     public static StringCollection GetFileDropList() => new();
     public static Image<Rgba64> GetImage() => new(1, 1);
     public static string GetText() => string.Empty;
-    public static void CopyText(string text) => DebugHelper.WriteLine($"Clipboard.CopyText: {text}");
-    public static void CopyImage(string imagePath) => DebugHelper.WriteLine($"Clipboard.CopyImage: {imagePath}");
-    public static void CopyImage(Image<Rgba64> image, string fileName) => DebugHelper.WriteLine($"Clipboard.CopyImage: {image.Width}x{image.Height}): {fileName}");
+    public static void CopyText(string text) => Methods.CopyText(text);
+    public static void CopyImage(string imagePath) => CopyImage(Image.Load(imagePath), Path.GetFileName(imagePath));
+
+    public static void CopyImage(Image image, string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName)) fileName = $"image{Helpers.GetImageExtension(image)}";
+        DebugHelper.WriteLine($"Clipboard.CopyImage: {image.Width}x{image.Height}): {fileName}");
+        Methods.CopyImage(image, fileName);
+
+    }
 
     public static void CopyFile(string path) => DebugHelper.WriteLine($"Clipboard.CopyFile: {path}");
     public static void CopyTextFromFile(string path) => DebugHelper.WriteLine($"Clipboard.CopyTextFromFile: {path}");

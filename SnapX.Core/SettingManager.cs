@@ -39,14 +39,14 @@ internal static class SettingManager
 
             string uploadersConfigFolder;
 
-            // if (Settings != null && !string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
-            // {
-            //     uploadersConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
-            // }
-            // else
-            // {
+            if (Settings != null && !string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
+            {
+                uploadersConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
+            }
+            else
+            {
             uploadersConfigFolder = SnapX.ConfigFolder;
-            // }
+            }
 
             return Path.Combine(uploadersConfigFolder, UploadersConfigFileName);
         }
@@ -62,14 +62,14 @@ internal static class SettingManager
 
             string hotkeysConfigFolder;
 
-            // if (Settings != null && !string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
-            // {
-            //     hotkeysConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
-            // }
-            // else
-            // {
+            if (Settings != null && !string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
+            {
+                hotkeysConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
+            }
+            else
+            {
             hotkeysConfigFolder = SnapX.ConfigFolder;
-            // }
+            }
 
             return Path.Combine(hotkeysConfigFolder, HotkeysConfigFileName);
         }
@@ -82,8 +82,8 @@ internal static class SettingManager
     private static UploadersConfig UploadersConfig { get => SnapX.UploadersConfig; set => SnapX.UploadersConfig = value; }
     private static HotkeysConfig HotkeysConfig { get => SnapX.HotkeysConfig; set => SnapX.HotkeysConfig = value; }
 
-    private static ManualResetEvent uploadersConfigResetEvent = new ManualResetEvent(false);
-    private static ManualResetEvent hotkeysConfigResetEvent = new ManualResetEvent(false);
+    private static ManualResetEvent uploadersConfigResetEvent = new(false);
+    private static ManualResetEvent hotkeysConfigResetEvent = new(false);
 
     public static void LoadInitialSettings()
     {

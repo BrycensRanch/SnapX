@@ -3,6 +3,7 @@
 
 
 using SnapX.Core.Job;
+using SnapX.Core.Media;
 
 namespace SnapX.Core.Capture;
 public class CaptureWindow : CaptureBase
@@ -20,31 +21,31 @@ public class CaptureWindow : CaptureBase
 
     protected override TaskMetadata Execute(TaskSettings taskSettings)
     {
-        // WindowInfo windowInfo = new WindowInfo(WindowHandle);
-        //
-        // if (windowInfo.IsMinimized)
-        // {
-        //     windowInfo.Restore();
-        //     Thread.Sleep(250);
-        // }
-        //
-        // if (!windowInfo.IsActive)
-        // {
-        //     windowInfo.Activate();
-        //     Thread.Sleep(100);
-        // }
+        WindowInfo windowInfo = new(WindowHandle);
+
+        if (windowInfo.IsMinimized)
+        {
+            windowInfo.Restore();
+            Thread.Sleep(250);
+        }
+
+        if (!windowInfo.IsActive)
+        {
+            windowInfo.Activate();
+            Thread.Sleep(100);
+        }
 
         var metadata = new TaskMetadata();
-        // metadata.UpdateInfo(windowInfo);
-        //
-        // if (taskSettings.CaptureSettings.CaptureTransparent && !taskSettings.CaptureSettings.CaptureClientArea)
-        // {
-        //     metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindowTransparent(WindowHandle);
-        // }
-        // else
-        // {
-        //     metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindow(WindowHandle);
-        // }
+        metadata.UpdateInfo(windowInfo);
+
+        if (taskSettings.CaptureSettings.CaptureTransparent && !taskSettings.CaptureSettings.CaptureClientArea)
+        {
+            metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindowTransparent(WindowHandle);
+        }
+        else
+        {
+            metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureWindow(WindowHandle);
+        }
 
         return metadata;
     }

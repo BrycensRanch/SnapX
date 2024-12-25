@@ -14,6 +14,12 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Tiff;
+using SixLabors.ImageSharp.Formats.Tiff.Constants;
+using SixLabors.ImageSharp.Formats.Webp;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Random;
@@ -56,6 +62,53 @@ public static class Helpers
 
         return AddZeroes(hour);
     }
+    public static string GetImageExtension(Image image)
+    {
+        if (image.Metadata.DecodedImageFormat is JpegFormat)
+        {
+            return ".jpg";
+        }
+        else if (image.Metadata.DecodedImageFormat is PngFormat)
+        {
+            return ".png";
+        }
+        else if (image.Metadata.DecodedImageFormat is GifFormat)
+        {
+            return ".gif";
+        }
+        else if (image.Metadata.DecodedImageFormat is WebpFormat)
+        {
+            return ".webp";
+        }
+        else if (image.Metadata.DecodedImageFormat is TiffFormat)
+        {
+            return ".tiff";
+        }
+        else
+        {
+            return ".png"; // Default to PNG if format is unknown
+        }
+    }
+
+    public static string StripPII(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        var currentUser = Environment.UserName;
+        var hostName = Environment.MachineName;
+        var usernamePattern = Regex.Escape(currentUser);
+        var hostnamePattern = Regex.Escape(hostName);
+        var emailRegex = new Regex(
+            @"^(?!\.)(""[^""\r\\]*(\\.[^""\r\\]*)*""|""[^""\\]*(\\.[^""\\]*)*"")@(?=\S)(?!-)(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,63}$",
+            RegexOptions.IgnoreCase);
+        var publicIPRegex = new Regex(@"^(?!10(\.|\b))(?!(172\.(1[6-9]|2[0-9]|3[01])(\.|\b)))(?!(192\.168(\.|\b)))(?!0(\.|\b))(?!(255(\.|\b)))(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+        var publicIPv6Regex = new Regex(@"^(?!fe80(:|::))(?!fc00(:|::))(?!ff00(:|::))(?!::1$)(?!2001:db8::)(?!::ffff:.*)([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$", RegexOptions.IgnoreCase);
+        input = Regex.Replace(input, usernamePattern, "[REDACTED USERNAME]", RegexOptions.IgnoreCase);
+        input = Regex.Replace(input, hostnamePattern, "[REDACTED HOSTNAME]", RegexOptions.IgnoreCase);
+        input = emailRegex.Replace(input, "[REDACTED EMAIL]");
+        input = publicIPRegex.Replace(input, "[REDACTED IPv4]");
+        input = publicIPv6Regex.Replace(input, "[REDACTED IPv6]");
+        return input;
+    }
 
     public static char GetRandomChar(string chars)
     {
@@ -68,7 +121,7 @@ public static class Helpers
         {
             // Format the title and body for the issue
             var title = "[BUG] " + ex.Message;  // Prefix the title with [BUG]
-            var body = $"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n{ex.StackTrace}\n\nAssembly: {Assembly.GetExecutingAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}";
+            var body = StripPII($"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n{ex.StackTrace}\n\nAssembly: {Assembly.GetExecutingAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}");
 
             var encodedTitle = HttpUtility.UrlEncode(title);
             var encodedBody = HttpUtility.UrlEncode(body);
