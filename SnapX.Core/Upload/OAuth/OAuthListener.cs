@@ -86,7 +86,7 @@ public class OAuthListener : IDisposable
 
             if (queryState == state && !string.IsNullOrEmpty(queryCode))
             {
-                return await System.Threading.Tasks.Task.Run(() => OAuth.GetAccessToken(queryCode));
+                return await Task.Run(() => OAuth.GetAccessToken(queryCode));
             }
         }
         catch (ObjectDisposedException)

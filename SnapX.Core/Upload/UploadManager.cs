@@ -5,7 +5,7 @@
 using System.Runtime.InteropServices;
 using System.Web;
 using SixLabors.ImageSharp.PixelFormats;
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
@@ -426,7 +426,7 @@ public static class UploadManager
 
         string source = null;
 
-        System.Threading.Tasks.Task.Run(() =>
+        Task.Run(() =>
         {
             // string source = Core.Indexer.Indexer(folderPath, taskSettings.ToolsSettings.IndexerSettings);
         }).ContinueInCurrentContext(() =>

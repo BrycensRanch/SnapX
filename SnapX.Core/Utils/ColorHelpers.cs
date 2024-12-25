@@ -85,8 +85,8 @@ public static class ColorHelpers
         float g = color.G / 65535f;
         float b = color.B / 65535f;
 
-        float max = Math.Max(r, Math.Max(g, b));
-        float min = Math.Min(r, Math.Min(g, b));
+        float max = MathHelpers.Max(r, MathHelpers.Max(g, b));
+        float min = MathHelpers.Min(r, MathHelpers.Min(g, b));
 
         brightness = max;
         if (max == 0)
@@ -138,7 +138,7 @@ public static class ColorHelpers
         var y = 1f - (color.B / 255f);
 
         // Calculate the key (K) value, which is the minimum of C, M, and Y
-        var k = Math.Min(c, Math.Min(m, y));
+        var k = MathHelpers.Min(c, MathHelpers.Min(m, y));
 
         // Normalize the C, M, and Y values to account for the K value
         if (k < 1f)
@@ -261,17 +261,17 @@ public static class ColorHelpers
     #endregion Convert CMYK to ...
     public static double ValidColor(double number)
     {
-        return Math.Clamp(number, 0.0, 1.0);
+        return MathHelpers.Clamp(number, 0.0, 1.0);
     }
 
     public static int ValidColor(int number)
     {
-        return Math.Clamp(number, 0, 255);
+        return MathHelpers.Clamp(number, 0, 255);
     }
 
     public static byte ValidColor(byte number)
     {
-        return (byte)Math.Clamp(number, 0, 255);
+        return (byte)MathHelpers.Clamp(number, 0, 255);
     }
 
     public static Color RandomColor()
@@ -343,7 +343,7 @@ public static class ColorHelpers
 
     public static Color Lerp(Rgba64 from, Rgba64 to, float amount)
     {
-        return Color.FromRgb((byte)Math.Lerp(from.G, to.G, amount), (byte)Math.Lerp(from.B, to.B, amount), (byte)Math.Lerp(from.R, to.R, amount));
+        return Color.FromRgb((byte)MathHelpers.Lerp(from.G, to.G, amount), (byte)MathHelpers.Lerp(from.B, to.B, amount), (byte)MathHelpers.Lerp(from.R, to.R, amount));
     }
 
     public static Color DeterministicStringToColor(string text)

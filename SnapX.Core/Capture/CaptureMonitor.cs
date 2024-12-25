@@ -3,7 +3,7 @@
 
 
 using SixLabors.ImageSharp;
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 
 namespace SnapX.Core.Capture;
 public class CaptureMonitor : CaptureBase

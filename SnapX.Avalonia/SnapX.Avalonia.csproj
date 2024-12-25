@@ -17,6 +17,7 @@
     </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="*.ico" />
     <AvaloniaResource Include="*.xaml" />
 
     <TrimmerRootDescriptor Include="Roots.xml" />

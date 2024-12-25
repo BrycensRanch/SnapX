@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
 
@@ -322,7 +322,7 @@ public class UploadInfoManager
         if (IsItemSelected && SelectedItem.IsURLExist) TaskHelpers.SearchImageUsingBing(SelectedItem.Info.Result.URL);
     }
 
-    public async System.Threading.Tasks.Task OCRImage()
+    public async Task OCRImage()
     {
         if (IsItemSelected && SelectedItem.IsImageFile) await TaskHelpers.OCRImage(SelectedItem.Info.FilePath);
     }

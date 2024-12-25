@@ -1,7 +1,6 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-
+using ScreenCapture.NET;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils;
@@ -16,6 +15,20 @@ public partial class Screenshot
     public bool CaptureShadow { get; set; } = false;
     public int ShadowOffset { get; set; } = 20;
     public bool AutoHideTaskbar { get; set; } = false;
+    public IScreenCaptureService? ScreenCaptureService
+    {
+        get
+        {
+#if WINDOWS
+        return new DX11ScreenCaptureService();
+#elif LINUX
+        return new X11ScreenCaptureService();
+#else
+            return null;
+#endif
+        }
+    }
+
 
     public Image<Rgba64> CaptureRectangle(Rectangle rect)
     {

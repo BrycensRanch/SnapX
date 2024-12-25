@@ -7,7 +7,7 @@ using Esatto.Win32.Registry;
 using Microsoft.Extensions.Configuration;
 using SnapX.Core.History;
 using SnapX.Core.Hotkey;
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.Zip;
@@ -89,7 +89,7 @@ internal static class SettingManager
     {
         LoadApplicationConfig();
 
-        System.Threading.Tasks.Task.Run(() =>
+        Task.Run(() =>
         {
             LoadUploadersConfig();
             uploadersConfigResetEvent.Set();

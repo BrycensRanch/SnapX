@@ -27,21 +27,21 @@ using ZXing.Common;
 using ZXing.ImageSharp.Rendering;
 using ZXing.QrCode;
 
-namespace SnapX.Core.Task
+namespace SnapX.Core.Job
 {
     public static class TaskHelpers
     {
-        public static async System.Threading.Tasks.Task ExecuteJob(HotkeyType job, CLICommand command = null)
+        public static async Task ExecuteJob(HotkeyType job, CLICommand command = null)
         {
             await ExecuteJob(SnapX.DefaultTaskSettings, job, command);
         }
 
-        public static async System.Threading.Tasks.Task ExecuteJob(TaskSettings taskSettings)
+        public static async Task ExecuteJob(TaskSettings taskSettings)
         {
             await ExecuteJob(taskSettings, taskSettings.Job);
         }
 
-        public static async System.Threading.Tasks.Task ExecuteJob(TaskSettings taskSettings, HotkeyType job, CLICommand command = null)
+        public static async Task ExecuteJob(TaskSettings taskSettings, HotkeyType job, CLICommand command = null)
         {
             if (job == HotkeyType.None) return;
 
@@ -616,13 +616,13 @@ namespace SnapX.Core.Task
             new BingVisualSearchSharingService().CreateSharer(null, null).ShareURL(url);
         }
 
-        public static async System.Threading.Tasks.Task OCRImage(TaskSettings taskSettings = null)
+        public static async Task OCRImage(TaskSettings taskSettings = null)
         {
             if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
             throw new NotImplementedException("OCRImage not implemented");
         }
 
-        public static async System.Threading.Tasks.Task OCRImage(string filePath, TaskSettings taskSettings = null)
+        public static async Task OCRImage(string filePath, TaskSettings taskSettings = null)
         {
             if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
             {
@@ -630,19 +630,19 @@ namespace SnapX.Core.Task
             }
         }
 
-        public static async System.Threading.Tasks.Task OCRImage(SixLabors.ImageSharp.Image image, TaskSettings taskSettings = null)
+        public static async Task OCRImage(SixLabors.ImageSharp.Image image, TaskSettings taskSettings = null)
         {
             await OCRImage(image, null, taskSettings);
         }
 
-        public static async System.Threading.Tasks.Task OCRImage(SixLabors.ImageSharp.Image image, string filePath = null, TaskSettings taskSettings = null)
+        public static async Task OCRImage(SixLabors.ImageSharp.Image image, string filePath = null, TaskSettings taskSettings = null)
         {
             if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
             throw new NotImplementedException("OCRImage not implemented");
         }
 
-        private static async System.Threading.Tasks.Task AsyncOCRImage(SixLabors.ImageSharp.Image bmp, string filePath = null, TaskSettings taskSettings = null)
+        private static async Task AsyncOCRImage(SixLabors.ImageSharp.Image bmp, string filePath = null, TaskSettings taskSettings = null)
         {
             throw new NotImplementedException("AsyncOCRImage not implemented");
         }
@@ -807,7 +807,7 @@ namespace SnapX.Core.Task
             }
         }
 
-        public static async System.Threading.Tasks.Task HandleNativeMessagingInput(string filePath, TaskSettings taskSettings = null)
+        public static async Task HandleNativeMessagingInput(string filePath, TaskSettings taskSettings = null)
         {
             if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
             {

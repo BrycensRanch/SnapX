@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Reflection;
 using SixLabors.ImageSharp;
 using SnapX.Core.Indexer;
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core;

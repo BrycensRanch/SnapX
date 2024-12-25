@@ -3,7 +3,7 @@
 
 
 using SnapX.Core.Hotkey;
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 

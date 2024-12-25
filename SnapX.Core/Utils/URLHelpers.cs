@@ -26,7 +26,7 @@ public static class URLHelpers
     public static void OpenURL(string url)
     {
         if (string.IsNullOrEmpty(url)) return;
-        System.Threading.Tasks.Task.Run(() =>
+        Task.Run(() =>
         {
             try
             {

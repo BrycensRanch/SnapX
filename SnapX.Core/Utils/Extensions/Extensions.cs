@@ -208,7 +208,7 @@ public static class Extensions
         DebugHelper.WriteException(error);
     }
 
-    public static System.Threading.Tasks.Task ContinueInCurrentContext(this System.Threading.Tasks.Task task, Action action) =>
+    public static Task ContinueInCurrentContext(this Task task, Action action) =>
         task.ContinueWith(t => action(), TaskScheduler.FromCurrentSynchronizationContext());
 
 

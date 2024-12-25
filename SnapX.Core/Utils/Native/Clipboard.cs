@@ -7,6 +7,7 @@ namespace SnapX.Core.Utils.Native;
 public class Clipboard
 {
     public static bool ContainsImage() => false;
+
     public static bool ContainsText() => false;
     public static bool ContainsFile() => false;
     public static bool ContainsData() => false;

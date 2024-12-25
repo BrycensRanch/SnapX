@@ -262,7 +262,7 @@ public static class Helpers
         {
             return;
         }
-        System.Threading.Tasks.Task.Run(() =>
+        Task.Run(() =>
             throw new NotImplementedException("PlaySoundAsync (stream) not implemented"));
     }
 
@@ -271,7 +271,7 @@ public static class Helpers
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
 
-        System.Threading.Tasks.Task.Run(() =>
+        Task.Run(() =>
             throw new NotImplementedException("PlaySoundAsync (filePath) not implemented"));
     }
 
@@ -293,11 +293,11 @@ public static class Helpers
         return true;
     }
 
-    public static async System.Threading.Tasks.Task WaitWhileAsync(Func<bool> check, int interval, int timeout, Action onSuccess, int waitStart = 0)
+    public static async Task WaitWhileAsync(Func<bool> check, int interval, int timeout, Action onSuccess, int waitStart = 0)
     {
         var result = false;
 
-        await System.Threading.Tasks.Task.Run(() =>
+        await Task.Run(() =>
         {
             if (waitStart > 0)
             {
@@ -344,7 +344,7 @@ public static class Helpers
                 }
 
                 // Add delay asynchronously instead of blocking the thread
-                await System.Threading.Tasks.Task.Delay(100);
+                await Task.Delay(100);
             }
         }
 
@@ -604,11 +604,11 @@ public static class Helpers
         return outputFilePath;
     }
 
-    public static System.Threading.Tasks.Task ForEachAsync<T>(IEnumerable<T> inputEnumerable, Func<T, System.Threading.Tasks.Task> asyncProcessor, int maxDegreeOfParallelism)
+    public static Task ForEachAsync<T>(IEnumerable<T> inputEnumerable, Func<T, Task> asyncProcessor, int maxDegreeOfParallelism)
     {
         var throttler = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism);
 
-        IEnumerable<System.Threading.Tasks.Task> tasks = inputEnumerable.Select(async input =>
+        IEnumerable<Task> tasks = inputEnumerable.Select(async input =>
         {
             await throttler.WaitAsync();
 
@@ -622,7 +622,7 @@ public static class Helpers
             }
         });
 
-        return System.Threading.Tasks.Task.WhenAll(tasks);
+        return Task.WhenAll(tasks);
     }
 
     public static bool IsDefaultSettings<T>(IEnumerable<T> current, IEnumerable<T> source, Func<T, T, bool> predicate)

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload;

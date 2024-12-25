@@ -3,7 +3,7 @@
 
 
 using SixLabors.ImageSharp;
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
@@ -33,7 +33,7 @@ public abstract class CaptureBase
         {
             int delay = (int)(taskSettings.CaptureSettings.ScreenshotDelay * 1000);
 
-            System.Threading.Tasks.Task.Delay(delay).ContinueInCurrentContext(() =>
+            Task.Delay(delay).ContinueInCurrentContext(() =>
             {
                 CaptureInternal(taskSettings, autoHideForm);
             });

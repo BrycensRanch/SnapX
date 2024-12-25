@@ -34,7 +34,7 @@ public abstract class HistoryManager
 
     public async Task<List<HistoryItem>> GetHistoryItemsAsync()
     {
-        return await System.Threading.Tasks.Task.Run(() => GetHistoryItems());
+        return await Task.Run(() => GetHistoryItems());
     }
 
     public bool AppendHistoryItem(HistoryItem historyItem)

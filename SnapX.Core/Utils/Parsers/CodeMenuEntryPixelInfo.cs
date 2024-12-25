@@ -64,17 +64,17 @@ public class CodeMenuEntryPixelInfo : CodeMenuEntry
 
         foreach (var entry in ListEntryWithValue(input, r1.ToPrefixString()))
         {
-            input = input.Replace(entry.Item1, System.Math.Round(color.R / 255d, Math.Clamp(entry.Item2, 0, 15), MidpointRounding.AwayFromZero).ToString(), StringComparison.InvariantCultureIgnoreCase);
+            input = input.Replace(entry.Item1, System.Math.Round(color.R / 255d, MathHelpers.Clamp(entry.Item2, 0, 15), MidpointRounding.AwayFromZero).ToString(), StringComparison.InvariantCultureIgnoreCase);
         }
 
         foreach (var entry in ListEntryWithValue(input, g1.ToPrefixString()))
         {
-            input = input.Replace(entry.Item1, System.Math.Round(color.G / 255d, Math.Clamp(entry.Item2, 0, 15), MidpointRounding.AwayFromZero).ToString(), StringComparison.InvariantCultureIgnoreCase);
+            input = input.Replace(entry.Item1, System.Math.Round(color.G / 255d, MathHelpers.Clamp(entry.Item2, 0, 15), MidpointRounding.AwayFromZero).ToString(), StringComparison.InvariantCultureIgnoreCase);
         }
 
         foreach (var entry in ListEntryWithValue(input, b1.ToPrefixString()))
         {
-            input = input.Replace(entry.Item1, System.Math.Round(color.B / 255d, Math.Clamp(entry.Item2, 0, 15), MidpointRounding.AwayFromZero).ToString(), StringComparison.InvariantCultureIgnoreCase);
+            input = input.Replace(entry.Item1, System.Math.Round(color.B / 255d, MathHelpers.Clamp(entry.Item2, 0, 15), MidpointRounding.AwayFromZero).ToString(), StringComparison.InvariantCultureIgnoreCase);
         }
 
         input = input.Replace(r1.ToPrefixString(), System.Math.Round(color.R / 255d, 3, MidpointRounding.AwayFromZero).ToString(), StringComparison.InvariantCultureIgnoreCase).

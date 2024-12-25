@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 
 namespace SnapX.Core.Hotkey;
 public class HotkeyManager

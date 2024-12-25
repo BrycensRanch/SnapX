@@ -118,7 +118,7 @@ public class ExternalProgram
 
     public Task<string> RunAsync(string inputPath)
     {
-        return System.Threading.Tasks.Task.Run(() => Run(inputPath));
+        return Task.Run(() => Run(inputPath));
     }
 
     public bool CheckExtension(string path)

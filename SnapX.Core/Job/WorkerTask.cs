@@ -17,7 +17,7 @@ using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Native;
 using Math = System.Math;
 
-namespace SnapX.Core.Task;
+namespace SnapX.Core.Job;
 
 public class WorkerTask : IDisposable
 {

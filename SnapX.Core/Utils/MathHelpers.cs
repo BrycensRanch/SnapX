@@ -7,7 +7,7 @@ using SixLabors.ImageSharp;
 
 namespace SnapX.Core.Utils;
 
-public static class Math
+public static class MathHelpers
 {
     public const float RadianPI = 57.29578f; // 180.0 / Math.PI
     public const float DegreePI = 0.01745329f; // Math.PI / 180.0

@@ -13,7 +13,6 @@ public static class DebugHelper
     public static void Init(string logFilePath)
     {
         var loggerConfig = new LoggerConfiguration()
-            // .ReadFrom.Configuration(SnapX.Configuration)
             .Enrich.WithThreadId()
             .Enrich.WithThreadName()
             .WriteTo.Async(a => a.File(logFilePath, rollingInterval: RollingInterval.Day, buffered: true));

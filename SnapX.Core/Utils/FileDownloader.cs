@@ -92,7 +92,7 @@ public class FileDownloader
             var progressEventTimer = new Stopwatch();
             long speedTest = 0;
 
-            var buffer = new byte[(int)Math.Min(bufferSize, FileSize)];
+            var buffer = new byte[(int)MathHelpers.Min(bufferSize, FileSize)];
             int bytesRead;
 
             await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();

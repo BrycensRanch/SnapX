@@ -9,7 +9,7 @@ using SnapX.Core.Upload;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.Task;
+namespace SnapX.Core.Job;
 public class TaskInfo
 {
     public TaskSettings TaskSettings { get; set; }

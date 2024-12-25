@@ -86,7 +86,7 @@ public abstract class SettingsBase<T> where T : SettingsBase<T>, new()
 
     public void SaveAsync(string filePath)
     {
-        System.Threading.Tasks.Task.Run(() => Save(filePath));
+        Task.Run(() => Save(filePath));
     }
 
     public void SaveAsync()

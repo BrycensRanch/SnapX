@@ -5,7 +5,7 @@
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.Task;
+namespace SnapX.Core.Job;
 
 public class RecentTask
 {

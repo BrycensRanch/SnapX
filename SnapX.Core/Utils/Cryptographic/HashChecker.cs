@@ -33,7 +33,7 @@ public class HashChecker
 
             using (cts = new CancellationTokenSource())
             {
-                result = await System.Threading.Tasks.Task.Run(() =>
+                result = await Task.Run(() =>
                 {
                     try
                     {

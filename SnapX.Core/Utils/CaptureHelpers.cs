@@ -188,13 +188,13 @@ public static class CaptureHelpers
         {
             if (pos.Y < pos2.Y)
             {
-                min = Math.Min(pos2.X - pos.X, pos2.Y - pos.Y);
+                min = MathHelpers.Min(pos2.X - pos.X, pos2.Y - pos.Y);
                 newPosition.X = pos.X + min;
                 newPosition.Y = pos.Y + min;
             }
             else
             {
-                min = Math.Min(pos2.X - pos.X, pos.Y - pos2.Y);
+                min = MathHelpers.Min(pos2.X - pos.X, pos.Y - pos2.Y);
                 newPosition.X = pos.X + min;
                 newPosition.Y = pos.Y - min;
             }
@@ -203,13 +203,13 @@ public static class CaptureHelpers
         {
             if (pos.Y > pos2.Y)
             {
-                min = Math.Min(pos.X - pos2.X, pos.Y - pos2.Y);
+                min = MathHelpers.Min(pos.X - pos2.X, pos.Y - pos2.Y);
                 newPosition.X = pos.X - min;
                 newPosition.Y = pos.Y - min;
             }
             else
             {
-                min = Math.Min(pos.X - pos2.X, pos2.Y - pos.Y);
+                min = MathHelpers.Min(pos.X - pos2.X, pos2.Y - pos.Y);
                 newPosition.X = pos.X - min;
                 newPosition.Y = pos.Y + min;
             }
@@ -220,13 +220,13 @@ public static class CaptureHelpers
 
     public static PointF SnapPositionToDegree(PointF pos, PointF pos2, float degree, float startDegree)
     {
-        var angle = Math.LookAtRadian(pos, pos2);
-        var startAngle = Math.DegreeToRadian(startDegree);
-        var snapAngle = Math.DegreeToRadian(degree);
+        var angle = MathHelpers.LookAtRadian(pos, pos2);
+        var startAngle = MathHelpers.DegreeToRadian(startDegree);
+        var snapAngle = MathHelpers.DegreeToRadian(degree);
         var newAngle = ((float)System.Math.Round((angle + startAngle) / snapAngle) * snapAngle) - startAngle;
-        var distance = Math.Distance(pos, pos2);
+        var distance = MathHelpers.Distance(pos, pos2);
 
-        var newVector = (PointF)Math.RadianToVector2(newAngle, distance);
+        var newVector = (PointF)MathHelpers.RadianToVector2(newAngle, distance);
 
         return new PointF(pos.X + newVector.X, pos.Y + newVector.Y);
     }

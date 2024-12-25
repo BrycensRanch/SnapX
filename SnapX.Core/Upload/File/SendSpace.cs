@@ -510,7 +510,7 @@ public sealed class SendSpace : FileUploader
             this.sendSpace = sendSpace;
 
             cts = new CancellationTokenSource();
-            System.Threading.Tasks.Task.Run(() => DoWork(cts.Token), cts.Token);
+            Task.Run(() => DoWork(cts.Token), cts.Token);
         }
 
         private void DoWork(CancellationToken ct)

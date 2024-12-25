@@ -3,7 +3,7 @@
 
 
 
-namespace SnapX.Core.Task;
+namespace SnapX.Core.Job;
 public class TaskEx<T>
 {
     public delegate void ProgressChangedEventHandler(T progress);
@@ -15,7 +15,7 @@ public class TaskEx<T>
     private Progress<T> p;
     private CancellationTokenSource cts;
 
-    public async System.Threading.Tasks.Task Run(Action action)
+    public async Task Run(Action action)
     {
         if (IsRunning)
         {
@@ -31,7 +31,7 @@ public class TaskEx<T>
         {
             try
             {
-                await System.Threading.Tasks.Task.Run(action, cts.Token);
+                await Task.Run(action, cts.Token);
             }
             catch (OperationCanceledException)
             {

@@ -3,7 +3,7 @@
 
 
 
-namespace SnapX.Core.Task;
+namespace SnapX.Core.Job;
 
 public class ThreadWorker
 {

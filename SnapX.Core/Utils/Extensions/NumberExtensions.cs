@@ -12,42 +12,42 @@ public static class NumberExtensions
 
     public static T Min<T>(this T num, T min) where T : IComparable<T>
     {
-        return Math.Min(num, min);
+        return MathHelpers.Min(num, min);
     }
 
     public static T Max<T>(this T num, T max) where T : IComparable<T>
     {
-        return Math.Max(num, max);
+        return MathHelpers.Max(num, max);
     }
 
     public static T Clamp<T>(this T num, T min, T max) where T : IComparable<T>
     {
-        return Math.Clamp(num, min, max);
+        return MathHelpers.Clamp(num, min, max);
     }
 
     public static bool IsBetween<T>(this T num, T min, T max) where T : IComparable<T>
     {
-        return Math.IsBetween(num, min, max);
+        return MathHelpers.IsBetween(num, min, max);
     }
 
     public static T BetweenOrDefault<T>(this T num, T min, T max, T defaultValue = default) where T : IComparable<T>
     {
-        return Math.BetweenOrDefault(num, min, max, defaultValue);
+        return MathHelpers.BetweenOrDefault(num, min, max, defaultValue);
     }
 
     public static float Remap(this float value, float from1, float to1, float from2, float to2)
     {
-        return Math.Remap(value, from1, to1, from2, to2);
+        return MathHelpers.Remap(value, from1, to1, from2, to2);
     }
 
     public static bool IsEvenNumber(this int num)
     {
-        return Math.IsEvenNumber(num);
+        return MathHelpers.IsEvenNumber(num);
     }
 
     public static bool IsOddNumber(this int num)
     {
-        return Math.IsOddNumber(num);
+        return MathHelpers.IsOddNumber(num);
     }
 
     public static string ToSizeString(this long size, bool binary = false, int decimalPlaces = 2)

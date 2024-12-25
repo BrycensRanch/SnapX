@@ -8,7 +8,7 @@ using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.Task;
+namespace SnapX.Core.Job;
 
 public static class TaskManager
 {
@@ -225,7 +225,7 @@ public static class TaskManager
 
     private static void AppendHistoryItemAsync(HistoryItem historyItem)
     {
-        System.Threading.Tasks.Task.Run(() =>
+        Task.Run(() =>
         {
             HistoryManager history = new HistoryManagerJSON(SnapX.HistoryFilePath)
             {

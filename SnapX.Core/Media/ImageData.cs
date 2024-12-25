@@ -1,7 +1,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
-using SnapX.Core.Task;
+using SnapX.Core.Job;
 
 namespace SnapX.Core.Media;
 
