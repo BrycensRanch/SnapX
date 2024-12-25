@@ -69,7 +69,7 @@ public class App : Application
 
         var reportButton = new Button
         {
-            Content = "Report Error",
+            Content = Lang.ReportErrorToSentry,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 5, 0, 0),
             Background = Brushes.DodgerBlue,
@@ -84,7 +84,7 @@ public class App : Application
 
         var githubButton = new Button
         {
-            Content = "Create GitHub Issue",
+            Content = Lang.CreateGitHubIssue,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 5, 0, 0),
             Background = Brushes.GreenYellow,
@@ -100,7 +100,7 @@ public class App : Application
 
         var copyButton = new Button
         {
-            Content = "Copy Error",
+            Content = Lang.CopyErrorToClipboard,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 5, 0, 0),
             Background = Brushes.Green,
@@ -202,13 +202,16 @@ public class App : Application
             {
                 errorStarting = true;
                 DebugHelper.Logger.Fatal(ex.ToString());
-                ShowErrorDialog("SnapX failed to start", ex);
+                ShowErrorDialog(Lang.SnapXFailedToStart, ex);
             }
             if (errorStarting) return;
             DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
             if (SnapX.isSilent()) return;
             var about = new AboutDialog();
             about.Show();
+            var Window = new Window();
+            Window.Content = Lang.WelcomeMessage;
+            Window.Show();
             var demoUploadRemoteImageURL = new Window();
             demoUploadRemoteImageURL.Content = "Upload Remote Image";
             demoUploadRemoteImageURL.Width = 300;
@@ -221,8 +224,6 @@ public class App : Application
             var demoUploadRemoteImage = new Image();
             demoUploadRemoteImage.Width = 100;
             demoUploadRemoteImage.Height = 100;
-
-            DebugHelper.WriteLine($"{nameof(SnapX)}: {nameof(AboutDialog)}: {about}");
 
             // desktop.MainWindow = new MainWindow();
         }

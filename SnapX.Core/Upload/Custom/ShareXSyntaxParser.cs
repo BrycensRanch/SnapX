@@ -8,11 +8,11 @@ namespace SnapX.Core.Upload.Custom
 {
     public abstract class ShareXSyntaxParser
     {
-        public virtual char SyntaxStart { get; } = '{';
-        public virtual char SyntaxEnd { get; } = '}';
-        public virtual char SyntaxParameterStart { get; } = ':';
-        public virtual char SyntaxParameterDelimiter { get; } = '|';
-        public virtual char SyntaxEscape { get; } = '\\';
+        public virtual char SyntaxStart => '{';
+        public virtual char SyntaxEnd => '}';
+        public virtual char SyntaxParameterStart => ':';
+        public virtual char SyntaxParameterDelimiter => '|';
+        public virtual char SyntaxEscape => '\\';
 
         public virtual string Parse(string text)
         {

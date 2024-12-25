@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using System.Reflection;
+using SnapX.Core.Utils;
 
 namespace SnapX.Avalonia;
 
@@ -13,13 +15,12 @@ public class AboutDialog : SnapX.CommonUI.AboutDialog
             Title = GetTitle(),
             Width = 400,
             Height = 300,
-            Icon = null,
             IsVisible = true,
             CanResize = false
         };
 
     }
-    public override string GetTitle() => "About SnapX";
+    public override string GetTitle() => Lang.AboutSnapX;
 
     public override void Show()
     {

@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
              x:Class="SnapX.Avalonia.App"
              >
     <Application.Resources>
@@ -11,7 +12,7 @@
     </Application.Resources>
     <NativeMenu.Menu>
         <NativeMenu>
-            <NativeMenuItem Header="About SnapX" />
+            <NativeMenuItem Header="{x:Static utils:Lang.AboutSnapX}" />
         </NativeMenu>
     </NativeMenu.Menu>
 </Application>

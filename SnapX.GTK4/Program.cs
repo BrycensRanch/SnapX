@@ -11,6 +11,7 @@ using SnapX.Core.Utils.Native;
 using SixLabors.ImageSharp;
 using SnapX.Core.Utils.Miscellaneous;
 using AboutDialog = SnapX.GTK4.AboutDialog;
+using Image = Gtk.Image;
 using MessageType = Gst.MessageType;
 
 var shareX = new SnapX.Core.SnapX();
@@ -55,21 +56,24 @@ application.OnActivate += (sender, eventArgs) =>
             Gst.Module.Initialize();
             GstVideo.Module.Initialize();
             Gst.Application.Init();
-            var ret = Gst.Functions.ParseLaunch("playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
+            var ret = Gst.Functions.ParseLaunch(
+                "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
             var bus = ret.GetBus();
             bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
             ret.SetState(Gst.State.Null);
         }
+
         var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
         var box = new Box();
         box.SetOrientation(Orientation.Vertical);
         var imageURLTextBox = new Entry();
-        imageURLTextBox.PlaceholderText = "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
-        imageURLTextBox.SetText(imageURLTextBox.PlaceholderText);
-        var demoTestButton = new Button();
+        imageURLTextBox.PlaceholderText =
+            "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
+
+    var demoTestButton = new Button();
         demoTestButton.Label = "Upload Remote Image";
         demoTestButton.OnClicked += (_, __) =>
         {
@@ -138,7 +142,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
         DefaultWidth = 600,
         DefaultHeight = 400,
         Application = application,
-        Title = "SnapX Failed to Start",
+        Title = Lang.SnapXFailedToStart,
         Modal = true,
     };
 
@@ -183,18 +187,18 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
 
     // "Report Error" button
     var reportButton = new Button();
-    reportButton.Label = "Report Error to Sentry";
+    reportButton.Label = Lang.ReportErrorToSentry;
     reportButton.OnClicked += (sender, e) => OnReportErrorClicked(ex);
     buttonBox.Append(reportButton);
 
     var githubButton = new Button();
-    githubButton.Label = "Create GitHub Issue";
+    githubButton.Label = Lang.CreateGitHubIssue;
     githubButton.OnClicked += (sender, e) => onGitHubButtonClicked(ex);
     buttonBox.Append(githubButton);
 
     // "Copy Error" button
     var copyButton = new Button();
-    copyButton.Label = "Copy to Clipboard";
+    copyButton.Label = Lang.CopyErrorToClipboard;
     copyButton.OnClicked += (sender, e) => OnCopyErrorClicked(ex);
     buttonBox.Append(copyButton);
 
@@ -234,4 +238,5 @@ application.OnWindowAdded += (sender, eventArgs) =>
 {
     DebugHelper.WriteLine("Actual UI Startup time: {0} ms", shareX.getStartupTime());
 };
+
 application.Run(0, args);

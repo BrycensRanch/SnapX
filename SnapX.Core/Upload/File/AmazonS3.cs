@@ -195,7 +195,7 @@ public sealed class AmazonS3 : FileUploader
             };
         }
 
-        Errors.Add("Upload to Amazon S3 failed.");
+        Errors.Add(Lang.UploadToAmazonS3Failed);
         return null;
     }
 
