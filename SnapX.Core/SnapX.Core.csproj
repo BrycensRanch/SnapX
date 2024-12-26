@@ -18,6 +18,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" />
+    <!-- I am doing my very best to not touch COM directly -->
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0.0" PrivateAssets="all" />
     <!-- Multi platform Screenshotting library -->
     <PackageReference Include="ScreenCapture.NET" Version="3.0.0" />
     <PackageReference Include="ScreenCapture.NET.DX11" Version="3.0.0" />

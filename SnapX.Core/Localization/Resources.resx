@@ -33,4 +33,10 @@
   <data name="CopyErrorToClipboard">
     <value>Copy Error To Clipboard</value>
   </data>
+  <data name="EditWithSnapX">
+    <value>Edit with SnapX</value>
+  </data>
+  <data name="UploadWithSnapX">
+    <value>Upload with SnapX</value>
+  </data>
 </root>

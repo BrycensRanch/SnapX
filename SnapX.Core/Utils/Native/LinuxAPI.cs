@@ -8,7 +8,7 @@ public class LinuxAPI : NativeAPI
 {
     private static bool IsWayland()
     {
-        string display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
+        var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
         return !string.IsNullOrEmpty(display);
     }
     public static Rectangle GetWindowRectangle(IntPtr windowHandle)

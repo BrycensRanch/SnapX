@@ -22,18 +22,14 @@ try
     if (!string.IsNullOrEmpty(input))
     {
         host.Write(input);
-        // TODO: This code is no longer correct with SnapX's new structure.
-        // Windows: SnapX.Avalonia OR SnapX.CLI
-        // macOS: SnapX.Avalonia OR SnapX.CLI
-        // Linux: SnapX.GTK4 OR SnapX.Avalonia OR SnapX.CLI
-        var filePath = FileHelpers.GetAbsolutePath("SnapX");
+        var snapXPath = FileHelpers.FindSnapX();
 
         var tempFilePath = FileHelpers.GetTempFilePath("json");
         File.WriteAllText(tempFilePath, input, Encoding.UTF8);
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = filePath,
+            FileName = snapXPath,
             Arguments = $"-NativeMessagingInput \"{tempFilePath}\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -54,6 +50,6 @@ try
 }
 catch (Exception e)
 {
-    Console.Error.WriteLine($"Error: {e.Message}");
+    Console.Error.WriteLine($"{e.GetType()}: {e.Message}\n{e.StackTrace}");
 }
 

@@ -8,6 +8,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Native;
 using SnapX.Core.Watch;
 using Xdg.Directories;
 
@@ -102,7 +103,7 @@ public class SnapX
     internal static Stopwatch StartTimer { get; private set; }
     internal static HotkeyManager HotkeyManager { get; set; }
     internal static WatchFolderManager WatchFolderManager { get; set; }
-    public static CLIManager CLIManager { get; set; }
+    public static SnapXCLIManager CLIManager { get; set; }
 
     #region Paths
 
@@ -201,7 +202,6 @@ public class SnapX
             {
                 string path = Settings.CustomScreenshotsPath;
                 string path2 = Settings.CustomScreenshotsPath2;
-
                 if (!string.IsNullOrEmpty(path))
                 {
                     path = FileHelpers.ExpandFolderVariables(path);
@@ -257,6 +257,7 @@ public class SnapX
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
         CLIManager.ParseCommands();
+        CLIManager.UseCommandLineArgs().Wait();
 
         if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute task as Admin
 
@@ -295,7 +296,7 @@ public class SnapX
         IgnoreHotkeyWarning = CLIManager.IsCommandExist("NoHotkeys");
 
         CreateParentFolders();
-        RegisterExtensions();
+        RegisterIntegrations();
         CheckPuushMode();
         DebugWriteFlags();
         // SettingManager.LoadInitialSettings();
@@ -389,8 +390,26 @@ public class SnapX
         }
     }
 
-    private static void RegisterExtensions()
+    private static void RegisterIntegrations()
     {
+        if (Portable || Sandbox) return;
+        #if WINDOWS
+        if (!WindowsAPI.CheckCustomUploaderExtension())
+        {
+            WindowsAPI.CreateCustomUploaderExtension(true);
+        }
+
+        if (!WindowsAPI.CheckImageEffectExtension())
+        {
+            WindowsAPI.CreateImageEffectExtension(true);
+        }
+        // TODO: Reimplement FirstTimeForm to give users chance to consent
+        WindowsAPI.CreateShellContextMenuButton(true);
+        WindowsAPI.CreateSendToMenuButton(true);
+        WindowsAPI.CreateChromeExtensionSupport(true);
+        WindowsAPI.CreateFirefoxAddonSupport(true);
+        #endif
+
     }
 
     private static void MigratePersonalPathConfig()

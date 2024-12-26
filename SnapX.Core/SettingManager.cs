@@ -23,7 +23,7 @@ internal static class SettingManager
     {
         get
         {
-            if (SnapX.Sandbox) return null;
+            if (SnapX.Sandbox) return "";
 
             return Path.Combine(SnapX.ConfigFolder, ApplicationConfigFileName);
         }
@@ -35,11 +35,11 @@ internal static class SettingManager
     {
         get
         {
-            if (SnapX.Sandbox) return null;
+            if (SnapX.Sandbox) return "";
 
             string uploadersConfigFolder;
 
-            if (Settings != null && !string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
+            if (!string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
             {
                 uploadersConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
             }
@@ -58,17 +58,17 @@ internal static class SettingManager
     {
         get
         {
-            if (SnapX.Sandbox) return null;
+            if (SnapX.Sandbox) return "";
 
             string hotkeysConfigFolder;
 
-            if (Settings != null && !string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
+            if (!string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
             {
                 hotkeysConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
             }
             else
             {
-            hotkeysConfigFolder = SnapX.ConfigFolder;
+                hotkeysConfigFolder = SnapX.ConfigFolder;
             }
 
             return Path.Combine(hotkeysConfigFolder, HotkeysConfigFileName);
@@ -238,7 +238,7 @@ internal static class SettingManager
         // {
         //     foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
         //     {
-        //         if (taskSettings != null && taskSettings.CaptureSettings != null)
+        //         if (tasktaskSettings.CaptureSettings != null)
         //         {
         //             // taskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
         //             // taskSettings.CaptureSettings.FFmpegOptions.FixSources();

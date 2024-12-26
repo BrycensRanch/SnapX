@@ -14,6 +14,8 @@ public static class Lang
     public static string ReportErrorToSentry => Get("ReportErrorToSentry");
     public static string CreateGitHubIssue => Get("CreateGitHubIssue");
     public static string CopyErrorToClipboard => Get("CopyErrorToClipboard");
+    public static string EditWithSnapX => Get("EditWithSnapX");
+    public static string UploadWithSnapX => Get("UploadWithSnapX");
 
 
 }
