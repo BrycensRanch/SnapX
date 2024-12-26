@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Versioning;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
@@ -10,6 +11,7 @@ using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Utils.Native;
 
+[SupportedOSPlatform("windows")]
 public class WindowsAPI : NativeAPI
 {
     // Constants for Windows semantics

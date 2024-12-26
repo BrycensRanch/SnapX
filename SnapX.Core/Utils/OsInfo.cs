@@ -1,6 +1,6 @@
-#pragma warning disable CA1416 // I know what I'm doing. Windows registry is NOT called on Unix.
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Microsoft.Win32;
 
 namespace SnapX.Core.Utils;
@@ -27,7 +27,7 @@ public class OsInfo
             return $"{Environment.OSVersion.Platform} {Environment.OSVersion.Version}";
         }
     }
-
+    [SupportedOSPlatform("windows")]
     static string GetWindowsVersion()
     {
         try

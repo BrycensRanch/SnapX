@@ -1,9 +1,11 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Text;
 using SixLabors.ImageSharp;
 
 namespace SnapX.Core.Utils.Native;
 
+[SupportedOSPlatform("linux")]
 public class LinuxAPI : NativeAPI
 {
     private static bool IsWayland()
