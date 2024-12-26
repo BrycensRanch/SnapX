@@ -64,9 +64,42 @@ application.OnActivate += (sender, eventArgs) =>
             ret.SetState(Gst.State.Null);
         }
 
+
         var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
+        async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
+        {
+            var dialog = new FileChooserDialog()
+            {
+                Title = @event.Title,
+                Application = application,
+            };
+            if (@event.FileName != null) dialog.SetCurrentName(@event.FileName);
+            dialog.SetCurrentFolder(Gio.Functions.FileNewForPath(@event.Directory));
+            if (@event.Multiselect)
+            {
+                dialog.SetSelectMultiple(true);
+                dialog.Show();
+
+                UploadManager.UploadFile(dialog.GetFile()?.GetPath()!);
+            }
+            else
+            {
+                dialog.Show();
+                var file =  dialog.GetFile();
+                if (file == null)
+                {
+                    mainWindow.Title = "SnapX | File upload cancelled";
+                    return;
+                }
+                UploadManager.UploadFile(file.GetPath()!);
+            }
+
+        }
+        var eventAggregator = snapx.getEventAggregator();
+        eventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
+
         var box = new Box();
         box.SetOrientation(Orientation.Vertical);
         var imageURLTextBox = new Entry();

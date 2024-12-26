@@ -37,6 +37,7 @@ public class App : Application
         }
 
     }
+
     private void ShowErrorDialog(string title, Exception ex)
     {
 
@@ -205,7 +206,7 @@ public class App : Application
             catch (Exception ex)
             {
                 errorStarting = true;
-                DebugHelper.Logger.Fatal(ex.ToString());
+                DebugHelper.WriteException(ex);
                 ShowErrorDialog(Lang.SnapXFailedToStart, ex);
             }
             if (errorStarting) return;

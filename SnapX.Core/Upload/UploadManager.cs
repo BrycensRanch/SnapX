@@ -10,12 +10,13 @@ using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
+using Xdg.Directories;
 
 namespace SnapX.Core.Upload;
 
 public static class UploadManager
 {
-    public static void UploadFile(string filePath, TaskSettings taskSettings = null)
+    public static void UploadFile(string filePath, TaskSettings? taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
@@ -34,7 +35,7 @@ public static class UploadManager
         }
     }
 
-    public static void UploadFile(string[] files, TaskSettings taskSettings = null)
+    public static void UploadFile(string[] files, TaskSettings? taskSettings = null)
     {
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
 
@@ -68,33 +69,24 @@ public static class UploadManager
         return true;
     }
 
-    public static void UploadFile(TaskSettings taskSettings = null)
+    public static void UploadFile(TaskSettings? taskSettings = null)
     {
-        // using (OpenFileDialog ofd = new OpenFileDialog())
-        // {
-        //     ofd.Title = "SnapX - " + Resources.UploadManager_UploadFile_File_upload;
-        //
-        //     if (!string.IsNullOrEmpty(SnapX.Settings.FileUploadDefaultDirectory) && Directory.Exists(SnapX.Settings.FileUploadDefaultDirectory))
-        //     {
-        //         ofd.InitialDirectory = SnapX.Settings.FileUploadDefaultDirectory;
-        //     }
-        //     else
-        //     {
-        //         ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        //     }
-        //
-        //     ofd.Multiselect = true;
-        //
-        //     if (ofd.ShowDialog() == DialogResult.OK)
-        //     {
-        //         if (!string.IsNullOrEmpty(ofd.FileName))
-        //         {
-        //             SnapX.Settings.FileUploadDefaultDirectory = Path.GetDirectoryName(ofd.FileName);
-        //         }
-        //
-        //         UploadFile(ofd.FileNames, taskSettings);
-        //     }
-        // }
+        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
+        var data = new NeedFileOpenerEvent()
+        {
+            Title = "SnapX - " + Lang.UploadManagerUploadFile,
+            Multiselect = true,
+            Directory = IsValidDirectory(SnapX.Settings.FileUploadDefaultDirectory) ? SnapX.Settings.FileUploadDefaultDirectory : UserDirectory.DesktopDir,
+            TaskSettings = taskSettings
+        };
+        // The UI will now do the rest.
+        // ie SnapX.GTK4, SnapX.Avalonia
+        SnapX.EventAggregator.Publish(data);
+    }
+
+    public static bool IsValidDirectory(string? dir)
+    {
+        return !string.IsNullOrEmpty(dir) && Directory.Exists(dir);
     }
 
     public static void UploadFolder(TaskSettings taskSettings = null)

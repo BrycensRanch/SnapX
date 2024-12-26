@@ -135,7 +135,7 @@ public class SnapX
         AppName, PersonalPathConfigFileName);
 
     private static readonly string PortableCheckFilePath = FileHelpers.GetAbsolutePath("Portable");
-
+    public static EventAggregator EventAggregator { get; } = new();
     private static string CustomPersonalPath { get; set; }
 
     private static string CustomConfigPath { get; set; }
@@ -193,6 +193,7 @@ public class SnapX
             return Path.Combine(LogsFolder, date.Year.ToString(), date.Month.ToString("D2"), $"SnapX-{date.Day}.log");
         }
     }
+
 
     public static string ScreenshotsParentFolder
     {
@@ -271,7 +272,7 @@ public class SnapX
     }
 
     public long getStartupTime() => StartTimer.ElapsedMilliseconds;
-
+    public EventAggregator getEventAggregator() => EventAggregator;
     public bool isSilent() => SilentRun;
 
     private static void Run()

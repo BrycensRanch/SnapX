@@ -17,7 +17,6 @@
 
         <!-- Button that triggers the upload action -->
         <Button Content="Upload Remote Image" Click="OnDemoTestButtonClick"/>
-
     </StackPanel>
 </Window>
 

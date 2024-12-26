@@ -16,6 +16,7 @@ public static class Lang
     public static string CopyErrorToClipboard => Get("CopyErrorToClipboard");
     public static string EditWithSnapX => Get("EditWithSnapX");
     public static string UploadWithSnapX => Get("UploadWithSnapX");
+    public static string UploadManagerUploadFile => Get("UploadManagerUploadFile");
 
 
 }
