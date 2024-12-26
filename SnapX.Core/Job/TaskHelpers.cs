@@ -65,7 +65,8 @@ namespace SnapX.Core.Job
                     // UploadManager.ClipboardUploadWithContentViewer(safeTaskSettings);
                     break;
                 case HotkeyType.UploadText:
-                    // UploadManager.UploadText(safeTaskSettings);
+                    // UploadManager.ShowTextUploadDialog(safeTaskSettings);
+
                     break;
                 case HotkeyType.UploadURL:
                     UploadManager.UploadURL(safeTaskSettings);

@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Avalonia;
+using Avalonia.Media;
 using SnapX.Avalonia;
 
 Console.WriteLine("Initializing Dark Avalonia Core");
@@ -11,4 +12,9 @@ BuildAvaloniaApp()
 AppBuilder BuildAvaloniaApp()
    => AppBuilder.Configure<App>()
        .UsePlatformDetect()
-       .LogToTrace();
+       .WithInterFont()
+       .LogToTrace()
+       .With(new FontManagerOptions
+       {
+           DefaultFamilyName = "avares://Avalonia.Fonts.Inter/Assets#Inter"
+       });

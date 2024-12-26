@@ -148,67 +148,116 @@ public class Uploader
         }
     }
 
-    protected UploadResult SendRequestFile(string url, Stream data, string fileName, string fileFormName,
-        Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null,
-        HttpMethod method = null, string contentType = RequestHelpers.ContentTypeMultipartFormData, string relatedData = null)
+protected UploadResult SendRequestFile(string url, Stream data, string fileName, string fileFormName,
+    Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null,
+    HttpMethod method = null, string contentType = RequestHelpers.ContentTypeMultipartFormData, string relatedData = null)
+{
+    method ??= HttpMethod.Post;
+
+    var result = new UploadResult();
+    IsUploading = true;
+    StopUploadRequested = false;
+
+    try
     {
-        method ??= HttpMethod.Post;
+        var client = HttpClientFactory.Get(); // Assume you have a client factory to get HttpClient instance
+        var boundary = RequestHelpers.CreateBoundary();
+        contentType += "; boundary=" + boundary;
 
-        var result = new UploadResult();
+        // Prepare multipart content
+        var multipartContent = new MultipartFormDataContent(boundary);
 
-        IsUploading = true;
-        StopUploadRequested = false;
-
-        try
+        // Add arguments to the form-data if they are provided
+        if (args != null)
         {
-            var boundary = RequestHelpers.CreateBoundary();
-            contentType += "; boundary=" + boundary;
-
-            var bytesArguments = RequestHelpers.MakeInputContent(boundary, args, false);
-            var bytesDataOpen = relatedData != null
-                ? RequestHelpers.MakeRelatedFileInputContentOpen(boundary, "application/json; charset=UTF-8", relatedData, fileName)
-                : RequestHelpers.MakeFileInputContentOpen(boundary, fileFormName, fileName);
-
-            var bytesDataClose = RequestHelpers.MakeFileInputContentClose(boundary);
-            long contentLength = bytesArguments.Length + bytesDataOpen.Length + data.Length + bytesDataClose.Length;
-
-            var request = CreateHttpRequest(method, url, headers, cookies, contentType, contentLength);
-
-
-            // using (var requestStream = request)
-            // {
-            //     requestStream.Write(bytesArguments, 0, bytesArguments.Length);
-            //     requestStream.Write(bytesDataOpen, 0, bytesDataOpen.Length);
-            //     if (!TransferData(data, requestStream)) return null;
-            //     requestStream.Write(bytesDataClose, 0, bytesDataClose.Length);
-            // }
-            //
-            // using (var response = (HttpWebResponse)request.GetResponse())
-            // {
-            //     result.ResponseInfo = ProcessWebResponse(response);
-            //     result.Response = result.ResponseInfo?.ResponseText;
-            // }
-
-            result.IsSuccess = true;
-        }
-        catch (Exception e)
-        {
-            if (!StopUploadRequested)
+            foreach (var arg in args)
             {
-                var response = ProcessError(e, url);
-
-                if (ReturnResponseOnError && e is WebException)
-                    result.Response = response;
+                multipartContent.Add(new StringContent(arg.Value), arg.Key);
             }
         }
-        finally
+
+        // Add related data if provided (this could be JSON or some other related data)
+// Add related data if provided (this could be JSON or some other related data)
+        if (relatedData != null)
         {
-            currentWebRequest = null;
-            IsUploading = false;
+            // Create related content as a byte array
+            var relatedContent = RequestHelpers.MakeRelatedFileInputContentOpen(boundary, "application/json; charset=UTF-8", relatedData, fileName);
+
+            // Use ByteArrayContent to handle the byte array
+            var byteArrayContent = new ByteArrayContent(relatedContent);
+
+            // Set content headers if necessary (e.g., content-type)
+            byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+            // Add the related data content
+            multipartContent.Add(byteArrayContent, "relatedData"); // Name this appropriately
         }
 
-        return result;
+        // Add the file content
+        var fileContent = new StreamContent(data);
+        fileContent.Headers.Add("Content-Type", contentType); // Optional: specify content type if needed
+        multipartContent.Add(fileContent, fileFormName, fileName);
+
+        // Set headers (if provided)
+        if (headers != null)
+        {
+            foreach (var key in headers.AllKeys)
+            {
+                client.DefaultRequestHeaders.TryAddWithoutValidation(key, headers[key]);
+            }
+        }
+
+        // Set cookies (if provided)
+        if (cookies != null)
+        {
+            var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+            client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
+        }
+
+        // Prepare the HTTP request message
+        var requestMessage = new HttpRequestMessage(method, url)
+        {
+            Content = multipartContent
+        };
+
+        // Send the request
+        var response = client.SendAsync(requestMessage).Result;
+
+        // Process the response
+        if (response.IsSuccessStatusCode)
+        {
+            result.ResponseInfo = ProcessWebResponse(response);
+            result.Response = result.ResponseInfo?.ResponseText;
+            result.IsSuccess = true;
+        }
+        else
+        {
+            result.IsSuccess = false;
+            result.Response = $"Error: {response.StatusCode}";
+        }
     }
+    catch (Exception e)
+    {
+        if (!StopUploadRequested)
+        {
+            var response = ProcessError(e, url);
+
+            if (ReturnResponseOnError && e is HttpRequestException)
+            {
+                result.Response = response;
+            }
+
+            result.IsSuccess = false;
+        }
+    }
+    finally
+    {
+        currentWebRequest = null;
+        IsUploading = false;
+    }
+
+    return result;
+}
 
 
     protected UploadResult SendRequestFileRange(string url, Stream data, string fileName, long contentPosition = 0, long contentLength = -1,
@@ -455,11 +504,56 @@ public class Uploader
         LastResponseInfo = null;
 
         var request = RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength);
-        // currentWebRequest = request;
-        // return request;
-        throw new NotImplementedException("Uploader.CreateHttpRequest is not implemented");
+        request.Wait();
+        return request.Result;
     }
+    private ResponseInfo ProcessWebResponse(HttpResponseMessage response)
+    {
+        if (response != null)
+        {
+            ResponseInfo responseInfo = new ResponseInfo()
+            {
+                StatusCode = response.StatusCode,
+                StatusDescription = response.StatusCode.ToString(),
+                ResponseURL = response.RequestMessage.RequestUri.ToString(),
+            };
+            // Type gymnastics. Thanks C#!
+            var headersDictionary = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
+            foreach (var header in response.Headers)
+            {
+                headersDictionary[header.Key] = header.Value.ToList(); // Add header key and its values to dictionary
+            }
+
+            responseInfo.Headers = headersDictionary; // Assign to your result
+            using (var responseStream = response.Content.ReadAsStreamAsync().Result)
+            using (var reader = new StreamReader(responseStream, Encoding.UTF8))
+            {
+                responseInfo.ResponseText = reader.ReadToEnd();
+            }
+
+            LastResponseInfo = responseInfo;
+
+            return responseInfo;
+        }
+
+        return null;
+    }
+    private Dictionary<string, List<string>> ConvertHeadersToDictionary(WebHeaderCollection headers)
+    {
+        var headersDictionary = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string headerKey in headers)
+        {
+            var headerValues = headers.GetValues(headerKey);
+            if (headerValues != null)
+            {
+                headersDictionary[headerKey] = headerValues.ToList();
+            }
+        }
+
+        return headersDictionary;
+    }
     private ResponseInfo ProcessWebResponse(HttpWebResponse response)
     {
         if (response != null)
@@ -469,8 +563,8 @@ public class Uploader
                 StatusCode = response.StatusCode,
                 StatusDescription = response.StatusDescription,
                 ResponseURL = response.ResponseUri.OriginalString,
-                Headers = response.Headers
             };
+            responseInfo.Headers = ConvertHeadersToDictionary(response.Headers);
 
             using (Stream responseStream = response.GetResponseStream())
             using (StreamReader reader = new StreamReader(responseStream, Encoding.UTF8))

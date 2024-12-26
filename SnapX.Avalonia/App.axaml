@@ -1,8 +1,11 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-             x:Class="SnapX.Avalonia.App"
-             >
+             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+             x:Class="SnapX.Avalonia.App">
+    <Application.Styles>
+        <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" PreferUserAccentColor="True" PreferSystemTheme="True" />
+    </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

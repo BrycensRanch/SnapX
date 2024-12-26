@@ -129,8 +129,6 @@ public enum UrlShortenerType
     TURL,
     [Description("yourls.org")]
     YOURLS,
-    [Description("adf.ly")]
-    AdFly,
     [Description("qr.net")]
     QRnet,
     [Description("vurl.com")]

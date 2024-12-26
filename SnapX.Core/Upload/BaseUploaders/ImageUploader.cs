@@ -10,13 +10,9 @@ namespace SnapX.Core.Upload.BaseUploaders
     {
         public UploadResult UploadImage(Image image, string fileName)
         {
-            using (MemoryStream stream = new MemoryStream())
-            {
-                // TODO: Actually save the image...
-                // image.Save(stream, image.Metadata);
-
-                return Upload(stream, fileName);
-            }
+            using var stream = new MemoryStream();
+            image.Save(stream, image.Metadata.DecodedImageFormat!);
+            return Upload(stream, fileName);
         }
     }
 }

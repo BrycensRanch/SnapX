@@ -15,11 +15,11 @@ namespace SnapX.Core.Upload.Custom.Functions
         {
             string header = parameters[0];
 
-            if (parser.ResponseInfo.Headers != null)
+            if (parser.ResponseInfo.Headers != null && parser.ResponseInfo.Headers.ContainsKey(header))
             {
-                return parser.ResponseInfo.Headers[header];
+                var headerValues = parser.ResponseInfo.Headers[header];
+                return headerValues.FirstOrDefault(); // Returns the first value or null if the list is empty
             }
-
             return null;
         }
     }

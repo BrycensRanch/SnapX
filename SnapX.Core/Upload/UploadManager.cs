@@ -312,8 +312,7 @@ public static class UploadManager
             RunImageTask(image, taskSettings);
         }
     }
-
-    public static void UploadText(string text, TaskSettings taskSettings = null, bool allowCustomText = false)
+    public static void UploadText(string text, TaskSettings? taskSettings = null, bool allowCustomText = false)
     {
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
 

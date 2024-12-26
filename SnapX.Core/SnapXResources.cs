@@ -8,14 +8,6 @@ namespace SnapX.Core;
 
 public static class SnapXResources
 {
-    public static string Name => "SnapX";
-
-    public static string UserAgent
-    {
-        get
-        {
-            return $"{Name}/{Helpers.GetApplicationVersion()}";
-        }
-    }
+    public static string UserAgent => $"{SnapX.AppName}/{Helpers.GetApplicationVersion()}";
 }
 

@@ -45,7 +45,7 @@ internal static class SettingManager
             }
             else
             {
-            uploadersConfigFolder = SnapX.ConfigFolder;
+                uploadersConfigFolder = SnapX.ConfigFolder;
             }
 
             return Path.Combine(uploadersConfigFolder, UploadersConfigFileName);
@@ -118,24 +118,25 @@ internal static class SettingManager
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
         var configurationBuilder = new ConfigurationBuilder()
-            .AddInMemoryCollection()
+            // .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
-            .AddRegistry(@"Software\SnapX\SnapX")
-            .AddEnvironmentVariables(prefix: "SHAREX_")
-            .AddCommandLine(Environment.GetCommandLineArgs())
-            .SetBasePath(SnapX.ConfigFolder);
-
+            .AddRegistry(@"Software\BrycensRanch\SnapX")
+            .AddEnvironmentVariables(prefix: "SNAPX_")
+            .AddCommandLine(Environment.GetCommandLineArgs());
         if (!SnapX.Sandbox)
         {
-            configurationBuilder.AddJsonFile(ApplicationConfigFileName, optional: true, reloadOnChange: true);
+            configurationBuilder.AddJsonFile(ApplicationConfigFilePath, optional: true, reloadOnChange: true);
         }
         SnapX.Configuration = configurationBuilder.Build();
+#if DEBUG
+        foreach (var kvp in SnapX.Configuration.AsEnumerable())
+        {
+            DebugHelper.WriteLine($"{kvp.Key}: {kvp.Value}");
+        }
+#endif
         var settings = new RootConfiguration();
-        // SnapX.Configuration.Bind(settings);
-        SnapX.Configuration.GetSection("DefaultTaskSettings").Bind(new TaskSettings());
-        SnapX.DefaultTaskSettings = SnapX.Configuration.GetSection("DefaultTaskSettings").Get<TaskSettings>();
-        DebugHelper.WriteLine(DefaultTaskSettings.ToString());
+        SnapX.Configuration.Bind(settings);
         Settings = settings;
         ApplicationConfigBackwardCompatibilityTasks();
         MigrateHistoryFile();
@@ -143,17 +144,39 @@ internal static class SettingManager
 
     public static void LoadUploadersConfig(bool fallbackSupport = true)
     {
-        UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, SnapshotFolder, fallbackSupport);
-        UploadersConfig.CreateBackup = true;
-        UploadersConfig.CreateWeeklyBackup = true;
+        var configurationBuilder = new ConfigurationBuilder()
+            // .AddInMemoryCollection()
+            // Allows ALL settings to be managed via the Windows Registry.
+            // This call does nothing on non-Windows Operating Systems
+            .AddRegistry(@"Software\BrycensRanch\SnapX")
+            .AddEnvironmentVariables(prefix: "SNAPX_")
+            .AddCommandLine(Environment.GetCommandLineArgs());
+        if (!SnapX.Sandbox)
+        {
+            configurationBuilder.AddJsonFile(UploadersConfigFilePath, optional: true, reloadOnChange: true);
+        }
+        var BuiltConfig = configurationBuilder.Build();
+        UploadersConfig = new UploadersConfig();
+        BuiltConfig.Bind(UploadersConfig);
         UploadersConfigBackwardCompatibilityTasks();
     }
 
     public static void LoadHotkeysConfig(bool fallbackSupport = true)
     {
-        HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, SnapshotFolder, fallbackSupport);
-        HotkeysConfig.CreateBackup = true;
-        HotkeysConfig.CreateWeeklyBackup = true;
+        var configurationBuilder = new ConfigurationBuilder()
+            // .AddInMemoryCollection()
+            // Allows ALL settings to be managed via the Windows Registry.
+            // This call does nothing on non-Windows Operating Systems
+            .AddRegistry(@"Software\BrycensRanch\SnapX")
+            .AddEnvironmentVariables(prefix: "SNAPX_")
+            .AddCommandLine(Environment.GetCommandLineArgs());
+        if (!SnapX.Sandbox)
+        {
+            configurationBuilder.AddJsonFile(HotkeysConfigFilePath, optional: true, reloadOnChange: true);
+        }
+        var BuiltConfig = configurationBuilder.Build();
+        HotkeysConfig = new HotkeysConfig();
+        BuiltConfig.Bind(HotkeysConfig);
         HotkeysConfigBackwardCompatibilityTasks();
     }
 
@@ -177,9 +200,9 @@ internal static class SettingManager
 
     private static void MigrateHistoryFile()
     {
-        if (System.IO.File.Exists(SnapX.HistoryFilePathOld))
+        if (File.Exists(SnapX.HistoryFilePathOld))
         {
-            if (!System.IO.File.Exists(SnapX.HistoryFilePath))
+            if (!File.Exists(SnapX.HistoryFilePath))
             {
                 DebugHelper.WriteLine($"Migrating XML history file \"{SnapX.HistoryFilePathOld}\" to JSON history file \"{SnapX.HistoryFilePath}\"");
 
@@ -234,46 +257,29 @@ internal static class SettingManager
 
     public static void SaveAllSettings()
     {
-        if (Settings != null)
-        {
             // Settings.Save(ApplicationConfigFilePath);
-        }
-
-        if (UploadersConfig != null)
-        {
-            UploadersConfig.Save(UploadersConfigFilePath);
-        }
-
-        if (HotkeysConfig != null)
-        {
+            // UploadersConfig.Save(UploadersConfigFilePath);
             CleanupHotkeysConfig();
-            HotkeysConfig.Save(HotkeysConfigFilePath);
-        }
+            // HotkeysConfig.Save(HotkeysConfigFilePath);
     }
 
     public static void SaveApplicationConfigAsync()
     {
-        // if (Settings != null)
-        // {
-        //     Settings.SaveAsync(ApplicationConfigFilePath);
-        // }
+        if (Settings != null)
+        {
+            // Settings.SaveAsync(ApplicationConfigFilePath);
+        }
     }
 
     public static void SaveUploadersConfigAsync()
     {
-        if (UploadersConfig != null)
-        {
-            UploadersConfig.SaveAsync(UploadersConfigFilePath);
-        }
+        // UploadersConfig.SaveAsync(UploadersConfigFilePath);
     }
 
     public static void SaveHotkeysConfigAsync()
     {
-        if (HotkeysConfig != null)
-        {
             CleanupHotkeysConfig();
-            HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
-        }
+            // HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
     }
 
     public static void SaveAllSettingsAsync()
@@ -285,13 +291,13 @@ internal static class SettingManager
 
     public static void ResetSettings()
     {
-        if (System.IO.File.Exists(ApplicationConfigFilePath)) System.IO.File.Delete(ApplicationConfigFilePath);
+        if (File.Exists(ApplicationConfigFilePath)) File.Delete(ApplicationConfigFilePath);
         LoadApplicationConfig(false);
 
-        if (System.IO.File.Exists(UploadersConfigFilePath)) System.IO.File.Delete(UploadersConfigFilePath);
+        if (File.Exists(UploadersConfigFilePath)) File.Delete(UploadersConfigFilePath);
         LoadUploadersConfig(false);
 
-        if (System.IO.File.Exists(HotkeysConfigFilePath)) System.IO.File.Delete(HotkeysConfigFilePath);
+        if (File.Exists(HotkeysConfigFilePath)) File.Delete(HotkeysConfigFilePath);
         LoadHotkeysConfig(false);
     }
 

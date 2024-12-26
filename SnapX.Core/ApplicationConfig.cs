@@ -79,27 +79,27 @@ public class GradientColor
 
 public class CaptureSettings
 {
-    public bool ShowCursor { get; set; }
-    public double ScreenshotDelay { get; set; }
-    public bool CaptureTransparent { get; set; }
-    public bool CaptureShadow { get; set; }
-    public int CaptureShadowOffset { get; set; }
-    public bool CaptureClientArea { get; set; }
-    public bool CaptureAutoHideTaskbar { get; set; }
-    public string CaptureCustomRegion { get; set; }
-    public string CaptureCustomWindow { get; set; }
+    public bool ShowCursor { get; set; } = true;
+    public double ScreenshotDelay { get; set; } = 1.0;
+    public bool CaptureTransparent { get; set; } = true;
+    public bool CaptureShadow { get; set; } = true;
+    public int CaptureShadowOffset { get; set; } = 0;
+    public bool CaptureClientArea { get; set; } = true;
+    public bool CaptureAutoHideTaskbar { get; set; } = false;
+    public string CaptureCustomRegion { get; set; } = String.Empty;
+    public string CaptureCustomWindow { get; set; } = String.Empty;
     public SurfaceOptions SurfaceOptions { get; set; }
     public FFmpegOptions FFmpegOptions { get; set; }
-    public int ScreenRecordFPS { get; set; }
-    public int GIFFPS { get; set; }
-    public bool ScreenRecordShowCursor { get; set; }
-    public bool ScreenRecordAutoStart { get; set; }
-    public double ScreenRecordStartDelay { get; set; }
-    public bool ScreenRecordFixedDuration { get; set; }
-    public double ScreenRecordDuration { get; set; }
-    public bool ScreenRecordTwoPassEncoding { get; set; }
-    public bool ScreenRecordAskConfirmationOnAbort { get; set; }
-    public bool ScreenRecordTransparentRegion { get; set; }
+    public int ScreenRecordFPS { get; set; } = 30;
+    public int GIFFPS { get; set; } = 15;
+    public bool ScreenRecordShowCursor { get; set; } = true;
+    public bool ScreenRecordAutoStart { get; set; } = true;
+    public double ScreenRecordStartDelay { get; set; } = 2.0;
+    public bool ScreenRecordFixedDuration { get; set; } = true;
+    public double ScreenRecordDuration { get; set; } = 300.0;
+    public bool ScreenRecordTwoPassEncoding { get; set; } = false;
+    public bool ScreenRecordAskConfirmationOnAbort { get; set; } = true;
+    public bool ScreenRecordTransparentRegion { get; set; } = true;
     public ScrollingCaptureOptions ScrollingCaptureOptions { get; set; }
     public OCROptions OCROptions { get; set; }
 }
@@ -558,6 +558,8 @@ public class PrintSettings
 
 public class RootConfiguration
 {
+    public GeneralSettings GeneralSettings { get; set; } = new();
+    public CaptureSettings CaptureSettings { get; set; } = new();
     public TaskSettings DefaultTaskSettings = new();
     public DateTime FirstTimeRunDate = DateTime.Now;
     public string FileUploadDefaultDirectory = "";
@@ -574,8 +576,8 @@ public class RootConfiguration
     public bool TaskbarProgressEnabled = true;
     public bool UseWhiteShareXIcon = false;
     public bool RememberMainFormSize = false;
-    //public string MainFormPosition { get; set; }
-    //public string MainFormSize { get; set; }
+    public Point MainFormPosition = Point.Empty;
+    public Size MainFormSize = Size.Empty;
     public HotkeyType TrayLeftClickAction = HotkeyType.RectangleRegion;
     public HotkeyType TrayLeftDoubleClickAction = HotkeyType.OpenMainWindow;
     public HotkeyType TrayMiddleClickAction = HotkeyType.ClipboardUploadWithContentViewer;
@@ -622,7 +624,7 @@ public class RootConfiguration
     public HistorySettings HistorySettings = new();
     public ImageHistorySettings ImageHistorySettings = new();
     public bool DontShowPrintSettingsDialog { get; set; }
-    public PrintSettings PrintSettings { get; set; }
+    // public PrintSettings PrintSettings { get; set; }
     public Rectangle AutoCaptureRegion = Rectangle.Empty;
     public decimal AutoCaptureRepeatTime = 60;
     public bool AutoCaptureMinimizeToTray = true;
@@ -664,7 +666,17 @@ public class RootConfiguration
     public bool AutoSelectLastCompletedTask { get; set; } = false;
     //
     [Category("Application"), DefaultValue(false), Description("Ultra secret mode.")]
-    public bool DevMode = false;
+    public bool DevMode
+    {
+        get
+        {
+#if DEBUG
+            return true;
+#else
+            return false;
+#endif
+        }
+    }
     //
     [Category("Hotkey"), DefaultValue(false), Description("Disables hotkeys.")]
     public bool DisableHotkeys { get; set; }
@@ -723,17 +735,17 @@ public class RootConfiguration
     [Category("Paths"), Description("Custom screenshot path (secondary location). If custom screenshot path is temporarily unavailable (e.g. network share), SnapX will use this location (recommended to be a local path).")]
     public string CustomScreenshotsPath2 = "";
     //
-    // [Category("Drag and drop window"), DefaultValue(150), Description("Size of drop window.")]
-    // public int DropSize { get; set; }
-    //
-    // [Category("Drag and drop window"), DefaultValue(5), Description("Position offset of drop window.")]
-    // public int DropOffset { get; set; }
-    // [Category("Drag and drop window"), DefaultValue(100), Description("Opacity of drop window.")]
-    // public int DropOpacity { get; set; }
-    //
-    // [Category("Drag and drop window"), DefaultValue(255), Description("When you drag file to drop window then opacity will change to this.")]
-    // public int DropHoverOpacity { get; set; }
-    //
+    [Category("Drag and drop window"), DefaultValue(150), Description("Size of drop window.")]
+    public int DropSize { get; set; }
+
+    [Category("Drag and drop window"), DefaultValue(5), Description("Position offset of drop window.")]
+    public int DropOffset { get; set; }
+    [Category("Drag and drop window"), DefaultValue(100), Description("Opacity of drop window.")]
+    public int DropOpacity { get; set; }
+
+    [Category("Drag and drop window"), DefaultValue(255), Description("When you drag file to drop window then opacity will change to this.")]
+    public int DropHoverOpacity { get; set; }
+
     // [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
     // public ContentAlignment DropAlignment { get; set; }
     public string ApplicationVersion => Assembly.GetExecutingAssembly().GetName().Version!.ToString();

@@ -80,6 +80,7 @@ public class SnapX
             return title;
         }
     }
+    public static string MainWindowName => Title + " " + VersionText;
 
     public static bool MultiInstance { get; private set; }
     public static bool Portable { get; private set; }
@@ -297,8 +298,8 @@ public class SnapX
         RegisterExtensions();
         CheckPuushMode();
         DebugWriteFlags();
-        SettingManager.LoadInitialSettings();
-        // SettingManager.LoadAllSettings();
+        // SettingManager.LoadInitialSettings();
+        SettingManager.LoadAllSettings();
         // CleanupManager.CleanupAsync();
 
     }
@@ -504,7 +505,7 @@ public class SnapX
     {
         var flags = new List<string>();
 
-        // if (SnapX.Settings.DevMode) flags.Add(nameof(SnapX.Settings.DevMode));
+        if (Settings.DevMode) flags.Add(nameof(Settings.DevMode));
         if (MultiInstance) flags.Add(nameof(MultiInstance));
         if (Portable) flags.Add(nameof(Portable));
         if (SilentRun) flags.Add(nameof(SilentRun));

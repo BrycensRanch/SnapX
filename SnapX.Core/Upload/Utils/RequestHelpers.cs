@@ -18,54 +18,80 @@ internal static class RequestHelpers
     public const string ContentTypeURLEncoded = "application/x-www-form-urlencoded";
     public const string ContentTypeOctetStream = "application/octet-stream";
 
-    public static async Task<HttpRequestMessage> CreateHttpRequest(HttpMethod method, string url, NameValueCollection headers = null, CookieCollection cookies = null,
-        string contentType = null, long contentLength = 0, HttpContent content = null)
+  public static async Task<HttpRequestMessage> CreateHttpRequest(
+        HttpMethod method,
+        string url,
+        NameValueCollection headers = null,
+        CookieCollection cookies = null,
+        string contentType = null,
+        long contentLength = 0,
+        HttpContent content = null)
     {
+        // Create and configure the HttpRequestMessage
         var requestMessage = new HttpRequestMessage(method, url);
 
-        if (headers == null)
+        // Handle headers
+        if (headers != null)
         {
-            return requestMessage;
-        }
-
-        if (headers["Accept"] != null)
-        {
-            requestMessage.Headers.Accept.ParseAdd(headers["Accept"]);
-            headers.Remove("Accept");
-        }
-
-        if (headers["Content-Type"] != null)
-        {
-            contentType = headers["Content-Type"];
-            headers.Remove("Content-Type");
-        }
-
-        if (headers["Content-Length"] != null && long.TryParse(headers["Content-Length"], out var parsedContentLength))
-        {
-            contentLength = parsedContentLength;
-            headers.Remove("Content-Length");
-        }
-
-        if (headers["Cookie"] != null)
-        {
-            cookies ??= new CookieCollection();
-            var cookieHeader = headers["Cookie"];
-            foreach (var cookie in cookieHeader.Split(new[] { "; " }, StringSplitOptions.RemoveEmptyEntries))
+            // Parse specific headers like Accept, Content-Type, Content-Length, etc.
+            if (headers["Accept"] != null)
             {
-                var cookieValues = cookie.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
-                if (cookieValues.Length == 2)
-                {
-                    cookies.Add(new Cookie(cookieValues[0], cookieValues[1], "/", new Uri(url).Host));
-                }
+                requestMessage.Headers.Accept.ParseAdd(headers["Accept"]);
+                headers.Remove("Accept");
             }
-            headers.Remove("Cookie");
+
+            if (headers["Content-Type"] != null)
+            {
+                contentType = headers["Content-Type"];
+                headers.Remove("Content-Type");
+            }
+
+            if (headers["Content-Length"] != null && long.TryParse(headers["Content-Length"], out var parsedContentLength))
+            {
+                contentLength = parsedContentLength;
+                headers.Remove("Content-Length");
+            }
+
+            // Cookie handling
+            if (headers["Cookie"] != null)
+            {
+                cookies ??= new CookieCollection();
+                var cookieHeader = headers["Cookie"];
+                foreach (var cookie in cookieHeader.Split(new[] { "; " }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var cookieValues = cookie.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (cookieValues.Length == 2)
+                    {
+                        cookies.Add(new Cookie(cookieValues[0], cookieValues[1], "/", new Uri(url).Host));
+                    }
+                }
+                headers.Remove("Cookie");
+            }
+
+            // Add remaining headers
+            foreach (var key in headers.AllKeys)
+            {
+                requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+            }
+
+            // Add cookies to the request header
+            if (cookies != null)
+            {
+                requestMessage.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+            }
+
+            // Add User-Agent header
+            requestMessage.Headers.UserAgent.ParseAdd(SnapXResources.UserAgent);
+
+            // Handle Referer header
+            if (headers["Referer"] != null)
+            {
+                requestMessage.Headers.Referrer = new Uri(headers["Referer"]!);
+                headers.Remove("Referer");
+            }
         }
 
-        foreach (var key in headers.AllKeys)
-        {
-            requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
-        }
-
+        // Handle content type and content
         if (!string.IsNullOrEmpty(contentType))
         {
             if (content == null) content = new StringContent(string.Empty, Encoding.UTF8, contentType);
@@ -80,26 +106,6 @@ internal static class RequestHelpers
                 requestMessage.Content.Headers.ContentLength = contentLength;
             }
         }
-
-        if (cookies != null)
-        {
-            requestMessage.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
-        }
-
-        var proxy = HelpersOptions.CurrentProxy.GetWebProxy();
-        if (proxy != null)
-        {
-            var handler = new HttpClientHandler { Proxy = proxy, UseProxy = true };
-            var client = new HttpClient(handler);
-        }
-
-        requestMessage.Headers.UserAgent.ParseAdd(SnapXResources.UserAgent);
-        if (headers["Referer"] != null)
-        {
-            requestMessage.Headers.Referrer = new Uri(headers["Referer"]);
-            headers.Remove("Referer");
-        }
-
         return requestMessage;
     }
 

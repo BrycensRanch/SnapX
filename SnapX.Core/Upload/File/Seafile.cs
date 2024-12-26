@@ -475,7 +475,7 @@ namespace SnapX.Core.Upload.File
                 }
 
                 SendRequestURLEncoded(HttpMethod.Put, url, args, headers);
-                return LastResponseInfo.Headers["Location"];
+                return LastResponseInfo.Headers["Location"].FirstOrDefault()!;
             }
             finally
             {

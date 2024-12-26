@@ -14,8 +14,8 @@ using AboutDialog = SnapX.GTK4.AboutDialog;
 using Image = Gtk.Image;
 using MessageType = Gst.MessageType;
 
-var shareX = new SnapX.Core.SnapX();
-shareX.setQualifier(" GTK4");
+var snapx = new SnapX.Core.SnapX();
+snapx.setQualifier(" GTK4");
 
 
 
@@ -28,7 +28,7 @@ Console.CancelKeyPress += (_, ea) =>
     sigintReceived = true;
 
     DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
-    shareX.shutdown();
+    snapx.shutdown();
     Environment.Exit(0);
 };
 application.OnActivate += (sender, eventArgs) =>
@@ -36,7 +36,7 @@ application.OnActivate += (sender, eventArgs) =>
     var errorStarting = false;
     try
     {
-        shareX.start(args);
+        snapx.start(args);
     }
     catch (Exception e)
     {
@@ -48,8 +48,8 @@ application.OnActivate += (sender, eventArgs) =>
 
     if (!errorStarting)
     {
-        DebugHelper.WriteLine("Internal Startup time: {0} ms", shareX.getStartupTime());
-        if (shareX.isSilent()) return;
+        DebugHelper.WriteLine("Internal Startup time: {0} ms", snapx.getStartupTime());
+        if (snapx.isSilent()) return;
 
         if (SnapX.Core.SnapX.CLIManager.IsCommandExist("video"))
         {
@@ -232,11 +232,11 @@ static void OnCopyErrorClicked(Exception ex)
 application.OnShutdown += (sender, eventArgs) =>
 {
     sigintReceived = true;
-    shareX.shutdown();
+    snapx.shutdown();
 };
 application.OnWindowAdded += (sender, eventArgs) =>
 {
-    DebugHelper.WriteLine("Actual UI Startup time: {0} ms", shareX.getStartupTime());
+    DebugHelper.WriteLine("Actual UI Startup time: {0} ms", snapx.getStartupTime());
 };
 
 application.Run(0, args);

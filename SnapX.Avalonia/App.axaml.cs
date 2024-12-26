@@ -19,6 +19,10 @@ public class App : Application
 
         SnapX = new SnapX.Core.SnapX();
         AvaloniaXamlLoader.Load(this);
+        AppDomain.CurrentDomain.UnhandledException += (Sender, Args) =>
+        {
+            ShowErrorDialog("SnapX Unhandled Exception", Args.ExceptionObject as Exception);
+        };
         // for macOS
         Current!.Name = Core.SnapX.AppName;
         #if DEBUG
@@ -207,25 +211,12 @@ public class App : Application
             if (errorStarting) return;
             DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
             if (SnapX.isSilent()) return;
-            var about = new AboutDialog();
+            var about = new AboutWindow();
             about.Show();
-            var Window = new Window();
-            Window.Content = Lang.WelcomeMessage;
+            var Window = new MainWindow();
             Window.Show();
-            var demoUploadRemoteImageURL = new Window();
-            demoUploadRemoteImageURL.Content = "Upload Remote Image";
-            demoUploadRemoteImageURL.Width = 300;
-            demoUploadRemoteImageURL.Height = 300;
-            demoUploadRemoteImageURL.Background = Brushes.Gray;
-            demoUploadRemoteImageURL.BorderThickness = new Thickness(1);
-            demoUploadRemoteImageURL.Padding = new Thickness(5);
-            demoUploadRemoteImageURL.CornerRadius = new CornerRadius(5);
-            // Add a button
-            var demoUploadRemoteImage = new Image();
-            demoUploadRemoteImage.Width = 100;
-            demoUploadRemoteImage.Height = 100;
+            desktop.MainWindow = Window;
 
-            // desktop.MainWindow = new MainWindow();
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
         {

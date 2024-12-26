@@ -4,6 +4,7 @@
 
 using System.Collections.Specialized;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
@@ -335,21 +336,21 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return errorData;
     }
 }
-
-internal class ImgurResponse
+[JsonSerializable(typeof(ImgurResponse))]
+internal partial class ImgurResponse
 {
     public object data { get; set; }
     public bool success { get; set; }
     public int status { get; set; }
 }
-
-internal class ImgurErrorData
+[JsonSerializable(typeof(ImgurErrorData))]
+internal partial class ImgurErrorData
 {
     public object error { get; set; }
     public string request { get; set; }
     public string method { get; set; }
 }
-
+[JsonSerializable(typeof(ImgurError))]
 internal class ImgurError
 {
     public int code { get; set; }
@@ -357,7 +358,7 @@ internal class ImgurError
     public string type { get; set; }
     //public string[] exception { get; set; }
 }
-
+[JsonSerializable(typeof(ImgurImageData))]
 public class ImgurImageData
 {
     public string id { get; set; }
@@ -384,7 +385,7 @@ public class ImgurImageData
     public string vote { get; set; }
     public string comment_preview { get; set; }
 }
-
+[JsonSerializable(typeof(ImgurAlbumData))]
 public class ImgurAlbumData
 {
     public string id { get; set; }

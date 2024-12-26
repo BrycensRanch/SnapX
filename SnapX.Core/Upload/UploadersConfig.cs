@@ -9,11 +9,10 @@ using SnapX.Core.Upload.Img;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Text;
 using SnapX.Core.Upload.URL;
-using SnapX.Core.Utils.Settings;
 
 namespace SnapX.Core.Upload;
-[JsonSerializable(typeof(UploadersConfig))]
-public class UploadersConfig : SettingsBase<UploadersConfig>
+
+public class UploadersConfig
 {
     #region Image uploaders
 
@@ -401,13 +400,6 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     public string YourlsPassword { get; set; } = "";
 
     #endregion yourls.org
-
-    #region adf.ly
-
-    public string AdFlyAPIUID { get; set; } = "";
-    public string AdFlyAPIKEY { get; set; } = "";
-
-    #endregion adf.ly
 
     #region polr
 
