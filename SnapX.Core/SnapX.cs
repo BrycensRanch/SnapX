@@ -394,22 +394,16 @@ public class SnapX
     {
         if (Portable || Sandbox) return;
         #if WINDOWS
-        if (!WindowsAPI.CheckCustomUploaderExtension())
-        {
-            WindowsAPI.CreateCustomUploaderExtension(true);
-        }
-
-        if (!WindowsAPI.CheckImageEffectExtension())
-        {
-            WindowsAPI.CreateImageEffectExtension(true);
-        }
         // TODO: Reimplement FirstTimeForm to give users chance to consent
-        WindowsAPI.CreateShellContextMenuButton(true);
-        WindowsAPI.CreateSendToMenuButton(true);
-        WindowsAPI.CreateChromeExtensionSupport(true);
-        WindowsAPI.CreateFirefoxAddonSupport(true);
-        #endif
+        if (!WindowsAPI.CheckCustomUploaderExtension()) WindowsAPI.CreateCustomUploaderExtension(true);
+        if (!WindowsAPI.CheckImageEffectExtension()) WindowsAPI.CreateImageEffectExtension(true);
+        if (!WindowsAPI.CheckShellContextMenuButton()) WindowsAPI.CreateShellContextMenuButton(true);
+        if (!WindowsAPI.CheckSendToMenuButton()) WindowsAPI.CreateSendToMenuButton(true);
 
+        if (!WindowsAPI.CheckChromeExtensionSupport()) WindowsAPI.CreateChromeExtensionSupport(true);
+        if (!WindowsAPI.CheckFirefoxAddonSupport())
+            WindowsAPI.CreateFirefoxAddonSupport(true);
+        #endif
     }
 
     private static void MigratePersonalPathConfig()
