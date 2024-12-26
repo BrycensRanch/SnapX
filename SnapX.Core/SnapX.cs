@@ -299,6 +299,8 @@ public class SnapX
         RegisterIntegrations();
         CheckPuushMode();
         DebugWriteFlags();
+        throw new NotSupportedException()
+            ;
         // SettingManager.LoadInitialSettings();
         SettingManager.LoadAllSettings();
         // CleanupManager.CleanupAsync();

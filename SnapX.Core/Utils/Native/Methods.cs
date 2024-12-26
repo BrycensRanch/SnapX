@@ -6,21 +6,21 @@ namespace SnapX.Core.Utils.Native;
 
 public static class Methods
 {
-    private static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-    private static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     private static bool IsMacOS => OperatingSystem.IsMacOS();
 
-    private static NativeAPI NativeAPI =>
-        IsLinux ? new LinuxAPI() :
-        IsWindows ? new WindowsAPI() :
-        IsMacOS ? new MacOSAPI() :
-        throw new PlatformNotSupportedException("This platform is not supported.");
-    static Methods()
+    private static NativeAPI NativeAPI
     {
-        Console.WriteLine($"IsLinux = {IsLinux}");
-        Console.WriteLine($"IsWindows = {IsWindows}");
-        Console.WriteLine($"IsMacOS = {IsMacOS}");
-        Console.WriteLine(typeof(NativeAPI));
+        get
+        {
+#if TARGET_LINUX || LINUX
+            return new LinuxAPI();
+#elif WINDOWS
+            return new WindowsAPI();
+#else
+            if (IsMacOS) return new MacOSAPI();
+            throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
+#endif
+        }
     }
 
 
