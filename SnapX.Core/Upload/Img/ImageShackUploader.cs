@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -39,6 +40,8 @@ public sealed class ImageShackUploader : ImageUploader
         Config = config;
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken()
     {
         if (string.IsNullOrEmpty(Config.Username) || string.IsNullOrEmpty(Config.Password))
@@ -99,6 +102,8 @@ public sealed class ImageShackUploader : ImageUploader
         return result;
     }
 
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private UploadResult HandleError(JsonElement root)
     {
         if (root.TryGetProperty("error", out var error))

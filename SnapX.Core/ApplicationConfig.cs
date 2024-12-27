@@ -464,11 +464,13 @@ public class AdvancedSettings
     public List<string> ImageExtensions { get; set; }
     public List<string> TextExtensions { get; set; }
     public bool EarlyCopyURL { get; set; }
+    public bool UserAnalyticsTelemetry => true;
+    public bool CrashReportingTelemetry => true;
     public string TextFileExtension { get; set; }
     public string TextFormat { get; set; }
     public string TextCustom { get; set; }
     public bool TextCustomEncodeInput { get; set; }
-    public bool ResultForceHTTPS { get; set; }
+    public bool ResultForceHTTPS { get; set; } = true;
     public string ClipboardContentFormat { get; set; }
     public string BalloonTipContentFormat { get; set; }
     public string OpenURLFormat { get; set; }
@@ -481,8 +483,8 @@ public class AdvancedSettings
 public class QuickTaskPreset
 {
     public string Name { get; set; }
-    public string AfterCaptureTasks { get; set; }
-    public string AfterUploadTasks { get; set; }
+    public List<QuickTaskInfo> AfterCaptureTasks { get; set; }
+    public List<QuickTaskInfo> AfterUploadTasks { get; set; }
 }
 
 public class Theme
@@ -558,13 +560,14 @@ public class PrintSettings
 
 public class RootConfiguration
 {
+    public AdvancedSettings AdvancedSettings { get; set; } = new();
     public GeneralSettings GeneralSettings { get; set; } = new();
     public CaptureSettings CaptureSettings { get; set; } = new();
-    public TaskSettings DefaultTaskSettings = new();
+    public TaskSettings DefaultTaskSettings = TaskSettings.GetDefaultTaskSettings();
     public DateTime FirstTimeRunDate = DateTime.Now;
     public string FileUploadDefaultDirectory = "";
     public int NameParserAutoIncrementNumber = 0;
-    public List<QuickTaskInfo> QuickTaskPresets = QuickTaskInfo.DefaultPresets;
+    public List<QuickTaskPreset> QuickTaskPresets = new();
     // Main window
     public bool FirstTimeMinimizeToTray = true;
     public List<int> TaskListViewColumnWidths = new();

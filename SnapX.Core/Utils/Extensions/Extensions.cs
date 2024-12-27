@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using SixLabors.ImageSharp;
 
@@ -122,6 +123,7 @@ public static class Extensions
     public static int WeekOfYear(this DateTime dateTime) =>
         CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
 
+    [RequiresUnreferencedCode("Uploader")]
     public static void ApplyDefaultPropertyValues(this object self) =>
         TypeDescriptor.GetProperties(self)
             .Cast<PropertyDescriptor>()

@@ -4,6 +4,7 @@
 
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security;
 using System.Text;
@@ -153,6 +154,8 @@ public static class URLHelpers
         return result.ToString();
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public static string JSONEncode(string text)
     {
         text = JsonSerializer.Serialize(text);

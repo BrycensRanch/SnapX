@@ -1,8 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation;
-using System.Net.Mime;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
@@ -755,223 +754,225 @@ public class WindowsAPI : NativeAPI
         RemoveRegistry(FirefoxNativeMessagingHosts);
     }
 
+    [RequiresAssemblyFiles()]
     public static bool CheckSendToMenuButton()
     {
         return CheckShortcut(Environment.SpecialFolder.SendTo, SnapX.AppName, Assembly.GetEntryAssembly()!.Location);
     }
 
+    [RequiresAssemblyFiles()]
     public static bool CreateSendToMenuButton(bool create)
     {
         return SetShortcut(create, Environment.SpecialFolder.SendTo, SnapX.AppName,
             Assembly.GetEntryAssembly()!.Location);
     }
-           public static void CreateRegistry(string path, string value, RegistryHive root = RegistryHive.CurrentUser)
-        {
-            CreateRegistry(path, null, value, root);
-        }
+    public static void CreateRegistry(string path, string value, RegistryHive root = RegistryHive.CurrentUser)
+    {
+        CreateRegistry(path, null, value, root);
+    }
 
-        public static void CreateRegistry(string path, string name, string value, RegistryHive root = RegistryHive.CurrentUser)
+    public static void CreateRegistry(string path, string name, string value, RegistryHive root = RegistryHive.CurrentUser)
+    {
+        using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
         {
-            using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
+            if (rk != null)
+            {
+                rk.SetValue(name, value, RegistryValueKind.String);
+            }
+        }
+    }
+
+    public static void CreateRegistry(string path, int value, RegistryHive root = RegistryHive.CurrentUser)
+    {
+        CreateRegistry(path, null, value, root);
+    }
+
+    public static void CreateRegistry(string path, string name, int value, RegistryHive root = RegistryHive.CurrentUser)
+    {
+        using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
+        {
+            if (rk != null)
+            {
+                rk.SetValue(name, value, RegistryValueKind.DWord);
+            }
+        }
+    }
+
+    public static void RemoveRegistry(string path, RegistryHive root = RegistryHive.CurrentUser)
+    {
+        if (!string.IsNullOrEmpty(path))
+        {
+            using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default))
+            {
+                rk.DeleteSubKeyTree(path, false);
+            }
+        }
+    }
+
+    public static object GetValue(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
+    {
+        try
+        {
+            using (RegistryKey baseKey = RegistryKey.OpenBaseKey(root, view))
+            using (RegistryKey rk = baseKey.OpenSubKey(path))
             {
                 if (rk != null)
                 {
-                    rk.SetValue(name, value, RegistryValueKind.String);
+                    return rk.GetValue(name);
                 }
             }
         }
-
-        public static void CreateRegistry(string path, int value, RegistryHive root = RegistryHive.CurrentUser)
+        catch (Exception e)
         {
-            CreateRegistry(path, null, value, root);
+            DebugHelper.WriteException(e);
         }
 
-        public static void CreateRegistry(string path, string name, int value, RegistryHive root = RegistryHive.CurrentUser)
+        return null;
+    }
+
+    public static string GetValueString(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
+    {
+        return GetValue(path, name, root, view) as string;
+    }
+
+    public static int? GetValueDWord(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
+    {
+        return (int?)GetValue(path, name, root, view);
+    }
+
+    public static bool CheckStringValue(string path, string name = null, string value = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
+    {
+        var registryValue = GetValueString(path, name, root, view);
+
+        return registryValue != null && (value == null || registryValue.Equals(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static string SearchProgramPath(string fileName)
+    {
+        // First method: HKEY_CLASSES_ROOT\Applications\{fileName}\shell\{command}\command
+
+        string[] commands = new string[] { "open", "edit" };
+
+        foreach (string command in commands)
         {
-            using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
+            string path = $@"HKEY_CLASSES_ROOT\Applications\{fileName}\shell\{command}\command";
+            string value = Registry.GetValue(path, null, null) as string;
+
+            if (!string.IsNullOrEmpty(value))
             {
-                if (rk != null)
+                string filePath = value.ParseQuoteString();
+
+                if (File.Exists(filePath))
                 {
-                    rk.SetValue(name, value, RegistryValueKind.DWord);
+                    DebugHelper.WriteLine("Found program with first method: " + filePath);
+                    return filePath;
                 }
             }
         }
 
-        public static void RemoveRegistry(string path, RegistryHive root = RegistryHive.CurrentUser)
+        // Second method: HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache
+
+        using RegistryKey programs =
+            Registry.CurrentUser.OpenSubKey(
+                @"Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache");
+        if (programs != null)
         {
-            if (!string.IsNullOrEmpty(path))
+            foreach (string filePath in programs.GetValueNames())
             {
-                using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default))
+                string programPath = filePath;
+
+                if (!string.IsNullOrEmpty(programPath))
                 {
-                    rk.DeleteSubKeyTree(path, false);
+                    foreach (string trim in new string[] { ".ApplicationCompany", ".FriendlyAppName" })
+                    {
+                        if (programPath.EndsWith(trim, StringComparison.OrdinalIgnoreCase))
+                        {
+                            programPath = programPath.Remove(programPath.Length - trim.Length);
+                        }
+                    }
+
+                    if (programPath.EndsWith(fileName, StringComparison.OrdinalIgnoreCase) && File.Exists(programPath))
+                    {
+                        DebugHelper.WriteLine("Found program with second method: " + programPath);
+                        return programPath;
+                    }
                 }
             }
         }
 
-        public static object GetValue(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
+        return null;
+    }
+    public static bool SetShortcut(bool create, Environment.SpecialFolder specialFolder, string shortcutName, string targetPath, string arguments = "")
+    {
+        string shortcutPath = GetShortcutPath(specialFolder, shortcutName);
+        return SetShortcut(create, shortcutPath, targetPath, arguments);
+    }
+
+    public static bool SetShortcut(bool create, string shortcutPath, string targetPath, string arguments = "")
+    {
+        try
+        {
+            if (create)
+            {
+                return CreateShortcut(shortcutPath, targetPath, arguments);
+            }
+            else
+            {
+                return DeleteShortcut(shortcutPath);
+            }
+        }
+        catch (Exception e)
+        {
+            DebugHelper.WriteException(e);
+            e.ShowError();
+        }
+
+        return false;
+    }
+
+    public static bool CheckShortcut(Environment.SpecialFolder specialFolder, string shortcutName, string targetPath)
+    {
+        string shortcutPath = GetShortcutPath(specialFolder, shortcutName);
+        return CheckShortcut(shortcutPath, targetPath);
+    }
+
+    public static bool CheckShortcut(string shortcutPath, string targetPath)
+    {
+        if (!string.IsNullOrEmpty(shortcutPath) && !string.IsNullOrEmpty(targetPath) && File.Exists(shortcutPath))
         {
             try
             {
-                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(root, view))
-                using (RegistryKey rk = baseKey.OpenSubKey(path))
-                {
-                    if (rk != null)
-                    {
-                        return rk.GetValue(name);
-                    }
-                }
+                string shortcutTargetPath = GetShortcutTargetPath(shortcutPath);
+                return !string.IsNullOrEmpty(shortcutTargetPath) && shortcutTargetPath.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
             }
-
-            return null;
         }
 
-        public static string GetValueString(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
+        return false;
+    }
+
+    private static string GetShortcutPath(Environment.SpecialFolder specialFolder, string shortcutName)
+    {
+        string folderPath = Environment.GetFolderPath(specialFolder);
+
+        if (!shortcutName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
         {
-            return GetValue(path, name, root, view) as string;
+            shortcutName += ".lnk";
         }
 
-        public static int? GetValueDWord(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
+        return Path.Combine(folderPath, shortcutName);
+    }
+
+    private static bool CreateShortcut(string shortcutPath, string targetPath, string arguments = "")
+    {
+        if (!string.IsNullOrEmpty(shortcutPath) && !string.IsNullOrEmpty(targetPath) && File.Exists(targetPath))
         {
-            return (int?)GetValue(path, name, root, view);
-        }
+            DeleteShortcut(shortcutPath);
 
-        public static bool CheckStringValue(string path, string name = null, string value = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
-        {
-            var registryValue = GetValueString(path, name, root, view);
-
-            return registryValue != null && (value == null || registryValue.Equals(value, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public static string SearchProgramPath(string fileName)
-        {
-            // First method: HKEY_CLASSES_ROOT\Applications\{fileName}\shell\{command}\command
-
-            string[] commands = new string[] { "open", "edit" };
-
-            foreach (string command in commands)
-            {
-                string path = $@"HKEY_CLASSES_ROOT\Applications\{fileName}\shell\{command}\command";
-                string value = Registry.GetValue(path, null, null) as string;
-
-                if (!string.IsNullOrEmpty(value))
-                {
-                    string filePath = value.ParseQuoteString();
-
-                    if (File.Exists(filePath))
-                    {
-                        DebugHelper.WriteLine("Found program with first method: " + filePath);
-                        return filePath;
-                    }
-                }
-            }
-
-            // Second method: HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache
-
-            using RegistryKey programs =
-                Registry.CurrentUser.OpenSubKey(
-                    @"Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache");
-            if (programs != null)
-            {
-                foreach (string filePath in programs.GetValueNames())
-                {
-                    string programPath = filePath;
-
-                    if (!string.IsNullOrEmpty(programPath))
-                    {
-                        foreach (string trim in new string[] { ".ApplicationCompany", ".FriendlyAppName" })
-                        {
-                            if (programPath.EndsWith(trim, StringComparison.OrdinalIgnoreCase))
-                            {
-                                programPath = programPath.Remove(programPath.Length - trim.Length);
-                            }
-                        }
-
-                        if (programPath.EndsWith(fileName, StringComparison.OrdinalIgnoreCase) && File.Exists(programPath))
-                        {
-                            DebugHelper.WriteLine("Found program with second method: " + programPath);
-                            return programPath;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-                public static bool SetShortcut(bool create, Environment.SpecialFolder specialFolder, string shortcutName, string targetPath, string arguments = "")
-        {
-            string shortcutPath = GetShortcutPath(specialFolder, shortcutName);
-            return SetShortcut(create, shortcutPath, targetPath, arguments);
-        }
-
-        public static bool SetShortcut(bool create, string shortcutPath, string targetPath, string arguments = "")
-        {
-            try
-            {
-                if (create)
-                {
-                    return CreateShortcut(shortcutPath, targetPath, arguments);
-                }
-                else
-                {
-                    return DeleteShortcut(shortcutPath);
-                }
-            }
-            catch (Exception e)
-            {
-                DebugHelper.WriteException(e);
-                e.ShowError();
-            }
-
-            return false;
-        }
-
-        public static bool CheckShortcut(Environment.SpecialFolder specialFolder, string shortcutName, string targetPath)
-        {
-            string shortcutPath = GetShortcutPath(specialFolder, shortcutName);
-            return CheckShortcut(shortcutPath, targetPath);
-        }
-
-        public static bool CheckShortcut(string shortcutPath, string targetPath)
-        {
-            if (!string.IsNullOrEmpty(shortcutPath) && !string.IsNullOrEmpty(targetPath) && File.Exists(shortcutPath))
-            {
-                try
-                {
-                    string shortcutTargetPath = GetShortcutTargetPath(shortcutPath);
-                    return !string.IsNullOrEmpty(shortcutTargetPath) && shortcutTargetPath.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
-                }
-                catch (Exception e)
-                {
-                    DebugHelper.WriteException(e);
-                }
-            }
-
-            return false;
-        }
-
-        private static string GetShortcutPath(Environment.SpecialFolder specialFolder, string shortcutName)
-        {
-            string folderPath = Environment.GetFolderPath(specialFolder);
-
-            if (!shortcutName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-            {
-                shortcutName += ".lnk";
-            }
-
-            return Path.Combine(folderPath, shortcutName);
-        }
-
-        private static bool CreateShortcut(string shortcutPath, string targetPath, string arguments = "")
-        {
-            if (!string.IsNullOrEmpty(shortcutPath) && !string.IsNullOrEmpty(targetPath) && File.Exists(targetPath))
-            {
-                DeleteShortcut(shortcutPath);
-
-                string script = $@"
+            string script = $@"
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut('{shortcutPath}')
 $Shortcut.TargetPath = '{targetPath}'
@@ -980,48 +981,48 @@ $Shortcut.WorkingDirectory = '{Path.GetDirectoryName(targetPath)}'
 $Shortcut.Save()
 ";
 
-                using var ps = PowerShell.Create();
-                ps.AddScript(script);
-                ps.Invoke();
+            using var ps = PowerShell.Create();
+            ps.AddScript(script);
+            ps.Invoke();
 
-                Console.WriteLine("Shortcut created successfully using PowerShell.");
+            Console.WriteLine("Shortcut created successfully using PowerShell.");
 
-                return true;
-            }
-
-            return false;
+            return true;
         }
 
-        private static string GetShortcutTargetPath(string shortcutPath)
-        {
-            string script = $@"
+        return false;
+    }
+
+    private static string GetShortcutTargetPath(string shortcutPath)
+    {
+        string script = $@"
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut('{shortcutPath}')
 $Shortcut.TargetPath
 ";
 
-            using var ps = PowerShell.Create();
-            ps.AddScript(script);
-            var result = ps.Invoke();
+        using var ps = PowerShell.Create();
+        ps.AddScript(script);
+        var result = ps.Invoke();
 
-            if (result.Count > 0)
-            {
-                return result[0].ToString();
-            }
-            else
-            {
-                throw new InvalidOperationException("Failed to retrieve shortcut target path.");
-            }
-        }
-
-        private static bool DeleteShortcut(string shortcutPath)
+        if (result.Count > 0)
         {
-            if (!string.IsNullOrEmpty(shortcutPath) && File.Exists(shortcutPath))
-            {
-                File.Delete(shortcutPath);
-                return true;
-            }
-
-            return false;
+            return result[0].ToString();
         }
+        else
+        {
+            throw new InvalidOperationException("Failed to retrieve shortcut target path.");
+        }
+    }
+
+    private static bool DeleteShortcut(string shortcutPath)
+    {
+        if (!string.IsNullOrEmpty(shortcutPath) && File.Exists(shortcutPath))
+        {
+            File.Delete(shortcutPath);
+            return true;
+        }
+
+        return false;
+    }
 }

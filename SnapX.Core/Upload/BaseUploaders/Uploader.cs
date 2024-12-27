@@ -148,116 +148,116 @@ public class Uploader
         }
     }
 
-protected UploadResult SendRequestFile(string url, Stream data, string fileName, string fileFormName,
-    Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null,
-    HttpMethod method = null, string contentType = RequestHelpers.ContentTypeMultipartFormData, string relatedData = null)
-{
-    method ??= HttpMethod.Post;
-
-    var result = new UploadResult();
-    IsUploading = true;
-    StopUploadRequested = false;
-
-    try
+    protected UploadResult SendRequestFile(string url, Stream data, string fileName, string fileFormName,
+        Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null,
+        HttpMethod method = null, string contentType = RequestHelpers.ContentTypeMultipartFormData, string relatedData = null)
     {
-        var client = HttpClientFactory.Get(); // Assume you have a client factory to get HttpClient instance
-        var boundary = RequestHelpers.CreateBoundary();
-        contentType += "; boundary=" + boundary;
+        method ??= HttpMethod.Post;
 
-        // Prepare multipart content
-        var multipartContent = new MultipartFormDataContent(boundary);
+        var result = new UploadResult();
+        IsUploading = true;
+        StopUploadRequested = false;
 
-        // Add arguments to the form-data if they are provided
-        if (args != null)
+        try
         {
-            foreach (var arg in args)
+            var client = HttpClientFactory.Get(); // Assume you have a client factory to get HttpClient instance
+            var boundary = RequestHelpers.CreateBoundary();
+            contentType += "; boundary=" + boundary;
+
+            // Prepare multipart content
+            var multipartContent = new MultipartFormDataContent(boundary);
+
+            // Add arguments to the form-data if they are provided
+            if (args != null)
             {
-                multipartContent.Add(new StringContent(arg.Value), arg.Key);
-            }
-        }
-
-        // Add related data if provided (this could be JSON or some other related data)
-// Add related data if provided (this could be JSON or some other related data)
-        if (relatedData != null)
-        {
-            // Create related content as a byte array
-            var relatedContent = RequestHelpers.MakeRelatedFileInputContentOpen(boundary, "application/json; charset=UTF-8", relatedData, fileName);
-
-            // Use ByteArrayContent to handle the byte array
-            var byteArrayContent = new ByteArrayContent(relatedContent);
-
-            // Set content headers if necessary (e.g., content-type)
-            byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-            // Add the related data content
-            multipartContent.Add(byteArrayContent, "relatedData"); // Name this appropriately
-        }
-
-        // Add the file content
-        var fileContent = new StreamContent(data);
-        fileContent.Headers.Add("Content-Type", contentType); // Optional: specify content type if needed
-        multipartContent.Add(fileContent, fileFormName, fileName);
-
-        // Set headers (if provided)
-        if (headers != null)
-        {
-            foreach (var key in headers.AllKeys)
-            {
-                client.DefaultRequestHeaders.TryAddWithoutValidation(key, headers[key]);
-            }
-        }
-
-        // Set cookies (if provided)
-        if (cookies != null)
-        {
-            var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
-            client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
-        }
-
-        // Prepare the HTTP request message
-        var requestMessage = new HttpRequestMessage(method, url)
-        {
-            Content = multipartContent
-        };
-
-        // Send the request
-        var response = client.SendAsync(requestMessage).Result;
-
-        // Process the response
-        if (response.IsSuccessStatusCode)
-        {
-            result.ResponseInfo = ProcessWebResponse(response);
-            result.Response = result.ResponseInfo?.ResponseText;
-            result.IsSuccess = true;
-        }
-        else
-        {
-            result.IsSuccess = false;
-            result.Response = $"Error: {response.StatusCode}";
-        }
-    }
-    catch (Exception e)
-    {
-        if (!StopUploadRequested)
-        {
-            var response = ProcessError(e, url);
-
-            if (ReturnResponseOnError && e is HttpRequestException)
-            {
-                result.Response = response;
+                foreach (var arg in args)
+                {
+                    multipartContent.Add(new StringContent(arg.Value), arg.Key);
+                }
             }
 
-            result.IsSuccess = false;
-        }
-    }
-    finally
-    {
-        currentWebRequest = null;
-        IsUploading = false;
-    }
+            // Add related data if provided (this could be JSON or some other related data)
+            // Add related data if provided (this could be JSON or some other related data)
+            if (relatedData != null)
+            {
+                // Create related content as a byte array
+                var relatedContent = RequestHelpers.MakeRelatedFileInputContentOpen(boundary, "application/json; charset=UTF-8", relatedData, fileName);
 
-    return result;
-}
+                // Use ByteArrayContent to handle the byte array
+                var byteArrayContent = new ByteArrayContent(relatedContent);
+
+                // Set content headers if necessary (e.g., content-type)
+                byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                // Add the related data content
+                multipartContent.Add(byteArrayContent, "relatedData"); // Name this appropriately
+            }
+
+            // Add the file content
+            var fileContent = new StreamContent(data);
+            fileContent.Headers.Add("Content-Type", contentType); // Optional: specify content type if needed
+            multipartContent.Add(fileContent, fileFormName, fileName);
+
+            // Set headers (if provided)
+            if (headers != null)
+            {
+                foreach (var key in headers.AllKeys)
+                {
+                    client.DefaultRequestHeaders.TryAddWithoutValidation(key, headers[key]);
+                }
+            }
+
+            // Set cookies (if provided)
+            if (cookies != null)
+            {
+                var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+                client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
+            }
+
+            // Prepare the HTTP request message
+            var requestMessage = new HttpRequestMessage(method, url)
+            {
+                Content = multipartContent
+            };
+
+            // Send the request
+            var response = client.SendAsync(requestMessage).Result;
+
+            // Process the response
+            if (response.IsSuccessStatusCode)
+            {
+                result.ResponseInfo = ProcessWebResponse(response);
+                result.Response = result.ResponseInfo?.ResponseText;
+                result.IsSuccess = true;
+            }
+            else
+            {
+                result.IsSuccess = false;
+                result.Response = $"Error: {response.StatusCode}";
+            }
+        }
+        catch (Exception e)
+        {
+            if (!StopUploadRequested)
+            {
+                var response = ProcessError(e, url);
+
+                if (ReturnResponseOnError && e is HttpRequestException)
+                {
+                    result.Response = response;
+                }
+
+                result.IsSuccess = false;
+            }
+        }
+        finally
+        {
+            currentWebRequest = null;
+            IsUploading = false;
+        }
+
+        return result;
+    }
 
 
     protected UploadResult SendRequestFileRange(string url, Stream data, string fileName, long contentPosition = 0, long contentLength = -1,

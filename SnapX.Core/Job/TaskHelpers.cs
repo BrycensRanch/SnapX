@@ -3,6 +3,7 @@
 
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using SixLabors.ImageSharp;
@@ -583,7 +584,7 @@ namespace SnapX.Core.Job
             }
         }
 
-
+        [RequiresAssemblyFiles()]
         public static void RunShareXAsAdmin(string arguments = null)
         {
             try

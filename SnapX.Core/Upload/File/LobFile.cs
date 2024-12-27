@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -37,6 +38,8 @@ public sealed class LobFile : FileUploader
         Config = config;
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         Dictionary<string, string> args = new Dictionary<string, string>();
@@ -61,6 +64,8 @@ public sealed class LobFile : FileUploader
         return result;
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public string FetchAPIKey(string email, string password)
     {
         var args = new Dictionary<string, string>

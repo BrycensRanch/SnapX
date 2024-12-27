@@ -9,6 +9,8 @@
         <SelfContained>true</SelfContained>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishAot>true</PublishAot>
+        <AssemblyName>snapx-ui</AssemblyName>
+        <AssemblyTitle>SnapX UI</AssemblyTitle>
         <ApplicationIcon>SnapX_Icon.ico</ApplicationIcon>
         <InvariantGlobalization>true</InvariantGlobalization>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>

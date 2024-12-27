@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
@@ -44,6 +45,8 @@ public sealed class Pushbullet : FileUploader
         apiSendPushURL = apiURL + "/pushes",
         apiRequestFileUploadURL = apiURL + "/upload-request";
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public UploadResult PushFile(Stream stream, string fileName)
     {
         NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
@@ -93,6 +96,7 @@ public sealed class Pushbullet : FileUploader
         return uploadResult;
     }
 
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private string Push(string pushType, string valueType, string value, string title)
     {
         NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
@@ -142,6 +146,7 @@ public sealed class Pushbullet : FileUploader
         return PushFile(stream, fileName);
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public List<PushbulletDevice> GetDeviceList()
     {
         NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");

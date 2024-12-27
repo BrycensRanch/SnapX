@@ -1,5 +1,4 @@
 using SnapX.Core.Job;
-using SnapX.Core.Utils;
 using Xdg.Directories;
 
 namespace SnapX.Core;
@@ -20,7 +19,8 @@ public class EventAggregator
 
     public void Subscribe<TEvent>(Action<TEvent> action)
     {
-        _subscriptions.Add(Tuple.Create<Type, Action<object>>(typeof(TEvent), (o) => action((TEvent)o)));    }
+        _subscriptions.Add(Tuple.Create<Type, Action<object>>(typeof(TEvent), (o) => action((TEvent)o)));
+    }
 
     public void Publish<TEvent>(TEvent @event)
     {

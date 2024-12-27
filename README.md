@@ -20,7 +20,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to store history.
 - Additionally, all uploaders are now forced to use HTTPS.
 - Keeps compatability with uploader configuration
-- As a user, you do **NOT** need to have .NET installed. Whether you be on Windows, Linux, or macOS.
+- As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and _modern_ application.
 
@@ -92,7 +92,13 @@ Any help with the migration is greatly appreciated.
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
 cd SnapX
-dotnet build
+./build.sh # Calls NUKE (https://nuke.build)
+Output/snapx-ui # Run SnapX.Avalonia
+Output/snapx-gtk # Run SnapX.GTK4
+# There is nothing stopping you from
+# using regular dotnet building tools
+# dotnet publish -c Release
+# SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```
 
 Lastly...

@@ -3,6 +3,7 @@
 
 
 
+using System.Diagnostics.CodeAnalysis;
 using Esatto.Win32.Registry;
 using Microsoft.Extensions.Configuration;
 using SnapX.Core.History;
@@ -115,6 +116,8 @@ internal static class SettingManager
         }
     }
 
+    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
         var configurationBuilder = new ConfigurationBuilder()
@@ -142,6 +145,8 @@ internal static class SettingManager
         MigrateHistoryFile();
     }
 
+    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     public static void LoadUploadersConfig(bool fallbackSupport = true)
     {
         var configurationBuilder = new ConfigurationBuilder()
@@ -161,6 +166,7 @@ internal static class SettingManager
         UploadersConfigBackwardCompatibilityTasks();
     }
 
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     public static void LoadHotkeysConfig(bool fallbackSupport = true)
     {
         var configurationBuilder = new ConfigurationBuilder()
@@ -257,10 +263,10 @@ internal static class SettingManager
 
     public static void SaveAllSettings()
     {
-            // Settings.Save(ApplicationConfigFilePath);
-            // UploadersConfig.Save(UploadersConfigFilePath);
-            CleanupHotkeysConfig();
-            // HotkeysConfig.Save(HotkeysConfigFilePath);
+        // Settings.Save(ApplicationConfigFilePath);
+        // UploadersConfig.Save(UploadersConfigFilePath);
+        CleanupHotkeysConfig();
+        // HotkeysConfig.Save(HotkeysConfigFilePath);
     }
 
     public static void SaveApplicationConfigAsync()
@@ -278,8 +284,8 @@ internal static class SettingManager
 
     public static void SaveHotkeysConfigAsync()
     {
-            CleanupHotkeysConfig();
-            // HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
+        CleanupHotkeysConfig();
+        // HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
     }
 
     public static void SaveAllSettingsAsync()

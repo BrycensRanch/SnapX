@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace SnapX.Core.Utils.Extensions;
@@ -115,6 +116,7 @@ public static class StreamExtensions
         }
     }
 
+    [RequiresDynamicCode("Uploader")]
     public static T Read<T>(this Stream stream)
     {
         byte[] buffer = new byte[Marshal.SizeOf(typeof(T))];

@@ -12,6 +12,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishAot>true</PublishAot>
     <AssemblyName>snapx</AssemblyName>
+    <AssemblyTitle>SnapX CLI</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using SnapX.Core.Utils;
@@ -15,6 +16,8 @@ public class HistoryManagerJSON : HistoryManager
     {
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     protected override List<HistoryItem> Load(string filePath)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
@@ -35,6 +38,8 @@ public class HistoryManagerJSON : HistoryManager
         }
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     protected override bool Append(string filePath, IEnumerable<HistoryItem> historyItems)
     {
         if (string.IsNullOrEmpty(filePath)) return false;

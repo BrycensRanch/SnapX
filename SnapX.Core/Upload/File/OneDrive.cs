@@ -4,6 +4,7 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -72,6 +73,8 @@ public sealed class OneDrive : FileUploader, IOAuth2
         return URLHelpers.CreateQueryString(AuthorizationEndpoint, args);
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken(string code)
     {
         var args = new Dictionary<string, string>
@@ -97,6 +100,8 @@ public sealed class OneDrive : FileUploader, IOAuth2
         return true;
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool RefreshAccessToken()
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token)) return false;
@@ -146,6 +151,7 @@ public sealed class OneDrive : FileUploader, IOAuth2
     private string GetFolderUrl(string folderID) =>
         string.IsNullOrEmpty(folderID) ? "me/drive/root" : URLHelpers.CombineURL("me/drive/items", folderID);
 
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
     private string CreateSession(string fileName)
     {
         var json = JsonSerializer.Serialize(new
@@ -166,6 +172,7 @@ public sealed class OneDrive : FileUploader, IOAuth2
         return JsonSerializer.Deserialize<OneDriveUploadSession>(response)?.uploadUrl;
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         if (!CheckAuthorization()) return null;
@@ -203,7 +210,7 @@ public sealed class OneDrive : FileUploader, IOAuth2
         return result;
     }
 
-
+    [RequiresUnreferencedCode("Uploader")]
     public string CreateShareableLink(string id, OneDriveLinkType linkType = OneDriveLinkType.Read)
     {
         var linkTypeValue = linkType switch
@@ -220,7 +227,7 @@ public sealed class OneDrive : FileUploader, IOAuth2
         return permissionInfo?.link?.webUrl;
     }
 
-
+    [RequiresUnreferencedCode("Uploader")]
     public OneDriveFileList GetPathInfo(string id)
     {
         if (!CheckAuthorization()) return null;

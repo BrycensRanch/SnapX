@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
@@ -82,6 +83,8 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return URLHelpers.CreateQueryString("https://api.imgur.com/oauth2/authorize", args);
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken(string pin)
     {
         var args = new Dictionary<string, string>
@@ -104,7 +107,8 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return true;
     }
 
-
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool RefreshAccessToken()
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token))
@@ -178,7 +182,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return albums;
     }
 
-
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private List<ImgurAlbumData> GetAlbumsPage(int page, int perPage)
     {
         if (!CheckAuthorization())
@@ -203,7 +207,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return null;
     }
 
-
+    [RequiresUnreferencedCode("Uploader")]
     public List<ImgurImageData> GetAlbumImages(string albumID)
     {
         if (!CheckAuthorization())
@@ -228,6 +232,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return InternalUpload(stream, fileName, true);
     }
 
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private UploadResult InternalUpload(Stream stream, string fileName, bool refreshTokenOnError)
     {
         Dictionary<string, string> args = new Dictionary<string, string>();
@@ -324,6 +329,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         }
     }
 
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private ImgurErrorData ParseError(ImgurResponse response)
     {
         ImgurErrorData errorData = JsonSerializer.Deserialize<ImgurErrorData>(response.data.ToString());

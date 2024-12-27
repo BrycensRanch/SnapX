@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -60,6 +61,8 @@ public sealed class Box : FileUploader, IOAuth2
             { "client_id", AuthInfo.Client_ID }
         });
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken(string pin)
     {
         var args = new Dictionary<string, string>
@@ -79,6 +82,8 @@ public sealed class Box : FileUploader, IOAuth2
         return true;
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool RefreshAccessToken()
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token)) return false;
@@ -128,6 +133,7 @@ public sealed class Box : FileUploader, IOAuth2
         return GetFiles(folder.id);
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public BoxFileInfo GetFiles(string id)
     {
         if (!CheckAuthorization()) return null;
@@ -138,6 +144,7 @@ public sealed class Box : FileUploader, IOAuth2
         return string.IsNullOrEmpty(response) ? null : JsonSerializer.Deserialize<BoxFileInfo>(response);
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public string CreateSharedLink(string id, BoxShareAccessLevel accessLevel)
     {
         var response = SendRequest(HttpMethod.Put, $"https://api.box.com/2.0/files/{id}",
@@ -149,7 +156,7 @@ public sealed class Box : FileUploader, IOAuth2
         return fileEntry?.shared_link?.url;
     }
 
-
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         if (!CheckAuthorization()) return null;

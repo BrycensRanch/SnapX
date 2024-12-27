@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -177,6 +178,8 @@ public sealed class MediaFire : FileUploader
         signatureKey = (int)(((long)signatureKey * 16807) % 2147483647);
     }
 
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private T DeserializeResponse<T>(string s) where T : new()
     {
         // Deserialize the string into a JSON object

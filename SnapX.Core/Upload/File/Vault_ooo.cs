@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -37,6 +38,8 @@ public sealed class Vault_ooo : FileUploader
     private const int BYTE_CHUNK_SIZE = 256 * 1024 * 381; // Copied from web client (99 MB)
     private static readonly DateTime ORIGIN_TIME = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         #region Calculating sizes

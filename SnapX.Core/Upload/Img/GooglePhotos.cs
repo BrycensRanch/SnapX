@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -70,6 +71,8 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         return OAuth2.GetUserInfo();
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public GooglePhotosAlbum CreateAlbum(string albumName)
     {
         var newItemAlbum = new GooglePhotosNewAlbum
@@ -92,6 +95,7 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         return newItemAlbumResponse;
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public List<GooglePhotosAlbumInfo> GetAlbumList()
     {
         if (!CheckAuthorization()) return null;
@@ -140,6 +144,7 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         return albumList;
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         if (!CheckAuthorization()) return null;

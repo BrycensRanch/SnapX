@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
@@ -83,6 +84,8 @@ namespace SnapX.Core.Upload.File
             return URLHelpers.CreateQueryString(URLOAuth2Authorize, args);
         }
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public bool GetAccessToken(string code)
         {
             Dictionary<string, string> args = new Dictionary<string, string>();
@@ -137,6 +140,8 @@ namespace SnapX.Core.Upload.File
             return "";
         }
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public DropboxAccount GetCurrentAccount()
         {
             if (OAuth2Info.CheckOAuth(AuthInfo))
@@ -152,6 +157,7 @@ namespace SnapX.Core.Upload.File
             return null;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public bool DownloadFile(string path, Stream downloadStream)
         {
             if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
@@ -170,6 +176,7 @@ namespace SnapX.Core.Upload.File
             return false;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public UploadResult UploadFile(Stream stream, string path, string fileName, bool createShareableLink = false, bool useDirectLink = false)
         {
             if (stream.Length > 150000000)
@@ -215,6 +222,7 @@ namespace SnapX.Core.Upload.File
             return ur;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public DropboxMetadata GetMetadata(string path)
         {
             DropboxMetadata metadata = null;
@@ -247,6 +255,7 @@ namespace SnapX.Core.Upload.File
             return metadata != null && !metadata.tag.Equals("deleted", StringComparison.OrdinalIgnoreCase);
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public string CreateShareableLink(string path, bool directLink)
         {
             if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
@@ -294,6 +303,7 @@ namespace SnapX.Core.Upload.File
             return null;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public DropboxListSharedLinksResult ListSharedLinks(string path, bool directOnly = false)
         {
             DropboxListSharedLinksResult result = null;
@@ -317,6 +327,7 @@ namespace SnapX.Core.Upload.File
             return result;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public DropboxMetadata Copy(string fromPath, string toPath)
         {
             DropboxMetadata metadata = null;
@@ -340,6 +351,7 @@ namespace SnapX.Core.Upload.File
             return metadata;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public DropboxMetadata CreateFolder(string path)
         {
             DropboxMetadata metadata = null;
@@ -362,6 +374,7 @@ namespace SnapX.Core.Upload.File
             return metadata;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public DropboxMetadata Delete(string path)
         {
             DropboxMetadata metadata = null;
@@ -384,6 +397,7 @@ namespace SnapX.Core.Upload.File
             return metadata;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public DropboxMetadata Move(string fromPath, string toPath)
         {
             DropboxMetadata metadata = null;

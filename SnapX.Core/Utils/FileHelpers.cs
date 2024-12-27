@@ -165,12 +165,12 @@ public static class FileHelpers
     {
         var knownBinaryNames = new[]
         {
-            "SnapX.Avalonia",
-            "snapx-ui", // SnapX.Avalonia packaged on Linux is called this
+            "snapx-ui", // SnapX.Avalonia
             "snapx-gtk", // SnapX.GTK4
             "snapx", // SnapX.CLI
             "SnapX" // Could literally be anything.
         };
+        if (OperatingSystem.IsWindows()) knownBinaryNames = knownBinaryNames.Select(name => name + ".exe").ToArray();
 
         var path = Environment.GetEnvironmentVariable("PATH");
 

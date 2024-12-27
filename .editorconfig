@@ -53,3 +53,7 @@ indent_size = 2
 # Xml config files
 [*.{props,targets,config,nuspec}]
 indent_size = 2
+
+# For building on Windows using NUKE
+[*.{cmd,ps1}]
+end_of_line = crlf

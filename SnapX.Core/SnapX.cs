@@ -8,7 +8,6 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
-using SnapX.Core.Utils.Native;
 using SnapX.Core.Watch;
 using Xdg.Directories;
 
@@ -289,6 +288,24 @@ public class SnapX
             DebugHelper.WriteLine("Personal path detection method: " + PersonalPathDetectionMethod);
         }
         DebugHelper.WriteLine("Operating system: " + Helpers.GetOperatingSystemProductName(true));
+        if (OperatingSystem.IsLinux())
+        {
+            var sessionType = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "Unknown";
+            var desktopEnvironment = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? "Unknown";
+            var kdePlasmaMajorVersion = Environment.GetEnvironmentVariable("KDE_SESSION_VERSION");
+            DebugHelper.WriteLine($"Session Type: {sessionType}");
+            DebugHelper.WriteLine($"Desktop Environment: {desktopEnvironment}{(desktopEnvironment == "KDE" ? $" {kdePlasmaMajorVersion}" : "")}");
+        }
+        DebugHelper.WriteLine($"Platform: {RuntimeInformation.OSDescription}");
+        if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
+        DebugHelper.WriteLine(".NET: " + RuntimeInformation.FrameworkDescription);
+        DebugHelper.WriteLine($"CPU: {OsInfo.GetProcessorName()} ({Environment.ProcessorCount})");
+        var (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
+        DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
+        DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
+        OsInfo.PrintGraphicsInfo();
+        // Linux is not supported for HDR detection.
+        if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR: {OsInfo.IsHdrSupported()}");
         IsAdmin = Helpers.IsAdministrator();
         DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
 
@@ -394,7 +411,7 @@ public class SnapX
     private static void RegisterIntegrations()
     {
         if (Portable || Sandbox) return;
-        #if WINDOWS
+#if WINDOWS
         // TODO: Reimplement FirstTimeForm to give users chance to consent
         if (!WindowsAPI.CheckCustomUploaderExtension()) WindowsAPI.CreateCustomUploaderExtension(true);
         if (!WindowsAPI.CheckImageEffectExtension()) WindowsAPI.CreateImageEffectExtension(true);
@@ -404,7 +421,7 @@ public class SnapX
         if (!WindowsAPI.CheckChromeExtensionSupport()) WindowsAPI.CreateChromeExtensionSupport(true);
         if (!WindowsAPI.CheckFirefoxAddonSupport())
             WindowsAPI.CreateFirefoxAddonSupport(true);
-        #endif
+#endif
     }
 
     private static void MigratePersonalPathConfig()

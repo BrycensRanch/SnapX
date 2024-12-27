@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Web;
 using SnapX.Core.Upload.BaseServices;
@@ -93,6 +94,8 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
         return headers;
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult ShortenURL(string url)
     {
         UploadResult result = new UploadResult { URL = url };

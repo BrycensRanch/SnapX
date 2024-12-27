@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
@@ -61,6 +62,8 @@ namespace SnapX.Core.Upload.File
 
         #region SeafileAuth
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public string GetAuthToken(string username, string password)
         {
             string url = URLHelpers.FixPrefix(APIURL);
@@ -165,6 +168,8 @@ namespace SnapX.Core.Upload.File
 
         #region SeafileAccountInformation
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public SeafileCheckAccInfoResponse GetAccountInfo()
         {
             string url = URLHelpers.FixPrefix(APIURL);
@@ -206,6 +211,7 @@ namespace SnapX.Core.Upload.File
 
         #region SeafileLibraries
 
+        [RequiresUnreferencedCode("Uploader")]
         public string GetOrMakeDefaultLibrary(string authtoken = null)
         {
             string url = URLHelpers.FixPrefix(APIURL);
@@ -243,6 +249,7 @@ namespace SnapX.Core.Upload.File
             }
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public List<SeafileLibraryObj> GetLibraries()
         {
             string url = URLHelpers.FixPrefix(APIURL);

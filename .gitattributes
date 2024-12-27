@@ -1,5 +1,5 @@
 # Auto detect text files and perform LF normalization
-* text=auto
+* text=auto eol=lf
 
 # Custom for Visual Studio
 *.cs diff=csharp
@@ -21,3 +21,5 @@
 *.csproj text eol=lf
 *.cs text eol=lf
 *.resx text eol=lf
+*.{cmd,[cC][mM][dD]} text eol=crlf
+*.{bat,[bB][aA][tT]} text eol=crlf

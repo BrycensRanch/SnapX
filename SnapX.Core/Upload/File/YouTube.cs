@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -66,6 +67,8 @@ namespace SnapX.Core.Upload.File
             return OAuth2.GetAccessToken(code);
         }
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public override UploadResult Upload(Stream stream, string fileName)
         {
             if (!CheckAuthorization()) return null;

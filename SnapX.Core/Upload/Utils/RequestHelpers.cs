@@ -18,14 +18,14 @@ internal static class RequestHelpers
     public const string ContentTypeURLEncoded = "application/x-www-form-urlencoded";
     public const string ContentTypeOctetStream = "application/octet-stream";
 
-  public static async Task<HttpRequestMessage> CreateHttpRequest(
-        HttpMethod method,
-        string url,
-        NameValueCollection headers = null,
-        CookieCollection cookies = null,
-        string contentType = null,
-        long contentLength = 0,
-        HttpContent content = null)
+    public static async Task<HttpRequestMessage> CreateHttpRequest(
+          HttpMethod method,
+          string url,
+          NameValueCollection headers = null,
+          CookieCollection cookies = null,
+          string contentType = null,
+          long contentLength = 0,
+          HttpContent content = null)
     {
         // Create and configure the HttpRequestMessage
         var requestMessage = new HttpRequestMessage(method, url);

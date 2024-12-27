@@ -40,8 +40,8 @@ public class LinuxAPI : NativeAPI
     private static extern void XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, uint time);
 
     // X11 Constants
-    private static readonly IntPtr XA_PRIMARY = (IntPtr) 1;
-    private static readonly IntPtr XA_CLIPBOARD = (IntPtr) 2;
+    private static readonly IntPtr XA_PRIMARY = (IntPtr)1;
+    private static readonly IntPtr XA_CLIPBOARD = (IntPtr)2;
 
     public override void CopyText(string text)
     {

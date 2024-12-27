@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -60,6 +61,8 @@ namespace SnapX.Core.Upload.File
             return result;
         }
 
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
         private void TranscodeFile(UploadResult result)
         {
             StreamableTranscodeResponse transcodeResponse = JsonSerializer.Deserialize<StreamableTranscodeResponse>(result.Response);

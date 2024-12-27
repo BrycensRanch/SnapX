@@ -87,6 +87,10 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+# Weapons of Mass Destruction
+.nuke/temp
+temp
+
 # Chutzpah Test files
 _Chutzpah*
 

@@ -12,9 +12,13 @@ public static class HttpClientFactory
     {
         var clientHandler = new HttpClientHandler
         {
-            Proxy = HelpersOptions.CurrentProxy.GetWebProxy()
+            Proxy = HelpersOptions.CurrentProxy.GetWebProxy(),
         };
-
+        if (SnapX.Settings.AcceptInvalidSSLCertificates)
+        {
+            // Disable SSL certificate validation
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+        }
         HttpMessageHandler handler = clientHandler;
 
 #if DEBUG

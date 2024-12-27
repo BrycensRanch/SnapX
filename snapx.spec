@@ -97,6 +97,7 @@ SnapX but with Avalonia. Works best on X11.
 %endif
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 export AVALONIA_TELEMETRY_OPTOUT=1
+export NUKE_TELEMETRY_OPTOUT=1
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export PATH=$PATH:/usr/local/bin
 
@@ -117,8 +118,8 @@ SnapX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx --version
 %{__mkdir} -p %{buildroot}%{_libdir}/snapx %{buildroot}%{_bindir} %{buildroot}%{_datadir}/SnapX
 %{__cp} SnapX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx %{buildroot}%{_bindir}
 %{__cp} SnapX.GTK4/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx-gtk %{buildroot}%{_bindir}
-%{__cp} SnapX.NativeMessagingHost/bin/Release/%{net}/%{dotnet_runtime}/native/SnapX_NativeMessagingHost %{buildroot}%{_datadir}/SnapX
-%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/SnapX.Avalonia %{buildroot}%{_libdir}/snapx
+%{__cp} SnapX.NativeMessagingHost/bin/Release/%{net}/%{dotnet_runtime}/native/SnapX_NativeMessagingHost %{buildroot}%{_libdir}/snapx
+%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx-ui %{buildroot}%{_libdir}/snapx
 %{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/*.so %{buildroot}%{_libdir}/snapx
 %{__cp} -r SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/Resources %{buildroot}%{_datadir}/SnapX
 
@@ -127,7 +128,7 @@ SnapX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx --version
 cat > %{buildroot}%{_bindir}/snapx-ui <<EOF
 #!/bin/sh
 # Wrapper script to invoke the actual binary
-exec %{_libdir}/%{name}/SnapX.Avalonia "\$@"
+exec %{_libdir}/%{name}/snapx-ui "\$@"
 EOF
 chmod +x %{buildroot}%{_bindir}/snapx-ui
 

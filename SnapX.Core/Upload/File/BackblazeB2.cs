@@ -4,6 +4,7 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Mime;
 using System.Security.Cryptography;
@@ -231,6 +232,8 @@ namespace SnapX.Core.Upload.File
         /// <param name="key">The application key <b>or</b> account master key.</param>
         /// <param name="error">Will be set to a non-null value on failure.</param>
         /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, a <see cref="B2Authorization"/>.</returns>
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
         private B2Authorization B2ApiAuthorize(string keyId, string key, out string error)
         {
             NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(keyId, key);
@@ -335,6 +338,8 @@ namespace SnapX.Core.Upload.File
         /// <param name="bucketId">The bucket ID to get an upload URL for.</param>
         /// <param name="error">Will be set to a non-null value on failure.</param>
         /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, a <see cref="B2UploadUrl"/></returns>
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public B2UploadUrl B2ApiGetUploadUrl(B2Authorization auth, string bucketId, out string error)
         {
             var headers = new NameValueCollection() { ["Authorization"] = auth.authorizationToken };
@@ -372,6 +377,7 @@ namespace SnapX.Core.Upload.File
         ///         <li><b>If the connection failed:</b> <c>(-1, null, null)</c></li>
         ///     </ul>
         /// </returns>
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
         private B2UploadResult B2ApiUploadFile(B2UploadUrl b2UploadUrl, string destinationPath, Stream file)
         {
             // we want to send 'Content-Disposition: inline; filename="screenshot.png"'
@@ -473,6 +479,7 @@ namespace SnapX.Core.Upload.File
         /// The parse result, or null if the response is successful or cannot be parsed.
         /// </returns>
         /// <exception cref="IOException">If the response body cannot be read.</exception>
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
         private static B2Error ParseB2Error(HttpWebResponse res)
         {
             if (WebHelpers.IsSuccessStatusCode(res.StatusCode))
@@ -516,6 +523,7 @@ namespace SnapX.Core.Upload.File
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
+        [RequiresUnreferencedCode("Uploader")]
         public static Stream CreateJsonBody(Dictionary<string, string> args)
         {
             var body = JsonSerializer.Serialize(args);

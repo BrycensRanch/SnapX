@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Resources;
 
@@ -31,6 +32,7 @@ public static class EnumExtensions
     public static string GetLocalizedCategory(this Enum value) =>
         new NotImplementedException("GetLocalizedCategory is not implemented due to no localization existing yet.").Message;
 
+    [RequiresDynamicCode("Uploader")]
     public static int GetIndex(this Enum value) => Array.IndexOf(Enum.GetValues(value.GetType()) as Array, value);
 
     public static IEnumerable<T> GetFlags<T>(this T value) where T : struct, Enum =>
@@ -68,6 +70,7 @@ public static class EnumExtensions
         return (T)Enum.ToObject(typeof(T), keysVal ^ flagVal);
     }
 
+    [RequiresDynamicCode("Uploader")]
     public static T Next<T>(this Enum value)
     {
         var values = Enum.GetValues(value.GetType());

@@ -1,10 +1,17 @@
 [Desktop Entry]
 Name=SnapX
 Comment=Screenshot and screen recording tool
-Exec=./snapx
-Icon=./Linux.png
+Exec=snapx-ui
+Icon=io.github.brycensranch.snapx
 Terminal=false
 Type=Application
 Categories=Graphics;Photography;ScreenCapture;
 StartupNotify=true
 MimeType=image/png;image/jpeg;image/jpg;image/gif;image/tiff;image/bmp;image/x-raw;video/mp4;video/x-msvideo;video/x-flv;video/webm;application/zip;application/x-7z-compressed;application/x-sxcu;video/x-matroska;
+Actions=uploadWithSnapX
+X-KDE-Priority=TopLevel
+
+[Desktop Action uploadWithSnapX]
+Name=Upload with SnapX
+Icon=io.github.brycensranch.snapx
+Exec=snapx-ui %u

@@ -3,6 +3,7 @@
 
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -18,7 +19,6 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tiff;
-using SixLabors.ImageSharp.Formats.Tiff.Constants;
 using SixLabors.ImageSharp.Formats.Webp;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
@@ -202,11 +202,13 @@ public static class Helpers
         return Regex.Match(input, string.Format("(?<={0}>).+?(?=</{0})", tag)).Value;
     }
 
+    [RequiresDynamicCode("Uploader")]
     public static T[] GetEnums<T>()
     {
         return (T[])Enum.GetValues(typeof(T));
     }
 
+    [RequiresDynamicCode("Uploader")]
     public static string[] GetEnumDescriptions<T>(int skip = 0)
     {
         return Enum.GetValues(typeof(T)).OfType<Enum>().Skip(skip).Select(x => x.GetDescription()).ToArray();
@@ -242,7 +244,7 @@ public static class Helpers
 
     public static string GetApplicationVersion()
     {
-        var version = Assembly.GetExecutingAssembly().GetName()?.Version ?? new Version(0, 0, 0);
+        var version = Assembly.GetEntryAssembly()!.GetName().Version ?? new Version(0, 0, 0);
         return version.ToString();
     }
 
@@ -457,6 +459,7 @@ public static class Helpers
         return true;
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public static IEnumerable<T> GetInstances<T>() where T : class
     {
         var baseType = typeof(T);
@@ -471,8 +474,7 @@ public static class Helpers
             .Where(instance => instance != null);
     }
 
-
-
+    [RequiresUnreferencedCode("Uploader")]
     public static IEnumerable<Type> FindSubclassesOf<T>()
     {
         var baseType = typeof(T);
@@ -613,6 +615,7 @@ public static class Helpers
         return string.Concat(Enumerable.Repeat(0, count).Select(_ => generator()));
     }
 
+    [RequiresUnreferencedCode("Uploader")]
     public static string JSONFormat(string json, JsonSerializerOptions? options = null)
     {
         options ??= new JsonSerializerOptions { WriteIndented = true, AllowTrailingCommas = true, AllowOutOfOrderMetadataProperties = true };

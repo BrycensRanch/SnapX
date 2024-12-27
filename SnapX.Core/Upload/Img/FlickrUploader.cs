@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Xml.Linq;
 using SnapX.Core.Upload.BaseServices;
@@ -60,6 +61,8 @@ public class FlickrUploader : ImageUploader, IOAuth
         return GetAccessToken("https://www.flickr.com/services/oauth/access_token", AuthInfo);
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public FlickrPhotosGetSizesResponse PhotosGetSizes(string photoid)
     {
         if (string.IsNullOrEmpty(photoid))

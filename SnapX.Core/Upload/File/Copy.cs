@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
@@ -62,6 +63,8 @@ namespace SnapX.Core.Upload.File
         #region Copy accounts
 
         // https://developers.copy.com/documentation#api-calls/profile
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public CopyAccountInfo GetAccountInfo()
         {
             CopyAccountInfo account = null;
@@ -106,6 +109,8 @@ namespace SnapX.Core.Upload.File
 
         // https://developers.copy.com/documentation#api-calls/filesystem - Create File or Directory
         // POST https://api.copy.com/rest/files/PATH/TO/FILE?overwrite=true
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public UploadResult UploadFile(Stream stream, string path, string fileName)
         {
             if (!OAuthInfo.CheckOAuth(AuthInfo))
@@ -140,6 +145,7 @@ namespace SnapX.Core.Upload.File
 
         // https://developers.copy.com/documentation#api-calls/filesystem - Read Root Directory
         // GET https://api.copy.com/rest/meta/copy
+        [RequiresUnreferencedCode("Uploader")]
         public CopyContentInfo GetMetadata(string path)
         {
             CopyContentInfo contentInfo = null;
@@ -184,6 +190,7 @@ namespace SnapX.Core.Upload.File
             }
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public string CreatePublicURL(string path, CopyURLType urlType = CopyURLType.Default)
         {
             path = path.Trim('/');

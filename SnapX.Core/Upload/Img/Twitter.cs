@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -85,6 +86,8 @@ namespace SnapX.Core.Upload.Img
             return TweetMessageWithMedia(message, stream, fileName);
         }
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public TwitterStatusResponse TweetMessage(string message)
         {
             if (message.Length > MessageLimit)
@@ -108,6 +111,8 @@ namespace SnapX.Core.Upload.Img
             return null;
         }
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public UploadResult TweetMessageWithMedia(string message, Stream stream, string fileName)
         {
             if (message.Length > MessageMediaLimit)

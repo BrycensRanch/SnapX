@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -34,6 +35,8 @@ public sealed class OneTimeSecret : TextUploader
     public string API_KEY { get; set; }
     public string API_USERNAME { get; set; }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult UploadText(string text, string fileName)
     {
         var ur = new UploadResult();

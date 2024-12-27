@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
@@ -62,6 +63,8 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
         return URLHelpers.CreateQueryString("https://github.com/login/oauth/authorize", args);
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken(string code)
     {
         var args = new Dictionary<string, string>
@@ -86,6 +89,8 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
         return true;
     }
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult UploadText(string text, string fileName)
     {
         var ur = new UploadResult();

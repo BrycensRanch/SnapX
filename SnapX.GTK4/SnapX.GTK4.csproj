@@ -16,6 +16,7 @@
     <!-- ShareX.GTK4 is Linux only. -->
     <RuntimeIdentifiers>linux-x64;linux-musl-x64;linux-bionic-arm64;linux-musl-arm64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <AssemblyName>snapx-gtk</AssemblyName>
+    <AssemblyTitle>SnapX GTK4</AssemblyTitle>
   </PropertyGroup>
 
   <ItemGroup>

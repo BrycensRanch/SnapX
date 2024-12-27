@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -41,6 +42,8 @@ namespace SnapX.Core.Upload.URL
             return result;
         }
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public string Submit(string url)
         {
             if (string.IsNullOrEmpty(Settings.Host))

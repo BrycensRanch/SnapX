@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -43,6 +44,8 @@ public sealed class Lambda : FileUploader
 
     public static string[] UploadURLs = new string[] { "https://lbda.net/", "https://lambda.sx/" };
 
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         Dictionary<string, string> arguments = new Dictionary<string, string>();

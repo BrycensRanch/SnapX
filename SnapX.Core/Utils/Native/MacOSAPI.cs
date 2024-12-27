@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Security;
 using System.Text.RegularExpressions;
 
 namespace SnapX.Core.Utils.Native;
@@ -16,7 +15,7 @@ public class MacOSAPI : NativeAPI
         string escapedText = text.Replace("\"", "\"\"");
 
         // 2. Escape backslashes by replacing `\` with `\\` (for C# string formatting)
-        escapedText = "\"" + Regex.Replace(escapedText, @"(\\+)$", @"$1$1") + "\"";;
+        escapedText = "\"" + Regex.Replace(escapedText, @"(\\+)$", @"$1$1") + "\""; ;
 
         // Properly format the AppleScript to set the clipboard
         var appleScript = $"set the clipboard to \"{escapedText}\"";

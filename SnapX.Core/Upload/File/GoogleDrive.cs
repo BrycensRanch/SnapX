@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Web;
 using SnapX.Core.Upload.BaseServices;
@@ -86,6 +87,8 @@ namespace SnapX.Core.Upload.File
             return OAuth2.GetAccessToken(code);
         }
 
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
         private string GetMetadata(string name, string parentID, string driveID = "")
         {
             object metadata;
@@ -119,6 +122,8 @@ namespace SnapX.Core.Upload.File
             return JsonSerializer.Serialize(metadata);
         }
 
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
         private void SetPermissions(string fileID, GoogleDrivePermissionRole role, GoogleDrivePermissionType type, bool allowFileDiscovery)
         {
             if (!CheckAuthorization()) return;
@@ -135,6 +140,7 @@ namespace SnapX.Core.Upload.File
             SendRequest(HttpMethod.Post, url, json, RequestHelpers.ContentTypeJSON, null, OAuth2.GetAuthHeaders());
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public List<GoogleDriveFile> GetFolders(string driveID = "", bool trashed = false, bool writer = true)
         {
             if (!CheckAuthorization()) return null;
@@ -188,6 +194,7 @@ namespace SnapX.Core.Upload.File
             return folders;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public List<GoogleDriveSharedDrive> GetDrives()
         {
             if (!CheckAuthorization()) return null;
@@ -219,6 +226,7 @@ namespace SnapX.Core.Upload.File
             return drives;
         }
 
+        [RequiresUnreferencedCode("Uploader")]
         public override UploadResult Upload(Stream stream, string fileName)
         {
             if (!CheckAuthorization()) return null;

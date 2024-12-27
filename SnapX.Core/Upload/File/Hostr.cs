@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
@@ -41,6 +42,8 @@ namespace SnapX.Core.Upload.File
             Password = password;
         }
 
+        [RequiresDynamicCode("Uploader")]
+        [RequiresUnreferencedCode("Uploader")]
         public override UploadResult Upload(Stream stream, string fileName)
         {
             UploadResult result = null;

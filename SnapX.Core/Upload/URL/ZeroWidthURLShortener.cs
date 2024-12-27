@@ -3,6 +3,7 @@
 
 
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -39,7 +40,8 @@ public sealed class ZeroWidthURLShortener : URLShortener
             : new NameValueCollection { { "Authorization", "Bearer " + Token } };
     }
 
-
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult ShortenURL(string url)
     {
         var result = new UploadResult { URL = url };
