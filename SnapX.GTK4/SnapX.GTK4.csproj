@@ -17,6 +17,11 @@
     <RuntimeIdentifiers>linux-x64;linux-musl-x64;linux-bionic-arm64;linux-musl-arm64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <AssemblyName>snapx-gtk</AssemblyName>
     <AssemblyTitle>SnapX GTK4</AssemblyTitle>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishSingleFile>true</PublishSingleFile>
+    <!-- Fallback if NativeAOT is disabled by builder -->
+    <SelfContained>true</SelfContained>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>

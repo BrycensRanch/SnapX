@@ -6,6 +6,11 @@
     <AssemblyTitle>SnapX NativeMessagingHost</AssemblyTitle>
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishSingleFile>true</PublishSingleFile>
+    <!-- Fallback if NativeAOT is disabled by builder -->
+    <SelfContained>true</SelfContained>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>

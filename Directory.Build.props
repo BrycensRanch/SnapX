@@ -21,11 +21,5 @@
     <Optimize>true</Optimize>
     <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
     <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <PublishAot>true</PublishAot>
-    <PublishSingleFile>true</PublishSingleFile>
-    <!-- Fallback if NativeAOT is disabled by builder -->
-    <SelfContained>true</SelfContained>
-
   </PropertyGroup>
 </Project>
