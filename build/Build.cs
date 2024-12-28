@@ -111,8 +111,10 @@ class Build : NukeBuild
                     var exeFileName = exeProject.GetProperty("AssemblyName")!;
                     var exeOutputDirectory = Path.Combine(OutputDirectory, exeFileName, assemblyName);
                     if (OperatingSystem.IsWindows() && !exeOutputDirectory.EndsWith(".exe")) exeOutputDirectory += ".exe";
+                    var sourceNMHOutputPath = Path.Combine(projectOutput, assemblyName);
+                    if (OperatingSystem.IsWindows()) sourceNMHOutputPath += ".exe";
 
-                    File.Copy(Path.Combine(projectOutput, assemblyName), exeOutputDirectory, overwrite: true);
+                    File.Copy(sourceNMHOutputPath, exeOutputDirectory, overwrite: true);
                 }
 
                 if (Directory.Exists(projectOutput))
