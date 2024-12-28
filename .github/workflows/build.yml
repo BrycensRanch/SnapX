@@ -66,6 +66,11 @@ jobs:
           compression-level: 9
 
       - name: Publish
+        if: matrix.os == 'windows-latest'
+        run: |
+          ./build.ps1 --configuration ${{ matrix.configuration }}
+      - name: Publish
+        if: matrix.os != 'windows-latest'
         run: ./build.sh --configuration ${{ matrix.configuration }}
 
       - name: Upload Publish artifact (CLI)
