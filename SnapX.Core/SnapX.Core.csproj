@@ -8,7 +8,7 @@
     <AssemblyTitle>SnapX Core</AssemblyTitle>
     <!-- Uploader JSON migration is not done yet and doesn't work right with trimming. -->
     <Optimize>false</Optimize>
-    <PublishTrimmed>true</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
     <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
   <ItemGroup>
