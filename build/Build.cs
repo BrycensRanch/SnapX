@@ -109,11 +109,8 @@ class Build : NukeBuild
                 foreach (var exeProject in exeProjects)
                 {
                     var exeFileName = exeProject.GetProperty("AssemblyName")!;
-                    if (OperatingSystem.IsWindows())
-                    {
-                        exeFileName += ".exe";
-                    }
                     var exeOutputDirectory = Path.Combine(OutputDirectory, exeFileName, assemblyName);
+                    if (OperatingSystem.IsWindows() && !exeOutputDirectory.EndsWith(".exe")) exeOutputDirectory += ".exe";
 
                     File.Copy(Path.Combine(projectOutput, assemblyName), exeOutputDirectory, overwrite: true);
                 }
