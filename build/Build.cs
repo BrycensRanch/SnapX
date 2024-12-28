@@ -51,9 +51,10 @@ class Build : NukeBuild
         {
             foreach (var project in ProjectsToBuild)
             {
+                DotNetRestore(s => s
+                    .SetProjectFile(project));
             }
 
-            DotNetRestore();
         });
 
     Target Compile => _ => _
