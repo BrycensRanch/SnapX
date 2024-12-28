@@ -119,21 +119,15 @@ SnapX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx --version
 %{__cp} SnapX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx %{buildroot}%{_bindir}
 %{__cp} SnapX.GTK4/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx-gtk %{buildroot}%{_bindir}
 %{__cp} SnapX.NativeMessagingHost/bin/Release/%{net}/%{dotnet_runtime}/native/SnapX_NativeMessagingHost %{buildroot}%{_libdir}/snapx
-%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx-ui %{buildroot}%{_libdir}/snapx
-%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/*.so %{buildroot}%{_libdir}/snapx
+%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx-ui %{buildroot}%{_bindir}
+%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/*.so %{buildroot}%{_libdir}
 %{__cp} -r SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/Resources %{buildroot}%{_datadir}/SnapX
-
-
-# Create the wrapper shell script
-cat > %{buildroot}%{_bindir}/snapx-ui <<EOF
-#!/bin/sh
-# Wrapper script to invoke the actual binary
-exec %{_libdir}/%{name}/snapx-ui "\$@"
-EOF
-chmod +x %{buildroot}%{_bindir}/snapx-ui
 
 %files
 %{_bindir}/%{name}
+%{_libdir}/%{name}
+%{_libdir}/*.so
+%{_datadir}/SnapX
 %license LICENSE.md
 
 %files gtk
@@ -142,8 +136,6 @@ chmod +x %{buildroot}%{_bindir}/snapx-ui
 
 %files ui
 %{_bindir}/%{name}-ui
-%{_datadir}/SnapX
-%{_libdir}/%{name}
 %license LICENSE.md
 
 

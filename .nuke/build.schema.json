@@ -26,6 +26,7 @@
       "enum": [
         "Clean",
         "Compile",
+        "Install",
         "Restore"
       ]
     },
@@ -108,9 +109,29 @@
             "Release"
           ]
         },
+        "Destdir": {
+          "type": "string",
+          "description": "DESTDIR"
+        },
+        "NMHostPath": {
+          "type": "string",
+          "description": "Path to NativeMessagingHost for web extension support"
+        },
+        "OutputDirectory": {
+          "type": "string",
+          "description": "Output Directory"
+        },
+        "Prefix": {
+          "type": "string",
+          "description": "PREFIX"
+        },
         "Solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"
+        },
+        "Target": {
+          "type": "string",
+          "description": "TARGET"
         }
       }
     },

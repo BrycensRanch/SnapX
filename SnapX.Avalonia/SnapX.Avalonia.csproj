@@ -15,6 +15,8 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <AvaloniaVersion>11.2.3</AvaloniaVersion>
+        <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
         <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called ShareX.Avalonia. Instead create a executable shell script that calls ShareX.Avalonia -->
     </PropertyGroup>
   <ItemGroup>
@@ -26,12 +28,12 @@
   </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.2.3" />
-      <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.10" />
       <PackageReference Include="FluentAvaloniaUI" Version="2.2.0" />
-      <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.2.3" />
-      <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.3" />
+      <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
       <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
       <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
     </ItemGroup>

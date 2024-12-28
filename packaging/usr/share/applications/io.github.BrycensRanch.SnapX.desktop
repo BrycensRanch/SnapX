@@ -1,3 +1,6 @@
+# Copyright 2024 BrycensRanch <brycengranville@outlook.com> & ShareX Team
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 [Desktop Entry]
 Name=SnapX
 Comment=Screenshot and screen recording tool
@@ -5,8 +8,10 @@ Exec=snapx-ui
 Icon=io.github.brycensranch.snapx
 Terminal=false
 Type=Application
-Categories=Graphics;Photography;ScreenCapture;
+GenericName=Screenshot capture tool
+Categories=ScreenCapture;Graphics;Utility;Productivity
 StartupNotify=true
+Keywords=ShareX;sharenix;sharexen;share;imgur;ocr;ftp;gif
 MimeType=image/png;image/jpeg;image/jpg;image/gif;image/tiff;image/bmp;image/x-raw;video/mp4;video/x-msvideo;video/x-flv;video/webm;application/zip;application/x-7z-compressed;application/x-sxcu;video/x-matroska;
 Actions=uploadWithSnapX
 X-KDE-Priority=TopLevel

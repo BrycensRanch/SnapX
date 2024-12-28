@@ -49,7 +49,7 @@ I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
 
-It's powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *can* look something like this. Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](image.png)
+It's powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *can* look something like this. Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
 And yet, it runs on Windows, Linux, and macOS.
 Additionally, it looks the same on every OS. (besides fonts)
@@ -93,10 +93,9 @@ Any help with the migration is greatly appreciated.
 git clone https://github.com/BrycensRanch/SnapX
 cd SnapX
 ./build.sh # Calls NUKE (https://nuke.build)
-Output/snapx-ui # Run SnapX.Avalonia
-Output/snapx-gtk # Run SnapX.GTK4
-# There is nothing stopping you from
-# using regular dotnet building tools
+Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
+Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
+# There is nothing stopping you from using regular dotnet building tools
 # dotnet publish -c Release
 # SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```

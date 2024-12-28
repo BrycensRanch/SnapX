@@ -19,6 +19,7 @@
     <AssemblyTitle>SnapX GTK4</AssemblyTitle>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>
+    <GirCoreVersion>0.5.0</GirCoreVersion>
     <!-- Fallback if NativeAOT is disabled by builder -->
     <SelfContained>true</SelfContained>
     <PublishAot>true</PublishAot>
@@ -30,13 +31,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="GirCore.GstVideo-1.0" Version="0.5.0" />
     <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
-
-    <PackageReference Include="GirCore.Gst-1.0" Version="0.5.0" />
-    <PackageReference Include="GirCore.Gtk-4.0" Version="0.5.0" />
-    <PackageReference Include="GirCore.Gio-2.0" Version="0.5.0" />
-    <PackageReference Include="GirCore.Gdk-4.0" Version="0.5.0" />
+    <PackageReference Include="GirCore.GstVideo-1.0" Version="$(GirCoreVersion)" />
+    <PackageReference Include="GirCore.Gst-1.0" Version="$(GirCoreVersion)" />
+    <PackageReference Include="GirCore.Gtk-4.0" Version="$(GirCoreVersion)" />
+    <PackageReference Include="GirCore.Gio-2.0" Version="$(GirCoreVersion)" />
+    <PackageReference Include="GirCore.Gdk-4.0" Version="$(GirCoreVersion)" />
   </ItemGroup>
 </Project>
