@@ -17,9 +17,9 @@
 
 SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the application [ShareX](https://github.com/ShareX/ShareX).
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image manipulation library)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to store history.
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28).
 - Additionally, all uploaders are now forced to use HTTPS.
-- Keeps compatability with uploader configuration
+- Keeps compatability with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and _modern_ application.
