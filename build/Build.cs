@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Nuke.Common;
@@ -7,6 +8,7 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.NerdbankGitVersioning;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Serilog.Log;
+
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -23,8 +25,9 @@ class Build : NukeBuild
     readonly AbsolutePath OutputDirectory = RootDirectory / "Output";
     const string Namespace = "SnapX.";
 
-    static readonly string[] ProjectNames = new[] { "GTK4", "Avalonia", "CLI", "NativeMessagingHost" };
+    static string[] ProjectNames = new[] { "GTK4", "Avalonia", "CLI", "NativeMessagingHost" };
     readonly string[] ProjectsToBuild = ProjectNames
+        .Where(projectName => OperatingSystem.IsLinux() || projectName != "GTK4")
         .Select(projectName => Path.Combine(RootDirectory, Namespace + projectName, Namespace + projectName + ".csproj"))
         .ToArray();
     [Solution(GenerateProjects = true)]
