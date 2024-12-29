@@ -2,53 +2,70 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Manipulations;
+public enum FlipType
 {
-    internal class Flip : ImageEffect
+    None,      // No flip (RotateNoneFlipNone)
+    Horizontal, // Flip horizontally (RotateNoneFlipX)
+    Vertical,   // Flip vertically (RotateNoneFlipY)
+    Both        // Flip both horizontally and vertically (RotateNoneFlipXY)
+}
+internal class Flip : ImageEffect
+{
+    [DefaultValue(false)] public bool Horizontally { get; set; } = false;
+
+    [DefaultValue(false)] public bool Vertically { get; set; } = false;
+
+    public override Image Apply(Image img)
     {
-        [DefaultValue(false)]
-        public bool Horizontally { get; set; }
+        var flipType = FlipType.None;
 
-        [DefaultValue(false)]
-        public bool Vertically { get; set; }
-
-        public Flip()
+        if (Horizontally && Vertically)
         {
-            this.ApplyDefaultPropertyValues();
+            flipType = FlipType.Both;  // RotateNoneFlipXY
+        }
+        else if (Horizontally)
+        {
+            flipType = FlipType.Horizontal;  // RotateNoneFlipX
+        }
+        else if (Vertically)
+        {
+            flipType = FlipType.Vertical;  // RotateNoneFlipY
         }
 
-        public override Bitmap Apply(Bitmap bmp)
+        if (flipType != FlipType.None)
         {
-            RotateFlipType flipType = RotateFlipType.RotateNoneFlipNone;
-
-            if (Horizontally && Vertically)
+            switch (flipType)
             {
-                flipType = RotateFlipType.RotateNoneFlipXY;
+                case FlipType.Horizontal:
+                    img.Mutate(ctx => ctx.Flip(FlipMode.Horizontal));
+                    break;
+                case FlipType.Vertical:
+                    img.Mutate(ctx => ctx.Flip(FlipMode.Vertical));
+                    break;
+                case FlipType.Both:
+                    img.Mutate(ctx =>
+                    {
+                        ctx.Flip(FlipMode.Horizontal)
+                            .Flip(FlipMode.Vertical);
+                    });
+                    break;
+                case FlipType.None:
+                default:
+                    // No flip needed, do nothing
+                    break;
             }
-            else if (Horizontally)
-            {
-                flipType = RotateFlipType.RotateNoneFlipX;
-            }
-            else if (Vertically)
-            {
-                flipType = RotateFlipType.RotateNoneFlipY;
-            }
-
-            if (flipType != RotateFlipType.RotateNoneFlipNone)
-            {
-                bmp.RotateFlip(flipType);
-            }
-
-            return bmp;
         }
 
-        protected override string GetSummary()
-        {
-            return $"{Horizontally}, {Vertically}";
-        }
+        return img;
+    }
+
+    protected override string GetSummary()
+    {
+        return $"{Horizontally}, {Vertically}";
     }
 }

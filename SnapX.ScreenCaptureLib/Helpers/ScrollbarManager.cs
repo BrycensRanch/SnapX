@@ -4,7 +4,7 @@
 
 using System.Windows.Forms;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     internal class ScrollbarManager
     {

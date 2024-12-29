@@ -5,7 +5,7 @@
 using System;
 using System.Diagnostics;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     internal class BaseAnimation
     {

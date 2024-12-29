@@ -2,19 +2,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using Newtonsoft.Json;
-using ShareX.HelpersLib;
 using System.ComponentModel;
 using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     public abstract class ImageEffect
     {
         [DefaultValue(true), Browsable(false)]
         public bool Enabled { get; set; }
 
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(""), Browsable(false)]
         public string Name { get; set; }
 
@@ -23,7 +22,7 @@ namespace ShareX.ImageEffectsLib
             Enabled = true;
         }
 
-        public abstract Bitmap Apply(Bitmap bmp);
+        public abstract Image Apply(Image img);
 
         protected virtual string GetSummary()
         {

@@ -1,12 +1,12 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Filters
 {
     [Description("Color depth")]
     internal class ColorDepth : ImageEffect
@@ -31,10 +31,10 @@ namespace ShareX.ImageEffectsLib
             this.ApplyDefaultPropertyValues();
         }
 
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
-            ImageHelpers.ColorDepth(bmp, BitsPerChannel);
-            return bmp;
+            ImageHelpers.ColorDepth(img, BitsPerChannel);
+            return img;
         }
 
         protected override string GetSummary()

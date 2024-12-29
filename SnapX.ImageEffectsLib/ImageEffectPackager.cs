@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using SnapX.Core.Upload.Zip;
+using SnapX.Core.Utils;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     public static class ImageEffectPackager
     {

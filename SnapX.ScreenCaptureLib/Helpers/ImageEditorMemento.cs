@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     internal class ImageEditorMemento : IDisposable
     {

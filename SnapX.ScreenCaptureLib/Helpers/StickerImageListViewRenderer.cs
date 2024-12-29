@@ -9,7 +9,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class StickerImageListViewRenderer : ImageListView.ImageListViewRenderer
     {

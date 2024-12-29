@@ -5,7 +5,7 @@
 using ShareX.HelpersLib;
 using System.Drawing;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     internal class Inverse : ImageEffect
     {

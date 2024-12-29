@@ -1,20 +1,17 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
-using ShareX.HelpersLib;
-using System.Drawing;
+namespace SnapX.ImageEffectsLib.Filters;
 
-namespace ShareX.ImageEffectsLib
+internal class Smooth : ImageEffect
 {
-    internal class Smooth : ImageEffect
+    public override Image Apply(Image img)
     {
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ConvolutionMatrixManager.Smooth().Apply(bmp);
-            }
-        }
+        // Listen... I'm trying my best.
+        img.Mutate(ctx => ctx.GaussianBlur(5));
+
+        return img;
     }
 }

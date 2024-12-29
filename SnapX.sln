@@ -23,6 +23,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnapX.NativeMessagingHost",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{96432C2D-0F1D-4B69-97CB-9F54C1873C1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnapX.ScreenCaptureLib", "SnapX.ScreenCaptureLib\SnapX.ScreenCaptureLib.csproj", "{59A89A19-426A-4296-A339-C89BC6C1257E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnapX.ImageEffectsLib", "SnapX.ImageEffectsLib\SnapX.ImageEffectsLib.csproj", "{AC64C622-427F-42A7-B73C-5A1A13A96050}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,14 @@ Global
 		{9C0D2877-B8F3-4D84-BD4C-E89173EBDD96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C0D2877-B8F3-4D84-BD4C-E89173EBDD96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C0D2877-B8F3-4D84-BD4C-E89173EBDD96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59A89A19-426A-4296-A339-C89BC6C1257E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59A89A19-426A-4296-A339-C89BC6C1257E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59A89A19-426A-4296-A339-C89BC6C1257E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59A89A19-426A-4296-A339-C89BC6C1257E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC64C622-427F-42A7-B73C-5A1A13A96050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC64C622-427F-42A7-B73C-5A1A13A96050}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC64C622-427F-42A7-B73C-5A1A13A96050}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC64C622-427F-42A7-B73C-5A1A13A96050}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

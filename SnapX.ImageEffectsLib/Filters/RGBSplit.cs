@@ -2,50 +2,58 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
+using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Filters;
+[Description("RGB split")]
+internal class RGBSplit : ImageEffect
 {
-    [Description("RGB split")]
-    internal class RGBSplit : ImageEffect
+    [DefaultValue(typeof(Point), "-5, 0")]
+    public Point OffsetRed { get; set; } = new(-5, 0);
+
+    [DefaultValue(typeof(Point), "0, 0")]
+    public Point OffsetGreen { get; set; }
+
+    [DefaultValue(typeof(Point), "5, 0")]
+    public Point OffsetBlue { get; set; } = new(5, 0);
+
+    public override Image Apply(Image img)
     {
-        [DefaultValue(typeof(Point), "-5, 0")]
-        public Point OffsetRed { get; set; } = new Point(-5, 0);
+        var rgbaImg = img.CloneAs<Rgba32>();
+        var resultImage = img.CloneAs<Rgba32>(); // Clone the image to preserve original
 
-        [DefaultValue(typeof(Point), "0, 0")]
-        public Point OffsetGreen { get; set; }
+        var width = img.Width;
+        var height = img.Height;
 
-        [DefaultValue(typeof(Point), "5, 0")]
-        public Point OffsetBlue { get; set; } = new Point(5, 0);
+        var offsetRed = new Point(5, 0);   // Example: Shift Red by 5 pixels in the X direction
+        var offsetGreen = new Point(0, 5); // Example: Shift Green by 5 pixels in the Y direction
+        var offsetBlue = new Point(-5, 0); // Example: Shift Blue by -5 pixels in the X direction
 
-        public override Bitmap Apply(Bitmap bmp)
+        for (int y = 0; y < height; y++)
         {
-            Bitmap bmpResult = bmp.CreateEmptyBitmap();
-
-            using (UnsafeBitmap source = new UnsafeBitmap(bmp, true, ImageLockMode.ReadOnly))
-            using (UnsafeBitmap dest = new UnsafeBitmap(bmpResult, true, ImageLockMode.WriteOnly))
+            for (int x = 0; x < width; x++)
             {
-                int right = source.Width - 1;
-                int bottom = source.Height - 1;
+                // Clamp the pixel positions to stay within bounds
+                var colorR = rgbaImg[Math.Clamp(x - offsetRed.X, 0, width - 1), Math.Clamp(y - offsetRed.Y, 0, height - 1)];
+                var colorG = rgbaImg[Math.Clamp(x - offsetGreen.X, 0, width - 1), Math.Clamp(y - offsetGreen.Y, 0, height - 1)];
+                var colorB = rgbaImg[Math.Clamp(x - offsetBlue.X, 0, width - 1), Math.Clamp(y - offsetBlue.Y, 0, height - 1)];
 
-                for (int y = 0; y < source.Height; y++)
-                {
-                    for (int x = 0; x < source.Width; x++)
-                    {
-                        ColorBgra colorR = source.GetPixel(MathHelpers.Clamp(x - OffsetRed.X, 0, right), MathHelpers.Clamp(y - OffsetRed.Y, 0, bottom));
-                        ColorBgra colorG = source.GetPixel(MathHelpers.Clamp(x - OffsetGreen.X, 0, right), MathHelpers.Clamp(y - OffsetGreen.Y, 0, bottom));
-                        ColorBgra colorB = source.GetPixel(MathHelpers.Clamp(x - OffsetBlue.X, 0, right), MathHelpers.Clamp(y - OffsetBlue.Y, 0, bottom));
-                        ColorBgra shiftedColor = new ColorBgra((byte)(colorB.Blue * colorB.Alpha / 255), (byte)(colorG.Green * colorG.Alpha / 255),
-                            (byte)(colorR.Red * colorR.Alpha / 255), (byte)((colorR.Alpha + colorG.Alpha + colorB.Alpha) / 3));
-                        dest.SetPixel(x, y, shiftedColor);
-                    }
-                }
+                // Calculate the shifted color with adjusted alpha
+                var shiftedColor = new Rgba32(
+                    (byte)(colorB.B * colorB.A / 255),
+                    (byte)(colorG.G * colorG.A / 255),
+                    (byte)(colorR.R * colorR.A / 255),
+                    (byte)((colorR.A + colorG.A + colorB.A) / 3) // Average alpha
+                );
+
+                // Set the pixel in the resulting image
+                resultImage[x, y] = shiftedColor;
             }
-
-            return bmpResult;
         }
+
+        return resultImage;
     }
 }

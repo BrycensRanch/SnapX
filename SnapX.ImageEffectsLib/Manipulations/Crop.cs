@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Manipulations
 {
     internal class Crop : ImageEffect
     {
@@ -34,21 +34,16 @@ namespace ShareX.ImageEffectsLib
             this.ApplyDefaultPropertyValues();
         }
 
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
-            if (Margin.All == 0) return bmp;
-
-            return ImageHelpers.CropBitmap(bmp, new Rectangle(Margin.Left, Margin.Top, bmp.Width - Margin.Horizontal, bmp.Height - Margin.Vertical));
-        }
-
-        protected override string GetSummary()
-        {
-            if (Margin.All == -1)
+            if (margin.Top == 0 && margin.Left == 0 && margin.Bottom == 0 && margin.Right == 0)
             {
-                return $"{Margin.Left}, {Margin.Top}, {Margin.Right}, {Margin.Bottom}";
+                return img;  // No margin to apply, return the image as is.
             }
 
-            return Margin.All.ToString();
+            return ImageHelpers.CropImage(img, new Rectangle(Margin.Left, Margin.Top, img.Width - Margin.Top, img.Height - Margin.Bottom));
         }
+
+        protected override string GetSummary() => Margin.ToString();
     }
 }

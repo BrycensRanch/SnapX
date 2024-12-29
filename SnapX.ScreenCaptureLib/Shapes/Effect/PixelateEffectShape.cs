@@ -3,10 +3,10 @@
 
 
 using ShareX.HelpersLib;
-using ShareX.ScreenCaptureLib.Properties;
+using SnapX.ScreenCaptureLib.Properties;
 using System.Drawing;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class PixelateEffectShape : BaseEffectShape
     {

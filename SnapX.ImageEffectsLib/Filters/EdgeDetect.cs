@@ -2,21 +2,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Convolution;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Filters
 {
     [Description("Edge detect")]
     internal class EdgeDetect : ImageEffect
     {
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
-            using (bmp)
-            {
-                return ConvolutionMatrixManager.EdgeDetect().Apply(bmp);
-            }
+            var edgeDetectKernel = new EdgeDetectorKernel();
+
+            img.Mutate(ctx => ctx.ApplyProcessor(new EdgeDetectorProcessor(edgeDetectKernel, false)));
+
+            return img;
         }
     }
 }

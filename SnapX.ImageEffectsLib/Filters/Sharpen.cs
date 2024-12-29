@@ -1,22 +1,15 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
-using ShareX.HelpersLib;
-using System.Drawing;
+namespace SnapX.ImageEffectsLib.Filters;
 
-namespace ShareX.ImageEffectsLib
+internal class Sharpen : ImageEffect
 {
-    internal class Sharpen : ImageEffect
+    public override Image Apply(Image img)
     {
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            //return ImageHelpers.Sharpen(bmp, Strength);
-
-            using (bmp)
-            {
-                return ConvolutionMatrixManager.Sharpen().Apply(bmp);
-            }
-        }
+        img.Mutate(ctx => ctx.GaussianSharpen());
+        return img;
     }
 }

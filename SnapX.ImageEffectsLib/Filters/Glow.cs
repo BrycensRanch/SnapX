@@ -2,97 +2,81 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
 using System.Linq;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Random;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Filters;
+internal class Glow : ImageEffect
 {
-    internal class Glow : ImageEffect
+    private int size;
+
+    [DefaultValue(20)]
+    public int Size
     {
-        private int size;
-
-        [DefaultValue(20)]
-        public int Size
+        get
         {
-            get
-            {
-                return size;
-            }
-            set
-            {
-                size = value.Max(0);
-            }
+            return size;
         }
-
-        private float strength;
-
-        [DefaultValue(1f)]
-        public float Strength
+        set
         {
-            get
-            {
-                return strength;
-            }
-            set
-            {
-                strength = value.Max(0.1f);
-            }
+            size = value.Max(0);
         }
+    }
 
-        [DefaultValue(typeof(Color), "White"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
-        public Color Color { get; set; }
+    private float strength;
 
-        [DefaultValue(false)]
-        public bool UseGradient { get; set; }
-
-        [Editor(typeof(GradientEditor), typeof(UITypeEditor))]
-        public GradientInfo Gradient { get; set; }
-
-        [DefaultValue(typeof(Point), "0, 0")]
-        public Point Offset { get; set; }
-
-        public Glow()
+    [DefaultValue(1f)]
+    public float Strength
+    {
+        get
         {
-            this.ApplyDefaultPropertyValues();
-            Gradient = AddDefaultGradient();
+            return strength;
         }
-
-        private GradientInfo AddDefaultGradient()
+        set
         {
-            GradientInfo gradientInfo = new GradientInfo();
-            gradientInfo.Type = LinearGradientMode.ForwardDiagonal;
-
-            switch (RandomFast.Next(0, 2))
-            {
-                case 0:
-                    gradientInfo.Colors.Add(new GradientStop(Color.FromArgb(0, 187, 138), 0f));
-                    gradientInfo.Colors.Add(new GradientStop(Color.FromArgb(0, 105, 163), 100f));
-                    break;
-                case 1:
-                    gradientInfo.Colors.Add(new GradientStop(Color.FromArgb(255, 3, 135), 0f));
-                    gradientInfo.Colors.Add(new GradientStop(Color.FromArgb(255, 143, 3), 100f));
-                    break;
-                case 2:
-                    gradientInfo.Colors.Add(new GradientStop(Color.FromArgb(184, 11, 195), 0f));
-                    gradientInfo.Colors.Add(new GradientStop(Color.FromArgb(98, 54, 255), 100f));
-                    break;
-            }
-
-            return gradientInfo;
+            strength = value.Max(0.1f);
         }
+    }
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            return ImageHelpers.AddGlow(bmp, Size, Strength, Color, Offset, UseGradient ? Gradient : null);
-        }
+    [DefaultValue(typeof(Color), "White")]
+    public Color Color { get; set; }
 
-        protected override string GetSummary()
-        {
-            return Size.ToString();
-        }
+    [DefaultValue(false)]
+    public bool UseGradient { get; set; }
+
+    public GradientBrush Gradient { get; set; }
+
+    [DefaultValue(typeof(Point), "0, 0")]
+    public Point Offset { get; set; }
+
+    public Glow()
+    {
+        this.ApplyDefaultPropertyValues();
+        Gradient = AddDefaultGradient();
+    }
+
+    private LinearGradientBrush AddDefaultGradient()
+    {
+        var start = new PointF(0, 0);
+        var end = new PointF(1, 1);
+
+        return new LinearGradientBrush(start, end, GradientRepetitionMode.None);
+    }
+
+    public override Image Apply(Image img)
+    {
+        return ImageHelpers.AddGlow(img, Size, Strength, Color, Offset, UseGradient ? Gradient : null);
+    }
+
+    protected override string GetSummary()
+    {
+        return Size.ToString();
     }
 }

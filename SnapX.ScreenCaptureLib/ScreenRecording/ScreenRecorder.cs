@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Text;
 using System.Threading;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class ScreenRecorder : IDisposable
     {

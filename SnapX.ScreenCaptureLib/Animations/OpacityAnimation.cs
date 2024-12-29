@@ -5,7 +5,7 @@
 using ShareX.HelpersLib;
 using System;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     internal class OpacityAnimation : BaseAnimation
     {

@@ -2,73 +2,73 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Filters;
+
+[Description("Slice")]
+internal class Slice : ImageEffect
 {
-    [Description("Slice")]
-    internal class Slice : ImageEffect
+    private int minSliceHeight;
+
+    [DefaultValue(10)]
+    public int MinSliceHeight
     {
-        private int minSliceHeight;
-
-        [DefaultValue(10)]
-        public int MinSliceHeight
+        get
         {
-            get
-            {
-                return minSliceHeight;
-            }
-            set
-            {
-                minSliceHeight = value.Max(1);
-            }
+            return minSliceHeight;
         }
-
-        private int maxSliceHeight;
-
-        [DefaultValue(100)]
-        public int MaxSliceHeight
+        set
         {
-            get
-            {
-                return maxSliceHeight;
-            }
-            set
-            {
-                maxSliceHeight = value.Max(1);
-            }
+            minSliceHeight = value.Max(1);
         }
+    }
 
-        [DefaultValue(0)]
-        public int MinSliceShift { get; set; }
+    private int maxSliceHeight;
 
-        [DefaultValue(10)]
-        public int MaxSliceShift { get; set; }
-
-        public Slice()
+    [DefaultValue(100)]
+    public int MaxSliceHeight
+    {
+        get
         {
-            this.ApplyDefaultPropertyValues();
+            return maxSliceHeight;
         }
-
-        public override Bitmap Apply(Bitmap bmp)
+        set
         {
-            int minSliceHeight = Math.Min(MinSliceHeight, MaxSliceHeight);
-            int maxSliceHeight = Math.Max(MinSliceHeight, MaxSliceHeight);
-            int minSliceShift = Math.Min(MinSliceShift, MaxSliceShift);
-            int maxSliceShift = Math.Max(MinSliceShift, MaxSliceShift);
-
-            using (bmp)
-            {
-                return ImageHelpers.Slice(bmp, minSliceHeight, maxSliceHeight, minSliceShift, maxSliceShift);
-            }
+            maxSliceHeight = value.Max(1);
         }
+    }
 
-        protected override string GetSummary()
+    [DefaultValue(0)]
+    public int MinSliceShift { get; set; }
+
+    [DefaultValue(10)]
+    public int MaxSliceShift { get; set; }
+
+    public Slice()
+    {
+        this.ApplyDefaultPropertyValues();
+    }
+
+    public override Image Apply(Image img)
+    {
+        int minSliceHeight = Math.Min(MinSliceHeight, MaxSliceHeight);
+        int maxSliceHeight = Math.Max(MinSliceHeight, MaxSliceHeight);
+        int minSliceShift = Math.Min(MinSliceShift, MaxSliceShift);
+        int maxSliceShift = Math.Max(MinSliceShift, MaxSliceShift);
+
+        using (img)
         {
-            return $"{MinSliceHeight}, {MaxSliceHeight}";
+            return ImageHelpers.Slice(img, minSliceHeight, maxSliceHeight, minSliceShift, maxSliceShift);
         }
+    }
+
+    protected override string GetSummary()
+    {
+        return $"{MinSliceHeight}, {MaxSliceHeight}";
     }
 }

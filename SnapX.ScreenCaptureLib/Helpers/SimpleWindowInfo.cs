@@ -6,7 +6,7 @@ using ShareX.HelpersLib;
 using System;
 using System.Drawing;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class SimpleWindowInfo
     {

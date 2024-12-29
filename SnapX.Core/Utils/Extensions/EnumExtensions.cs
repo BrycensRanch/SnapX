@@ -24,13 +24,12 @@ public static class EnumExtensions
     }
 
     public static string GetLocalizedDescription(this Enum value) => value.GetDescription();
-    // TODO: Implement Localization
-    public static string GetLocalizedDescription(this Enum value, ResourceManager resourceManager) =>
-        new NotImplementedException("GetLocalizedCategory is not implemented due to no localization existing yet.").Message;
 
-
-    public static string GetLocalizedCategory(this Enum value) =>
-        new NotImplementedException("GetLocalizedCategory is not implemented due to no localization existing yet.").Message;
+    public static string GetLocalizedCategory(this Enum value)
+    {
+        var field = value.GetType().GetField(value.ToString());
+        return Lang.ResourceManager.GetString(field?.GetCustomAttribute<CategoryAttribute>()?.Category ?? value.ToString());
+    }
 
     [RequiresDynamicCode("Uploader")]
     public static int GetIndex(this Enum value) => Array.IndexOf(Enum.GetValues(value.GetType()) as Array, value);

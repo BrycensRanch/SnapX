@@ -6,7 +6,7 @@ using ShareX.HelpersLib;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class AnnotationOptions
     {

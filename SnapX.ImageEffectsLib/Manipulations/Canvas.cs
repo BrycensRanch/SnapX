@@ -2,24 +2,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
-using System.Windows.Forms;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Manipulations
 {
     internal class Canvas : ImageEffect
     {
         [DefaultValue(typeof(Padding), "0, 0, 0, 0")]
         public Padding Margin { get; set; }
 
-        [DefaultValue(CanvasMarginMode.AbsoluteSize), Description("How the margin around the canvas will be calculated."), TypeConverter(typeof(EnumDescriptionConverter))]
+        [DefaultValue(CanvasMarginMode.AbsoluteSize), Description("How the margin around the canvas will be calculated.")]
         public CanvasMarginMode MarginMode { get; set; }
 
-        [DefaultValue(typeof(Color), "Transparent"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
+        [DefaultValue(typeof(Color), "Transparent")]
         public Color Color { get; set; }
 
         public Canvas()
@@ -33,42 +32,31 @@ namespace ShareX.ImageEffectsLib
             PercentageOfCanvas
         }
 
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
             Padding canvasMargin;
 
             if (MarginMode == CanvasMarginMode.PercentageOfCanvas)
             {
-                canvasMargin = new Padding();
-                canvasMargin.Left = (int)Math.Round(Margin.Left / 100f * bmp.Width);
-                canvasMargin.Right = (int)Math.Round(Margin.Right / 100f * bmp.Width);
-                canvasMargin.Top = (int)Math.Round(Margin.Top / 100f * bmp.Height);
-                canvasMargin.Bottom = (int)Math.Round(Margin.Bottom / 100f * bmp.Height);
+                canvasMargin = new Padding
+                {
+                    Left = (int)Math.Round(Margin.Left / 100f * img.Width),
+                    Right = (int)Math.Round(Margin.Right / 100f * img.Width),
+                    Top = (int)Math.Round(Margin.Top / 100f * img.Height),
+                    Bottom = (int)Math.Round(Margin.Bottom / 100f * img.Height),
+                };
             }
             else
             {
                 canvasMargin = Margin;
             }
 
-            Bitmap bmpResult = ImageHelpers.AddCanvas(bmp, canvasMargin, Color);
+            var imgResult = ImageHelpers.AddCanvas(img, canvasMargin, Color);
 
-            if (bmpResult == null)
-            {
-                return bmp;
-            }
-
-            bmp.Dispose();
-            return bmpResult;
+            img.Dispose();
+            return imgResult;
         }
 
-        protected override string GetSummary()
-        {
-            if (Margin.All == -1)
-            {
-                return $"{Margin.Left}, {Margin.Top}, {Margin.Right}, {Margin.Bottom}";
-            }
-
-            return Margin.All.ToString();
-        }
+        protected override string GetSummary() => Margin.ToString();
     }
 }

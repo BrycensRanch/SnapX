@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class WindowsRectangleList
     {

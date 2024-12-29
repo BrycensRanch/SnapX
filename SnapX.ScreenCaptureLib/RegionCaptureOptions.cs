@@ -2,12 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
-using ShareX.ImageEffectsLib;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class RegionCaptureOptions
     {

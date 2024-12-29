@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Manipulations
 {
     [Description("Force proportions")]
     internal class ForceProportions : ImageEffect
@@ -52,51 +51,51 @@ namespace ShareX.ImageEffectsLib
         [DefaultValue(ForceProportionsMethod.Grow)]
         public ForceProportionsMethod Method { get; set; } = ForceProportionsMethod.Grow;
 
-        [DefaultValue(typeof(Color), "Transparent"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
+        [DefaultValue(typeof(Color), "Transparent")]
         public Color GrowFillColor { get; set; } = Color.Transparent;
 
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
-            float currentRatio = bmp.Width / (float)bmp.Height;
-            float targetRatio = proportionalWidth / (float)proportionalHeight;
+            var currentRatio = img.Width / (float)img.Height;
+            var targetRatio = proportionalWidth / (float)proportionalHeight;
 
-            bool isTargetWider = targetRatio > currentRatio;
+            var isTargetWider = targetRatio > currentRatio;
 
-            int targetWidth = bmp.Width;
-            int targetHeight = bmp.Height;
-            int marginLeft = 0;
-            int marginTop = 0;
+            var targetWidth = img.Width;
+            var targetHeight = img.Height;
+            var marginLeft = 0;
+            var marginTop = 0;
 
             if (Method == ForceProportionsMethod.Crop)
             {
                 if (isTargetWider)
                 {
-                    targetHeight = (int)Math.Round(bmp.Width / targetRatio);
-                    marginTop = (bmp.Height - targetHeight) / 2;
+                    targetHeight = (int)Math.Round(img.Width / targetRatio);
+                    marginTop = (img.Height - targetHeight) / 2;
                 }
                 else
                 {
-                    targetWidth = (int)Math.Round(bmp.Height * targetRatio);
-                    marginLeft = (bmp.Width - targetWidth) / 2;
+                    targetWidth = (int)Math.Round(img.Height * targetRatio);
+                    marginLeft = (img.Width - targetWidth) / 2;
                 }
 
-                return ImageHelpers.CropBitmap(bmp, new Rectangle(marginLeft, marginTop, targetWidth, targetHeight));
+                return ImageHelpers.CropImage(img, new Rectangle(marginLeft, marginTop, targetWidth, targetHeight));
             }
             else if (Method == ForceProportionsMethod.Grow)
             {
                 if (isTargetWider)
                 {
-                    targetWidth = (int)Math.Round(bmp.Height * targetRatio);
+                    targetWidth = (int)Math.Round(img.Height * targetRatio);
                 }
                 else
                 {
-                    targetHeight = (int)Math.Round(bmp.Width / targetRatio);
+                    targetHeight = (int)Math.Round(img.Width / targetRatio);
                 }
 
-                return ImageHelpers.ResizeImage(bmp, targetWidth, targetHeight, false, true, GrowFillColor);
+                return ImageHelpers.ResizeImage(img, targetWidth, targetHeight, false, true, GrowFillColor);
             }
 
-            return bmp;
+            return img;
         }
 
         protected override string GetSummary()

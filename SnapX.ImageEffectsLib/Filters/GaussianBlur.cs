@@ -1,48 +1,47 @@
 
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-
-using ShareX.HelpersLib;
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Filters;
+[Description("Gaussian blur")]
+internal class GaussianBlur : ImageEffect
 {
-    [Description("Gaussian blur")]
-    internal class GaussianBlur : ImageEffect
+    private int radius;
+
+    [DefaultValue(15)]
+    public int Radius
     {
-        private int radius;
-
-        [DefaultValue(15)]
-        public int Radius
+        get
         {
-            get
-            {
-                return radius;
-            }
-            set
-            {
-                radius = Math.Max(value, 1);
-            }
+            return radius;
         }
-
-        public GaussianBlur()
+        set
         {
-            this.ApplyDefaultPropertyValues();
+            radius = Math.Max(value, 1);
         }
+    }
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ImageHelpers.GaussianBlur(bmp, Radius);
-            }
-        }
+    public GaussianBlur()
+    {
+        this.ApplyDefaultPropertyValues();
+    }
 
-        protected override string GetSummary()
+    public override Image Apply(Image img)
+    {
+        using (img)
         {
-            return Radius.ToString();
+            return ImageHelpers.GaussianBlur(img, Radius);
         }
+    }
+
+    protected override string GetSummary()
+    {
+        return Radius.ToString();
     }
 }

@@ -2,57 +2,48 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
+using SixLabors.ImageSharp;
+using SnapX.ImageEffectsLib.Manipulations;
+using Point = System.Drawing.Point;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     public class ImageEffectPreset
     {
         public string Name { get; set; } = "";
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
-        public List<ImageEffect> Effects { get; set; } = new List<ImageEffect>();
+        public List<ImageEffect> Effects { get; set; } = new();
 
-        public Bitmap ApplyEffects(Bitmap bmp)
+        public Image ApplyEffects(Image img)
         {
-            Bitmap result = (Bitmap)bmp.Clone();
-            result.SetResolution(96f, 96f);
+            img.Metadata.HorizontalResolution = 96f;
+            img.Metadata.VerticalResolution = 96f;
 
             if (Effects != null && Effects.Count > 0)
             {
-                foreach (ImageEffect effect in Effects.Where(x => x.Enabled))
+                foreach (var effect in Effects.Where(x => x.Enabled))
                 {
-                    result = effect.Apply(result);
+                    img = effect.Apply(img);
 
-                    if (result == null)
+                    if (img == null)
                     {
                         break;
                     }
                 }
             }
 
-            return result;
+            return img;
         }
 
-        public override string ToString()
-        {
-            if (!string.IsNullOrEmpty(Name))
-            {
-                return Name;
-            }
-
-            return "Name";
-        }
+        public override string ToString() => Name ?? "Name";
 
         public static ImageEffectPreset GetDefaultPreset()
         {
-            ImageEffectPreset preset = new ImageEffectPreset();
+            var preset = new ImageEffectPreset();
 
-            Canvas canvas = new Canvas();
+            var canvas = new Canvas();
             canvas.Margin = new Padding(0, 0, 0, 30);
             preset.Effects.Add(canvas);
 

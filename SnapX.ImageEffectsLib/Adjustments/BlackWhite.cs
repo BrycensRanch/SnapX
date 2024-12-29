@@ -6,7 +6,7 @@ using ShareX.HelpersLib;
 using System.ComponentModel;
 using System.Drawing;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     [Description("Black & white")]
     internal class BlackWhite : ImageEffect

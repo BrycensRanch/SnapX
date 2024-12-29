@@ -13,7 +13,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     [Description("Particles")]
     public class DrawParticles : ImageEffect

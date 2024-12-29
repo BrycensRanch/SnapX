@@ -4,7 +4,7 @@
 
 using System.IO;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class StickerPackInfo
     {

@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Manipulations
 {
     [Description("Auto crop")]
     internal class AutoCrop : ImageEffect
@@ -23,9 +23,9 @@ namespace ShareX.ImageEffectsLib
             this.ApplyDefaultPropertyValues();
         }
 
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
-            return ImageHelpers.AutoCropImage(bmp, true, Sides, Padding);
+            return ImageHelpers.AutoCropImage(img, true, Sides, Padding);
         }
 
         protected override string GetSummary()

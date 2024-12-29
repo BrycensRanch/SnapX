@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Manipulations
 {
     [Description("Rounded corners")]
     internal class RoundedCorners : ImageEffect
@@ -31,9 +32,9 @@ namespace ShareX.ImageEffectsLib
             this.ApplyDefaultPropertyValues();
         }
 
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
-            return ImageHelpers.RoundedCorners(bmp, CornerRadius);
+            return ImageHelpers.RoundedCorners(img, CornerRadius);
         }
 
         protected override string GetSummary()

@@ -12,7 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     internal partial class ShapeManager : IDisposable
     {

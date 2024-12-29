@@ -5,7 +5,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class EllipseRegionShape : BaseRegionShape
     {

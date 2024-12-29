@@ -6,7 +6,7 @@ using ShareX.HelpersLib;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class StickerDrawingShape : ImageDrawingShape
     {

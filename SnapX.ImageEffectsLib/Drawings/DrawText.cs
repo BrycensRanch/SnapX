@@ -11,7 +11,7 @@ using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     [Description("Text watermark")]
     public class DrawText : ImageEffect

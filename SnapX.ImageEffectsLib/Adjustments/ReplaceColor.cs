@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     [Description("Replace color")]
     internal class ReplaceColor : ImageEffect

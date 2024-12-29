@@ -2,14 +2,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System;
 using System.ComponentModel;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     public enum WatermarkType
     {
         Text,
         Image
+    }
+    [Flags]
+    public enum AnchorStyles
+    {
+        None = 0,           // No anchor style
+        Top = 1,            // Anchor to the top
+        Bottom = 2,         // Anchor to the bottom
+        Left = 4,           // Anchor to the left
+        Right = 8,          // Anchor to the right
+        TopLeft = Top | Left,        // Top-left corner
+        TopRight = Top | Right,      // Top-right corner
+        BottomLeft = Bottom | Left,  // Bottom-left corner
+        BottomRight = Bottom | Right, // Bottom-right corner
+        All = Top | Bottom | Left | Right // All sides (full anchoring)
     }
 
     public enum ResizeMode

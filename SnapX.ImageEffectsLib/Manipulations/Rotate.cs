@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Manipulations
 {
     internal class Rotate : ImageEffect
     {
@@ -24,16 +25,16 @@ namespace ShareX.ImageEffectsLib
             this.ApplyDefaultPropertyValues();
         }
 
-        public override Bitmap Apply(Bitmap bmp)
+        public override Image Apply(Image img)
         {
             if (Angle == 0)
             {
-                return bmp;
+                return img;
             }
 
-            using (bmp)
+            using (img)
             {
-                return ImageHelpers.RotateImage(bmp, Angle, Upsize, Clip);
+                return ImageHelpers.RotateImage(img, Angle, Upsize, Clip);
             }
         }
 

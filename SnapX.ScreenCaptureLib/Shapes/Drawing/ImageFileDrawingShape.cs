@@ -5,7 +5,7 @@
 using ShareX.HelpersLib;
 using System.Drawing;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public class ImageFileDrawingShape : ImageDrawingShape
     {

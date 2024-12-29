@@ -3,12 +3,12 @@
 
 
 using ShareX.HelpersLib;
-using ShareX.ScreenCaptureLib.Properties;
+using SnapX.ScreenCaptureLib.Properties;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public abstract class BaseEffectShape : BaseShape
     {

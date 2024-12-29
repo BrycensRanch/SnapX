@@ -4,7 +4,7 @@
 
 using System.Drawing;
 
-namespace ShareX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib
 {
     public abstract class BaseDrawingShape : BaseShape
     {

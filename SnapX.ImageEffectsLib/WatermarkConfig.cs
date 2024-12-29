@@ -4,7 +4,7 @@
 
 using System.Drawing;
 
-namespace ShareX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib
 {
     public class WatermarkConfig
     {
