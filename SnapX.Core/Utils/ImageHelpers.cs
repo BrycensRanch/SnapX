@@ -4,7 +4,7 @@ using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SnapX.ImageEffectsLib;
+using SnapX.Core.ImageEffects;
 using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
 
 namespace SnapX.Core.Utils;
@@ -380,14 +380,14 @@ public static class ImageHelpers
 
         return pixelatedImage;
     }
-      public static Image DrawReflection(
-        Image img,
-        float percentage,
-        float maxAlpha,
-        float minAlpha,
-        float offset,
-        bool skew, // Skew is now a boolean
-        float skewSize)
+    public static Image DrawReflection(
+      Image img,
+      float percentage,
+      float maxAlpha,
+      float minAlpha,
+      float offset,
+      bool skew, // Skew is now a boolean
+      float skewSize)
     {
         // Validate parameters
         if (percentage < 0 || percentage > 1)

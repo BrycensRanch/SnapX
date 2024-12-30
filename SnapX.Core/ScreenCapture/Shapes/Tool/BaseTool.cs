@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+namespace SnapX.Core.ScreenCapture.Shapes.Tool
+{
+    public abstract class BaseTool : BaseShape
+    {
+        public override ShapeCategory ShapeCategory { get; } = ShapeCategory.Tool;
+
+        public virtual void OnDraw(Graphics g)
+        {
+        }
+    }
+}

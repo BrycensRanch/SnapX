@@ -10,6 +10,8 @@
     <Optimize>false</Optimize>
     <PublishTrimmed>false</PublishTrimmed>
     <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <!-- Rust support ;) -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
@@ -49,8 +51,6 @@
     <PackageReference Include="FluentFTP" Version="52.0.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
-    <ProjectReference Include="..\SnapX.ImageEffectsLib\SnapX.ImageEffectsLib.csproj" />
-    <ProjectReference Include="..\SnapX.ScreenCaptureLib\SnapX.ScreenCaptureLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">
