@@ -22,6 +22,7 @@ public static class Methods
         }
     }
 
+    public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();
 
     public static void ShowWindow(WindowInfo window) => NativeAPI.ShowWindow(window);
     public static void RestoreWindow(WindowInfo window) => ShowWindow(window);

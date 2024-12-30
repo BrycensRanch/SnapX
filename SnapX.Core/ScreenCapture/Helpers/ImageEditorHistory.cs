@@ -3,6 +3,7 @@
 
 
 using SixLabors.ImageSharp;
+using SnapX.Core.ScreenCapture.Shapes;
 
 namespace SnapX.Core.ScreenCapture.Helpers
 {

@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-namespace SnapX.Core.ScreenCapture
+using SnapX.Core.Media;
+using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Native;
+
+namespace SnapX.Core.ScreenCapture.Helpers
 {
     public class WindowsList
     {
         public List<IntPtr> IgnoreWindows { get; set; }
 
-        private string[] ignoreList = new string[] { "Progman", "Button" };
+        private string[] ignoreList = new[] { "Progman", "Button" };
         private List<WindowInfo> windows;
 
         public WindowsList()
@@ -21,44 +25,30 @@ namespace SnapX.Core.ScreenCapture
 
         public List<WindowInfo> GetWindowsList()
         {
-            windows = new List<WindowInfo>();
-            EnumWindowsProc ewp = EvalWindows;
-            NativeMethods.EnumWindows(ewp, IntPtr.Zero);
+            windows = Methods.GetWindowList();
             return windows;
         }
 
         public List<WindowInfo> GetVisibleWindowsList()
         {
-            List<WindowInfo> windows = GetWindowsList();
+            var windows = GetWindowsList();
 
             return windows.Where(IsValidWindow).ToList();
         }
 
         private bool IsValidWindow(WindowInfo window)
         {
-            return window != null && window.IsVisible && !string.IsNullOrEmpty(window.Text) && IsClassNameAllowed(window) && window.Rectangle.IsValid();
+            return window != null && window.IsVisible && !string.IsNullOrEmpty(window.Title) && IsWindowAllowed(window) && window.Rectangle.IsValid();
         }
 
-        private bool IsClassNameAllowed(WindowInfo window)
+        private bool IsWindowAllowed(WindowInfo window)
         {
-            string className = window.ClassName;
+            var WindowTitle = window.Title;
 
-            if (!string.IsNullOrEmpty(className))
+            if (!string.IsNullOrEmpty(WindowTitle))
             {
-                return ignoreList.All(ignore => !className.Equals(ignore, StringComparison.OrdinalIgnoreCase));
+                return ignoreList.All(ignore => !WindowTitle.Equals(ignore, StringComparison.OrdinalIgnoreCase));
             }
-
-            return true;
-        }
-
-        private bool EvalWindows(IntPtr hWnd, IntPtr lParam)
-        {
-            if (IgnoreWindows.Any(window => hWnd == window))
-            {
-                return true;
-            }
-
-            windows.Add(new WindowInfo(hWnd));
 
             return true;
         }

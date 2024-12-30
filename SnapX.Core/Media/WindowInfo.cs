@@ -1,3 +1,4 @@
+using SixLabors.ImageSharp;
 using SnapX.Core.Utils.Native;
 
 namespace SnapX.Core.Media;
@@ -7,13 +8,14 @@ public class WindowInfo
     public WindowInfo()
     {
     }
-    public int Width { get; set; }
+    public static int Width { get; set; } = int.MinValue;
 
-    public int Height { get; set; }
+    public static int Height { get; set; } = int.MinValue;
+    public Rectangle Rectangle { get; set; } = new(X, Y, Width, Height);
 
-    public int X { get; set; } = int.MinValue;
+    public static int X { get; set; } = int.MinValue;
 
-    public int Y { get; set; } = int.MinValue;
+    public static int Y { get; set; } = int.MinValue;
 
     public string Title { get; set; } = string.Empty;
     public IntPtr Handle { get; set; } = IntPtr.Zero;

@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using SixLabors.ImageSharp;
+using SnapX.Core.Media;
 
 namespace SnapX.Core.Utils.Native;
 
@@ -13,9 +14,78 @@ public class LinuxAPI : NativeAPI
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
         return !string.IsNullOrEmpty(display);
     }
+
+    private static bool IsPlasma()
+    {
+        var sessionVersion = Environment.GetEnvironmentVariable("KDE_SESSION_VERSION");
+        return !string.IsNullOrEmpty(sessionVersion);
+    }
+
+    private static bool IsGNOME()
+    {
+        var sessionVersion = Environment.GetEnvironmentVariable("SESSIONTYPE");
+        return !string.IsNullOrEmpty(sessionVersion) && sessionVersion.ToLower().Contains("gnome");
+    }
+
     public static Rectangle GetWindowRectangle(IntPtr windowHandle)
     {
         return GetWindowRectangleX11(windowHandle);
+    }
+
+    public override List<WindowInfo> GetWindowList()
+    {
+        var windows = new List<WindowInfo>();
+        if (IsWayland())
+        {
+            if (IsPlasma())
+            {
+
+                return windows;
+            }
+
+            if (IsGNOME())
+            {
+                return windows;
+            }
+
+            return windows;
+        }
+
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+        {
+            DebugHelper.WriteLine("Unable to open X display.");
+            return windows;
+        }
+
+        var root = XDefaultRootWindow(display);  // Get the root window of the X display
+        IntPtr parent;
+        IntPtr windowsPtr;
+        uint nchildren;
+
+        // Get all the child windows of the root window
+        int status = XQueryTree(display, root, out root, out parent, out windowsPtr, out nchildren);
+        if (status == 0)
+        {
+            DebugHelper.WriteLine("XQueryTree failed.");
+            XCloseDisplay(display);
+            return windows;
+        }
+
+        // Iterate through the list of child windows
+        for (uint i = 0; i < nchildren; i++)
+        {
+            IntPtr window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
+            string title = GetWindowTitle(display, window);
+            windows.Add(new WindowInfo
+            {
+                Handle = window,
+                Title = title
+            });
+        }
+
+        XCloseDisplay(display);  // Close the display connection
+        return windows;
     }
     // Importing the necessary X11 functions
     [DllImport("libX11.so")]
@@ -23,6 +93,8 @@ public class LinuxAPI : NativeAPI
 
     [DllImport("libX11.so")]
     private static extern IntPtr XRootWindow(IntPtr display, int screen_number);
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XDefaultRootWindow(IntPtr display);
 
     [DllImport("libX11.so")]
     private static extern IntPtr XDefaultScreenOfDisplay(IntPtr display);
@@ -33,11 +105,28 @@ public class LinuxAPI : NativeAPI
     [DllImport("libX11.so")]
     private static extern int XFlush(IntPtr display);
 
+    private string GetWindowTitle(IntPtr display, IntPtr window)
+    {
+        IntPtr windowTitlePtr = XFetchName(display, window);
+        if (windowTitlePtr != IntPtr.Zero)
+        {
+            return Marshal.PtrToStringAnsi(windowTitlePtr);
+        }
+        return "Untitled";
+    }
     [DllImport("libX11.so")]
     private static extern IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
 
     [DllImport("libX11.so")]
     private static extern void XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, uint time);
+    [DllImport("libX11.so.6")]
+    private static extern int XQueryTree(IntPtr display, IntPtr window, out IntPtr root, out IntPtr parent, out IntPtr windows, out uint nchildren);
+
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XFetchName(IntPtr display, IntPtr window);
+
+    [DllImport("libX11.so.6")]
+    private static extern void XCloseDisplay(IntPtr display);
 
     // X11 Constants
     private static readonly IntPtr XA_PRIMARY = (IntPtr)1;
@@ -45,10 +134,15 @@ public class LinuxAPI : NativeAPI
 
     public override void CopyText(string text)
     {
+        if (IsWayland())
+        {
+            // call dbus to copy text to clipboard
+
+        }
         IntPtr display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            Console.WriteLine("Unable to open X11 display.");
+            DebugHelper.WriteLine("Unable to open X11 display.");
             return;
         }
 
@@ -62,7 +156,7 @@ public class LinuxAPI : NativeAPI
         XStoreBytes(display, selection, textBytes, textBytes.Length);
         XFlush(display);  // Ensure the data is written to the clipboard
 
-        Console.WriteLine("Text copied to clipboard.");
+        DebugHelper.WriteLine("Text copied to clipboard.");
     }
     // Linux (X11): Use X11's XGetGeometry
     private static Rectangle GetWindowRectangleX11(IntPtr windowHandle)
