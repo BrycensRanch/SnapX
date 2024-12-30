@@ -2,33 +2,31 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Adjustments;
+
+internal class Contrast : ImageEffect
 {
-    internal class Contrast : ImageEffect
+    [DefaultValue(1f), Description("Pixel color = Pixel color * Value\r\nExample 1.5 will increase color of pixel 50%")]
+    public float Value { get; set; }
+
+    public Contrast()
     {
-        [DefaultValue(1f), Description("Pixel color = Pixel color * Value\r\nExample 1.5 will increase color of pixel 50%")]
-        public float Value { get; set; }
+        this.ApplyDefaultPropertyValues();
+    }
 
-        public Contrast()
-        {
-            this.ApplyDefaultPropertyValues();
-        }
+    public override Image Apply(Image img)
+    {
+        img.Mutate(ctx => ctx.Contrast(Value));
+        return img;
+    }
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ColorMatrixManager.Contrast(Value).Apply(bmp);
-            }
-        }
-
-        protected override string GetSummary()
-        {
-            return Value.ToString();
-        }
+    protected override string GetSummary()
+    {
+        return Value.ToString();
     }
 }

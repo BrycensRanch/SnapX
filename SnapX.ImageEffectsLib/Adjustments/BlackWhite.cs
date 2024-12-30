@@ -2,21 +2,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Adjustments;
+
+[Description("Black & white")]
+internal class BlackWhite : ImageEffect
 {
-    [Description("Black & white")]
-    internal class BlackWhite : ImageEffect
+    public override Image Apply(Image img)
     {
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ColorMatrixManager.BlackWhite().Apply(bmp);
-            }
-        }
+        img.Mutate(ctx => ctx.Grayscale());
+
+        return img;
     }
 }

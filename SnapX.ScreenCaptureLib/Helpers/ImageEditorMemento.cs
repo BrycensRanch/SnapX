@@ -4,17 +4,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using RectangleF = System.Drawing.RectangleF;
 
-namespace SnapX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib.Helpers
 {
     internal class ImageEditorMemento : IDisposable
     {
         public List<BaseShape> Shapes { get; private set; }
         public RectangleF CanvasRectangle { get; private set; }
-        public Bitmap Canvas { get; private set; }
+        public Image Canvas { get; private set; }
 
-        public ImageEditorMemento(List<BaseShape> shapes, RectangleF canvasRectangle, Bitmap canvas = null)
+        public ImageEditorMemento(List<BaseShape> shapes, RectangleF canvasRectangle, Image canvas = null)
         {
             Shapes = shapes;
             CanvasRectangle = canvasRectangle;

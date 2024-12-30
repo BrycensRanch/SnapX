@@ -2,33 +2,31 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Adjustments;
+
+internal class Sepia : ImageEffect
 {
-    internal class Sepia : ImageEffect
+    [DefaultValue(1f)]
+    public float Value { get; set; }
+
+    public Sepia()
     {
-        [DefaultValue(1f)]
-        public float Value { get; set; }
+        this.ApplyDefaultPropertyValues();
+    }
 
-        public Sepia()
-        {
-            this.ApplyDefaultPropertyValues();
-        }
+    public override Image Apply(Image img)
+    {
+        img.Mutate(ctx => ctx.Sepia(Value));
+        return img;
+    }
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ColorMatrixManager.Sepia(Value).Apply(bmp);
-            }
-        }
-
-        protected override string GetSummary()
-        {
-            return Value.ToString();
-        }
+    protected override string GetSummary()
+    {
+        return Value.ToString();
     }
 }

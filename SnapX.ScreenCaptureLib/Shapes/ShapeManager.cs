@@ -2,17 +2,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
-using ShareX.ImageEffectsLib;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
-using System.Windows.Forms;
+using SixLabors.ImageSharp;
+using SnapX.Core.Hotkey;
+using SnapX.Core.Media;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
+using SnapX.ImageEffectsLib;
+using SnapX.ScreenCaptureLib.Helpers;
+using Vortice.Direct3D;
 
-namespace SnapX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib.Shapes
 {
     internal partial class ShapeManager : IDisposable
     {
@@ -239,7 +243,6 @@ namespace SnapX.ScreenCaptureLib
         public PointF RenderOffset { get; private set; }
         public bool IsImageModified { get; internal set; }
 
-        public InputManager InputManager { get; private set; } = new InputManager();
         public List<SimpleWindowInfo> Windows { get; set; }
         public bool WindowCaptureMode { get; set; }
         public bool IncludeControls { get; set; }
@@ -296,7 +299,7 @@ namespace SnapX.ScreenCaptureLib
         private bool isLeftPressed, isRightPressed, isUpPressed, isDownPressed;
         private ScrollbarManager scrollbarManager;
 
-        public ShapeManager(RegionCaptureForm form)
+        public ShapeManager()
         {
             Form = form;
             Options = form.Options;
@@ -1032,81 +1035,6 @@ namespace SnapX.ScreenCaptureLib
         private void EndPanning()
         {
             IsPanning = false;
-        }
-
-        internal void UpdateObjects(ImageEditorControl[] objects, PointF mousePosition)
-        {
-            if (objects.All(x => !x.IsDragging))
-            {
-                for (int i = 0; i < objects.Length; i++)
-                {
-                    ImageEditorControl obj = objects[i];
-
-                    if (!IsCtrlModifier && obj.Visible)
-                    {
-                        obj.IsCursorHover = obj.Rectangle.Contains(mousePosition);
-
-                        if (obj.IsCursorHover)
-                        {
-                            if (InputManager.IsMousePressed(MouseButtons.Left))
-                            {
-                                if (obj is ResizeNode)
-                                {
-                                    history.CreateShapesMemento();
-                                }
-
-                                obj.OnMouseDown(mousePosition.Round());
-                            }
-
-                            for (int j = i + 1; j < objects.Length; j++)
-                            {
-                                objects[j].IsCursorHover = false;
-                            }
-
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        obj.IsCursorHover = false;
-                    }
-                }
-            }
-            else
-            {
-                if (InputManager.IsMouseReleased(MouseButtons.Left))
-                {
-                    foreach (ImageEditorControl obj in objects)
-                    {
-                        if (obj.IsDragging)
-                        {
-                            obj.OnMouseUp(mousePosition.Round());
-                        }
-                    }
-                }
-            }
-        }
-
-        internal void UpdateObjects()
-        {
-            ImageEditorControl[] scrollbars = DrawableObjects.Where(x => x is ImageEditorScrollbar).ToArray();
-            ImageEditorControl[] shapes = DrawableObjects.Except(scrollbars).OrderByDescending(x => x.Order).ToArray();
-            UpdateObjects(shapes, Form.ScaledClientMousePosition);
-            UpdateObjects(scrollbars, InputManager.ClientMousePosition);
-        }
-
-        internal void DrawObjects(Graphics g)
-        {
-            if (!IsCtrlModifier)
-            {
-                foreach (ImageEditorControl obj in DrawableObjects)
-                {
-                    if (obj.Visible)
-                    {
-                        obj.OnDraw(g);
-                    }
-                }
-            }
         }
 
         private BaseShape AddShape()

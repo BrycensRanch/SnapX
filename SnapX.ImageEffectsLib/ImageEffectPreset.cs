@@ -5,8 +5,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using SixLabors.ImageSharp;
+using SnapX.ImageEffectsLib.Drawings;
 using SnapX.ImageEffectsLib.Manipulations;
-using Point = System.Drawing.Point;
 
 namespace SnapX.ImageEffectsLib
 {
@@ -47,7 +47,7 @@ namespace SnapX.ImageEffectsLib
             canvas.Margin = new Padding(0, 0, 0, 30);
             preset.Effects.Add(canvas);
 
-            DrawText text = new DrawText();
+            var text = new DrawText();
             text.Offset = new Point(0, 0);
             text.UseGradient = true;
             preset.Effects.Add(text);

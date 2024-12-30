@@ -2,43 +2,43 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+
+namespace SnapX.ImageEffectsLib.Drawings;
+
+[Description("Background image")]
+public class DrawBackgroundImage : ImageEffect
 {
-    [Description("Background image")]
-    public class DrawBackgroundImage : ImageEffect
+    [DefaultValue("")]
+    public string ImageFilePath { get; set; }
+
+    [DefaultValue(true)]
+    public bool Center { get; set; }
+
+    [DefaultValue(false)]
+    public bool Tile { get; set; }
+
+    public DrawBackgroundImage()
     {
-        [DefaultValue(""), Editor(typeof(ImageFileNameEditor), typeof(UITypeEditor))]
-        public string ImageFilePath { get; set; }
+        this.ApplyDefaultPropertyValues();
+    }
 
-        [DefaultValue(true)]
-        public bool Center { get; set; }
+    public override Image Apply(Image img)
+    {
+        return ImageHelpers.DrawBackgroundImage(img, ImageFilePath, Center, Tile);
+    }
 
-        [DefaultValue(false)]
-        public bool Tile { get; set; }
-
-        public DrawBackgroundImage()
+    protected override string GetSummary()
+    {
+        if (!string.IsNullOrEmpty(ImageFilePath))
         {
-            this.ApplyDefaultPropertyValues();
+            return FileHelpers.GetFileNameSafe(ImageFilePath);
         }
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            return ImageHelpers.DrawBackgroundImage(bmp, ImageFilePath, Center, Tile);
-        }
-
-        protected override string GetSummary()
-        {
-            if (!string.IsNullOrEmpty(ImageFilePath))
-            {
-                return FileHelpers.GetFileNameSafe(ImageFilePath);
-            }
-
-            return null;
-        }
+        return null;
     }
 }

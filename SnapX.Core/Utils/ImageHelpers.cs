@@ -17,7 +17,7 @@ public static class ImageHelpers
     // Talk is cheap, send patches.
     public static Image AddSkew(Image img, int horizontal, int vertical)
     {
-        img.Mutate(ctx => ctx.Skew((float)horizontal, (float)vertical));
+        img.Mutate(ctx => ctx.Skew(horizontal, vertical));
         return img;
     }
 
@@ -522,5 +522,167 @@ public static class ImageHelpers
         }
 
         return resultImage;
+    }
+    public static Image DrawBackgroundImage(
+        Image img,
+        string imageFilePath,
+        bool center,
+        bool tile)
+    {
+        // Load the background image
+        var backgroundImage = Image.Load<Rgba32>(imageFilePath);
+
+        // Get the size of the background image
+        int bgWidth = backgroundImage.Width;
+        int bgHeight = backgroundImage.Height;
+
+        img.Mutate(ctx =>
+        {
+            if (tile)
+            {
+                // Tile the background image to fill the whole image
+                for (int y = 0; y < img.Height; y += bgHeight)
+                {
+                    for (int x = 0; x < img.Width; x += bgWidth)
+                    {
+                        ctx.DrawImage(backgroundImage, new Point(x, y), 1f);
+                    }
+                }
+            }
+            else if (center)
+            {
+                // Center the background image
+                int xOffset = (img.Width - bgWidth) / 2;
+                int yOffset = (img.Height - bgHeight) / 2;
+                ctx.DrawImage(backgroundImage, new Point(xOffset, yOffset), 1f);
+            }
+            else
+            {
+                // Just draw the background image at the top-left corner
+                ctx.DrawImage(backgroundImage, Point.Empty, 1f);
+            }
+        });
+
+        return img;
+    }
+    public static Point GetPosition(AnchorStyles placement, Point offset, Size imageSize, Size watermarkSize)
+    {
+        int x = offset.X;
+        int y = offset.Y;
+
+        if ((placement & AnchorStyles.Top) == AnchorStyles.Top)
+        {
+            y = offset.Y; // Keep it at the top edge
+        }
+        else if ((placement & AnchorStyles.Bottom) == AnchorStyles.Bottom)
+        {
+            y = imageSize.Height - watermarkSize.Height - offset.Y; // Place at the bottom edge
+        }
+        else // Centered vertically
+        {
+            y = (imageSize.Height - watermarkSize.Height) / 2 + offset.Y;
+        }
+
+        if ((placement & AnchorStyles.Left) == AnchorStyles.Left)
+        {
+            x = offset.X; // Keep it at the left edge
+        }
+        else if ((placement & AnchorStyles.Right) == AnchorStyles.Right)
+        {
+            x = imageSize.Width - watermarkSize.Width - offset.X; // Place at the right edge
+        }
+        else // Centered horizontally
+        {
+            x = (imageSize.Width - watermarkSize.Width) / 2 + offset.X;
+        }
+
+        return new Point(x, y);
+    }
+
+    // Helper function to calculate the color distance between two colors
+    public static bool IsColorClose(Rgba32 pixel, Rgba32 sourceColor, int threshold)
+    {
+        // Calculate the distance between the source color and the pixel color using Euclidean distance
+        int deltaR = Math.Abs(pixel.R - sourceColor.R);
+        int deltaG = Math.Abs(pixel.G - sourceColor.G);
+        int deltaB = Math.Abs(pixel.B - sourceColor.B);
+
+        // If the sum of the deltas is less than the threshold, consider the colors "close enough"
+        return (deltaR + deltaG + deltaB) <= threshold;
+    }
+
+    // Helper function to find the most common color in the image (only used if autoSourceColor is true)
+    public static Color GetMostCommonColor(Rgba32[] pixelRow)
+    {
+        // Create a dictionary to count the occurrences of each color
+        var colorCounts = new Dictionary<Color, int>();
+
+        foreach (var pixel in pixelRow)
+        {
+            var color = new Rgba32(pixel.R, pixel.G, pixel.B);
+            if (colorCounts.ContainsKey(color))
+            {
+                colorCounts[color]++;
+            }
+            else
+            {
+                colorCounts[color] = 1;
+            }
+        }
+
+        // Find the color with the maximum count
+        var mostCommonColor = colorCounts.OrderByDescending(kv => kv.Value).FirstOrDefault().Key;
+        return mostCommonColor;
+    }
+    public static void ReplaceColor(this IImageProcessingContext ctx, Rgba32 sourceColor, Rgba32 targetColor, bool autoSourceColor, int threshold)
+    {
+        // Process each pixel row of the image
+        ctx.ProcessPixelRowsAsVector4((pixelRow, y) =>
+        {
+            for (int x = 0; x < pixelRow.Length; x++)
+            {
+                var pixel = pixelRow[x];
+
+                // If AutoSourceColor is true, automatically determine the source color based on the most common color in the row
+                if (autoSourceColor)
+                {
+                    sourceColor = GetMostCommonColor(pixelRow);
+                }
+
+                // Convert the Vector4 pixel to Color
+                var currentColor = new Rgba32(pixel.X, pixel.Y, pixel.Z, pixel.W);
+
+                // Calculate the color distance between the current pixel and the source color
+                if (IsColorClose(currentColor, sourceColor, threshold))
+                {
+                    // If the color is close to the source color, replace it with the target color
+                    pixelRow[x] = new Vector4(targetColor.R, targetColor.G, targetColor.B, targetColor.A);
+                }
+            }
+        });
+    }
+
+    // Helper function to find the most common color in the row of pixels (only used if autoSourceColor is true)
+    public static Color GetMostCommonColor(Span<Vector4> pixelRow)
+    {
+        // Create a dictionary to count the occurrences of each color
+        var colorCounts = new Dictionary<Color, int>();
+
+        foreach (var pixel in pixelRow)
+        {
+            var color = new Rgba32(pixel.X, pixel.Y, pixel.Z, pixel.W);
+            if (colorCounts.ContainsKey(color))
+            {
+                colorCounts[color]++;
+            }
+            else
+            {
+                colorCounts[color] = 1;
+            }
+        }
+
+        // Find the color with the maximum count
+        var mostCommonColor = colorCounts.OrderByDescending(kv => kv.Value).FirstOrDefault().Key;
+        return mostCommonColor;
     }
 }

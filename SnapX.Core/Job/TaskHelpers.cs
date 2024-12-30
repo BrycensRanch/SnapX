@@ -23,6 +23,7 @@ using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
+using SnapX.ImageEffectsLib;
 using ZXing;
 using ZXing.Common;
 using ZXing.ImageSharp.Rendering;

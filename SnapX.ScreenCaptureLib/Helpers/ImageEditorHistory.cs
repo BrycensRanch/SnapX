@@ -6,8 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using SixLabors.ImageSharp;
 
-namespace SnapX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib.Helpers
 {
     internal class ImageEditorHistory : IDisposable
     {
@@ -15,8 +16,8 @@ namespace SnapX.ScreenCaptureLib
         public bool CanRedo => redoMementoStack.Count > 0;
 
         private readonly ShapeManager shapeManager;
-        private Stack<ImageEditorMemento> undoMementoStack = new Stack<ImageEditorMemento>();
-        private Stack<ImageEditorMemento> redoMementoStack = new Stack<ImageEditorMemento>();
+        private Stack<ImageEditorMemento> undoMementoStack = new();
+        private Stack<ImageEditorMemento> redoMementoStack = new();
 
         public ImageEditorHistory(ShapeManager shapeManager)
         {
@@ -38,7 +39,7 @@ namespace SnapX.ScreenCaptureLib
         private ImageEditorMemento GetMementoFromCanvas()
         {
             List<BaseShape> shapes = shapeManager.Shapes.Select(x => x.Duplicate()).ToList();
-            Bitmap canvas = (Bitmap)shapeManager.Form.Canvas.Clone();
+            Image canvas = shapeManager.Form.Canvas.Clone();
             return new ImageEditorMemento(shapes, shapeManager.Form.CanvasRectangle, canvas);
         }
 

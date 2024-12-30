@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
 
-namespace SnapX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib.Animations
 {
     internal class RectangleAnimation : BaseAnimation
     {
@@ -22,13 +22,13 @@ namespace SnapX.ScreenCaptureLib
             {
                 base.Update();
 
-                float amount = (float)Timer.Elapsed.Ticks / Duration.Ticks;
+                var amount = (float)Timer.Elapsed.Ticks / Duration.Ticks;
                 amount = Math.Min(amount, 1);
 
-                float x = MathHelpers.Lerp(FromRectangle.X, ToRectangle.X, amount);
-                float y = MathHelpers.Lerp(FromRectangle.Y, ToRectangle.Y, amount);
-                float width = MathHelpers.Lerp(FromRectangle.Width, ToRectangle.Width, amount);
-                float height = MathHelpers.Lerp(FromRectangle.Height, ToRectangle.Height, amount);
+                var x = MathHelpers.Lerp(FromRectangle.X, ToRectangle.X, amount);
+                var y = MathHelpers.Lerp(FromRectangle.Y, ToRectangle.Y, amount);
+                var width = MathHelpers.Lerp(FromRectangle.Width, ToRectangle.Width, amount);
+                var height = MathHelpers.Lerp(FromRectangle.Height, ToRectangle.Height, amount);
 
                 CurrentRectangle = new RectangleF(x, y, width, height);
 

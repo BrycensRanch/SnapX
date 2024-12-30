@@ -2,166 +2,160 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SnapX.Core;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Drawings;
+
+[Description("Image")]
+public class DrawImage : ImageEffect
 {
-    [Description("Image")]
-    public class DrawImage : ImageEffect
+    [DefaultValue("")]
+    public string ImageLocation { get; set; }
+
+    [DefaultValue(AnchorStyles.TopLeft)]
+    public AnchorStyles Placement { get; set; }
+
+    [DefaultValue(typeof(Point), "0, 0")]
+    public Point Offset { get; set; }
+
+    [DefaultValue(DrawImageSizeMode.DontResize), Description("How the image watermark should be rescaled, if at all.")]
+    public DrawImageSizeMode SizeMode { get; set; }
+
+    [DefaultValue(typeof(Size), "0, 0")]
+    public Size Size { get; set; }
+
+    [DefaultValue(ImageRotateFlipType.None)]
+    public ImageRotateFlipType RotateFlip { get; set; }
+
+    [DefaultValue(false)]
+    public bool Tile { get; set; }
+
+    [DefaultValue(false), Description("If image watermark size bigger than source image then don't draw it.")]
+    public bool AutoHide { get; set; }
+
+    [DefaultValue(ImageInterpolationMode.HighQualityBicubic)]
+    public ImageInterpolationMode InterpolationMode { get; set; }
+
+    private int opacity;
+
+    [DefaultValue(100)]
+    public int Opacity
     {
-        [DefaultValue(""), Editor(typeof(ImageFileNameEditor), typeof(UITypeEditor))]
-        public string ImageLocation { get; set; }
-
-        [DefaultValue(ContentAlignment.TopLeft), TypeConverter(typeof(EnumProperNameConverter))]
-        public ContentAlignment Placement { get; set; }
-
-        [DefaultValue(typeof(Point), "0, 0")]
-        public Point Offset { get; set; }
-
-        [DefaultValue(DrawImageSizeMode.DontResize), Description("How the image watermark should be rescaled, if at all."), TypeConverter(typeof(EnumDescriptionConverter))]
-        public DrawImageSizeMode SizeMode { get; set; }
-
-        [DefaultValue(typeof(Size), "0, 0")]
-        public Size Size { get; set; }
-
-        [DefaultValue(ImageRotateFlipType.None), TypeConverter(typeof(EnumProperNameKeepCaseConverter))]
-        public ImageRotateFlipType RotateFlip { get; set; }
-
-        [DefaultValue(false)]
-        public bool Tile { get; set; }
-
-        [DefaultValue(false), Description("If image watermark size bigger than source image then don't draw it.")]
-        public bool AutoHide { get; set; }
-
-        [DefaultValue(ImageInterpolationMode.HighQualityBicubic), TypeConverter(typeof(EnumProperNameConverter))]
-        public ImageInterpolationMode InterpolationMode { get; set; }
-
-        [DefaultValue(CompositingMode.SourceOver), TypeConverter(typeof(EnumProperNameConverter))]
-        public CompositingMode CompositingMode { get; set; }
-
-        private int opacity;
-
-        [DefaultValue(100)]
-        public int Opacity
+        get
         {
-            get
-            {
-                return opacity;
-            }
-            set
-            {
-                opacity = value.Clamp(0, 100);
-            }
+            return opacity;
         }
-
-        public DrawImage()
+        set
         {
-            this.ApplyDefaultPropertyValues();
-        }
-
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            if (Opacity < 1 || (SizeMode != DrawImageSizeMode.DontResize && Size.Width <= 0 && Size.Height <= 0))
-            {
-                return bmp;
-            }
-
-            string imageFilePath = FileHelpers.ExpandFolderVariables(ImageLocation, true);
-
-            if (!string.IsNullOrEmpty(imageFilePath) && File.Exists(imageFilePath))
-            {
-                using (Bitmap bmpWatermark = ImageHelpers.LoadImage(imageFilePath))
-                {
-                    if (bmpWatermark != null)
-                    {
-                        if (RotateFlip != ImageRotateFlipType.None)
-                        {
-                            bmpWatermark.RotateFlip((RotateFlipType)RotateFlip);
-                        }
-
-                        Size imageSize;
-
-                        if (SizeMode == DrawImageSizeMode.AbsoluteSize)
-                        {
-                            int width = Size.Width == -1 ? bmp.Width : Size.Width;
-                            int height = Size.Height == -1 ? bmp.Height : Size.Height;
-                            imageSize = ImageHelpers.ApplyAspectRatio(width, height, bmpWatermark);
-                        }
-                        else if (SizeMode == DrawImageSizeMode.PercentageOfWatermark)
-                        {
-                            int width = (int)Math.Round(Size.Width / 100f * bmpWatermark.Width);
-                            int height = (int)Math.Round(Size.Height / 100f * bmpWatermark.Height);
-                            imageSize = ImageHelpers.ApplyAspectRatio(width, height, bmpWatermark);
-                        }
-                        else if (SizeMode == DrawImageSizeMode.PercentageOfCanvas)
-                        {
-                            int width = (int)Math.Round(Size.Width / 100f * bmp.Width);
-                            int height = (int)Math.Round(Size.Height / 100f * bmp.Height);
-                            imageSize = ImageHelpers.ApplyAspectRatio(width, height, bmpWatermark);
-                        }
-                        else
-                        {
-                            imageSize = bmpWatermark.Size;
-                        }
-
-                        Point imagePosition = Helpers.GetPosition(Placement, Offset, bmp.Size, imageSize);
-                        Rectangle imageRectangle = new Rectangle(imagePosition, imageSize);
-
-                        if (AutoHide && !new Rectangle(0, 0, bmp.Width, bmp.Height).Contains(imageRectangle))
-                        {
-                            return bmp;
-                        }
-
-                        using (Graphics g = Graphics.FromImage(bmp))
-                        {
-                            g.InterpolationMode = ImageHelpers.GetInterpolationMode(InterpolationMode);
-                            g.PixelOffsetMode = PixelOffsetMode.Half;
-                            g.CompositingMode = CompositingMode;
-
-                            if (Tile)
-                            {
-                                using (TextureBrush brush = new TextureBrush(bmpWatermark, WrapMode.Tile))
-                                {
-                                    brush.TranslateTransform(imageRectangle.X, imageRectangle.Y);
-                                    g.FillRectangle(brush, imageRectangle);
-                                }
-                            }
-                            else if (Opacity < 100)
-                            {
-                                using (ImageAttributes ia = new ImageAttributes())
-                                {
-                                    ColorMatrix matrix = ColorMatrixManager.Alpha(Opacity / 100f);
-                                    ia.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                    g.DrawImage(bmpWatermark, imageRectangle, 0, 0, bmpWatermark.Width, bmpWatermark.Height, GraphicsUnit.Pixel, ia);
-                                }
-                            }
-                            else
-                            {
-                                g.DrawImage(bmpWatermark, imageRectangle);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return bmp;
-        }
-
-        protected override string GetSummary()
-        {
-            if (!string.IsNullOrEmpty(ImageLocation))
-            {
-                return FileHelpers.GetFileNameSafe(ImageLocation);
-            }
-
-            return null;
+            opacity = value.Clamp(0, 100);
         }
     }
+
+    public DrawImage()
+    {
+        this.ApplyDefaultPropertyValues();
+    }
+
+    public override Image Apply(Image img)
+    {
+        if (Opacity < 1 || (SizeMode != DrawImageSizeMode.DontResize && Size.Width <= 0 && Size.Height <= 0))
+        {
+            return img;
+        }
+
+        var imageFilePath = FileHelpers.ExpandFolderVariables(ImageLocation, true);
+
+        if (!string.IsNullOrEmpty(imageFilePath) && File.Exists(imageFilePath))
+        {
+            using var watermark = Image.Load(imageFilePath);
+            // Apply rotation/flip if necessary
+            if (RotateFlip != ImageRotateFlipType.None)
+            {
+                watermark.Mutate(ctx =>
+                {
+                    if (RotateFlip == ImageRotateFlipType.Rotate90)
+                        ctx.Rotate(90);
+                    else if (RotateFlip == ImageRotateFlipType.Rotate180)
+                        ctx.Rotate(180);
+                    else if (RotateFlip == ImageRotateFlipType.Rotate270)
+                        ctx.Rotate(270);
+                    else if (RotateFlip == ImageRotateFlipType.FlipX)
+                        ctx.Flip(FlipMode.Horizontal);
+                    else if (RotateFlip == ImageRotateFlipType.FlipY)
+                        ctx.Flip(FlipMode.Vertical);
+                });
+            }
+
+            Size imageSize;
+            // Calculate watermark size based on SizeMode
+            if (SizeMode == DrawImageSizeMode.AbsoluteSize)
+            {
+                var width = Size.Width == -1 ? img.Width : Size.Width;
+                var height = Size.Height == -1 ? img.Height : Size.Height;
+                imageSize = ImageHelpers.ApplyAspectRatio(width, height, watermark);
+            }
+            else if (SizeMode == DrawImageSizeMode.PercentageOfWatermark)
+            {
+                var width = (int)Math.Round(Size.Width / 100f * watermark.Width);
+                var height = (int)Math.Round(Size.Height / 100f * watermark.Height);
+                imageSize = ImageHelpers.ApplyAspectRatio(width, height, watermark);
+            }
+            else if (SizeMode == DrawImageSizeMode.PercentageOfCanvas)
+            {
+                var width = (int)Math.Round(Size.Width / 100f * img.Width);
+                var height = (int)Math.Round(Size.Height / 100f * img.Height);
+                imageSize = ImageHelpers.ApplyAspectRatio(width, height, watermark);
+            }
+            else
+            {
+                imageSize = watermark.Size;
+            }
+
+            var imagePosition = ImageHelpers.GetPosition(Placement, Offset, img.Size, imageSize);
+            var imageRectangle = new Rectangle(imagePosition, imageSize);
+
+            // If AutoHide is enabled and the watermark is outside the image, don't apply it
+            if (AutoHide && !new Rectangle(0, 0, img.Width, img.Height).Contains(imageRectangle))
+            {
+                return img;
+            }
+
+            img.Mutate(ctx =>
+            {
+                if (Tile)
+                {
+                    // Tile the watermark across the image
+                    ctx.DrawImage(watermark, new Point(imageRectangle.X, imageRectangle.Y), 1f);
+                }
+                else
+                {
+                    // Apply opacity to the watermark
+                    var opacityValue = Opacity / 100f;
+
+                    // If opacity is less than 100%, apply alpha blending
+                    if (opacityValue < 1f)
+                    {
+                        ctx.DrawImage(watermark, new Point(imageRectangle.X, imageRectangle.Y), opacityValue);
+                    }
+                    else
+                    {
+                        // No opacity change, just draw the image
+                        ctx.DrawImage(watermark, new Point(imageRectangle.X, imageRectangle.Y), 1f);
+                    }
+                }
+            });
+        }
+
+        return img;
+    }
+
+    protected override string GetSummary() =>
+        string.IsNullOrEmpty(ImageLocation) ? FileHelpers.GetFileNameSafe(ImageLocation) : null;
 }

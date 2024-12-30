@@ -2,75 +2,124 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SnapX.Core;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Drawings;
+
+[Description("Border")]
+public class DrawBorder : ImageEffect
 {
-    [Description("Border")]
-    public class DrawBorder : ImageEffect
+    [DefaultValue(BorderType.Outside)]
+    public BorderType Type { get; set; }
+
+    private int size;
+
+    [DefaultValue(1)]
+    public int Size
     {
-        [DefaultValue(BorderType.Outside)]
-        public BorderType Type { get; set; }
-
-        private int size;
-
-        [DefaultValue(1)]
-        public int Size
+        get
         {
-            get
-            {
-                return size;
-            }
-            set
-            {
-                size = value.Max(1);
-            }
+            return size;
         }
-
-        [DefaultValue(DashStyle.Solid), TypeConverter(typeof(EnumProperNameConverter))]
-        public DashStyle DashStyle { get; set; }
-
-        [DefaultValue(typeof(Color), "Black"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
-        public Color Color { get; set; }
-
-        [DefaultValue(false)]
-        public bool UseGradient { get; set; }
-
-        [Editor(typeof(GradientEditor), typeof(UITypeEditor))]
-        public GradientInfo Gradient { get; set; }
-
-        public DrawBorder()
+        set
         {
-            this.ApplyDefaultPropertyValues();
-            AddDefaultGradient();
+            size = value.Max(1);
         }
+    }
 
-        private void AddDefaultGradient()
+    [DefaultValue(typeof(Color), "Black")]
+    public Color Color { get; set; }
+
+    [DefaultValue(false)]
+    public bool UseGradient { get; set; }
+
+    public GradientBrush Gradient { get; set; }
+
+    public DrawBorder()
+    {
+        this.ApplyDefaultPropertyValues();
+        AddDefaultGradient();
+    }
+
+    private void AddDefaultGradient()
+    {
+        Gradient = new LinearGradientBrush(
+            new PointF(0, 0), // Start point of the gradient
+            new PointF(1, 1), // End point of the gradient
+            GradientRepetitionMode.Repeat
+        );
+    }
+
+    public override Image Apply(Image img)
+    {
+    if (UseGradient && Gradient != null)
+    {
+        img.Mutate(ctx =>
         {
-            Gradient = new GradientInfo();
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(68, 120, 194), 0f));
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(13, 58, 122), 50f));
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(6, 36, 78), 50f));
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(23, 89, 174), 100f));
-        }
+            // Use the gradient to draw the border (top, right, bottom, left)
+            ctx.DrawLine(new SolidPen(new LinearGradientBrush(
+                new PointF(0, 0),
+                new PointF(1, 0),
+                GradientRepetitionMode.Repeat,
+                new ColorStop(0f, Rgba32.ParseHex("#4478C2")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#0D3A7A")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#06384E")),
+                new ColorStop(1f, Rgba32.ParseHex("#1759AE"))
+            ), Size), new PointF(0, 0), new PointF(img.Width, 0));  // Top border
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            if (UseGradient && Gradient != null && Gradient.IsValid)
-            {
-                return ImageHelpers.DrawBorder(bmp, Gradient, Size, Type, DashStyle);
-            }
+            ctx.DrawLine(new SolidPen(new LinearGradientBrush(
+                new PointF(0, 0),
+                new PointF(1, 0),
+                GradientRepetitionMode.Repeat,
+                new ColorStop(0f, Rgba32.ParseHex("#4478C2")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#0D3A7A")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#06384E")),
+                new ColorStop(1f, Rgba32.ParseHex("#1759AE"))
+            ), Size), new PointF(img.Width, 0), new PointF(img.Width, img.Height));  // Right border
 
-            return ImageHelpers.DrawBorder(bmp, Color, Size, Type, DashStyle);
-        }
+            ctx.DrawLine(new SolidPen(new LinearGradientBrush(
+                new PointF(0, 0),
+                new PointF(1, 0),
+                GradientRepetitionMode.Repeat,
+                new ColorStop(0f, Rgba32.ParseHex("#4478C2")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#0D3A7A")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#06384E")),
+                new ColorStop(1f, Rgba32.ParseHex("#1759AE"))
+            ), Size), new PointF(img.Width, img.Height), new PointF(0, img.Height));  // Bottom border
 
-        protected override string GetSummary()
-        {
-            return Size + "px";
-        }
+            ctx.DrawLine(new SolidPen(new LinearGradientBrush(
+                new PointF(0, 0),
+                new PointF(1, 0),
+                GradientRepetitionMode.Repeat,
+                new ColorStop(0f, Rgba32.ParseHex("#4478C2")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#0D3A7A")),
+                new ColorStop(0.5f, Rgba32.ParseHex("#06384E")),
+                new ColorStop(1f, Rgba32.ParseHex("#1759AE"))
+            ), Size), new PointF(0, img.Height), new PointF(0, 0));  // Left border
+        });
+        return img;
+    }
+
+    // Fallback to solid color border if no gradient
+     img.Mutate(ctx =>
+    {
+        ctx.DrawLine(new SolidPen(Rgba32.ParseHex(Color.ToHex()), Size), new PointF(0, 0), new PointF(img.Width, 0));  // Top border
+        ctx.DrawLine(new SolidPen(Rgba32.ParseHex(Color.ToHex()), Size), new PointF(img.Width, 0), new PointF(img.Width, img.Height));  // Right border
+        ctx.DrawLine(new SolidPen(Rgba32.ParseHex(Color.ToHex()), Size), new PointF(img.Width, img.Height), new PointF(0, img.Height));  // Bottom border
+        ctx.DrawLine(new SolidPen(Rgba32.ParseHex(Color.ToHex()), Size), new PointF(0, img.Height), new PointF(0, 0));  // Left border
+    });
+        return img;
+    }
+
+
+    protected override string GetSummary()
+    {
+        return Size + "px";
     }
 }

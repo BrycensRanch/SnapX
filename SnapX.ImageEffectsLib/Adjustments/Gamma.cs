@@ -2,33 +2,31 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Adjustments;
+internal class Gamma : ImageEffect
 {
-    internal class Gamma : ImageEffect
+    [DefaultValue(1f), Description("Min 0.1, Max 5.0")]
+    public float Value { get; set; }
+
+    public Gamma()
     {
-        [DefaultValue(1f), Description("Min 0.1, Max 5.0")]
-        public float Value { get; set; }
+        this.ApplyDefaultPropertyValues();
+    }
 
-        public Gamma()
-        {
-            this.ApplyDefaultPropertyValues();
-        }
+    public override Image Apply(Image img)
+    {
+        img.Mutate(ctx => ctx.ApplyGamma(Value));
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ColorMatrixManager.ChangeGamma(bmp, Value);
-            }
-        }
+        return img;
+    }
 
-        protected override string GetSummary()
-        {
-            return Value.ToString();
-        }
+    protected override string GetSummary()
+    {
+        return Value.ToString();
     }
 }

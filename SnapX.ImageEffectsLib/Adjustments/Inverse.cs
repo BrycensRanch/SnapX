@@ -1,20 +1,15 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
-using ShareX.HelpersLib;
-using System.Drawing;
+namespace SnapX.ImageEffectsLib.Adjustments;
 
-namespace SnapX.ImageEffectsLib
+internal class Inverse : ImageEffect
 {
-    internal class Inverse : ImageEffect
+    public override Image Apply(Image img)
     {
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ColorMatrixManager.Inverse().Apply(bmp);
-            }
-        }
+        img.Mutate(ctx => ctx.Invert());
+        return img;
     }
 }

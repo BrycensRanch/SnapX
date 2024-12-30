@@ -2,37 +2,39 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Adjustments;
+
+internal class Colorize : ImageEffect
 {
-    internal class Colorize : ImageEffect
+    [DefaultValue(typeof(Color))]
+    public Rgba32 Color { get; set; }
+
+    [DefaultValue(0f)]
+    public float Value { get; set; }
+
+    public Colorize()
     {
-        [DefaultValue(typeof(Color), "Red"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
-        public Color Color { get; set; }
+        this.ApplyDefaultPropertyValues();
+    }
 
-        [DefaultValue(0f)]
-        public float Value { get; set; }
-
-        public Colorize()
+    public override Image Apply(Image img)
+    {
+        img.Mutate(ctx =>
         {
-            this.ApplyDefaultPropertyValues();
-        }
+            ctx.ApplyColorize(Color, Value);
+        });
 
-        public override Bitmap Apply(Bitmap bmp)
-        {
-            using (bmp)
-            {
-                return ColorMatrixManager.Colorize(Color, Value).Apply(bmp);
-            }
-        }
+        return img;
+    }
 
-        protected override string GetSummary()
-        {
-            return $"{Color.R}, {Color.G}, {Color.B}";
-        }
+    protected override string GetSummary()
+    {
+        return $"{Color.R}, {Color.G}, {Color.B}";
     }
 }

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Media;
 
 namespace SnapX.ScreenCaptureLib
 {

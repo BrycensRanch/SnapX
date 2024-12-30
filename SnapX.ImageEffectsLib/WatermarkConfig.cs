@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.ImageEffectsLib.Drawings;
 
 namespace SnapX.ImageEffectsLib
 {
     public class WatermarkConfig
     {
         public WatermarkType Type = WatermarkType.Text;
-        public ContentAlignment Placement = ContentAlignment.BottomRight;
+        public AnchorStyles Placement = AnchorStyles.BottomRight;
         public int Offset = 5;
-        public DrawText Text = new DrawText { DrawTextShadow = false };
-        public DrawImage Image = new DrawImage();
+        public DrawText Text = new() { DrawTextShadow = false };
+        public DrawImage Image = new();
 
-        public Bitmap Apply(Bitmap bmp)
+        public Image Apply(Image img)
         {
             Text.Placement = Image.Placement = Placement;
             Text.Offset = Image.Offset = new Point(Offset, Offset);
@@ -23,9 +24,9 @@ namespace SnapX.ImageEffectsLib
             {
                 default:
                 case WatermarkType.Text:
-                    return Text.Apply(bmp);
+                    return Text.Apply(img);
                 case WatermarkType.Image:
-                    return Image.Apply(bmp);
+                    return Image.Apply(img);
             }
         }
     }

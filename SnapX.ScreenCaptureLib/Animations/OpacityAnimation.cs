@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
 
-namespace SnapX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib.Animations
 {
     internal class OpacityAnimation : BaseAnimation
     {
@@ -19,7 +18,7 @@ namespace SnapX.ScreenCaptureLib
             }
             private set
             {
-                opacity = value.Clamp(0, 1);
+                opacity = Math.Clamp(opacity, 0, 1);
             }
         }
 

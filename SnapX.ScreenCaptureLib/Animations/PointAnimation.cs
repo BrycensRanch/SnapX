@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
 
-namespace SnapX.ScreenCaptureLib
+namespace SnapX.ScreenCaptureLib.Animations
 {
     internal class PointAnimation : BaseAnimation
     {
@@ -25,7 +25,10 @@ namespace SnapX.ScreenCaptureLib
                 float amount = (float)Timer.Elapsed.Ticks / Duration.Ticks;
                 amount = Math.Min(amount, 1);
 
-                CurrentPosition = (Point)MathHelpers.Lerp(FromPosition, ToPosition, amount);
+                CurrentPosition = new Point(
+                    (int)(FromPosition.X + (ToPosition.X - FromPosition.X) * amount),
+                    (int)(FromPosition.Y + (ToPosition.Y - FromPosition.Y) * amount)
+                );
 
                 if (amount >= 1)
                 {

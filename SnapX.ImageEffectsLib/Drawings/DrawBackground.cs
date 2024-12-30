@@ -2,61 +2,83 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using ShareX.HelpersLib;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.ImageEffectsLib
+namespace SnapX.ImageEffectsLib.Drawings;
+
+[Description("Background")]
+public class DrawBackground : ImageEffect
 {
-    [Description("Background")]
-    public class DrawBackground : ImageEffect
+    [DefaultValue(typeof(Color), "Black")]
+    public Color Color { get; set; }
+
+    [DefaultValue(false)]
+    public bool UseGradient { get; set; }
+
+    public GradientBrush Gradient { get; set; }
+
+    public DrawBackground()
     {
-        [DefaultValue(typeof(Color), "Black"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
-        public Color Color { get; set; }
+        this.ApplyDefaultPropertyValues();
+        AddDefaultGradient();
+    }
 
-        [DefaultValue(false)]
-        public bool UseGradient { get; set; }
-
-        [Editor(typeof(GradientEditor), typeof(UITypeEditor))]
-        public GradientInfo Gradient { get; set; }
-
-        public DrawBackground()
+    private void AddDefaultGradient()
+    {
+        var gradientStops = new ColorStop[]
         {
-            this.ApplyDefaultPropertyValues();
-            AddDefaultGradient();
-        }
+            new(0f, Color.FromRgba(68, 120, 194, 255)),   // 0% position
+            new(0.5f, Color.FromRgba(13, 58, 122, 255)),  // 50% position
+            new(0.5f, Color.FromRgba(6, 36, 78, 255)),    // 50% position
+            new(1f, Color.FromRgba(23, 89, 174, 255))    // 100% position
+        };
 
-        private void AddDefaultGradient()
-        {
-            Gradient = new GradientInfo();
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(68, 120, 194), 0f));
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(13, 58, 122), 50f));
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(6, 36, 78), 50f));
-            Gradient.Colors.Add(new GradientStop(Color.FromArgb(23, 89, 174), 100f));
-        }
+        // Create a LinearGradientBrush with the defined stops
+        var gradientBrush = new LinearGradientBrush(
+            new PointF(0, 0),
+            new PointF(1, 1),
+            GradientRepetitionMode.Repeat
+        );
 
-        public override Bitmap Apply(Bitmap bmp)
+        // Create an image with a specified size
+        int width = 500;
+        int height = 500;
+        var img = new Image<Rgba32>(width, height);
+
+        // Apply the gradient to the image
+        img.Mutate(ctx =>
+                ctx.Fill(gradientBrush) // Fill the image with the gradient
+        );
+    }
+
+    public override Image Apply(Image img)
+    {
+        using (img)
         {
-            using (bmp)
+            if (UseGradient && Gradient != null)
             {
-                if (UseGradient && Gradient != null && Gradient.IsValid)
-                {
-                    return ImageHelpers.FillBackground(bmp, Gradient);
-                }
-
-                return ImageHelpers.FillBackground(bmp, Color);
+                img.Mutate(ctx => ctx.Fill(Gradient));
+                return img;
             }
-        }
-
-        protected override string GetSummary()
-        {
-            if (!UseGradient)
-            {
-                return $"{Color.R}, {Color.G}, {Color.B}";
-            }
-
-            return null;
+            img.Mutate(ctx => ctx.Fill(Color));
+            return img;
         }
     }
+
+    protected override string GetSummary()
+    {
+        if (!UseGradient)
+        {
+            return Color.ToString();
+        }
+
+        return null;
+    }
 }
+
