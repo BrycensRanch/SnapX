@@ -5,7 +5,7 @@
 - [x] Port `NativeMessagingHost` to .NET 9 (It was literally a few lines of code...)
 - [x] Replace Windows specific code in ShareX.HelpersLib
 - [x] Port `UploadersLib` to .NET 9 and remove UI code
-- [ ] Port `ScreenCaptureLib` to .NET 9 and GTK and unknown dependencies (Requires investigation)
+- [x] Port `ScreenCaptureLib` to .NET 9 and GTK and unknown dependencies (Requires investigation)
 - [x] Investigate `UploadersLib` (What is it? What does it do?)
 - It's where the uploaders are located and apply their own variables like %host%. This is a obvious code design flaw as you'll find time and time again, the functions are producing side effects everywhere that makes ShareX impossible to test.
 - [x] Investigate `IndexerLib` (What is it? What does it do?)

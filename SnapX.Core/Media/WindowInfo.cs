@@ -1,3 +1,4 @@
+using SixLabors.ImageSharp;
 using SnapX.Core.Utils.Native;
 
 namespace SnapX.Core.Media;
@@ -7,9 +8,10 @@ public class WindowInfo
     public WindowInfo()
     {
     }
-    public int Width { get; set; }
+    public int Width { get; set; } = int.MinValue;
 
-    public int Height { get; set; }
+    public int Height { get; set; } = int.MinValue;
+    public Rectangle Rectangle { get; set; } = Rectangle.Empty;
 
     public int X { get; set; } = int.MinValue;
 
@@ -23,8 +25,6 @@ public class WindowInfo
     }
 
     public bool IsVisible { get; set; } = true;
-
-    public double Opacity { get; set; } = 1.0;
 
     // The screen or monitor this window is currently on
     public Screen Screen { get; set; }

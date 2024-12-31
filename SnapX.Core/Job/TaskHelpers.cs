@@ -15,6 +15,7 @@ using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Capture;
 using SnapX.Core.CLI;
+using SnapX.Core.ImageEffects;
 using SnapX.Core.Media;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Custom;

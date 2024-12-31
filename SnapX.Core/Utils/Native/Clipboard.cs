@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -12,7 +11,7 @@ public class Clipboard
     public static bool ContainsFile() => false;
     public static bool ContainsData() => false;
     public static bool ContainsFileDropList() => false;
-    public static StringCollection GetFileDropList() => new();
+    public static List<string> GetFileDropList() => new();
     public static Image<Rgba64> GetImage() => new(1, 1);
     public static string GetText() => string.Empty;
     public static void CopyText(string text) => Methods.CopyText(text);

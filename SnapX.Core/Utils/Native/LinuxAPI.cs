@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using SixLabors.ImageSharp;
+using SnapX.Core.Media;
 
 namespace SnapX.Core.Utils.Native;
 
@@ -13,42 +14,180 @@ public class LinuxAPI : NativeAPI
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
         return !string.IsNullOrEmpty(display);
     }
+
+    private static bool IsPlasma()
+    {
+        var sessionVersion = Environment.GetEnvironmentVariable("KDE_SESSION_VERSION");
+        return !string.IsNullOrEmpty(sessionVersion);
+    }
+
+    private static bool IsGNOME()
+    {
+        var sessionVersion = Environment.GetEnvironmentVariable("SESSIONTYPE");
+        return !string.IsNullOrEmpty(sessionVersion) && sessionVersion.ToLower().Contains("gnome");
+    }
+
     public static Rectangle GetWindowRectangle(IntPtr windowHandle)
     {
         return GetWindowRectangleX11(windowHandle);
     }
-    // Importing the necessary X11 functions
+
+    public override List<WindowInfo> GetWindowList()
+    {
+        var windows = new List<WindowInfo>();
+        if (IsWayland())
+        {
+            if (IsPlasma())
+            {
+
+                return windows;
+            }
+
+            if (IsGNOME())
+            {
+                return windows;
+            }
+
+            return windows;
+        }
+
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+        {
+            DebugHelper.WriteLine("Unable to open X display.");
+            return windows;
+        }
+
+        var root = XDefaultRootWindow(display);  // Get the root window of the X display
+        IntPtr parent;
+        IntPtr windowsPtr;
+        uint nchildren;
+
+        // Get all the child windows of the root window
+        int status = XQueryTree(display, root, out root, out parent, out windowsPtr, out nchildren);
+        if (status == 0)
+        {
+            DebugHelper.WriteLine("XQueryTree failed.");
+            XCloseDisplay(display);
+            return windows;
+        }
+
+        // Iterate through the list of child windows
+        for (uint i = 0; i < nchildren; i++)
+        {
+            IntPtr window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
+            string title = GetWindowTitle(display, window);
+            IntPtr namePtr = IntPtr.Zero;
+            IntPtr propReturn;
+            uint nitems;
+            uint bytesAfter;
+            int format;
+            int x, y;
+            XWindowAttributes attributes;
+            uint width, height, borderWidth, depth;
+            XGetGeometry(display, window, out root, out x, out y, out width, out height, out borderWidth, out depth);
+
+            XGetWindowAttributes(display, window, out attributes);
+            bool isVisible = attributes.is_colormap_installed;
+
+            // Active window
+            IntPtr focusWindow;
+            int revertTo;
+            XGetInputFocus(display, out focusWindow, out revertTo);
+            bool isActive = focusWindow == window;
+            var rect = GetWindowRectangle(window);
+            windows.Add(new WindowInfo
+            {
+                Handle = window,
+                Title = title,
+                IsVisible = isVisible,
+                X = rect.X,
+                Y = rect.Y,
+                Width = rect.Width,
+                Height = rect.Height,
+                Rectangle = rect,
+                IsMinimized = IsWindowMinimized(display, window),
+                IsActive = isActive
+            });
+        }
+
+        XCloseDisplay(display);  // Close the display connection
+        return windows;
+    }
     [DllImport("libX11.so")]
     private static extern IntPtr XOpenDisplay(string display);
 
     [DllImport("libX11.so")]
     private static extern IntPtr XRootWindow(IntPtr display, int screen_number);
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XDefaultRootWindow(IntPtr display);
 
     [DllImport("libX11.so")]
     private static extern IntPtr XDefaultScreenOfDisplay(IntPtr display);
+    [DllImport("libX11.so.6")]
+    private static extern int XGetGeometry(IntPtr display, IntPtr window, out IntPtr root, out int x, out int y, out uint width, out uint height, out uint border_width, out uint depth);
+
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XGetInputFocus(IntPtr display, out IntPtr focus_window, out int revert_to);
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XGetWindowProperty(IntPtr display, IntPtr window, IntPtr property, long offset, long length, bool delete, IntPtr type, out IntPtr prop_return, out uint nitems, out uint bytes_after, out int format);
+
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XGetWMName(IntPtr display, IntPtr window, out IntPtr name);
+
+    [DllImport("libX11.so.6")]
+    private static extern int XGetWMState(IntPtr display, IntPtr window, out IntPtr state);
 
     [DllImport("libX11.so")]
     private static extern void XStoreBytes(IntPtr display, IntPtr property, byte[] data, int length);
 
     [DllImport("libX11.so")]
     private static extern int XFlush(IntPtr display);
-
+    private static bool IsWindowMinimized(IntPtr display, IntPtr hwnd)
+    {
+        IntPtr state;
+        XGetWMState(display, hwnd, out state);
+        // Minimal state is often represented as iconified
+        return state != IntPtr.Zero;
+    }
+    private string GetWindowTitle(IntPtr display, IntPtr window)
+    {
+        IntPtr windowTitlePtr = XFetchName(display, window);
+        if (windowTitlePtr != IntPtr.Zero)
+        {
+            return Marshal.PtrToStringAnsi(windowTitlePtr);
+        }
+        return "Untitled";
+    }
     [DllImport("libX11.so")]
     private static extern IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
 
     [DllImport("libX11.so")]
     private static extern void XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, uint time);
+    [DllImport("libX11.so.6")]
+    private static extern int XQueryTree(IntPtr display, IntPtr window, out IntPtr root, out IntPtr parent, out IntPtr windows, out uint nchildren);
+
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XFetchName(IntPtr display, IntPtr window);
+
+    [DllImport("libX11.so.6")]
+    private static extern void XCloseDisplay(IntPtr display);
 
     // X11 Constants
-    private static readonly IntPtr XA_PRIMARY = (IntPtr)1;
-    private static readonly IntPtr XA_CLIPBOARD = (IntPtr)2;
+    private static readonly IntPtr XA_PRIMARY = 1;
+    private static readonly IntPtr XA_CLIPBOARD = 2;
 
     public override void CopyText(string text)
     {
+        if (IsWayland())
+        {
+            // call dbus to copy text to clipboard
+
+        }
         IntPtr display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            Console.WriteLine("Unable to open X11 display.");
+            DebugHelper.WriteLine("Unable to open X11 display.");
             return;
         }
 
@@ -62,7 +201,7 @@ public class LinuxAPI : NativeAPI
         XStoreBytes(display, selection, textBytes, textBytes.Length);
         XFlush(display);  // Ensure the data is written to the clipboard
 
-        Console.WriteLine("Text copied to clipboard.");
+        DebugHelper.WriteLine("Text copied to clipboard.");
     }
     // Linux (X11): Use X11's XGetGeometry
     private static Rectangle GetWindowRectangleX11(IntPtr windowHandle)
@@ -71,8 +210,8 @@ public class LinuxAPI : NativeAPI
         if (display == IntPtr.Zero)
             throw new InvalidOperationException("Unable to open X11 display.");
 
-        XWindowAttributes attributes = new XWindowAttributes();
-        if (XGetWindowAttributes(display, windowHandle, ref attributes) != 0)
+        var attributes = new XWindowAttributes();
+        if (XGetWindowAttributes(display, windowHandle, out attributes) != 0)
         {
             return new Rectangle(attributes.x, attributes.y, attributes.width, attributes.height);
         }
@@ -81,7 +220,7 @@ public class LinuxAPI : NativeAPI
     }
 
     [DllImport("libX11.so")]
-    private static extern int XGetWindowAttributes(IntPtr display, IntPtr window, ref XWindowAttributes attributes);
+    private static extern int XGetWindowAttributes(IntPtr display, IntPtr window, out XWindowAttributes attributes);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct XWindowAttributes
@@ -90,8 +229,14 @@ public class LinuxAPI : NativeAPI
         public int width, height;
         public int border_width, depth;
         public IntPtr visual;
-        public IntPtr colormap;
-        public int class_type;
         public IntPtr root;
+        public uint class_type;
+        public int colormap;
+        public IntPtr visualid;
+        public bool is_colormap_installed;
+        public bool is_border_pixmap_installed;
+        public bool is_bounding_shape_installed;
+        public bool is_shape_installed;
     }
+
 }

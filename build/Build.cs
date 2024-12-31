@@ -138,7 +138,7 @@ class Build : NukeBuild
             }
             foreach (var manifestFile in manifestFiles)
             {
-                // Hold the brakes, is that Newtonsoft.JSON in disguise?!?!
+                // Pump the brakes, is that Newtonsoft.JSON in disguise?!?!
                 var json = JObject.Parse(File.ReadAllText(manifestFile));
                 if (string.IsNullOrWhiteSpace(NMHostPath)) continue;
 
