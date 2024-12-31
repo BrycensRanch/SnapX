@@ -13,6 +13,10 @@ public class NeedFileOpenerEvent
     public TaskSettings TaskSettings { get; set; }
 }
 
+public class NeedRegionCaptureEvent
+{
+
+}
 public class EventAggregator
 {
     private readonly List<Tuple<Type, Action<object>>> _subscriptions = new();

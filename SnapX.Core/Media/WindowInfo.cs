@@ -8,14 +8,14 @@ public class WindowInfo
     public WindowInfo()
     {
     }
-    public static int Width { get; set; } = int.MinValue;
+    public int Width { get; set; } = int.MinValue;
 
-    public static int Height { get; set; } = int.MinValue;
-    public Rectangle Rectangle { get; set; } = new(X, Y, Width, Height);
+    public int Height { get; set; } = int.MinValue;
+    public Rectangle Rectangle { get; set; } = Rectangle.Empty;
 
-    public static int X { get; set; } = int.MinValue;
+    public int X { get; set; } = int.MinValue;
 
-    public static int Y { get; set; } = int.MinValue;
+    public int Y { get; set; } = int.MinValue;
 
     public string Title { get; set; } = string.Empty;
     public IntPtr Handle { get; set; } = IntPtr.Zero;
@@ -25,8 +25,6 @@ public class WindowInfo
     }
 
     public bool IsVisible { get; set; } = true;
-
-    public double Opacity { get; set; } = 1.0;
 
     // The screen or monitor this window is currently on
     public Screen Screen { get; set; }

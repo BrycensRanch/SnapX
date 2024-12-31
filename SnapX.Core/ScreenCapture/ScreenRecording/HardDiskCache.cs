@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-namespace SnapX.Core.ScreenCapture
+using SixLabors.ImageSharp;
+using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
+
+namespace SnapX.Core.ScreenCapture.ScreenRecording
 {
     public class HardDiskCache : ImageCache
     {
@@ -32,7 +36,7 @@ namespace SnapX.Core.ScreenCapture
         {
             using (MemoryStream ms = new MemoryStream())
             {
-                img.Save(ms, ImageFormat.Bmp);
+                img.SaveAsBmp(ms);
                 long position = fsCache.Position;
                 ms.CopyStreamTo(fsCache);
                 indexList.Add(new LocationInfo(position, fsCache.Length - position));
@@ -60,7 +64,7 @@ namespace SnapX.Core.ScreenCapture
                         using (MemoryStream ms = new MemoryStream())
                         {
                             fsCache.CopyStreamTo64(ms, index.Location, (int)index.Length);
-                            yield return Image.FromStream(ms);
+                            yield return Image.Load(ms);
                         }
                     }
                 }

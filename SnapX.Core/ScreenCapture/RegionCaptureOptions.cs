@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SnapX.Core.ImageEffects;
 
 namespace SnapX.Core.ScreenCapture
 {
@@ -30,13 +31,13 @@ namespace SnapX.Core.ScreenCapture
         public int BackgroundDimStrength = 10;
         public bool UseCustomInfoText = false;
         public string CustomInfoText = "X: $x, Y: $y$nR: $r, G: $g, B: $b$nHex: $hex"; // Formats: $x, $y, $r, $g, $b, $hex, $HEX, $n
-        public List<SnapSize> SnapSizes = new List<SnapSize>()
+        public List<SnapSize> SnapSizes = new()
         {
-            new SnapSize(426, 240), // 240p
-            new SnapSize(640, 360), // 360p
-            new SnapSize(854, 480), // 480p
-            new SnapSize(1280, 720), // 720p
-            new SnapSize(1920, 1080) // 1080p
+            new(426, 240), // 240p
+            new(640, 360), // 360p
+            new(854, 480), // 480p
+            new(1280, 720), // 720p
+            new(1920, 1080) // 1080p
         };
         public bool ShowInfo = true;
         public bool ShowMagnifier = true;
@@ -61,14 +62,14 @@ namespace SnapX.Core.ScreenCapture
         public bool ActiveMonitorMode = false;
 
         // Annotation
-        public AnnotationOptions AnnotationOptions = new AnnotationOptions();
+        // public AnnotationOptions AnnotationOptions = new();
         public ShapeType LastRegionTool = ShapeType.RegionRectangle;
         public ShapeType LastAnnotationTool = ShapeType.DrawingRectangle;
         public ShapeType LastEditorTool = ShapeType.DrawingRectangle;
 
         // Image editor
         public ImageEditorStartMode ImageEditorStartMode = ImageEditorStartMode.AutoSize;
-        public WindowState ImageEditorWindowState = new WindowState();
+        public WindowState ImageEditorWindowState = new();
         public bool ZoomToFitOnOpen = false;
         public bool EditorAutoCopyImage = false;
         public bool AutoCloseEditorOnTask = false;
@@ -78,11 +79,8 @@ namespace SnapX.Core.ScreenCapture
         public bool EditorNewImageTransparent = false;
         public Color EditorNewImageBackgroundColor = Color.White;
         public Color EditorCanvasColor = Color.Transparent;
-        public List<ImageEffectPreset> ImageEffectPresets = new List<ImageEffectPreset>();
+        public List<ImageEffectPreset> ImageEffectPresets = new();
         public int SelectedImageEffectPreset = 0;
-
-        // Color picker
-        public ColorPickerOptions ColorPickerOptions = new ColorPickerOptions();
 
         // Screen color picker
         public string ScreenColorPickerInfoText = "";

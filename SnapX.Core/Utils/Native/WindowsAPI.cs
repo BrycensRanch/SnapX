@@ -3,6 +3,7 @@ using System.Management.Automation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
@@ -51,6 +52,108 @@ public class WindowsAPI : NativeAPI
 
         ShowWindow(handle, SW_SHOW);
 
+    }
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
+
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int nMaxCount);
+
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetClassName(IntPtr hwnd, StringBuilder lpClassName, int nMaxCount);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool IsWindowVisible(IntPtr hwnd);
+
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowPlacement(IntPtr hwnd, ref WINDOWPLACEMENT lpwndpl);
+
+    // Struct to hold window placement (minimized, maximized, etc.)
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WINDOWPLACEMENT
+    {
+        public int Length;
+        public int ShowCmd;
+        public System.Drawing.Point PtMinPosition;
+        public System.Drawing.Point PtMaxPosition;
+        public RECT rcNormalPosition;
+    }
+    private static (int X, int Y) GetWindowPosition(IntPtr hwnd)
+    {
+        RECT rect;
+        GetWindowRect(hwnd, out rect);
+        return (rect.Left, rect.Top);
+    }
+
+    // Method to check if a window is minimized
+    private static bool IsWindowMinimized(IntPtr hwnd)
+    {
+        WINDOWPLACEMENT placement = new WINDOWPLACEMENT();
+        placement.Length = Marshal.SizeOf(typeof(WINDOWPLACEMENT));
+        if (GetWindowPlacement(hwnd, ref placement))
+        {
+            return placement.ShowCmd == 2; // SW_MINIMIZE = 2
+        }
+        return false;
+    }
+
+    // Method to check if the window is the active (foreground) window
+    private static bool IsWindowActive(IntPtr hwnd)
+    {
+        IntPtr activeWindow = GetForegroundWindow();
+        return hwnd == activeWindow;
+    }
+
+
+    // Delegate type for EnumWindowsProc
+    public delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
+
+    // The method that is called by EnumWindows
+    private static bool EnumWindowsCallback(IntPtr hwnd, IntPtr lParam)
+    {
+        // We are only interested in top-level windows that are visible
+        if (!IsWindowVisible(hwnd))
+            return true;
+
+        var windowTitle = new StringBuilder(256);
+        GetWindowText(hwnd, windowTitle, 256);
+
+        // If the window has a non-empty title, add it to the list
+        if (windowTitle.Length > 0)
+        {
+            var (X, Y) = GetWindowPosition(hwnd);
+            var windowRECT = GetWindowRect(hwnd);
+            var windowInfo = new WindowInfo
+            {
+                Handle = hwnd,
+                Title = windowTitle.ToString(),
+                Rectangle = windowRECT,
+                X = windowRECT.X,
+                Y = windowRECT.Y,
+                Width = windowRECT.Width,
+                Height = windowRECT.Height,
+                IsVisible = IsWindowVisible(hwnd),
+                IsMinimized = IsWindowMinimized(hwnd),
+                IsActive = IsWindowActive(hwnd)
+            };
+
+            // Add the window to the global list
+            windowList.Add(windowInfo);
+        }
+
+        return true; // Continue enumeration
+    }
+
+    // List to hold the window info
+    private static List<WindowInfo> windowList = new();
+
+    // Method to get the list of windows
+    public List<WindowInfo> GetWindowList()
+    {
+        windowList.Clear();
+        EnumWindows(EnumWindowsCallback, IntPtr.Zero);
+        return windowList;
     }
 
     public override void CopyText(string text)

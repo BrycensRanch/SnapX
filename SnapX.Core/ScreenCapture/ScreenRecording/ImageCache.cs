@@ -3,8 +3,9 @@
 
 
 using System.Collections.Concurrent;
+using SixLabors.ImageSharp;
 
-namespace SnapX.Core.ScreenCapture
+namespace SnapX.Core.ScreenCapture.ScreenRecording
 {
     public abstract class ImageCache : IDisposable
     {

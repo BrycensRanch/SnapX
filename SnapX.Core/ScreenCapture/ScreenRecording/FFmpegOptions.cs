@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-namespace SnapX.Core.ScreenCapture
+using SnapX.Core.Utils;
+
+namespace SnapX.Core.ScreenCapture.ScreenRecording
 {
     public class FFmpegOptions
     {

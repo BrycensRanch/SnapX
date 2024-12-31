@@ -5,6 +5,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Core.ImageEffects;
+using SnapX.Core.Media;
 using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
 
 namespace SnapX.Core.Utils;
@@ -685,4 +686,169 @@ public static class ImageHelpers
         var mostCommonColor = colorCounts.OrderByDescending(kv => kv.Value).FirstOrDefault().Key;
         return mostCommonColor;
     }
+    /// <summary>
+    /// Applies a cut-out effect to an image with the given specifications.
+    /// </summary>
+    /// <param name="image">The image to be modified.</param>
+    /// <param name="orientation">The orientation of the cut-out (Horizontal or Vertical).</param>
+    /// <param name="cropX">The starting position of the crop.</param>
+    /// <param name="cropWidth">The width or height of the crop depending on the orientation.</param>
+    /// <param name="effectType">The type of cut-out effect to apply.</param>
+    /// <param name="effectSize">The size of the effect (used in some effects like ZigZag or Wave).</param>
+    /// <param name="backgroundColor">The background color to fill the cut-out area.</param>
+    public static void CutOutImageMiddle(
+        Image<Rgba32> image,
+        ScreenOrientation orientation,
+        int cropX,
+        int cropWidth,
+        CutOutEffectType effectType,
+        int effectSize,
+        Color backgroundColor)
+    {
+        if (image == null) throw new ArgumentNullException(nameof(image));
+
+        // Create the crop rectangle based on orientation
+        Rectangle cropRect = orientation switch
+        {
+            ScreenOrientation.Landscape => new Rectangle(cropX, 0, cropWidth, image.Height),
+            ScreenOrientation.Portrait => new Rectangle(0, cropX, image.Width, cropWidth),
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, null)
+        };
+
+        // Apply the cut-out effect to the image
+        ApplyCutOutEffect(image, cropRect, effectType, effectSize, backgroundColor);
+    }
+
+    private static void ApplyCutOutEffect(
+        Image<Rgba32> image,
+        Rectangle cropRect,
+        CutOutEffectType effectType,
+        int effectSize,
+        Color backgroundColor)
+    {
+        // Mutate the image to apply the effect
+        image.Mutate(ctx =>
+        {
+            // Fill the crop region with the specified effect type
+            switch (effectType)
+            {
+                case CutOutEffectType.None:
+                    // Just fill with a solid background color
+                    ctx.Fill(backgroundColor, cropRect);
+                    break;
+
+                case CutOutEffectType.ZigZag:
+                    ApplyZigZagEffect(ctx, cropRect, effectSize, backgroundColor);
+                    break;
+
+                case CutOutEffectType.TornEdge:
+                    ApplyTornEdgeEffect(ctx, cropRect, effectSize, backgroundColor);
+                    break;
+
+                case CutOutEffectType.Wave:
+                    ApplyWaveEffect(ctx, cropRect, effectSize, backgroundColor);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(effectType), effectType, "Unknown cut-out effect");
+            }
+        });
+    }
+
+    private static void ApplyZigZagEffect(IImageProcessingContext ctx, Rectangle cropRect, int effectSize, Color backgroundColor)
+    {
+        // Apply a zig-zag effect inside the specified crop rectangle
+        // Create a pattern that "zigzags" across the area
+        var points = new System.Collections.Generic.List<PointF>();
+
+        for (int y = cropRect.Top; y < cropRect.Bottom; y += effectSize)
+        {
+            points.Add(new PointF(cropRect.Left, y)); // Left corner
+            points.Add(new PointF(cropRect.Right, y + effectSize)); // Right corner, offset down by effectSize
+        }
+
+        // Create a zigzag path
+        var path = new PathCollection();
+        path.Append(new SixLabors.ImageSharp.Drawing.Path(points.ToArray()));
+
+        // Fill the zigzag path with the background color
+        ctx.Fill(backgroundColor, path);
+    }
+
+    private static void ApplyTornEdgeEffect(IImageProcessingContext ctx, Rectangle cropRect, int effectSize, Color backgroundColor)
+    {
+        // Apply a torn edge effect: rough edges for the crop area
+        var path = new PathCollection();
+        var random = new System.Random();
+        for (int x = cropRect.Left; x < cropRect.Right; x++)
+        {
+            var offsetY = random.Next(-effectSize, effectSize); // Random jagged offset for each x-coordinate
+                                                                // path.Append(new Segment(new PointF(x, cropRect.Top + offsetY), new PointF(x, cropRect.Bottom + offsetY)));
+        }
+
+        // Fill the jagged path with the background color
+        ctx.Fill(backgroundColor, path);
+    }
+
+    private static void ApplyWaveEffect(IImageProcessingContext ctx, Rectangle cropRect, int effectSize, Color backgroundColor)
+    {
+        // Apply a wave effect inside the specified crop rectangle
+        var points = new System.Collections.Generic.List<PointF>();
+        float amplitude = effectSize / 2f;
+
+        for (int x = cropRect.Left; x < cropRect.Right; x++)
+        {
+            float y = cropRect.Top + amplitude * (float)Math.Sin((x - cropRect.Left) * Math.PI / effectSize); // Sine wave
+            points.Add(new PointF(x, y));
+        }
+
+        // Create the wave path
+        var path = new PathCollection();
+        // path.Append(new Path(points.ToArray()));
+
+        ctx.Fill(backgroundColor, path);
+    }
+    public static Rectangle FindAutoCropRectangle(Image<Rgba32> image)
+    {
+        // Check if the image is null or empty
+        if (image == null)
+        {
+            throw new ArgumentNullException(nameof(image));
+        }
+
+        // Initialize values for the boundaries of the auto-crop rectangle
+        int minX = image.Width;
+        int minY = image.Height;
+        int maxX = 0;
+        int maxY = 0;
+
+        // Iterate over every pixel in the image to find the non-transparent boundaries
+        for (int y = 0; y < image.Height; y++)
+        {
+            for (int x = 0; x < image.Width; x++)
+            {
+                var pixel = image[x, y];
+
+                // Check if the pixel is not fully transparent (alpha > 0)
+                if (pixel.A > 0)
+                {
+                    // Update the boundaries
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        // If all pixels are transparent, return a rectangle with zero width/height
+        if (minX > maxX || minY > maxY)
+        {
+            return new Rectangle(0, 0, 0, 0);
+        }
+
+        // Return the rectangle that bounds all non-transparent pixels
+        return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
 }
+

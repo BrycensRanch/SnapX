@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Drawing;
 using System.Globalization;
 using System.Text;
+using SixLabors.ImageSharp;
 
-namespace SnapX.Core.ScreenCapture
+namespace SnapX.Core.ScreenCapture.ScreenRecording
 {
     public class ScreenRecordingOptions
     {
@@ -18,7 +18,7 @@ namespace SnapX.Core.ScreenCapture
         public Rectangle CaptureArea { get; set; }
         public float Duration { get; set; }
         public bool DrawCursor { get; set; }
-        public FFmpegOptions FFmpeg { get; set; } = new FFmpegOptions();
+        public FFmpegOptions FFmpeg { get; set; } = new();
 
         public string GetFFmpegCommands()
         {
@@ -28,13 +28,13 @@ namespace SnapX.Core.ScreenCapture
                 FFmpeg.VideoSource.Equals(FFmpegCaptureDevice.ScreenCaptureRecorder.Value, StringComparison.OrdinalIgnoreCase))
             {
                 // https://github.com/rdp/screen-capture-recorder-to-video-windows-free
-                string registryPath = "Software\\screen-capture-recorder";
-                RegistryHelpers.CreateRegistry(registryPath, "start_x", CaptureArea.X);
-                RegistryHelpers.CreateRegistry(registryPath, "start_y", CaptureArea.Y);
-                RegistryHelpers.CreateRegistry(registryPath, "capture_width", CaptureArea.Width);
-                RegistryHelpers.CreateRegistry(registryPath, "capture_height", CaptureArea.Height);
-                RegistryHelpers.CreateRegistry(registryPath, "default_max_fps", 60);
-                RegistryHelpers.CreateRegistry(registryPath, "capture_mouse_default_1", DrawCursor ? 1 : 0);
+                // string registryPath = "Software\\screen-capture-recorder";
+                // RegistryHelpers.CreateRegistry(registryPath, "start_x", CaptureArea.X);
+                // RegistryHelpers.CreateRegistry(registryPath, "start_y", CaptureArea.Y);
+                // RegistryHelpers.CreateRegistry(registryPath, "capture_width", CaptureArea.Width);
+                // RegistryHelpers.CreateRegistry(registryPath, "capture_height", CaptureArea.Height);
+                // RegistryHelpers.CreateRegistry(registryPath, "default_max_fps", 60);
+                // RegistryHelpers.CreateRegistry(registryPath, "capture_mouse_default_1", DrawCursor ? 1 : 0);
             }
 
             if (!IsLossless && FFmpeg.UseCustomCommands && !string.IsNullOrEmpty(FFmpeg.CustomCommands))
@@ -77,7 +77,7 @@ namespace SnapX.Core.ScreenCapture
                         if (FFmpeg.IsAudioSourceSelected)
                         {
                             AppendInputDevice(args, "dshow", true);
-                            args.Append($"-i audio={Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
+                            args.Append($"-i audio={Core.Utils.Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
                         }
 
                         string x = isCustom ? "$area_x$" : CaptureArea.X.ToString();
@@ -100,33 +100,33 @@ namespace SnapX.Core.ScreenCapture
                         if (FFmpeg.IsAudioSourceSelected)
                         {
                             AppendInputDevice(args, "dshow", true);
-                            args.Append($"-i audio={Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
+                            args.Append($"-i audio={Core.Utils.Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
                         }
 
-                        Screen[] screens = Screen.AllScreens.OrderBy(x => !x.Primary).ToArray();
+                        // Screen[] screens = Screen.AllScreens.OrderBy(x => !x.Primary).ToArray();
                         int monitorIndex = 0;
-                        Rectangle captureArea = screens[0].Bounds;
+                        // Rectangle captureArea = screens[0].Bounds;
                         int maxIntersectionArea = 0;
 
-                        for (int i = 0; i < screens.Length; i++)
-                        {
-                            Screen screen = screens[i];
-                            Rectangle intersection = Rectangle.Intersect(screen.Bounds, CaptureArea);
-                            int intersectionArea = intersection.Width * intersection.Height;
-
-                            if (intersectionArea > maxIntersectionArea)
-                            {
-                                maxIntersectionArea = intersectionArea;
-
-                                monitorIndex = i;
-                                captureArea = new Rectangle(intersection.X - screen.Bounds.X, intersection.Y - screen.Bounds.Y, intersection.Width, intersection.Height);
-                            }
-                        }
-
-                        if (FFmpeg.IsEvenSizeRequired)
-                        {
-                            captureArea = CaptureHelpers.EvenRectangleSize(captureArea);
-                        }
+                        // for (int i = 0; i < screens.Length; i++)
+                        // {
+                        //     Screen screen = screens[i];
+                        //     Rectangle intersection = Rectangle.Intersect(screen.Bounds, CaptureArea);
+                        //     int intersectionArea = intersection.Width * intersection.Height;
+                        //
+                        //     if (intersectionArea > maxIntersectionArea)
+                        //     {
+                        //         maxIntersectionArea = intersectionArea;
+                        //
+                        //         monitorIndex = i;
+                        //         captureArea = new Rectangle(intersection.X - screen.Bounds.X, intersection.Y - screen.Bounds.Y, intersection.Width, intersection.Height);
+                        //     }
+                        // }
+                        //
+                        // if (FFmpeg.IsEvenSizeRequired)
+                        // {
+                        //     captureArea = CaptureHelpers.EvenRectangleSize(captureArea);
+                        // }
 
                         // https://ffmpeg.org/ffmpeg-filters.html#ddagrab
                         AppendInputDevice(args, "lavfi", false);
@@ -134,9 +134,9 @@ namespace SnapX.Core.ScreenCapture
                         args.Append($"output_idx={monitorIndex}:"); // DXGI Output Index to capture.
                         args.Append($"draw_mouse={DrawCursor.ToString().ToLowerInvariant()}:"); // Whether to draw the mouse cursor.
                         args.Append($"framerate={framerate}:"); // Framerate at which the desktop will be captured.
-                        args.Append($"offset_x={captureArea.X}:"); // Horizontal offset of the captured video.
-                        args.Append($"offset_y={captureArea.Y}:"); // Vertical offset of the captured video.
-                        args.Append($"video_size={captureArea.Width}x{captureArea.Height}:"); // Specify the size of the captured video.
+                        // args.Append($"offset_x={captureArea.X}:"); // Horizontal offset of the captured video.
+                        //args.Append($"offset_y={captureArea.Y}:"); // Vertical offset of the captured video.
+                        //args.Append($"video_size={captureArea.Width}x{captureArea.Height}:"); // Specify the size of the captured video.
                         args.Append("output_fmt=bgra"); // Desired filter output format.
 
                         if (FFmpeg.VideoCodec != FFmpegVideoCodec.h264_nvenc && FFmpeg.VideoCodec != FFmpegVideoCodec.hevc_nvenc)
@@ -152,11 +152,11 @@ namespace SnapX.Core.ScreenCapture
                         // https://ffmpeg.org/ffmpeg-devices.html#dshow
                         AppendInputDevice(args, "dshow", FFmpeg.IsAudioSourceSelected);
                         args.Append($"-framerate {framerate} ");
-                        args.Append($"-i video={Helpers.EscapeCLIText(FFmpeg.VideoSource)}");
+                        args.Append($"-i video={Core.Utils.Helpers.EscapeCLIText(FFmpeg.VideoSource)}");
 
                         if (FFmpeg.IsAudioSourceSelected)
                         {
-                            args.Append($":audio={Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
+                            args.Append($":audio={Core.Utils.Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
                         }
                         else
                         {
@@ -167,7 +167,7 @@ namespace SnapX.Core.ScreenCapture
                 else if (FFmpeg.IsAudioSourceSelected)
                 {
                     AppendInputDevice(args, "dshow", true);
-                    args.Append($"-i audio={Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
+                    args.Append($"-i audio={Core.Utils.Helpers.EscapeCLIText(FFmpeg.AudioSource)} ");
                 }
             }
             else

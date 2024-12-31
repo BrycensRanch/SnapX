@@ -3,10 +3,12 @@
 
 
 using System.Diagnostics;
-using System.Drawing;
 using System.Text;
+using SixLabors.ImageSharp;
+using SnapX.Core.Media;
+using SnapX.Core.Utils;
 
-namespace SnapX.Core.ScreenCapture
+namespace SnapX.Core.ScreenCapture.ScreenRecording
 {
     public class ScreenRecorder : IDisposable
     {
@@ -188,24 +190,24 @@ namespace SnapX.Core.ScreenCapture
             {
                 FileHelpers.CreateDirectoryFromFilePath(path);
 
-                HardDiskCache hdCache = imgCache as HardDiskCache;
-
-                using (AnimatedGifCreator gifEncoder = new AnimatedGifCreator(path, delay))
-                {
-                    int i = 0;
-                    int count = hdCache.Count;
-
-                    foreach (Image img in hdCache.GetImageEnumerator())
-                    {
-                        i++;
-                        OnEncodingProgressChanged((int)((float)i / count * 100));
-
-                        using (img)
-                        {
-                            gifEncoder.AddFrame(img, quality);
-                        }
-                    }
-                }
+                var hdCache = imgCache as HardDiskCache;
+                // TODO: Reimplement AnimatedGIFCreator
+                // using (AnimatedGifCreator gifEncoder = new AnimatedGifCreator(path, delay))
+                // {
+                //     int i = 0;
+                //     int count = hdCache.Count;
+                //
+                //     foreach (Image img in hdCache.GetImageEnumerator())
+                //     {
+                //         i++;
+                //         OnEncodingProgressChanged((int)((float)i / count * 100));
+                //
+                //         using (img)
+                //         {
+                //             gifEncoder.AddFrame(img, quality);
+                //         }
+                //     }
+                // }
             }
         }
 
