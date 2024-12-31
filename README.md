@@ -84,10 +84,7 @@ sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-dev
 
 ## Building from Source
 
-Only do this if you're a developer, the solution _does_ build, but, you should have a backup of all your ShareX/SnapX data.
-The migration from Newtonsoft.Json to System.Text.Json is not done yet.
-I've personally experienced cases of configuration corruption (ie the configuration turning into an empty object)
-Any help with the migration is greatly appreciated.
+Only do this if you're a developer, the solution _does_ build, but, you should have a backup of all your ShareX/SnapX data. I do infact mean it when I say the project isn't ready for use.
 
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
