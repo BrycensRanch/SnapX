@@ -111,8 +111,10 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
         var json = JsonSerializer.Serialize(gistUpload);
 
-        var headers = new NameValueCollection();
-        headers.Add("Authorization", "token " + AuthInfo.Token.access_token);
+        var headers = new NameValueCollection
+        {
+            { "Authorization", "token " + AuthInfo.Token.access_token }
+        };
 
         var response = SendRequest(HttpMethod.Post, url, json, RequestHelpers.ContentTypeJSON, null, headers);
 

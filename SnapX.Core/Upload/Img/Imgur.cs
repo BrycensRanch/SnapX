@@ -235,7 +235,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private UploadResult InternalUpload(Stream stream, string fileName, bool refreshTokenOnError)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
+        Dictionary<string, string> args = [];
         NameValueCollection headers;
 
         if (UploadMethod == AccountType.User)

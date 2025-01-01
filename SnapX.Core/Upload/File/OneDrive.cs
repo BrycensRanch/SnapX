@@ -59,11 +59,13 @@ public sealed class OneDrive : FileUploader, IOAuth2
 
     public string GetAuthorizationURL()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("client_id", AuthInfo.Client_ID);
-        args.Add("scope", "offline_access files.readwrite");
-        args.Add("response_type", "code");
-        args.Add("redirect_uri", Links.Callback);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "client_id", AuthInfo.Client_ID },
+            { "scope", "offline_access files.readwrite" },
+            { "response_type", "code" },
+            { "redirect_uri", Links.Callback }
+        };
         if (AuthInfo.Proof != null)
         {
             args.Add("code_challenge", AuthInfo.Proof.CodeChallenge);

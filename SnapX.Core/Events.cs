@@ -19,7 +19,7 @@ public class NeedRegionCaptureEvent
 }
 public class EventAggregator
 {
-    private readonly List<Tuple<Type, Action<object>>> _subscriptions = new();
+    private readonly List<Tuple<Type, Action<object>>> _subscriptions = [];
 
     public void Subscribe<TEvent>(Action<TEvent> action)
     {

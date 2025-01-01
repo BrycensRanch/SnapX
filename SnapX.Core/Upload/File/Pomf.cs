@@ -9,72 +9,71 @@ using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 
-namespace SnapX.Core.Upload.File
+namespace SnapX.Core.Upload.File;
+
+public class PomfFileUploaderService : FileUploaderService
 {
-    public class PomfFileUploaderService : FileUploaderService
+    public override FileDestination EnumValue { get; } = FileDestination.Pomf;
+
+    public override bool CheckConfig(UploadersConfig config)
     {
-        public override FileDestination EnumValue { get; } = FileDestination.Pomf;
-
-        public override bool CheckConfig(UploadersConfig config)
-        {
-            return config.PomfUploader != null && !string.IsNullOrEmpty(config.PomfUploader.UploadURL);
-        }
-
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new Pomf(config.PomfUploader);
-        }
+        return config.PomfUploader != null && !string.IsNullOrEmpty(config.PomfUploader.UploadURL);
     }
 
-    public class Pomf : FileUploader
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public PomfUploader Uploader { get; private set; }
+        return new Pomf(config.PomfUploader);
+    }
+}
 
-        public Pomf(PomfUploader uploader)
+public class Pomf : FileUploader
+{
+    public PomfUploader Uploader { get; private set; }
+
+    public Pomf(PomfUploader uploader)
+    {
+        Uploader = uploader;
+    }
+
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
+    public override UploadResult Upload(Stream stream, string fileName)
+    {
+        UploadResult result = SendRequestFile(Uploader.UploadURL, stream, fileName, "files[]");
+
+        if (result.IsSuccess)
         {
-            Uploader = uploader;
-        }
+            PomfResponse response = JsonSerializer.Deserialize<PomfResponse>(result.Response);
 
-        [RequiresDynamicCode("Uploader")]
-        [RequiresUnreferencedCode("Uploader")]
-        public override UploadResult Upload(Stream stream, string fileName)
-        {
-            UploadResult result = SendRequestFile(Uploader.UploadURL, stream, fileName, "files[]");
-
-            if (result.IsSuccess)
+            if (response.success && response.files != null && response.files.Count > 0)
             {
-                PomfResponse response = JsonSerializer.Deserialize<PomfResponse>(result.Response);
+                string url = response.files[0].url;
 
-                if (response.success && response.files != null && response.files.Count > 0)
+                if (!URLHelpers.HasPrefix(url) && !string.IsNullOrEmpty(Uploader.ResultURL))
                 {
-                    string url = response.files[0].url;
-
-                    if (!URLHelpers.HasPrefix(url) && !string.IsNullOrEmpty(Uploader.ResultURL))
-                    {
-                        string resultURL = URLHelpers.FixPrefix(Uploader.ResultURL);
-                        url = URLHelpers.CombineURL(resultURL, url);
-                    }
-
-                    result.URL = url;
+                    string resultURL = URLHelpers.FixPrefix(Uploader.ResultURL);
+                    url = URLHelpers.CombineURL(resultURL, url);
                 }
+
+                result.URL = url;
             }
-
-            return result;
         }
 
-        private class PomfResponse
-        {
-            public bool success { get; set; }
-            public object error { get; set; }
-            public List<PomfFile> files { get; set; }
-        }
+        return result;
+    }
 
-        private class PomfFile
-        {
-            public string hash { get; set; }
-            public string name { get; set; }
-            public string url { get; set; }
-            public string size { get; set; }
-        }
+    private class PomfResponse
+    {
+        public bool success { get; set; }
+        public object error { get; set; }
+        public List<PomfFile> files { get; set; }
+    }
+
+    private class PomfFile
+    {
+        public string hash { get; set; }
+        public string name { get; set; }
+        public string url { get; set; }
+        public string size { get; set; }
     }
 }

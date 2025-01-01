@@ -181,8 +181,8 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         var newMediaItemRequest = new GooglePhotosNewMediaItemRequest
         {
             albumId = AlbumID,
-            newMediaItems = new[]
-            {
+            newMediaItems =
+            [
                 new  GooglePhotosNewMediaItem
                 {
                     simpleMediaItem = new GooglePhotosSimpleMediaItem
@@ -190,7 +190,7 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
                         uploadToken = uploadToken
                     }
                 }
-            }
+            ]
         };
 
         var newMediaItemRequestArgs = new Dictionary<string, string>

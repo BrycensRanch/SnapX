@@ -38,10 +38,12 @@ public sealed class SulUploader : FileUploader
 
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        var args = new Dictionary<string, string>()
-        args.Add("wizard", "true");
-        args.Add("key", APIKey);
-        args.Add("client", "sharex-native");
+        var args = new Dictionary<string, string>
+        {
+            { "wizard", "true" },
+            { "key", APIKey },
+            { "client", "sharex-native" }
+        };
 
         string url = "https://s-ul.eu";
         string upload_url = URLHelpers.CombineURL(url, "api/v1/upload");

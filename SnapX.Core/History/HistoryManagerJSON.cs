@@ -21,20 +21,20 @@ public class HistoryManagerJSON : HistoryManager
     protected override List<HistoryItem> Load(string filePath)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
-            return new List<HistoryItem>();
+            return [];
 
         lock (thisLock)
         {
             string json = System.IO.File.ReadAllText(filePath, Encoding.UTF8);
 
             if (string.IsNullOrEmpty(json))
-                return new List<HistoryItem>();
+                return [];
 
             // Wrap the json in an array format (since the original code expected a JSON array)
             json = "[" + json + "]";
 
             // Deserialize the JSON string into a List of HistoryItem objects
-            return JsonSerializer.Deserialize<List<HistoryItem>>(json) ?? new List<HistoryItem>();
+            return JsonSerializer.Deserialize<List<HistoryItem>>(json) ?? [];
         }
     }
 

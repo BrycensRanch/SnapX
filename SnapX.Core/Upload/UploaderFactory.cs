@@ -9,8 +9,8 @@ namespace SnapX.Core.Upload;
 
 public static class UploaderFactory
 {
-    public static List<IUploaderService> AllServices { get; } = new List<IUploaderService>();
-    public static List<IGenericUploaderService> AllGenericUploaderServices { get; } = new List<IGenericUploaderService>();
+    public static List<IUploaderService> AllServices { get; } = [];
+    public static List<IGenericUploaderService> AllGenericUploaderServices { get; } = [];
     public static Dictionary<ImageDestination, ImageUploaderService> ImageUploaderServices { get; } = CacheServices<ImageDestination, ImageUploaderService>();
     public static Dictionary<TextDestination, TextUploaderService> TextUploaderServices { get; } = CacheServices<TextDestination, TextUploaderService>();
     public static Dictionary<FileDestination, FileUploaderService> FileUploaderServices { get; } = CacheServices<FileDestination, FileUploaderService>();

@@ -4,14 +4,13 @@ using GdkPixbuf;
 using Gio;
 using GObject;
 using Gtk;
+using SixLabors.ImageSharp;
 using SnapX.Core;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Native;
-using SixLabors.ImageSharp;
 using SnapX.Core.Utils.Miscellaneous;
+using SnapX.Core.Utils.Native;
 using AboutDialog = SnapX.GTK4.AboutDialog;
-using Image = Gtk.Image;
 using MessageType = Gst.MessageType;
 
 var snapx = new SnapX.Core.SnapX();
@@ -87,7 +86,7 @@ application.OnActivate += (sender, eventArgs) =>
             else
             {
                 dialog.Show();
-                var file =  dialog.GetFile();
+                var file = dialog.GetFile();
                 if (file == null)
                 {
                     mainWindow.Title = "SnapX | File upload cancelled";
@@ -106,7 +105,7 @@ application.OnActivate += (sender, eventArgs) =>
         imageURLTextBox.PlaceholderText =
             "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
 
-    var demoTestButton = new Button();
+        var demoTestButton = new Button();
         demoTestButton.Label = "Upload Remote Image";
         demoTestButton.OnClicked += (_, __) =>
         {
@@ -128,8 +127,8 @@ application.OnActivate += (sender, eventArgs) =>
         mainWindow.SetVisible(true);
         var dialog = new AboutDialog();
         dialog.SetApplication(application);
-        dialog.AddCreditSection("ShareX Team", new[] { Links.Jaex, Links.McoreD });
-        dialog.AddCreditSection("Mentions", new[] { "benbryant0" });
+        dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
+        dialog.AddCreditSection("Mentions", ["benbryant0"]);
         var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
         var osInfo = OsInfo.GetFancyOSNameAndVersion();
         var assembly = Assembly.GetExecutingAssembly();

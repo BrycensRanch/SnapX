@@ -19,7 +19,7 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Compile);
+    public static int Main() => Execute<Build>(x => x.Compile);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -27,7 +27,7 @@ class Build : NukeBuild
     readonly AbsolutePath OutputDirectory = RootDirectory / "Output";
     const string Namespace = "SnapX.";
 
-    static string[] ProjectNames = new[] { "GTK4", "Avalonia", "CLI", "NativeMessagingHost" };
+    static string[] ProjectNames = ["GTK4", "Avalonia", "CLI", "NativeMessagingHost"];
     readonly string[] ProjectsToBuild = ProjectNames
         .Where(projectName => OperatingSystem.IsLinux() || projectName != "GTK4")
         .Select(projectName => Path.Combine(RootDirectory, Namespace + projectName, Namespace + projectName + ".csproj"))
@@ -151,6 +151,6 @@ class Build : NukeBuild
         .After(Compile)
         .Executes(() =>
         {
-        // To be implemented
+            // To be implemented
         });
 }

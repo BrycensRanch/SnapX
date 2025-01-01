@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Platform.Storage;
@@ -10,9 +9,7 @@ using Avalonia.Styling;
 using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
-using SnapX.Avalonia.Services;
 using SnapX.Core;
-using SnapX.Core.Job;
 using SnapX.Core.Upload;
 
 namespace SnapX.Avalonia;

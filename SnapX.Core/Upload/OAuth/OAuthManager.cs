@@ -48,16 +48,18 @@ public static class OAuthManager
             { ParameterVersion, oauth.OAuthVersion },
             { ParameterNonce, GenerateNonce() },
             { ParameterTimestamp, GenerateTimestamp() },
-            { ParameterConsumerKey, oauth.ConsumerKey }
+            { ParameterConsumerKey, oauth.ConsumerKey },
+            // Add signature method
+            {
+                ParameterSignatureMethod,
+                oauth.SignatureMethod switch
+                {
+                    OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1 => HMACSHA1SignatureType,
+                    OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1 => RSASHA1SignatureType,
+                    _ => throw new NotImplementedException("Unsupported signature method")
+                }
+            }
         };
-
-        // Add signature method
-        parameters.Add(ParameterSignatureMethod, oauth.SignatureMethod switch
-        {
-            OAuthInfo.OAuthInfoSignatureMethod.HMAC_SHA1 => HMACSHA1SignatureType,
-            OAuthInfo.OAuthInfoSignatureMethod.RSA_SHA1 => RSASHA1SignatureType,
-            _ => throw new NotImplementedException("Unsupported signature method")
-        });
 
         // Add token parameters if present
         string secret = null;

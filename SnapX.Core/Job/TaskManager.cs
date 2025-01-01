@@ -13,7 +13,7 @@ namespace SnapX.Core.Job;
 
 public static class TaskManager
 {
-    public static List<WorkerTask> Tasks { get; } = new List<WorkerTask>();
+    public static List<WorkerTask> Tasks { get; } = [];
     public static RecentTaskManager RecentManager { get; } = new RecentTaskManager();
     public static bool IsBusy => Tasks.Count > 0 && Tasks.Any(task => task.IsBusy);
 

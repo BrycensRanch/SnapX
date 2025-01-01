@@ -5,29 +5,28 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.ImageEffects.Drawings;
 
-namespace SnapX.Core.ImageEffects
+namespace SnapX.Core.ImageEffects;
+
+public class WatermarkConfig
 {
-    public class WatermarkConfig
+    public WatermarkType Type = WatermarkType.Text;
+    public AnchorStyles Placement = AnchorStyles.BottomRight;
+    public int Offset = 5;
+    public DrawText Text = new() { DrawTextShadow = false };
+    public DrawImage Image = new();
+
+    public Image Apply(Image img)
     {
-        public WatermarkType Type = WatermarkType.Text;
-        public AnchorStyles Placement = AnchorStyles.BottomRight;
-        public int Offset = 5;
-        public DrawText Text = new() { DrawTextShadow = false };
-        public DrawImage Image = new();
+        Text.Placement = Image.Placement = Placement;
+        Text.Offset = Image.Offset = new Point(Offset, Offset);
 
-        public Image Apply(Image img)
+        switch (Type)
         {
-            Text.Placement = Image.Placement = Placement;
-            Text.Offset = Image.Offset = new Point(Offset, Offset);
-
-            switch (Type)
-            {
-                default:
-                case WatermarkType.Text:
-                    return Text.Apply(img);
-                case WatermarkType.Image:
-                    return Image.Apply(img);
-            }
+            default:
+            case WatermarkType.Text:
+                return Text.Apply(img);
+            case WatermarkType.Image:
+                return Image.Apply(img);
         }
     }
 }

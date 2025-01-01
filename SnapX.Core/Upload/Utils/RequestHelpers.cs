@@ -55,11 +55,11 @@ internal static class RequestHelpers
             // Cookie handling
             if (headers["Cookie"] != null)
             {
-                cookies ??= new CookieCollection();
+                cookies ??= [];
                 var cookieHeader = headers["Cookie"];
-                foreach (var cookie in cookieHeader.Split(new[] { "; " }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var cookie in cookieHeader.Split(["; "], StringSplitOptions.RemoveEmptyEntries))
                 {
-                    var cookieValues = cookie.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                    var cookieValues = cookie.Split(['='], StringSplitOptions.RemoveEmptyEntries);
                     if (cookieValues.Length == 2)
                     {
                         cookies.Add(new Cookie(cookieValues[0], cookieValues[1], "/", new Uri(url).Host));

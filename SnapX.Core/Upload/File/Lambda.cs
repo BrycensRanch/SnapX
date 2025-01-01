@@ -42,14 +42,16 @@ public sealed class Lambda : FileUploader
 
     private const string uploadUrl = "https://lbda.net/api/upload";
 
-    public static string[] UploadURLs = new string[] { "https://lbda.net/", "https://lambda.sx/" };
+    public static string[] UploadURLs = ["https://lbda.net/", "https://lambda.sx/"];
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        Dictionary<string, string> arguments = new Dictionary<string, string>();
-        arguments.Add("api_key", Config.UserAPIKey);
+        Dictionary<string, string> arguments = new Dictionary<string, string>
+        {
+            { "api_key", Config.UserAPIKey }
+        };
         UploadResult result = SendRequestFile(uploadUrl, stream, fileName, "file", arguments, method: HttpMethod.Put);
 
         if (result.Response == null)

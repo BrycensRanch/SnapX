@@ -7,43 +7,42 @@ using SixLabors.ImageSharp;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.ImageEffects.Manipulations
+namespace SnapX.Core.ImageEffects.Manipulations;
+
+internal class Crop : ImageEffect
 {
-    internal class Crop : ImageEffect
+    private Padding margin;
+
+    [DefaultValue(typeof(Padding), "0, 0, 0, 0")]
+    public Padding Margin
     {
-        private Padding margin;
-
-        [DefaultValue(typeof(Padding), "0, 0, 0, 0")]
-        public Padding Margin
+        get
         {
-            get
+            return margin;
+        }
+        set
+        {
+            if (value.Top >= 0 && value.Right >= 0 && value.Bottom >= 0 && value.Left >= 0)
             {
-                return margin;
-            }
-            set
-            {
-                if (value.Top >= 0 && value.Right >= 0 && value.Bottom >= 0 && value.Left >= 0)
-                {
-                    margin = value;
-                }
+                margin = value;
             }
         }
-
-        public Crop()
-        {
-            this.ApplyDefaultPropertyValues();
-        }
-
-        public override Image Apply(Image img)
-        {
-            if (margin.Top == 0 && margin.Left == 0 && margin.Bottom == 0 && margin.Right == 0)
-            {
-                return img;  // No margin to apply, return the image as is.
-            }
-
-            return ImageHelpers.CropImage(img, new Rectangle(Margin.Left, Margin.Top, img.Width - Margin.Top, img.Height - Margin.Bottom));
-        }
-
-        protected override string GetSummary() => Margin.ToString();
     }
+
+    public Crop()
+    {
+        this.ApplyDefaultPropertyValues();
+    }
+
+    public override Image Apply(Image img)
+    {
+        if (margin.Top == 0 && margin.Left == 0 && margin.Bottom == 0 && margin.Right == 0)
+        {
+            return img;  // No margin to apply, return the image as is.
+        }
+
+        return ImageHelpers.CropImage(img, new Rectangle(Margin.Left, Margin.Top, img.Width - Margin.Top, img.Height - Margin.Bottom));
+    }
+
+    protected override string GetSummary() => Margin.ToString();
 }

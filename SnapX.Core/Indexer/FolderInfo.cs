@@ -21,8 +21,8 @@ public class FolderInfo
     public FolderInfo(string folderPath)
     {
         FolderPath = folderPath;
-        Files = new List<FileInfo>();
-        Folders = new List<FolderInfo>();
+        Files = [];
+        Folders = [];
     }
 
     public void Update()

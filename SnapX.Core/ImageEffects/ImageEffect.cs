@@ -6,44 +6,43 @@ using System.ComponentModel;
 using SixLabors.ImageSharp;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.ImageEffects
+namespace SnapX.Core.ImageEffects;
+
+public abstract class ImageEffect
 {
-    public abstract class ImageEffect
+    [DefaultValue(true), Browsable(false)]
+    public bool Enabled { get; set; }
+
+    [DefaultValue(""), Browsable(false)]
+    public string Name { get; set; }
+
+    protected ImageEffect()
     {
-        [DefaultValue(true), Browsable(false)]
-        public bool Enabled { get; set; }
+        Enabled = true;
+    }
 
-        [DefaultValue(""), Browsable(false)]
-        public string Name { get; set; }
+    public abstract Image Apply(Image img);
 
-        protected ImageEffect()
+    protected virtual string GetSummary()
+    {
+        return null;
+    }
+
+    public override string ToString()
+    {
+        if (!string.IsNullOrEmpty(Name))
         {
-            Enabled = true;
+            return Name;
         }
 
-        public abstract Image Apply(Image img);
+        string name = GetType().GetDescription();
+        string summary = GetSummary();
 
-        protected virtual string GetSummary()
+        if (!string.IsNullOrEmpty(summary))
         {
-            return null;
+            name = $"{name}: {summary}";
         }
 
-        public override string ToString()
-        {
-            if (!string.IsNullOrEmpty(Name))
-            {
-                return Name;
-            }
-
-            string name = GetType().GetDescription();
-            string summary = GetSummary();
-
-            if (!string.IsNullOrEmpty(summary))
-            {
-                name = $"{name}: {summary}";
-            }
-
-            return name;
-        }
+        return name;
     }
 }

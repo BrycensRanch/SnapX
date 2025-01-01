@@ -260,7 +260,7 @@ public static class StringExtensions
 
     public static string[] Lines(this string text)
     {
-        return text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+        return text.Split(["\r\n", "\n"], StringSplitOptions.None);
     }
 
     public static string ReplaceNewLines(this string text, string replacement = "\r\n")

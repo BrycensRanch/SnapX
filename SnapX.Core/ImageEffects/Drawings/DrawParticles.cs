@@ -72,7 +72,7 @@ public class DrawParticles : ImageEffect
     [DefaultValue(false)]
     public bool EdgeOverlap { get; set; }
 
-    private List<Rectangle> imageRectangles = new();
+    private List<Rectangle> imageRectangles = [];
 
     public DrawParticles()
     {

@@ -10,7 +10,7 @@ namespace SnapX.Core.Upload;
 public class UploaderFilter
 {
     public string Uploader { get; set; }
-    public List<string> Extensions { get; set; } = new();
+    public List<string> Extensions { get; set; } = [];
     //public long Size { get; set; }
 
     public UploaderFilter()
@@ -38,7 +38,7 @@ public class UploaderFilter
     public void SetExtensions(string extensions)
     {
         Extensions = string.IsNullOrEmpty(extensions)
-            ? new List<string>()
+            ? []
             : extensions.Split(',')
                 .Select(x => x.Trim())
                 .Where(x => !string.IsNullOrEmpty(x))

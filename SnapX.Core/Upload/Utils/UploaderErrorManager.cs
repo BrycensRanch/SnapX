@@ -13,7 +13,7 @@ public class UploaderErrorManager
 
     public UploaderErrorManager()
     {
-        Errors = new List<UploaderErrorInfo>();
+        Errors = [];
     }
 
     public void Add(string text)

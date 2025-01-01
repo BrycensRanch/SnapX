@@ -7,39 +7,38 @@ using SixLabors.ImageSharp;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.ImageEffects.Manipulations
+namespace SnapX.Core.ImageEffects.Manipulations;
+
+[Description("Rounded corners")]
+internal class RoundedCorners : ImageEffect
 {
-    [Description("Rounded corners")]
-    internal class RoundedCorners : ImageEffect
+    private int cornerRadius;
+
+    [DefaultValue(20)]
+    public int CornerRadius
     {
-        private int cornerRadius;
-
-        [DefaultValue(20)]
-        public int CornerRadius
+        get
         {
-            get
-            {
-                return cornerRadius;
-            }
-            set
-            {
-                cornerRadius = value.Max(0);
-            }
+            return cornerRadius;
         }
-
-        public RoundedCorners()
+        set
         {
-            this.ApplyDefaultPropertyValues();
+            cornerRadius = value.Max(0);
         }
+    }
 
-        public override Image Apply(Image img)
-        {
-            return ImageHelpers.RoundedCorners(img, CornerRadius);
-        }
+    public RoundedCorners()
+    {
+        this.ApplyDefaultPropertyValues();
+    }
 
-        protected override string GetSummary()
-        {
-            return CornerRadius.ToString();
-        }
+    public override Image Apply(Image img)
+    {
+        return ImageHelpers.RoundedCorners(img, CornerRadius);
+    }
+
+    protected override string GetSummary()
+    {
+        return CornerRadius.ToString();
     }
 }

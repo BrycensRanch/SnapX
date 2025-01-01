@@ -30,9 +30,11 @@ public class IsgdURLShortener : URLShortener
 
         if (!string.IsNullOrEmpty(url))
         {
-            Dictionary<string, string> arguments = new Dictionary<string, string>();
-            arguments.Add("format", "simple");
-            arguments.Add("url", url);
+            Dictionary<string, string> arguments = new Dictionary<string, string>
+            {
+                { "format", "simple" },
+                { "url", url }
+            };
 
             result.Response = SendRequest(HttpMethod.Get, APIURL, arguments);
 

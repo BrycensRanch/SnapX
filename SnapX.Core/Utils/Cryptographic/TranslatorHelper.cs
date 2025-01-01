@@ -67,7 +67,7 @@ public static class TranslatorHelper
     public static string ASCIIToText(string ascii)
     {
         var bytes = ascii
-            .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+            .Split([' '], StringSplitOptions.RemoveEmptyEntries)
             .Where(s => byte.TryParse(s, out _))
             .Select(s => byte.Parse(s))
             .ToArray();

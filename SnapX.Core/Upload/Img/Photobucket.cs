@@ -141,7 +141,7 @@ public class PhotobucketAccountInfo
 
     public string AlbumID { get; set; }
 
-    public List<string> AlbumList = new List<string>();
+    public List<string> AlbumList = [];
     public int ActiveAlbumID = 0;
 
     public string ActiveAlbumPath

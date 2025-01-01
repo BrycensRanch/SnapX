@@ -25,9 +25,9 @@ public class App : Application
         };
         // for macOS
         Current!.Name = Core.SnapX.AppName;
-        #if DEBUG
-          Current.AttachDevTools();
-        #endif
+#if DEBUG
+        Current.AttachDevTools();
+#endif
 
         // Default logic doesn't auto detect windows theme anymore in designer
         // to stop light mode, force here

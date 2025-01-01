@@ -90,7 +90,7 @@ public class TaskSettings
     public TaskSettingsUpload UploadSettings = new TaskSettingsUpload();
 
     public bool UseDefaultActions = true;
-    public List<ExternalProgram> ExternalPrograms = new List<ExternalProgram>();
+    public List<ExternalProgram> ExternalPrograms = [];
 
     public bool UseDefaultToolsSettings = true;
     public TaskSettingsTools ToolsSettings = new TaskSettingsTools();
@@ -113,7 +113,7 @@ public class TaskSettings
     public TaskSettingsAdvanced AdvancedSettings = new TaskSettingsAdvanced();
 
     public bool WatchFolderEnabled = false;
-    public List<WatchFolderSettings> WatchFolderList = new List<WatchFolderSettings>();
+    public List<WatchFolderSettings> WatchFolderList = [];
 
     public override string ToString()
     {
@@ -418,7 +418,7 @@ public class TaskSettingsUpload
 
     #region Upload / Uploader filters
 
-    public List<UploaderFilter> UploaderFilters = new List<UploaderFilter>();
+    public List<UploaderFilter> UploaderFilters = [];
 
     #endregion Upload / Uploader filters
 }

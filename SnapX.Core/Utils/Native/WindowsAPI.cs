@@ -146,7 +146,7 @@ public class WindowsAPI : NativeAPI
     }
 
     // List to hold the window info
-    private static List<WindowInfo> windowList = new();
+    private static List<WindowInfo> windowList = [];
 
     // Method to get the list of windows
     public List<WindowInfo> GetWindowList()
@@ -954,7 +954,7 @@ public class WindowsAPI : NativeAPI
     {
         // First method: HKEY_CLASSES_ROOT\Applications\{fileName}\shell\{command}\command
 
-        string[] commands = new string[] { "open", "edit" };
+        string[] commands = ["open", "edit"];
 
         foreach (string command in commands)
         {

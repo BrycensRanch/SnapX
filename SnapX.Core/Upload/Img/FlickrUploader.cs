@@ -47,8 +47,10 @@ public class FlickrUploader : ImageUploader, IOAuth
 
     public string GetAuthorizationURL()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("oauth_callback", Links.Callback);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "oauth_callback", Links.Callback }
+        };
 
         string url = GetAuthorizationURL("https://www.flickr.com/services/oauth/request_token", "https://www.flickr.com/services/oauth/authorize", AuthInfo, args);
 

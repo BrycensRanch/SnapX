@@ -4,11 +4,10 @@
 
 using System.Drawing;
 
-namespace SnapX.Core.ScreenCapture.Animations
+namespace SnapX.Core.ScreenCapture.Animations;
+
+internal class TextAnimation : OpacityAnimation
 {
-    internal class TextAnimation : OpacityAnimation
-    {
-        public string Text { get; set; }
-        public Point Position { get; set; }
-    }
+    public string Text { get; set; }
+    public Point Position { get; set; }
 }

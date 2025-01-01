@@ -7,44 +7,43 @@ using SixLabors.ImageSharp;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.ImageEffects.Filters
+namespace SnapX.Core.ImageEffects.Filters;
+
+internal class Blur : ImageEffect
 {
-    internal class Blur : ImageEffect
+    private int radius;
+
+    [DefaultValue(15)]
+    public int Radius
     {
-        private int radius;
-
-        [DefaultValue(15)]
-        public int Radius
+        get
         {
-            get
-            {
-                return radius;
-            }
-            set
-            {
-                radius = value.Max(3);
+            return radius;
+        }
+        set
+        {
+            radius = value.Max(3);
 
-                if (radius.IsEvenNumber())
-                {
-                    radius++;
-                }
+            if (radius.IsEvenNumber())
+            {
+                radius++;
             }
         }
+    }
 
-        public Blur()
-        {
-            this.ApplyDefaultPropertyValues();
-        }
+    public Blur()
+    {
+        this.ApplyDefaultPropertyValues();
+    }
 
-        public override Image Apply(Image img)
-        {
-            ImageHelpers.BoxBlur(img, Radius);
-            return img;
-        }
+    public override Image Apply(Image img)
+    {
+        ImageHelpers.BoxBlur(img, Radius);
+        return img;
+    }
 
-        protected override string GetSummary()
-        {
-            return Radius.ToString();
-        }
+    protected override string GetSummary()
+    {
+        return Radius.ToString();
     }
 }

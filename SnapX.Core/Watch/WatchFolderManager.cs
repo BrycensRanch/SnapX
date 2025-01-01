@@ -20,7 +20,7 @@ public class WatchFolderManager : IDisposable
             UnregisterAllWatchFolders();
         }
 
-        WatchFolders = new List<WatchFolder>();
+        WatchFolders = [];
 
         foreach (WatchFolderSettings defaultWatchFolderSetting in SnapX.DefaultTaskSettings.WatchFolderList)
         {

@@ -7,18 +7,17 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Convolution;
 
-namespace SnapX.Core.ImageEffects.Filters
+namespace SnapX.Core.ImageEffects.Filters;
+
+[Description("Edge detect")]
+internal class EdgeDetect : ImageEffect
 {
-    [Description("Edge detect")]
-    internal class EdgeDetect : ImageEffect
+    public override Image Apply(Image img)
     {
-        public override Image Apply(Image img)
-        {
-            var edgeDetectKernel = new EdgeDetectorKernel();
+        var edgeDetectKernel = new EdgeDetectorKernel();
 
-            img.Mutate(ctx => ctx.ApplyProcessor(new EdgeDetectorProcessor(edgeDetectKernel, false)));
+        img.Mutate(ctx => ctx.ApplyProcessor(new EdgeDetectorProcessor(edgeDetectKernel, false)));
 
-            return img;
-        }
+        return img;
     }
 }

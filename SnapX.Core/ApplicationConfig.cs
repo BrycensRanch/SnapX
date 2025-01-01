@@ -333,10 +333,10 @@ public class RootConfiguration
     public DateTime FirstTimeRunDate = DateTime.Now;
     public string FileUploadDefaultDirectory = "";
     public int NameParserAutoIncrementNumber = 0;
-    public List<QuickTaskPreset> QuickTaskPresets = new();
+    public List<QuickTaskPreset> QuickTaskPresets = [];
     // Main window
     public bool FirstTimeMinimizeToTray = true;
-    public List<int> TaskListViewColumnWidths = new();
+    public List<int> TaskListViewColumnWidths = [];
     public int PreviewSplitterDistance = 335;
     public SupportedLanguage Language = SupportedLanguage.English;
     public bool ShowTray = true;
@@ -376,12 +376,12 @@ public class RootConfiguration
     public ProxyInfo ProxySettings = new();
     public int UploadLimit = 5;
     public int BufferSizePower = 5;
-    public List<string> ClipboardContentFormats { get; set; } = new();
+    public List<string> ClipboardContentFormats { get; set; } = [];
     public int MaxUploadFailRetry = 1;
     public bool UseSecondaryUploaders = false;
-    public List<Upload.ImageDestination> SecondaryImageUploaders = new();
-    public List<Upload.TextDestination> SecondaryTextUploaders = new();
-    public List<Upload.FileDestination> SecondaryFileUploaders = new();
+    public List<Upload.ImageDestination> SecondaryImageUploaders = [];
+    public List<Upload.TextDestination> SecondaryTextUploaders = [];
+    public List<Upload.FileDestination> SecondaryFileUploaders = [];
     public bool HistorySaveTasks = true;
     public bool HistoryCheckURL = false;
     public List<RecentTask> RecentTasks { get; set; }
@@ -399,13 +399,13 @@ public class RootConfiguration
     public bool AutoCaptureMinimizeToTray = true;
     public bool AutoCaptureWaitUpload = true;
     public Rectangle ScreenRecordRegion = Rectangle.Empty;
-    public List<HotkeyType> ActionsToolbarList = new() { HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
-        HotkeyType.None, HotkeyType.FileUpload, HotkeyType.ClipboardUploadWithContentViewer };
+    public List<HotkeyType> ActionsToolbarList = [ HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
+        HotkeyType.None, HotkeyType.FileUpload, HotkeyType.ClipboardUploadWithContentViewer ];
     public bool ActionsToolbarRunAtStartup = false;
     public Point ActionsToolbarPosition = Point.Empty;
     public bool ActionsToolbarLockPosition = false;
     public bool ActionsToolbarStayTopMost = true;
-    public List<Color> RecentColors = new();
+    public List<Color> RecentColors = [];
     [Category("Application"), DefaultValue(false), Description("Calculate and show file sizes in binary units (KiB, MiB etc.)")]
     public bool BinaryUnits { get; set; }
     //

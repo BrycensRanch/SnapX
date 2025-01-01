@@ -65,11 +65,13 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
 
     public bool GetAccessToken(string code)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("client_id", AuthInfo.Client_ID);
-        args.Add("client_secret", AuthInfo.Client_Secret);
-        args.Add("code", code);
-        args.Add("redirect_uri", Links.Callback);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "client_id", AuthInfo.Client_ID },
+            { "client_secret", AuthInfo.Client_Secret },
+            { "code", code },
+            { "redirect_uri", Links.Callback }
+        };
 
         string response = SendRequestURLEncoded(HttpMethod.Post, URLAccessToken, args);
 
@@ -89,8 +91,10 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
 
     private NameValueCollection GetAuthHeaders()
     {
-        NameValueCollection headers = new NameValueCollection();
-        headers.Add("Authorization", "Bearer " + AuthInfo.Token.access_token);
+        NameValueCollection headers = new NameValueCollection
+        {
+            { "Authorization", "Bearer " + AuthInfo.Token.access_token }
+        };
         return headers;
     }
 

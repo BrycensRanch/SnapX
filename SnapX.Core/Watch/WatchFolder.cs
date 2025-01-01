@@ -19,7 +19,7 @@ public class WatchFolder : IDisposable
 
     private SynchronizationContext context;
     private FileSystemWatcher fileWatcher;
-    private List<WatchFolderDuplicateEventTimer> timers = new List<WatchFolderDuplicateEventTimer>();
+    private List<WatchFolderDuplicateEventTimer> timers = [];
 
     public virtual void Enable()
     {

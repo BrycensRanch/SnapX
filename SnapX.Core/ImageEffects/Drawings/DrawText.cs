@@ -165,7 +165,7 @@ public class DrawText : ImageEffect
                 var bottomRight = new PointF(watermarkRectangle.Right, watermarkRectangle.Bottom);
                 var bottomLeft = new PointF(watermarkRectangle.Left, watermarkRectangle.Bottom);
 
-                ctx.DrawPolygon(borderPen, new[] { topLeft, topRight, bottomRight, bottomLeft });
+                ctx.DrawPolygon(borderPen, [topLeft, topRight, bottomRight, bottomLeft]);
             }
 
             // Set text rendering options

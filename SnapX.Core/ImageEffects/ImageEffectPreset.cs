@@ -6,51 +6,50 @@ using SixLabors.ImageSharp;
 using SnapX.Core.ImageEffects.Drawings;
 using SnapX.Core.ImageEffects.Manipulations;
 
-namespace SnapX.Core.ImageEffects
+namespace SnapX.Core.ImageEffects;
+
+public class ImageEffectPreset
 {
-    public class ImageEffectPreset
+    public string Name { get; set; } = "";
+
+    public List<ImageEffect> Effects { get; set; } = [];
+
+    public Image ApplyEffects(Image img)
     {
-        public string Name { get; set; } = "";
+        img.Metadata.HorizontalResolution = 96f;
+        img.Metadata.VerticalResolution = 96f;
 
-        public List<ImageEffect> Effects { get; set; } = new();
-
-        public Image ApplyEffects(Image img)
+        if (Effects != null && Effects.Count > 0)
         {
-            img.Metadata.HorizontalResolution = 96f;
-            img.Metadata.VerticalResolution = 96f;
-
-            if (Effects != null && Effects.Count > 0)
+            foreach (var effect in Effects.Where(x => x.Enabled))
             {
-                foreach (var effect in Effects.Where(x => x.Enabled))
-                {
-                    img = effect.Apply(img);
+                img = effect.Apply(img);
 
-                    if (img == null)
-                    {
-                        break;
-                    }
+                if (img == null)
+                {
+                    break;
                 }
             }
-
-            return img;
         }
 
-        public override string ToString() => Name ?? "Name";
+        return img;
+    }
 
-        public static ImageEffectPreset GetDefaultPreset()
-        {
-            var preset = new ImageEffectPreset();
+    public override string ToString() => Name ?? "Name";
 
-            var canvas = new Canvas();
-            canvas.Margin = new Padding(0, 0, 0, 30);
-            preset.Effects.Add(canvas);
+    public static ImageEffectPreset GetDefaultPreset()
+    {
+        var preset = new ImageEffectPreset();
 
-            var text = new DrawText();
-            text.Offset = new Point(0, 0);
-            text.UseGradient = true;
-            preset.Effects.Add(text);
+        var canvas = new Canvas();
+        canvas.Margin = new Padding(0, 0, 0, 30);
+        preset.Effects.Add(canvas);
 
-            return preset;
-        }
+        var text = new DrawText();
+        text.Offset = new Point(0, 0);
+        text.UseGradient = true;
+        preset.Effects.Add(text);
+
+        return preset;
     }
 }

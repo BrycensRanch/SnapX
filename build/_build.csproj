@@ -11,6 +11,8 @@
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
     <NukeVersion>9.0.3</NukeVersion>
     <IsPackable>false</IsPackable>
+    <!--Seems to be broken with NUKE. -->
+    <ImplicitUsings>false</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

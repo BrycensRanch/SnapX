@@ -13,8 +13,8 @@ public class CLIManager
 
     public CLIManager()
     {
-        Commands = new List<CLICommand>();
-        Actions = new List<CLICommandAction>();
+        Commands = [];
+        Actions = [];
     }
 
     public CLIManager(string[] arguments) : this()
@@ -71,7 +71,7 @@ public class CLIManager
 
     private string[] ParseCLI(string arguments)
     {
-        List<string> commands = new List<string>();
+        List<string> commands = [];
 
         bool inDoubleQuotes = false;
 

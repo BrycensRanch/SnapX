@@ -4,7 +4,7 @@ namespace SnapX.Core.ImageEffects;
 
 public class SimpleImageCache : IDisposable
 {
-    private Dictionary<string, Image> _cache = new();
+    private Dictionary<string, Image> _cache = [];
     private bool _disposed;
 
     // Max cache size (optional, can be set in the constructor)

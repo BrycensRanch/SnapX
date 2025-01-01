@@ -7,35 +7,34 @@ using SixLabors.ImageSharp;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.ImageEffects.Manipulations
+namespace SnapX.Core.ImageEffects.Manipulations;
+
+[Description("Auto crop")]
+internal class AutoCrop : ImageEffect
 {
-    [Description("Auto crop")]
-    internal class AutoCrop : ImageEffect
+    [DefaultValue(AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right)]
+    public AnchorStyles Sides { get; set; }
+
+    [DefaultValue(0)]
+    public int Padding { get; set; }
+
+    public AutoCrop()
     {
-        [DefaultValue(AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right)]
-        public AnchorStyles Sides { get; set; }
+        this.ApplyDefaultPropertyValues();
+    }
 
-        [DefaultValue(0)]
-        public int Padding { get; set; }
+    public override Image Apply(Image img)
+    {
+        return ImageHelpers.AutoCropImage(img, true, Sides, Padding);
+    }
 
-        public AutoCrop()
+    protected override string GetSummary()
+    {
+        if (Padding > 0)
         {
-            this.ApplyDefaultPropertyValues();
+            return Padding.ToString();
         }
 
-        public override Image Apply(Image img)
-        {
-            return ImageHelpers.AutoCropImage(img, true, Sides, Padding);
-        }
-
-        protected override string GetSummary()
-        {
-            if (Padding > 0)
-            {
-                return Padding.ToString();
-            }
-
-            return null;
-        }
+        return null;
     }
 }

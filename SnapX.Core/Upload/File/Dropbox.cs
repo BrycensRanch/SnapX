@@ -13,550 +13,559 @@ using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Parsers;
 
-namespace SnapX.Core.Upload.File
-{
-    public class DropboxFileUploaderService : FileUploaderService
-    {
-        public override FileDestination EnumValue { get; } = FileDestination.Dropbox;
-        public override bool CheckConfig(UploadersConfig config)
-        {
-            return OAuth2Info.CheckOAuth(config.DropboxOAuth2Info);
-        }
+namespace SnapX.Core.Upload.File;
 
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new Dropbox(config.DropboxOAuth2Info)
-            {
-                UploadPath = NameParser.Parse(NameParserType.Default, Dropbox.VerifyPath(config.DropboxUploadPath)),
-                AutoCreateShareableLink = config.DropboxAutoCreateShareableLink,
-                UseDirectLink = config.DropboxUseDirectLink
-            };
-        }
+public class DropboxFileUploaderService : FileUploaderService
+{
+    public override FileDestination EnumValue { get; } = FileDestination.Dropbox;
+    public override bool CheckConfig(UploadersConfig config)
+    {
+        return OAuth2Info.CheckOAuth(config.DropboxOAuth2Info);
     }
 
-    public sealed class Dropbox : FileUploader, IOAuth2Basic
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        private const string APIVersion = "2";
-
-        private const string URLWEB = "https://www.dropbox.com";
-        private const string URLAPIBase = "https://api.dropboxapi.com";
-        private const string URLAPI = URLAPIBase + "/" + APIVersion;
-        private const string URLContent = "https://content.dropboxapi.com/" + APIVersion;
-        private const string URLNotify = "https://notify.dropboxapi.com/" + APIVersion;
-
-        private const string URLOAuth2Authorize = URLWEB + "/oauth2/authorize";
-        private const string URLOAuth2Token = URLAPIBase + "/oauth2/token";
-
-        private const string URLGetCurrentAccount = URLAPI + "/users/get_current_account";
-        private const string URLDownload = URLContent + "/files/download";
-        private const string URLUpload = URLContent + "/files/upload";
-        private const string URLGetMetadata = URLAPI + "/files/get_metadata";
-        private const string URLCreateSharedLink = URLAPI + "/sharing/create_shared_link_with_settings";
-        private const string URLListSharedLinks = URLAPI + "/sharing/list_shared_links";
-        private const string URLCopy = URLAPI + "/files/copy";
-        private const string URLCreateFolder = URLAPI + "/files/create_folder";
-        private const string URLDelete = URLAPI + "/files/delete";
-        private const string URLMove = URLAPI + "/files/move";
-
-        private const string URLShareDirect = "https://dl.dropboxusercontent.com/scl/fi/";
-
-        public OAuth2Info AuthInfo { get; set; }
-        public string UploadPath { get; set; }
-        public bool AutoCreateShareableLink { get; set; }
-        public bool UseDirectLink { get; set; }
-
-        public Dropbox(OAuth2Info oauth)
+        return new Dropbox(config.DropboxOAuth2Info)
         {
-            AuthInfo = oauth;
-        }
+            UploadPath = NameParser.Parse(NameParserType.Default, Dropbox.VerifyPath(config.DropboxUploadPath)),
+            AutoCreateShareableLink = config.DropboxAutoCreateShareableLink,
+            UseDirectLink = config.DropboxUseDirectLink
+        };
+    }
+}
 
-        public override UploadResult Upload(Stream stream, string fileName)
+public sealed class Dropbox : FileUploader, IOAuth2Basic
+{
+    private const string APIVersion = "2";
+
+    private const string URLWEB = "https://www.dropbox.com";
+    private const string URLAPIBase = "https://api.dropboxapi.com";
+    private const string URLAPI = URLAPIBase + "/" + APIVersion;
+    private const string URLContent = "https://content.dropboxapi.com/" + APIVersion;
+    private const string URLNotify = "https://notify.dropboxapi.com/" + APIVersion;
+
+    private const string URLOAuth2Authorize = URLWEB + "/oauth2/authorize";
+    private const string URLOAuth2Token = URLAPIBase + "/oauth2/token";
+
+    private const string URLGetCurrentAccount = URLAPI + "/users/get_current_account";
+    private const string URLDownload = URLContent + "/files/download";
+    private const string URLUpload = URLContent + "/files/upload";
+    private const string URLGetMetadata = URLAPI + "/files/get_metadata";
+    private const string URLCreateSharedLink = URLAPI + "/sharing/create_shared_link_with_settings";
+    private const string URLListSharedLinks = URLAPI + "/sharing/list_shared_links";
+    private const string URLCopy = URLAPI + "/files/copy";
+    private const string URLCreateFolder = URLAPI + "/files/create_folder";
+    private const string URLDelete = URLAPI + "/files/delete";
+    private const string URLMove = URLAPI + "/files/move";
+
+    private const string URLShareDirect = "https://dl.dropboxusercontent.com/scl/fi/";
+
+    public OAuth2Info AuthInfo { get; set; }
+    public string UploadPath { get; set; }
+    public bool AutoCreateShareableLink { get; set; }
+    public bool UseDirectLink { get; set; }
+
+    public Dropbox(OAuth2Info oauth)
+    {
+        AuthInfo = oauth;
+    }
+
+    public override UploadResult Upload(Stream stream, string fileName)
+    {
+        return UploadFile(stream, UploadPath, fileName, AutoCreateShareableLink, UseDirectLink);
+    }
+
+    public string GetAuthorizationURL()
+    {
+        Dictionary<string, string> args = new Dictionary<string, string>
         {
-            return UploadFile(stream, UploadPath, fileName, AutoCreateShareableLink, UseDirectLink);
-        }
+            { "response_type", "code" },
+            { "client_id", AuthInfo.Client_ID }
+        };
 
-        public string GetAuthorizationURL()
+        return URLHelpers.CreateQueryString(URLOAuth2Authorize, args);
+    }
+
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
+    public bool GetAccessToken(string code)
+    {
+        Dictionary<string, string> args = new Dictionary<string, string>
         {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("response_type", "code");
-            args.Add("client_id", AuthInfo.Client_ID);
+            { "client_id", AuthInfo.Client_ID },
+            { "client_secret", AuthInfo.Client_Secret },
+            { "grant_type", "authorization_code" },
+            { "code", code }
+        };
 
-            return URLHelpers.CreateQueryString(URLOAuth2Authorize, args);
-        }
+        string response = SendRequestMultiPart(URLOAuth2Token, args);
 
-        [RequiresDynamicCode("Uploader")]
-        [RequiresUnreferencedCode("Uploader")]
-        public bool GetAccessToken(string code)
+        if (!string.IsNullOrEmpty(response))
         {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("client_id", AuthInfo.Client_ID);
-            args.Add("client_secret", AuthInfo.Client_Secret);
-            args.Add("grant_type", "authorization_code");
-            args.Add("code", code);
+            OAuth2Token token = JsonSerializer.Deserialize<OAuth2Token>(response);
 
-            string response = SendRequestMultiPart(URLOAuth2Token, args);
-
-            if (!string.IsNullOrEmpty(response))
+            if (token != null && !string.IsNullOrEmpty(token.access_token))
             {
-                OAuth2Token token = JsonSerializer.Deserialize<OAuth2Token>(response);
-
-                if (token != null && !string.IsNullOrEmpty(token.access_token))
-                {
-                    AuthInfo.Token = token;
-                    return true;
-                }
+                AuthInfo.Token = token;
+                return true;
             }
-
-            return false;
         }
 
-        private NameValueCollection GetAuthHeaders()
+        return false;
+    }
+
+    private NameValueCollection GetAuthHeaders()
+    {
+        NameValueCollection headers = new NameValueCollection
         {
-            NameValueCollection headers = new NameValueCollection();
-            headers.Add("Authorization", "Bearer " + AuthInfo.Token.access_token);
-            return headers;
-        }
+            { "Authorization", "Bearer " + AuthInfo.Token.access_token }
+        };
+        return headers;
+    }
 
-        public static string VerifyPath(string path, string fileName = null)
+    public static string VerifyPath(string path, string fileName = null)
+    {
+        if (!string.IsNullOrEmpty(path))
         {
-            if (!string.IsNullOrEmpty(path))
-            {
-                path = path.Trim().Replace('\\', '/').Trim('/');
-                path = URLHelpers.AddSlash(path, SlashType.Prefix);
-
-                if (!string.IsNullOrEmpty(fileName))
-                {
-                    path = URLHelpers.CombineURL(path, fileName);
-                }
-
-                return path;
-            }
+            path = path.Trim().Replace('\\', '/').Trim('/');
+            path = URLHelpers.AddSlash(path, SlashType.Prefix);
 
             if (!string.IsNullOrEmpty(fileName))
             {
-                return fileName;
+                path = URLHelpers.CombineURL(path, fileName);
             }
 
-            return "";
+            return path;
         }
 
-        [RequiresDynamicCode("Uploader")]
-        [RequiresUnreferencedCode("Uploader")]
-        public DropboxAccount GetCurrentAccount()
+        if (!string.IsNullOrEmpty(fileName))
         {
-            if (OAuth2Info.CheckOAuth(AuthInfo))
-            {
-                string response = SendRequest(HttpMethod.Post, URLGetCurrentAccount, "null", RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
-
-                if (!string.IsNullOrEmpty(response))
-                {
-                    return JsonSerializer.Deserialize<DropboxAccount>(response);
-                }
-            }
-
-            return null;
+            return fileName;
         }
 
-        [RequiresUnreferencedCode("Uploader")]
-        public bool DownloadFile(string path, Stream downloadStream)
+        return "";
+    }
+
+    [RequiresDynamicCode("Uploader")]
+    [RequiresUnreferencedCode("Uploader")]
+    public DropboxAccount GetCurrentAccount()
+    {
+        if (OAuth2Info.CheckOAuth(AuthInfo))
         {
-            if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
+            string response = SendRequest(HttpMethod.Post, URLGetCurrentAccount, "null", RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+
+            if (!string.IsNullOrEmpty(response))
             {
-                string json = JsonSerializer.Serialize(new
-                {
-                    path = VerifyPath(path)
-                });
-
-                Dictionary<string, string> args = new Dictionary<string, string>();
-                args.Add("arg", json);
-
-                return SendRequestDownload(HttpMethod.Post, URLDownload, downloadStream, args, GetAuthHeaders(), null, RequestHelpers.ContentTypeJSON);
+                return JsonSerializer.Deserialize<DropboxAccount>(response);
             }
-
-            return false;
         }
 
-        [RequiresUnreferencedCode("Uploader")]
-        public UploadResult UploadFile(Stream stream, string path, string fileName, bool createShareableLink = false, bool useDirectLink = false)
-        {
-            if (stream.Length > 150000000)
-            {
-                Errors.Add("There's a 150MB limit to uploads through the API.");
-                return null;
-            }
+        return null;
+    }
 
+    [RequiresUnreferencedCode("Uploader")]
+    public bool DownloadFile(string path, Stream downloadStream)
+    {
+        if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
+        {
             string json = JsonSerializer.Serialize(new
             {
-                path = VerifyPath(path, fileName),
-                mode = "overwrite",
-                autorename = false,
-                mute = true
+                path = VerifyPath(path)
             });
 
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("arg", json);
-
-            string response = SendRequest(HttpMethod.Post, URLUpload, stream, RequestHelpers.ContentTypeOctetStream, args, GetAuthHeaders());
-
-            UploadResult ur = new UploadResult(response);
-
-            if (!string.IsNullOrEmpty(ur.Response))
+            Dictionary<string, string> args = new Dictionary<string, string>
             {
-                DropboxMetadata metadata = JsonSerializer.Deserialize<DropboxMetadata>(ur.Response);
+                { "arg", json }
+            };
 
-                if (metadata != null)
-                {
-                    if (createShareableLink)
-                    {
-                        AllowReportProgress = false;
-
-                        ur.URL = CreateShareableLink(metadata.path_display, useDirectLink);
-                    }
-                    else
-                    {
-                        ur.IsURLExpected = false;
-                    }
-                }
-            }
-
-            return ur;
+            return SendRequestDownload(HttpMethod.Post, URLDownload, downloadStream, args, GetAuthHeaders(), null, RequestHelpers.ContentTypeJSON);
         }
 
-        [RequiresUnreferencedCode("Uploader")]
-        public DropboxMetadata GetMetadata(string path)
+        return false;
+    }
+
+    [RequiresUnreferencedCode("Uploader")]
+    public UploadResult UploadFile(Stream stream, string path, string fileName, bool createShareableLink = false, bool useDirectLink = false)
+    {
+        if (stream.Length > 150000000)
         {
-            DropboxMetadata metadata = null;
-
-            if (path != null && OAuth2Info.CheckOAuth(AuthInfo))
-            {
-                string json = JsonSerializer.Serialize(new
-                {
-                    path = VerifyPath(path),
-                    include_media_info = false,
-                    include_deleted = false,
-                    include_has_explicit_shared_members = false
-                });
-
-                string response = SendRequest(HttpMethod.Post, URLGetMetadata, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
-
-                if (!string.IsNullOrEmpty(response))
-                {
-                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
-                }
-            }
-
-            return metadata;
-        }
-
-        public bool IsExists(string path)
-        {
-            DropboxMetadata metadata = GetMetadata(path);
-
-            return metadata != null && !metadata.tag.Equals("deleted", StringComparison.OrdinalIgnoreCase);
-        }
-
-        [RequiresUnreferencedCode("Uploader")]
-        public string CreateShareableLink(string path, bool directLink)
-        {
-            if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
-            {
-                string json = JsonSerializer.Serialize(new
-                {
-                    path = VerifyPath(path),
-                    settings = new
-                    {
-                        requested_visibility = "public" // Anyone who has received the link can access it. No login required.
-                    }
-                });
-
-                string response = SendRequest(HttpMethod.Post, URLCreateSharedLink, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
-
-                DropboxLinkMetadata linkMetadata = null;
-
-                if (!string.IsNullOrEmpty(response))
-                {
-                    linkMetadata = JsonSerializer.Deserialize<DropboxLinkMetadata>(response);
-                }
-                else if (IsError && Errors.Errors[Errors.Count - 1].Text.Contains("\"shared_link_already_exists\"")) // Ugly workaround
-                {
-                    DropboxListSharedLinksResult result = ListSharedLinks(path, true);
-
-                    if (result != null && result.links != null && result.links.Length > 0)
-                    {
-                        linkMetadata = result.links[0];
-                    }
-                }
-
-                if (linkMetadata != null)
-                {
-                    if (directLink)
-                    {
-                        return GetDirectShareableURL(linkMetadata.url);
-                    }
-                    else
-                    {
-                        return linkMetadata.url;
-                    }
-                }
-            }
-
+            Errors.Add("There's a 150MB limit to uploads through the API.");
             return null;
         }
 
-        [RequiresUnreferencedCode("Uploader")]
-        public DropboxListSharedLinksResult ListSharedLinks(string path, bool directOnly = false)
+        string json = JsonSerializer.Serialize(new
         {
-            DropboxListSharedLinksResult result = null;
+            path = VerifyPath(path, fileName),
+            mode = "overwrite",
+            autorename = false,
+            mute = true
+        });
 
-            if (path != null && OAuth2Info.CheckOAuth(AuthInfo))
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "arg", json }
+        };
+
+        string response = SendRequest(HttpMethod.Post, URLUpload, stream, RequestHelpers.ContentTypeOctetStream, args, GetAuthHeaders());
+
+        UploadResult ur = new UploadResult(response);
+
+        if (!string.IsNullOrEmpty(ur.Response))
+        {
+            DropboxMetadata metadata = JsonSerializer.Deserialize<DropboxMetadata>(ur.Response);
+
+            if (metadata != null)
             {
-                string json = JsonSerializer.Serialize(new
+                if (createShareableLink)
                 {
-                    path = VerifyPath(path),
-                    direct_only = directOnly
-                });
+                    AllowReportProgress = false;
 
-                string response = SendRequest(HttpMethod.Post, URLListSharedLinks, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
-
-                if (!string.IsNullOrEmpty(response))
+                    ur.URL = CreateShareableLink(metadata.path_display, useDirectLink);
+                }
+                else
                 {
-                    result = JsonSerializer.Deserialize<DropboxListSharedLinksResult>(response);
+                    ur.IsURLExpected = false;
+                }
+            }
+        }
+
+        return ur;
+    }
+
+    [RequiresUnreferencedCode("Uploader")]
+    public DropboxMetadata GetMetadata(string path)
+    {
+        DropboxMetadata metadata = null;
+
+        if (path != null && OAuth2Info.CheckOAuth(AuthInfo))
+        {
+            string json = JsonSerializer.Serialize(new
+            {
+                path = VerifyPath(path),
+                include_media_info = false,
+                include_deleted = false,
+                include_has_explicit_shared_members = false
+            });
+
+            string response = SendRequest(HttpMethod.Post, URLGetMetadata, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
+            }
+        }
+
+        return metadata;
+    }
+
+    public bool IsExists(string path)
+    {
+        DropboxMetadata metadata = GetMetadata(path);
+
+        return metadata != null && !metadata.tag.Equals("deleted", StringComparison.OrdinalIgnoreCase);
+    }
+
+    [RequiresUnreferencedCode("Uploader")]
+    public string CreateShareableLink(string path, bool directLink)
+    {
+        if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
+        {
+            string json = JsonSerializer.Serialize(new
+            {
+                path = VerifyPath(path),
+                settings = new
+                {
+                    requested_visibility = "public" // Anyone who has received the link can access it. No login required.
+                }
+            });
+
+            string response = SendRequest(HttpMethod.Post, URLCreateSharedLink, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+
+            DropboxLinkMetadata linkMetadata = null;
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                linkMetadata = JsonSerializer.Deserialize<DropboxLinkMetadata>(response);
+            }
+            else if (IsError && Errors.Errors[Errors.Count - 1].Text.Contains("\"shared_link_already_exists\"")) // Ugly workaround
+            {
+                DropboxListSharedLinksResult result = ListSharedLinks(path, true);
+
+                if (result != null && result.links != null && result.links.Length > 0)
+                {
+                    linkMetadata = result.links[0];
                 }
             }
 
-            return result;
-        }
-
-        [RequiresUnreferencedCode("Uploader")]
-        public DropboxMetadata Copy(string fromPath, string toPath)
-        {
-            DropboxMetadata metadata = null;
-
-            if (!string.IsNullOrEmpty(fromPath) && !string.IsNullOrEmpty(toPath) && OAuth2Info.CheckOAuth(AuthInfo))
+            if (linkMetadata != null)
             {
-                string json = JsonSerializer.Serialize(new
+                if (directLink)
                 {
-                    from_path = VerifyPath(fromPath),
-                    to_path = VerifyPath(toPath)
-                });
-
-                string response = SendRequest(HttpMethod.Post, URLCopy, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
-
-                if (!string.IsNullOrEmpty(response))
+                    return GetDirectShareableURL(linkMetadata.url);
+                }
+                else
                 {
-                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
+                    return linkMetadata.url;
                 }
             }
-
-            return metadata;
         }
 
-        [RequiresUnreferencedCode("Uploader")]
-        public DropboxMetadata CreateFolder(string path)
+        return null;
+    }
+
+    [RequiresUnreferencedCode("Uploader")]
+    public DropboxListSharedLinksResult ListSharedLinks(string path, bool directOnly = false)
+    {
+        DropboxListSharedLinksResult result = null;
+
+        if (path != null && OAuth2Info.CheckOAuth(AuthInfo))
         {
-            DropboxMetadata metadata = null;
-
-            if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
+            string json = JsonSerializer.Serialize(new
             {
-                string json = JsonSerializer.Serialize(new
-                {
-                    path = VerifyPath(path)
-                });
+                path = VerifyPath(path),
+                direct_only = directOnly
+            });
 
-                string response = SendRequest(HttpMethod.Post, URLCreateFolder, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Post, URLListSharedLinks, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
-                if (!string.IsNullOrEmpty(response))
-                {
-                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
-                }
+            if (!string.IsNullOrEmpty(response))
+            {
+                result = JsonSerializer.Deserialize<DropboxListSharedLinksResult>(response);
             }
-
-            return metadata;
         }
 
-        [RequiresUnreferencedCode("Uploader")]
-        public DropboxMetadata Delete(string path)
+        return result;
+    }
+
+    [RequiresUnreferencedCode("Uploader")]
+    public DropboxMetadata Copy(string fromPath, string toPath)
+    {
+        DropboxMetadata metadata = null;
+
+        if (!string.IsNullOrEmpty(fromPath) && !string.IsNullOrEmpty(toPath) && OAuth2Info.CheckOAuth(AuthInfo))
         {
-            DropboxMetadata metadata = null;
-
-            if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
+            string json = JsonSerializer.Serialize(new
             {
-                string json = JsonSerializer.Serialize(new
-                {
-                    path = VerifyPath(path)
-                });
+                from_path = VerifyPath(fromPath),
+                to_path = VerifyPath(toPath)
+            });
 
-                string response = SendRequest(HttpMethod.Post, URLDelete, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Post, URLCopy, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
-                if (!string.IsNullOrEmpty(response))
-                {
-                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
-                }
+            if (!string.IsNullOrEmpty(response))
+            {
+                metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
             }
-
-            return metadata;
         }
 
-        [RequiresUnreferencedCode("Uploader")]
-        public DropboxMetadata Move(string fromPath, string toPath)
+        return metadata;
+    }
+
+    [RequiresUnreferencedCode("Uploader")]
+    public DropboxMetadata CreateFolder(string path)
+    {
+        DropboxMetadata metadata = null;
+
+        if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
         {
-            DropboxMetadata metadata = null;
-
-            if (!string.IsNullOrEmpty(fromPath) && !string.IsNullOrEmpty(toPath) && OAuth2Info.CheckOAuth(AuthInfo))
+            string json = JsonSerializer.Serialize(new
             {
-                string json = JsonSerializer.Serialize(new
-                {
-                    from_path = VerifyPath(fromPath),
-                    to_path = VerifyPath(toPath)
-                });
+                path = VerifyPath(path)
+            });
 
-                string response = SendRequest(HttpMethod.Post, URLMove, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+            string response = SendRequest(HttpMethod.Post, URLCreateFolder, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
-                if (!string.IsNullOrEmpty(response))
-                {
-                    metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
-                }
+            if (!string.IsNullOrEmpty(response))
+            {
+                metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
             }
-
-            return metadata;
         }
 
-        private static string GetDirectShareableURL(string url)
+        return metadata;
+    }
+
+    [RequiresUnreferencedCode("Uploader")]
+    public DropboxMetadata Delete(string path)
+    {
+        DropboxMetadata metadata = null;
+
+        if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
         {
-            string find = "dropbox.com/scl/fi/";
-            int index = url.IndexOf(find);
-
-            if (index > -1)
+            string json = JsonSerializer.Serialize(new
             {
-                string path = url.Remove(0, index + find.Length);
+                path = VerifyPath(path)
+            });
 
-                if (!string.IsNullOrEmpty(path))
-                {
-                    return URLHelpers.CombineURL(URLShareDirect, path);
-                }
+            string response = SendRequest(HttpMethod.Post, URLDelete, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
             }
-
-            return null;
         }
+
+        return metadata;
     }
 
-    public class DropboxAccount
+    [RequiresUnreferencedCode("Uploader")]
+    public DropboxMetadata Move(string fromPath, string toPath)
     {
-        public string account_id { get; set; }
-        public DropboxAccountName name { get; set; }
-        public string email { get; set; }
-        public bool email_verified { get; set; }
-        public bool disabled { get; set; }
-        public string locale { get; set; }
-        public string referral_link { get; set; }
-        public bool is_paired { get; set; }
-        public DropboxAccountType account_type { get; set; }
-        public string profile_photo_url { get; set; }
-        public string country { get; set; }
+        DropboxMetadata metadata = null;
+
+        if (!string.IsNullOrEmpty(fromPath) && !string.IsNullOrEmpty(toPath) && OAuth2Info.CheckOAuth(AuthInfo))
+        {
+            string json = JsonSerializer.Serialize(new
+            {
+                from_path = VerifyPath(fromPath),
+                to_path = VerifyPath(toPath)
+            });
+
+            string response = SendRequest(HttpMethod.Post, URLMove, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                metadata = JsonSerializer.Deserialize<DropboxMetadata>(response);
+            }
+        }
+
+        return metadata;
     }
 
-    public class DropboxAccountName
+    private static string GetDirectShareableURL(string url)
     {
-        public string given_name { get; set; }
-        public string surname { get; set; }
-        public string familiar_name { get; set; }
-        public string display_name { get; set; }
-    }
+        string find = "dropbox.com/scl/fi/";
+        int index = url.IndexOf(find);
 
-    public class DropboxAccountType
-    {
-        [JsonPropertyName(".tag")]
-        public string tag { get; set; }
-    }
+        if (index > -1)
+        {
+            string path = url.Remove(0, index + find.Length);
 
-    public class DropboxMetadata
-    {
-        [JsonPropertyName(".tag")]
-        public string tag { get; set; }
-        public string name { get; set; }
-        public string id { get; set; }
-        public string client_modified { get; set; }
-        public string server_modified { get; set; }
-        public string rev { get; set; }
-        public int size { get; set; }
-        public string path_lower { get; set; }
-        public string path_display { get; set; }
-        public DropboxMetadataSharingInfo sharing_info { get; set; }
-        public List<DropboxMetadataPropertyGroup> property_groups { get; set; }
-        public bool has_explicit_shared_members { get; set; }
-    }
+            if (!string.IsNullOrEmpty(path))
+            {
+                return URLHelpers.CombineURL(URLShareDirect, path);
+            }
+        }
 
-    public class DropboxMetadataSharingInfo
-    {
-        public bool read_only { get; set; }
-        public string parent_shared_folder_id { get; set; }
-        public string modified_by { get; set; }
+        return null;
     }
+}
 
-    public class DropboxMetadataPropertyGroup
-    {
-        public string template_id { get; set; }
-        public List<DropboxMetadataPropertyGroupField> fields { get; set; }
-    }
+public class DropboxAccount
+{
+    public string account_id { get; set; }
+    public DropboxAccountName name { get; set; }
+    public string email { get; set; }
+    public bool email_verified { get; set; }
+    public bool disabled { get; set; }
+    public string locale { get; set; }
+    public string referral_link { get; set; }
+    public bool is_paired { get; set; }
+    public DropboxAccountType account_type { get; set; }
+    public string profile_photo_url { get; set; }
+    public string country { get; set; }
+}
 
-    public class DropboxMetadataPropertyGroupField
-    {
-        public string name { get; set; }
-        public string value { get; set; }
-    }
+public class DropboxAccountName
+{
+    public string given_name { get; set; }
+    public string surname { get; set; }
+    public string familiar_name { get; set; }
+    public string display_name { get; set; }
+}
 
-    public class DropboxLinkMetadata
-    {
-        [JsonPropertyName(".tag")]
-        public string tag { get; set; }
-        public string url { get; set; }
-        public string name { get; set; }
-        public DropboxLinkMetadataPermissions link_permissions { get; set; }
-        public string client_modified { get; set; }
-        public string server_modified { get; set; }
-        public string rev { get; set; }
-        public int size { get; set; }
-        public string id { get; set; }
-        public string path_lower { get; set; }
-        public DropboxLinkMetadataTeamMemberInfo team_member_info { get; set; }
-    }
+public class DropboxAccountType
+{
+    [JsonPropertyName(".tag")]
+    public string tag { get; set; }
+}
 
-    public class DropboxLinkMetadataPermissions
-    {
-        public bool can_revoke { get; set; }
-        public DropboxLinkMetadataResolvedVisibility resolved_visibility { get; set; }
-        public DropboxLinkMetadataRevokeFailureReason revoke_failure_reason { get; set; }
-    }
+public class DropboxMetadata
+{
+    [JsonPropertyName(".tag")]
+    public string tag { get; set; }
+    public string name { get; set; }
+    public string id { get; set; }
+    public string client_modified { get; set; }
+    public string server_modified { get; set; }
+    public string rev { get; set; }
+    public int size { get; set; }
+    public string path_lower { get; set; }
+    public string path_display { get; set; }
+    public DropboxMetadataSharingInfo sharing_info { get; set; }
+    public List<DropboxMetadataPropertyGroup> property_groups { get; set; }
+    public bool has_explicit_shared_members { get; set; }
+}
 
-    public class DropboxLinkMetadataResolvedVisibility
-    {
-        [JsonPropertyName(".tag")]
-        public string tag { get; set; }
-    }
+public class DropboxMetadataSharingInfo
+{
+    public bool read_only { get; set; }
+    public string parent_shared_folder_id { get; set; }
+    public string modified_by { get; set; }
+}
 
-    public class DropboxLinkMetadataRevokeFailureReason
-    {
-        [JsonPropertyName(".tag")]
-        public string tag { get; set; }
-    }
+public class DropboxMetadataPropertyGroup
+{
+    public string template_id { get; set; }
+    public List<DropboxMetadataPropertyGroupField> fields { get; set; }
+}
 
-    public class DropboxLinkMetadataTeamMemberInfo
-    {
-        public DropboxLinkMetadataTeamInfo team_info { get; set; }
-        public string display_name { get; set; }
-        public string member_id { get; set; }
-    }
+public class DropboxMetadataPropertyGroupField
+{
+    public string name { get; set; }
+    public string value { get; set; }
+}
 
-    public class DropboxLinkMetadataTeamInfo
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-    }
+public class DropboxLinkMetadata
+{
+    [JsonPropertyName(".tag")]
+    public string tag { get; set; }
+    public string url { get; set; }
+    public string name { get; set; }
+    public DropboxLinkMetadataPermissions link_permissions { get; set; }
+    public string client_modified { get; set; }
+    public string server_modified { get; set; }
+    public string rev { get; set; }
+    public int size { get; set; }
+    public string id { get; set; }
+    public string path_lower { get; set; }
+    public DropboxLinkMetadataTeamMemberInfo team_member_info { get; set; }
+}
 
-    public class DropboxListSharedLinksResult
-    {
-        public DropboxLinkMetadata[] links { get; set; }
-        public bool has_more { get; set; }
-        public string cursor { get; set; }
-    }
+public class DropboxLinkMetadataPermissions
+{
+    public bool can_revoke { get; set; }
+    public DropboxLinkMetadataResolvedVisibility resolved_visibility { get; set; }
+    public DropboxLinkMetadataRevokeFailureReason revoke_failure_reason { get; set; }
+}
+
+public class DropboxLinkMetadataResolvedVisibility
+{
+    [JsonPropertyName(".tag")]
+    public string tag { get; set; }
+}
+
+public class DropboxLinkMetadataRevokeFailureReason
+{
+    [JsonPropertyName(".tag")]
+    public string tag { get; set; }
+}
+
+public class DropboxLinkMetadataTeamMemberInfo
+{
+    public DropboxLinkMetadataTeamInfo team_info { get; set; }
+    public string display_name { get; set; }
+    public string member_id { get; set; }
+}
+
+public class DropboxLinkMetadataTeamInfo
+{
+    public string id { get; set; }
+    public string name { get; set; }
+}
+
+public class DropboxListSharedLinksResult
+{
+    public DropboxLinkMetadata[] links { get; set; }
+    public bool has_more { get; set; }
+    public string cursor { get; set; }
 }

@@ -330,13 +330,13 @@ public static class ImageHelpers
         {
             if (outlineOnly)
             {
-                ctx.DrawPolygon(color, 1f, new PointF[] {
+                ctx.DrawPolygon(color, 1f, [
                     new PointF(0, 0),
                     new PointF(width, 0),
                     new PointF(width, height),
                     new PointF(0, height),
                     new PointF(0, 0)
-                });
+                ]);
             }
             else
             {

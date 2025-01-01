@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -119,13 +118,13 @@ public class Crc32 : HashAlgorithm
 
     private byte[] uintToBigEndianBytes(uint x)
     {
-        return new byte[]
-        {
+        return
+        [
             (byte)((x >> 24) & 0xff),
             (byte)((x >> 16) & 0xff),
             (byte)((x >> 8) & 0xff),
             (byte)(x & 0xff)
-        };
+        ];
     }
 }
 
