@@ -18,7 +18,7 @@
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
 
-%global version         0.0.0
+%global version         0.1.0
 %bcond check 0
 
 # Set the dotnet runtime
@@ -43,7 +43,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        5%{?dist}
+Release:        1%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -100,33 +100,27 @@ export AVALONIA_TELEMETRY_OPTOUT=1
 export NUKE_TELEMETRY_OPTOUT=1
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export PATH=$PATH:/usr/local/bin
+export VERSION=%{version}
 
-dotnet publish --configuration Release --runtime %{dotnet_runtime} \
-    -p:DebugSymbols=false -p:DebugType=none SnapX.CLI
-dotnet publish --configuration Release --runtime %{dotnet_runtime} \
-    -p:DebugSymbols=false -p:DebugType=none SnapX.NativeMessagingHost
-dotnet publish --configuration Release --runtime %{dotnet_runtime} \
-    -p:DebugSymbols=false -p:DebugType=none SnapX.GTK4
-dotnet publish --configuration Release --runtime %{dotnet_runtime} \
-    -p:DebugSymbols=false -p:DebugType=none SnapX.Avalonia
+./build.sh --configuration Release
 
 %check
-SnapX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx --version
+Output/snapx/snapx --version
 
 
 %install
 %{__mkdir} -p %{buildroot}%{_libdir}/snapx %{buildroot}%{_bindir} %{buildroot}%{_datadir}/SnapX
-%{__cp} SnapX.CLI/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx %{buildroot}%{_bindir}
-%{__cp} SnapX.GTK4/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx-gtk %{buildroot}%{_bindir}
-%{__cp} SnapX.NativeMessagingHost/bin/Release/%{net}/%{dotnet_runtime}/native/SnapX_NativeMessagingHost %{buildroot}%{_libdir}/snapx
-%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/snapx-ui %{buildroot}%{_bindir}
-%{__cp} SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/*.so %{buildroot}%{_libdir}
-%{__cp} -r SnapX.Avalonia/bin/Release/%{net}/%{dotnet_runtime}/publish/Resources %{buildroot}%{_datadir}/SnapX
+%{__cp} Output/snapx/snapx %{buildroot}%{_bindir}
+%{__cp} Output/snapx-gtk/snapx-gtk %{buildroot}%{_bindir}
+%{__cp} Output/snapx/SnapX_NativeMessagingHost %{buildroot}%{_libdir}/snapx
+%{__cp} Output/snapx-ui/snapx-ui %{buildroot}%{_bindir}
+%{__cp} Output/snapx-ui/*.so %{buildroot}%{_libdir}
+%{__cp} -r Output/snapx-ui/Resources %{buildroot}%{_datadir}/SnapX
 
 %files
 %{_bindir}/%{name}
 %{_libdir}/%{name}
-%{_libdir}/*.so
+%{_libdir}/*.so*
 %{_datadir}/SnapX
 %license LICENSE.md
 
