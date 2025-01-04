@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Nuke.Common;
 using Nuke.Common.IO;
@@ -46,8 +47,7 @@ class Build : NukeBuild
 
     [Parameter("TARGET")] string Target = "snapx-ui";
 
-    [NerdbankGitVersioning]
-    readonly NerdbankGitVersioning NerdbankVersioning;
+    [NerdbankGitVersioning] [CanBeNull] readonly NerdbankGitVersioning NerdbankVersioning;
 
 
     Target Clean => _ => _
@@ -89,7 +89,7 @@ class Build : NukeBuild
                     .SetProject(project)
                     .SetConfiguration(Configuration)
                     .SetOutput(projectOutput)
-                    .SetAssemblyVersion(NerdbankVersioning.AssemblyInformationalVersion)
+                    .SetAssemblyVersion(NerdbankVersioning?.AssemblyInformationalVersion ?? Environment.GetEnvironmentVariable("VERSION"))
                     .EnableNoLogo()
                     .EnableNoRestore());
                 Information($"Artifacts for {projectName} output to {OutputDirectory}");
