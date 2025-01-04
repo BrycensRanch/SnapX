@@ -43,7 +43,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -72,12 +72,14 @@ Specifically, it is the CLI tool.
 %package gtk
 Summary:        SnapX GTK4 UI
 Requires:       gtk4
+Requires:       snapx
 BuildRequires:  gtk4-devel
 %description gtk
 SnapX but gtk4
 
 %package ui
 Summary:        SnapX Avalonia-based UI
+Requires:       snapx
 
 
 %description ui
@@ -109,18 +111,24 @@ Output/snapx/snapx --version
 
 
 %install
-%{__mkdir} -p %{buildroot}%{_libdir}/snapx %{buildroot}%{_bindir} %{buildroot}%{_datadir}/SnapX
+%{__mkdir} -p %{buildroot}%{_libdir}/%{name} %{buildroot}%{_bindir} %{buildroot}%{_datadir}/SnapX
 %{__cp} Output/snapx/snapx %{buildroot}%{_bindir}
 %{__cp} Output/snapx-gtk/snapx-gtk %{buildroot}%{_bindir}
-%{__cp} Output/snapx/SnapX_NativeMessagingHost %{buildroot}%{_libdir}/snapx
-%{__cp} Output/snapx-ui/snapx-ui %{buildroot}%{_bindir}
-%{__cp} Output/snapx-ui/*.so %{buildroot}%{_libdir}
+%{__cp} Output/snapx/SnapX_NativeMessagingHost %{buildroot}%{_libdir}/%{name}
+%{__cp} Output/snapx-ui/snapx-ui %{buildroot}%{_libdir}/%{name}
+%{__cp} Output/snapx-ui/*.so %{buildroot}%{_libdir}/%{name}
 %{__cp} -r Output/snapx-ui/Resources %{buildroot}%{_datadir}/SnapX
+
+cat > %{buildroot}%{_bindir}/snapx-ui <<EOF
+#!/bin/sh
+# Wrapper script to invoke the actual binary
+exec %{_libdir}/%{name}/snapx-ui "\$@"
+EOF
+chmod +x %{buildroot}%{_bindir}/snapx-ui
 
 %files
 %{_bindir}/%{name}
 %{_libdir}/%{name}
-%{_libdir}/*.so*
 %{_datadir}/SnapX
 %license LICENSE.md
 
