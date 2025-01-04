@@ -10,10 +10,6 @@ public class SnapXCLIManager : CLIManager
     public SnapXCLIManager(string[] arguments) : base(arguments)
     {
     }
-    public async Task UseCommandLineArgs()
-    {
-        await UseCommandLineArgs(Commands);
-    }
 
     public async Task UseCommandLineArgs(List<CLICommand> commands)
     {

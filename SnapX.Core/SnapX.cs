@@ -257,7 +257,7 @@ public class SnapX
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
         CLIManager.ParseCommands();
-        CLIManager.UseCommandLineArgs().Wait();
+        CLIManager.UseCommandLineArgs(CLIManager.Commands).Wait();
 
         if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute task as Admin
 
