@@ -31,7 +31,7 @@
       <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-      <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.10" />
+      <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.3" />
       <PackageReference Include="FluentAvaloniaUI" Version="2.2.0" />
       <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
       <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
