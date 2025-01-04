@@ -22,6 +22,7 @@ csharp_prefer_braces = false
 csharp_prefer_simple_using_statement = true
 resharper_csharp_blank_lines_after_file_scoped_namespace_directive = 1
 resharper_csharp_namespace_body = file_scoped
+# noinspection EditorConfigKeyCorrectness
 csharp_style_namespace_declarations = file_scoped:warning
 
 
@@ -34,8 +35,10 @@ dotnet_sort_system_directives_first = true
 
 
 # IDE0051: Remove unused private member
+# noinspection EditorConfigKeyCorrectness
 dotnet_diagnostic.IDE0051.severity = silent
 # IDE0005: Remove dead imports
+# noinspection EditorConfigKeyCorrectness
 dotnet_diagnostic.IDE0005.severity = warning
 
 
