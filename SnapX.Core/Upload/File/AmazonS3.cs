@@ -46,7 +46,6 @@ public class AmazonS3NewFileUploaderService : FileUploaderService
     {
         return new AmazonS3(config.AmazonS3Settings);
     }
-
 }
 
 public sealed class AmazonS3 : FileUploader
