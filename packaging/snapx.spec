@@ -43,7 +43,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -107,7 +107,7 @@ Output/snapx/snapx --version
 
 
 %install
-./build.sh install --prefix %{_prefix} --lib-dir %{_libdir} --skip compile
+./build.sh install --prefix %{_prefix} --lib-dir %{_libdir} --dest-dir %{buildroot} --skip compile
 
 %files
 %{_bindir}/%{name}

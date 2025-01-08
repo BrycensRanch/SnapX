@@ -61,28 +61,28 @@ class Build : NukeBuild
         set => _destdir = value;
     }
 
-    string Bindir => Path.Combine(DestDir, Prefix, "bin");
-    string Datadir => Path.Combine(DestDir, Prefix, "share");
-    string Docdir => Path.Combine(Datadir, "doc", "snapx");
-    string Licensedir => Path.Combine(Datadir, "licenses", "snapx");
-    string Applicationsdir => Path.Combine(Datadir, "applications");
-    string Icondir => Path.Combine(Datadir, "icons", "hicolor");
+    string Bindir => Path.Join(DestDir, Prefix, "bin");
+    string Datadir => Path.Join(DestDir, Prefix, "share");
+    string Docdir => Path.Join(Datadir, "doc", "snapx");
+    string Licensedir => Path.Join(Datadir, "licenses", "snapx");
+    string Applicationsdir => Path.Join(Datadir, "applications");
+    string Icondir => Path.Join(Datadir, "icons", "hicolor");
     private string _libdir;
 
     [Parameter("LIBDIR")]
     public string LibDir
     {
-        get => _libdir ?? Path.Combine(Datadir, "lib");
+        get => _libdir ?? Path.Join(Datadir, "lib");
         set => _libdir = value;
     }
-    string Metainfodir => Path.Combine(Datadir, "metainfo");
+    string Metainfodir => Path.Join(Datadir, "metainfo");
     AbsolutePath Tarballdir => PackagingDirectory / "tarball";
     string packagingDir => Path.Combine(PackagingDirectory, "usr");
     Project NMH => Solution.SnapX_NativeMessagingHost;
 
     string NMHassemblyName => NMH.GetProperty("AssemblyName")!;
     [Parameter("Path to NativeMessagingHost for web extension support")]
-    string NMHostPath => !OperatingSystem.IsWindows() ? Path.Combine(LibDir, "snapx", NMHassemblyName) : null;
+    string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
 
     [NerdbankGitVersioning][CanBeNull] readonly NerdbankGitVersioning NerdbankVersioning;
 
@@ -179,7 +179,8 @@ class Build : NukeBuild
         {
             Information($"Destination Directory: {DestDir}");
             Information($"Prefix: {Prefix}");
-            Information($"Installing to {Path.Combine(DestDir, Prefix)}");
+            Information($"Installing to {Path.Join(DestDir, Prefix)}");
+            Information($"Data directory: {Datadir}");
             Information($"Bin directory: {Bindir}");
             Information($"Documentation directory: {Docdir}");
             Information($"License directory: {Licensedir}");
@@ -224,7 +225,7 @@ class Build : NukeBuild
             foreach (var outputFile in outputFiles)
             {
                 var permissions = "0755";
-                var destinationFile = Path.Combine(Bindir, Path.GetFileName(outputFile));
+                var destinationFile = Path.Join(Bindir, Path.GetFileName(outputFile));
                 var AvaloniaAssemblyName = Solution.SnapX_Avalonia.GetProperty("AssemblyName")!;
 
                 switch (Path.GetFileNameWithoutExtension(destinationFile))
