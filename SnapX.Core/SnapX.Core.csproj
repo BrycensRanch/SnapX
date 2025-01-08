@@ -41,7 +41,7 @@
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
     <!-- Helpers for drawing -->
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus" Version="0.21.2" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
