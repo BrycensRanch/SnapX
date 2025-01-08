@@ -120,8 +120,8 @@ public static class Helpers
         try
         {
             // Format the title and body for the issue
-            var title = "[BUG] " + ex.Message;  // Prefix the title with [BUG]
-            var body = StripPII($"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n{ex.StackTrace}\n\nAssembly: {Assembly.GetExecutingAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}");
+            var title = "[BUG] " + ex.Message;
+            var body = StripPII($"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n```\n{ex.StackTrace}\n```\n\nInner Exception: {ex.InnerException?.Message}\n\n## Stack Trace:\n\n```\n{ex.InnerException?.StackTrace}\n```\n\nAssembly: {Assembly.GetEntryAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}");
 
             var encodedTitle = HttpUtility.UrlEncode(title);
             var encodedBody = HttpUtility.UrlEncode(body);
@@ -293,34 +293,6 @@ public static class Helpers
         return Version.Parse(version).Normalize(ignoreRevision);
     }
 
-    public static string? FindSnapXBinary()
-    {
-        var currentDirectory = Directory.GetCurrentDirectory();
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            // On Windows, it is expected that SnapX_NativeMessaginHost is right beside the binary.
-            var snapxmatches = Directory.GetFiles(currentDirectory, "SnapX*.exe", SearchOption.AllDirectories);
-            return snapxmatches.FirstOrDefault();
-        }
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            // On Linux, it's possible that the binary could be named snapx, snapx-gtk, and snapx-ui
-            // However, SnapX_NativeMessagingHost should live in /usr/share/SnapX/SnapX_MessagingHost
-            // So instead, search $PATH
-            var path = "/usr/bin";
-            var validPathsToSearch = path?.Split(Path.PathSeparator);
-            foreach (var searchPath in validPathsToSearch)
-            {
-                Console.WriteLine(searchPath);
-                var snapxmatches = Directory.GetFiles(searchPath, "snapx*",
-                    SearchOption.AllDirectories);
-                if (snapxmatches.Length != 0) return snapxmatches[0];
-            }
-        }
-        return null;
-    }
-
     public static bool IsWindows11OrGreater(int build = -1)
     {
         build = System.Math.Max(22000, build);
@@ -450,21 +422,33 @@ public static class Helpers
 
     private static int GetCurrentUid()
     {
+        var uidStr = Environment.GetEnvironmentVariable("UID");
+        if (!string.IsNullOrEmpty(uidStr) && int.TryParse(uidStr, out var uid)) return uid;
 
-        var processStartInfo = new ProcessStartInfo
+        try
         {
-            FileName = "id",
-            Arguments = "-u",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = "id",
+                Arguments = "-u",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-        using var process = Process.Start(processStartInfo);
-        if (process == null) return 1000;
-        using var reader = process.StandardOutput;
-        var output = reader.ReadToEnd();
-        return int.Parse(output.Trim());
+            using var process = Process.Start(processStartInfo);
+            if (process == null) return 1000;
+
+            process.WaitForExit();
+            if (process.ExitCode != 0) return 1000;
+
+            using var reader = process.StandardOutput;
+            var output = reader.ReadToEnd();
+            if (int.TryParse(output.Trim(), out uid)) return uid;
+
+            return 1000;
+        }
+        catch (Exception) { return 1000; }
     }
 
     public static bool IsRunning(string name)
