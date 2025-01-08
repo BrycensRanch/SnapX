@@ -43,7 +43,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -97,10 +97,6 @@ SnapX but with Avalonia. Works best on X11.
 %else
     %set_build_flags
 %endif
-export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
-export AVALONIA_TELEMETRY_OPTOUT=1
-export NUKE_TELEMETRY_OPTOUT=1
-export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export PATH=$PATH:/usr/local/bin
 export VERSION=%{version}
 
@@ -111,20 +107,7 @@ Output/snapx/snapx --version
 
 
 %install
-%{__mkdir} -p %{buildroot}%{_libdir}/%{name} %{buildroot}%{_bindir} %{buildroot}%{_datadir}/SnapX
-%{__cp} Output/snapx/snapx %{buildroot}%{_bindir}
-%{__cp} Output/snapx-gtk/snapx-gtk %{buildroot}%{_bindir}
-%{__cp} Output/snapx/SnapX_NativeMessagingHost %{buildroot}%{_libdir}/%{name}
-%{__cp} Output/snapx-ui/snapx-ui %{buildroot}%{_libdir}/%{name}
-%{__cp} Output/snapx-ui/*.so %{buildroot}%{_libdir}/%{name}
-%{__cp} -r Output/snapx-ui/Resources %{buildroot}%{_datadir}/SnapX
-
-cat > %{buildroot}%{_bindir}/snapx-ui <<EOF
-#!/bin/sh
-# Wrapper script to invoke the actual binary
-exec %{_libdir}/%{name}/snapx-ui "\$@"
-EOF
-chmod +x %{buildroot}%{_bindir}/snapx-ui
+./build.sh install --prefix %{_prefix} --lib-dir %{_libdir} --skip compile
 
 %files
 %{_bindir}/%{name}

@@ -1,7 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Nuke.Common;
@@ -9,8 +12,11 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.NerdbankGitVersioning;
+using SnapX.Core.Utils;
+using YamlDotNet.Core.Tokens;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Serilog.Log;
+using Information = Microsoft.VisualBasic.Information;
 
 class Build : NukeBuild
 {
@@ -26,6 +32,7 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
     [Parameter("Output Directory")]
     readonly AbsolutePath OutputDirectory = RootDirectory / "Output";
+    readonly AbsolutePath PackagingDirectory = RootDirectory / "packaging";
     const string Namespace = "SnapX.";
 
     static string[] ProjectNames = ["GTK4", "Avalonia", "CLI", "NativeMessagingHost"];
@@ -36,27 +43,58 @@ class Build : NukeBuild
     [Solution(GenerateProjects = true)]
     readonly Solution Solution;
 
-    [Parameter("Path to NativeMessagingHost for web extension support")]
-    string NMHostPath;
+    string _prefix;
+
     [Parameter("PREFIX")]
-    string Prefix = OperatingSystem.IsWindows() ? "" : Path.Combine(Path.DirectorySeparatorChar.ToString(), "usr", "local");
+    public string Prefix
+    {
+        get => _prefix ?? "/usr/local";
+        set => _prefix = value;
+    }
     // When I used MAKEFILES on Windows, I was using MSYS2 that gave me an acceptable UNIX like path
     // Now, I have no idea what to default to on Windows. Good luck.
+    string _destdir;
     [Parameter("DESTDIR")]
-    string Destdir = OperatingSystem.IsWindows() ? "" : "";
+    public string DestDir
+    {
+        get => _destdir ?? "";
+        set => _destdir = value;
+    }
 
-    [Parameter("TARGET")] string Target = "snapx-ui";
+    string Bindir => Path.Combine(DestDir, Prefix, "bin");
+    string Datadir => Path.Combine(DestDir, Prefix, "share");
+    string Docdir => Path.Combine(Datadir, "doc", "snapx");
+    string Licensedir => Path.Combine(Datadir, "licenses", "snapx");
+    string Applicationsdir => Path.Combine(Datadir, "applications");
+    string Icondir => Path.Combine(Datadir, "icons", "hicolor");
+    private string _libdir;
 
-    [NerdbankGitVersioning] [CanBeNull] readonly NerdbankGitVersioning NerdbankVersioning;
+    [Parameter("LIBDIR")]
+    public string LibDir
+    {
+        get => _libdir ?? Path.Combine(Datadir, "lib");
+        set => _libdir = value;
+    }
+    string Metainfodir => Path.Combine(Datadir, "metainfo");
+    AbsolutePath Tarballdir => PackagingDirectory / "tarball";
+    string packagingDir => Path.Combine(PackagingDirectory, "usr");
+    Project NMH => Solution.SnapX_NativeMessagingHost;
+
+    string NMHassemblyName => NMH.GetProperty("AssemblyName")!;
+    [Parameter("Path to NativeMessagingHost for web extension support")]
+    string NMHostPath => !OperatingSystem.IsWindows() ? Path.Combine(LibDir, "snapx", NMHassemblyName) : null;
+
+    [NerdbankGitVersioning][CanBeNull] readonly NerdbankGitVersioning NerdbankVersioning;
 
 
     Target Clean => _ => _
         .Before(Restore)
         .Executes(() =>
         {
-
             DotNetClean();
             OutputDirectory.CreateOrCleanDirectory();
+            Tarballdir.CreateOrCleanDirectory();
+
         });
 
     Target Restore => _ => _
@@ -97,11 +135,8 @@ class Build : NukeBuild
 
             if (ProjectsToBuild.Any(projectName => projectName.Contains("NativeMessagingHost")))
             {
-                var NMH = Solution.SnapX_NativeMessagingHost;
 
-                var assemblyName = NMH.GetProperty("AssemblyName")!;
-
-                var projectOutput = Path.Combine(OutputDirectory, assemblyName);
+                var projectOutput = Path.Combine(OutputDirectory, NMHassemblyName);
 
                 var exeProjects = projectsThatWereBuilt
                     .Where(p => p.GetOutputType() == "Exe" && !p.Name.Contains("NativeMessagingHost"));
@@ -109,9 +144,9 @@ class Build : NukeBuild
                 foreach (var exeProject in exeProjects)
                 {
                     var exeFileName = exeProject.GetProperty("AssemblyName")!;
-                    var exeOutputDirectory = Path.Combine(OutputDirectory, exeFileName, assemblyName);
+                    var exeOutputDirectory = Path.Combine(OutputDirectory, exeFileName, NMHassemblyName);
                     if (OperatingSystem.IsWindows() && !exeOutputDirectory.EndsWith(".exe")) exeOutputDirectory += ".exe";
-                    var sourceNMHOutputPath = Path.Combine(projectOutput, assemblyName);
+                    var sourceNMHOutputPath = Path.Combine(projectOutput, NMHassemblyName);
                     if (OperatingSystem.IsWindows()) sourceNMHOutputPath += ".exe";
 
                     File.Copy(sourceNMHOutputPath, exeOutputDirectory, overwrite: true);
@@ -123,24 +158,15 @@ class Build : NukeBuild
                 }
             }
             var manifestFiles = Directory.GetFiles(OutputDirectory, "host-manifest-*.json", SearchOption.AllDirectories);
-            if (string.IsNullOrWhiteSpace(NMHostPath))
-            {
-                if (OperatingSystem.IsLinux() || OperatingSystem.IsAndroid())
-                {
-                    NMHostPath = "/usr/lib/snapx/SnapX_NativeMessagingHost";
-                }
-                else if (OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD())
-                {
-                    NMHostPath = "/usr/local/lib/snapx/SnapX_NativeMessagingHost";
-                }
-                // On Windows, do not modify the path, so we do nothing since the resource file targets Windows by default.
-                // I know there's more operating systems. I'm just going to pretend like they don't exis-
-            }
             foreach (var manifestFile in manifestFiles)
             {
                 // Pump the brakes, is that Newtonsoft.JSON in disguise?!?!
                 var json = JObject.Parse(File.ReadAllText(manifestFile));
-                if (string.IsNullOrWhiteSpace(NMHostPath)) continue;
+                if (string.IsNullOrWhiteSpace(NMHostPath))
+                {
+                    Information($"Skipping {manifestFile} since NMHostPath was not provided");
+                    continue;
+                }
 
                 json["path"] = NMHostPath;
 
@@ -148,9 +174,204 @@ class Build : NukeBuild
             }
         });
     Target Install => _ => _
-        .After(Compile)
+        .DependsOn(Compile)
         .Executes(() =>
         {
-            // To be implemented
+            Information($"Destination Directory: {DestDir}");
+            Information($"Prefix: {Prefix}");
+            Information($"Installing to {Path.Combine(DestDir, Prefix)}");
+            Information($"Bin directory: {Bindir}");
+            Information($"Documentation directory: {Docdir}");
+            Information($"License directory: {Licensedir}");
+            Information($"Metainfo directory: {Metainfodir}");
+            Information($"Tarball directory: {Tarballdir}");
+            Information($"Application directory: {Applicationsdir}");
+            Information($"Icon directory: {Icondir}");
+            Information($"Operating System: {RuntimeInformation.OSDescription}");
+            Information($"SnapX Version: {NerdbankVersioning?.Version}");
+            Information($"Architecture: {RuntimeInformation.OSArchitecture} {RuntimeInformation.RuntimeIdentifier}");
+
+            var files = Directory.GetFiles(packagingDir, "*", SearchOption.AllDirectories);
+
+            foreach (var sourceFile in files)
+            {
+                var relativePath = Path.GetRelativePath(packagingDir, sourceFile);
+                var destinationFile = Path.Combine(DestDir, Prefix, relativePath);
+
+                EnsureDirectoryExists(Path.GetDirectoryName(destinationFile));
+
+                var permissions = "0644";
+                var relativeSourceFile = Path.GetRelativePath(RootDirectory, sourceFile);
+
+                switch (sourceFile)
+                {
+                    case var file when file.EndsWith(".desktop"):
+                        permissions = "0755";
+                        Information($"Installing desktop file: {Path.GetRelativePath(RootDirectory, file)} -> {destinationFile}");
+                        break;
+                    case var file when file.EndsWith(".metainfo.xml"):
+                        Information($"Installing metainfo file: {Path.GetRelativePath(RootDirectory, file)} -> {destinationFile}");
+                        break;
+                    default:
+                        Information($"Installing regular file: {relativeSourceFile} -> {destinationFile}");
+                        break;
+                }
+
+                InstallFile(sourceFile, destinationFile, permissions);
+            }
+
+            var outputFiles = OutputDirectory.GetFiles("*", 5).OrderBy(f => f.Name).ToArray();
+            foreach (var outputFile in outputFiles)
+            {
+                var permissions = "0755";
+                var destinationFile = Path.Combine(Bindir, Path.GetFileName(outputFile));
+                var AvaloniaAssemblyName = Solution.SnapX_Avalonia.GetProperty("AssemblyName")!;
+
+                switch (Path.GetFileNameWithoutExtension(destinationFile))
+                {
+                    case var name when destinationFile.Contains(".dbg") || destinationFile.Contains(".pdb"):
+                        continue;
+                    case var name when destinationFile.Contains(NMHassemblyName):
+                        destinationFile = NMHostPath;
+                        Information($"Installing NMH Binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    case var name when destinationFile.Contains(AvaloniaAssemblyName):
+                        destinationFile = Path.Combine(LibDir, "snapx", Path.GetFileName(destinationFile));
+                        Information($"Installing AVALONIABINARY: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so")) && !destinationFile.Contains(AvaloniaAssemblyName):
+                        destinationFile = Path.Combine(LibDir, "snapx", Path.GetFileName(destinationFile));
+                        Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    case var name when destinationFile.Contains(".json"):
+                        destinationFile = Path.Combine(Datadir, "SnapX", Path.GetFileName(destinationFile));
+                        Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    default:
+                        Information($"Installing binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                }
+                InstallFile(outputFile, destinationFile, permissions);
+            }
+
+            var localAvaloniaWrapperScript = Path.Combine(RootDirectory, "snapx-ui");
+            using (var writer = new StreamWriter(localAvaloniaWrapperScript))
+            {
+                writer.WriteLine("#!/bin/sh");
+                writer.WriteLine("# Wrapper script provided by SnapX to invoke the true Avalonia binary.");
+                writer.WriteLine($"# NMH Path: {NMHostPath}");
+                writer.WriteLine($"# Version: {NerdbankVersioning?.Version}");
+                writer.WriteLine($"exec {Path.Combine(LibDir, "snapx", "snapx-ui")} \"$@\"");
+            }
+
+            InstallFile(localAvaloniaWrapperScript, Path.Combine(Bindir, "snapx-ui"), "0755");
+            RunInstallCommand($"+x {Path.Combine(Bindir, "snapx-ui")}", "chmod");
+            File.Delete(localAvaloniaWrapperScript);
         });
+    void InstallFile(string source, string destination, string permissions)
+    {
+        if (File.Exists(source))
+        {
+            var installArgs = $"-Dpm {permissions} {source} {destination}";
+            RunInstallCommand(installArgs);
+        }
+        else
+        {
+            Information($"Source file not found: {source}");
+        }
+    }
+
+    void RunInstallCommand(string installArguments, string executionCommand = "install")
+    {
+        var requiresElevationLikely = !IsAdmin() && RequiresElevationLikely(installArguments);
+
+        var executionArguments = installArguments;
+
+        if (requiresElevationLikely)
+        {
+            executionArguments = $"{executionCommand} " + installArguments;
+            executionCommand = "sudo";
+        }
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = executionCommand,
+            Arguments = executionArguments,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false
+        };
+
+        try
+        {
+            using var process = Process.Start(processStartInfo);
+            if (process == null) throw new Exception($"Failed to start {processStartInfo.FileName} {processStartInfo.Arguments}");
+            process.WaitForExit();
+
+            if (process.ExitCode != 0)
+            {
+                var errorOutput = process.StandardError.ReadToEnd();
+                Error($"Install command failed: {errorOutput}");
+
+                // Check if permission denied and elevation wasn't already attempted
+                if (!requiresElevationLikely && errorOutput.Contains("Permission denied"))
+                {
+                    Error("Retrying with elevated privileges (sudo)...");
+                    requiresElevationLikely = true;
+                    RunInstallCommand(installArguments);
+                }
+            }
+            else
+            {
+                Debug($"{processStartInfo.FileName} {processStartInfo.Arguments}");
+                Information($"Install command succeeded. {process.StandardOutput.ReadToEnd()}");
+            }
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            // Handle cases where sudo isn't available (e.g., on Windows)
+            if (ex.Message.Contains("The system cannot find the file specified") && requiresElevationLikely)
+            {
+                Error("Elevation utility (sudo) is not available. Ensure it's installed or run as root.");
+            }
+            else
+            {
+                Error($"Error starting process: {ex.Message}");
+            }
+        }
+    }
+    bool IsAdmin()
+    {
+        return Helpers.IsAdministrator();
+    }
+
+    // Helper function to detect if elevation (sudo) is LIKELY needed based on arguments
+    bool RequiresElevationLikely(string installArguments)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return false; // No elevation (sudo) on Windows
+        }
+
+        // Split arguments and check for paths starting with commonly protected directories
+        var arguments = installArguments.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var argument in arguments)
+        {
+            var arg = argument.Trim();
+            if (arg.StartsWith("/usr") || arg.StartsWith("/opt") || arg.StartsWith("/etc") || arg.StartsWith("/var") || arg.StartsWith("/bin") || arg.StartsWith("/sbin"))
+            {
+                return true; // Likely requires elevation
+            }
+        }
+
+        return false; // Probably doesn't require elevation
+    }
+
+    void EnsureDirectoryExists(string directory)
+    {
+        if (Directory.Exists(directory)) return;
+        Information($"Creating directory: {directory}");
+        RunInstallCommand($"-p {directory}", "mkdir");
+    }
 }
