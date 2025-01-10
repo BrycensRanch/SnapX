@@ -92,10 +92,11 @@ public class App : Application
             Content = Lang.CreateGitHubIssue,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 5, 0, 0),
-            Background = Brushes.GreenYellow,
-            Foreground = Brushes.White,
-            BorderBrush = Brushes.PaleGreen,
+            Background = Brushes.Green,
+            // Foreground = Brushes.White,
+            // BorderBrush = Brushes.IndianRed,
             BorderThickness = new Thickness(1),
+            FontSize = 16,
             Padding = new Thickness(10),
             FontWeight = FontWeight.Bold,
             CornerRadius = new CornerRadius(5)
@@ -108,9 +109,10 @@ public class App : Application
             Content = Lang.CopyErrorToClipboard,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 5, 0, 0),
-            Background = Brushes.Green,
-            Foreground = Brushes.White,
-            BorderBrush = Brushes.Green,
+            // Background = Brushes.Green,
+            // Foreground = Brushes.White,
+            // BorderBrush = Brushes.Green,
+            Background = Brushes.SlateGray,
             BorderThickness = new Thickness(1),
             Padding = new Thickness(10),
             FontWeight = FontWeight.Bold,
@@ -183,6 +185,7 @@ public class App : Application
                 sigintReceived = true;
 
                 DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
+                SnapX.shutdown();
                 desktop.Shutdown();
             };
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
@@ -199,6 +202,7 @@ public class App : Application
                 }
             };
             var errorStarting = false;
+            // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
             try
             {
                 SnapX.start(desktop.Args ?? []);
