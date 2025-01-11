@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" />
     <PackageReference Include="Nuke.Common" Version="$(NukeVersion)" />
     <PackageReference Include="Nuke.Components" Version="$(NukeVersion)" />
     <!-- If you start SnapX.Core from here, you will be fired. -->
