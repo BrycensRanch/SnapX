@@ -72,7 +72,7 @@ class Build : NukeBuild
     [Parameter("LIBDIR")]
     public string LibDir
     {
-        get => _libdir ?? Path.Join(Datadir, "lib");
+        get => _libdir ?? Path.Join(DestDir, Prefix, "lib");
         set => _libdir = value;
     }
     string Metainfodir => Path.Join(Datadir, "metainfo");
@@ -86,6 +86,8 @@ class Build : NukeBuild
 
     [NerdbankGitVersioning][CanBeNull] readonly NerdbankGitVersioning NerdbankVersioning;
 
+    string SnapXVersion =>
+        NerdbankVersioning?.AssemblyInformationalVersion ?? Environment.GetEnvironmentVariable("VERSION");
 
     Target Clean => _ => _
         .Before(Restore)
@@ -127,7 +129,7 @@ class Build : NukeBuild
                     .SetProject(project)
                     .SetConfiguration(Configuration)
                     .SetOutput(projectOutput)
-                    .SetAssemblyVersion(NerdbankVersioning?.AssemblyInformationalVersion ?? Environment.GetEnvironmentVariable("VERSION"))
+                    .SetAssemblyVersion(SnapXVersion)
                     .EnableNoLogo()
                     .EnableNoRestore());
                 Information($"Artifacts for {projectName} output to {OutputDirectory}");
@@ -188,8 +190,9 @@ class Build : NukeBuild
             Information($"Tarball directory: {Tarballdir}");
             Information($"Application directory: {Applicationsdir}");
             Information($"Icon directory: {Icondir}");
+            Information($"Library directory: {LibDir}");
             Information($"Operating System: {RuntimeInformation.OSDescription}");
-            Information($"SnapX Version: {NerdbankVersioning?.Version}");
+            Information($"SnapX Version: {SnapXVersion}");
             Information($"Architecture: {RuntimeInformation.OSArchitecture} {RuntimeInformation.RuntimeIdentifier}");
 
             var files = Directory.GetFiles(packagingDir, "*", SearchOption.AllDirectories);
@@ -197,24 +200,25 @@ class Build : NukeBuild
             foreach (var sourceFile in files)
             {
                 var relativePath = Path.GetRelativePath(packagingDir, sourceFile);
-                var destinationFile = Path.Combine(DestDir, Prefix, relativePath);
+                var destinationFile = Path.Join(DestDir, Prefix, relativePath);
 
                 EnsureDirectoryExists(Path.GetDirectoryName(destinationFile));
 
                 var permissions = "0644";
-                var relativeSourceFile = Path.GetRelativePath(RootDirectory, sourceFile);
 
                 switch (sourceFile)
                 {
                     case var file when file.EndsWith(".desktop"):
                         permissions = "0755";
-                        Information($"Installing desktop file: {Path.GetRelativePath(RootDirectory, file)} -> {destinationFile}");
+                        destinationFile = Path.Join(Applicationsdir, Path.GetFileName(file));
+                        Information($"Installing desktop file: {relativePath} -> {destinationFile}");
                         break;
                     case var file when file.EndsWith(".metainfo.xml"):
-                        Information($"Installing metainfo file: {Path.GetRelativePath(RootDirectory, file)} -> {destinationFile}");
+                        destinationFile = Path.Join(Metainfodir, Path.GetFileName(file));
+                        Information($"Installing metainfo file: {relativePath} -> {destinationFile}");
                         break;
                     default:
-                        Information($"Installing regular file: {relativeSourceFile} -> {destinationFile}");
+                        Information($"Installing {Path.GetExtension(sourceFile)} file: {relativePath} -> {destinationFile}");
                         break;
                 }
 
@@ -237,15 +241,15 @@ class Build : NukeBuild
                         Information($"Installing NMH Binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                         break;
                     case var name when destinationFile.Contains(AvaloniaAssemblyName):
-                        destinationFile = Path.Combine(LibDir, "snapx", Path.GetFileName(destinationFile));
+                        destinationFile = Path.Join(LibDir, "snapx", Path.GetFileName(destinationFile));
                         Information($"Installing AVALONIABINARY: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                         break;
-                    case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so")) && !destinationFile.Contains(AvaloniaAssemblyName):
-                        destinationFile = Path.Combine(LibDir, "snapx", Path.GetFileName(destinationFile));
+                    case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so") || destinationFile.Contains(".dylib")) && !destinationFile.Contains(AvaloniaAssemblyName):
+                        destinationFile = Path.Join(LibDir, "snapx", Path.GetFileName(destinationFile));
                         Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                         break;
                     case var name when destinationFile.Contains(".json"):
-                        destinationFile = Path.Combine(Datadir, "SnapX", Path.GetFileName(destinationFile));
+                        destinationFile = Path.Join(Datadir, "SnapX", Path.GetFileName(destinationFile));
                         Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                         break;
                     default:
@@ -255,18 +259,18 @@ class Build : NukeBuild
                 InstallFile(outputFile, destinationFile, permissions);
             }
 
-            var localAvaloniaWrapperScript = Path.Combine(RootDirectory, "snapx-ui");
+            var localAvaloniaWrapperScript = Path.Join(RootDirectory, "snapx-ui");
             using (var writer = new StreamWriter(localAvaloniaWrapperScript))
             {
                 writer.WriteLine("#!/bin/sh");
                 writer.WriteLine("# Wrapper script provided by SnapX to invoke the true Avalonia binary.");
                 writer.WriteLine($"# NMH Path: {NMHostPath}");
-                writer.WriteLine($"# Version: {NerdbankVersioning?.Version}");
-                writer.WriteLine($"exec {Path.Combine(LibDir, "snapx", "snapx-ui")} \"$@\"");
+                writer.WriteLine($"# Version: {SnapXVersion}");
+                writer.WriteLine($"exec {Path.Join(LibDir, "snapx", "snapx-ui")} \"$@\"");
             }
 
-            InstallFile(localAvaloniaWrapperScript, Path.Combine(Bindir, "snapx-ui"), "0755");
-            RunInstallCommand($"+x {Path.Combine(Bindir, "snapx-ui")}", "chmod");
+            InstallFile(localAvaloniaWrapperScript, Path.Join(Bindir, "snapx-ui"), "0755");
+            RunInstallCommand($"+x {Path.Join(Bindir, "snapx-ui")}", "chmod");
             File.Delete(localAvaloniaWrapperScript);
         });
     void InstallFile(string source, string destination, string permissions)

@@ -21,7 +21,10 @@
     <PackageReference Include="Nuke.Common" Version="$(NukeVersion)" />
     <PackageReference Include="Nuke.Components" Version="$(NukeVersion)" />
     <!-- If you start SnapX.Core from here, you will be fired. -->
-    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" PrivateAssets="All" Exclude="Microsoft.EntityFrameworkCore.Sqlite" NoWarn="*;NU1701;CS8604;CS8600;CS0414;CA1416;CS8603;CS8604;CS8625"/>
+    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" PrivateAssets="All" Exclude="Microsoft.EntityFrameworkCore.Sqlite" NoWarn="*;NU1701;CS8604;CS8600;CS0414;CA1416;CS8603;CS8604;CS8625">
+      <!-- We do not need ScreenCapture code here -->
+      <Properties>nocargobuild=True</Properties>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
