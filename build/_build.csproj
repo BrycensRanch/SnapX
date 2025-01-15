@@ -9,7 +9,7 @@
     <NukeRootDirectory>..</NukeRootDirectory>
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
-    <NukeVersion>9.0.3</NukeVersion>
+    <NukeVersion>9.0.4</NukeVersion>
     <IsPackable>false</IsPackable>
     <!--Seems to be broken with NUKE. -->
     <ImplicitUsings>false</ImplicitUsings>
