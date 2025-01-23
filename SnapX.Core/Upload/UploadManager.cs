@@ -112,7 +112,7 @@ public static class UploadManager
         // }
     }
 
-    public static void ProcessImageUpload(Image<Rgba64> image, TaskSettings taskSettings)
+    public static void ProcessImageUpload(Image image, TaskSettings taskSettings)
     {
         if (image != null)
         {
@@ -233,12 +233,12 @@ public static class UploadManager
             DownloadAndUploadFile(url, taskSettings);
         }
     }
-    public static void RunImageTask(Image<Rgba64> image, TaskSettings taskSettings)
+    public static void RunImageTask(Image image, TaskSettings taskSettings)
     {
         var metadata = new TaskMetadata(image);
         RunImageTask(metadata, taskSettings);
     }
-    public static void RunImageTask(Image<Rgba64> image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
+    public static void RunImageTask(Image image, TaskSettings taskSettings, bool skipQuickTaskMenu = false, bool skipAfterCaptureWindow = false)
     {
         var metadata = new TaskMetadata(image);
         RunImageTask(metadata, taskSettings, skipQuickTaskMenu, skipAfterCaptureWindow);
@@ -264,7 +264,7 @@ public static class UploadManager
         }
     }
 
-    public static void UploadImage(Image<Rgba64> image, TaskSettings taskSettings = null)
+    public static void UploadImage(Image image, TaskSettings taskSettings = null)
     {
         if (image != null)
         {
@@ -283,7 +283,7 @@ public static class UploadManager
         }
     }
 
-    public static void UploadImage(Image<Rgba64> image, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
+    public static void UploadImage(Image image, ImageDestination imageDestination, FileDestination imageFileDestination, TaskSettings taskSettings = null)
     {
         if (image != null)
         {
@@ -395,8 +395,10 @@ public static class UploadManager
     public static void DownloadAndUploadFile(string url, TaskSettings taskSettings = null)
         => DownloadFile(url, true, taskSettings);
 
-    private static void DownloadFile(string url, bool upload, TaskSettings taskSettings = null)
+    private static void DownloadFile(string url, bool upload, TaskSettings? taskSettings = null)
     {
+        DebugHelper.WriteLine($"Downloading file {url}");
+        DebugHelper.WriteLine($"Upload: {upload}");
         if (string.IsNullOrEmpty(url)) return;
 
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
@@ -409,7 +411,7 @@ public static class UploadManager
         }
     }
 
-    public static void IndexFolder(string folderPath, TaskSettings taskSettings = null)
+    public static void IndexFolder(string folderPath, TaskSettings? taskSettings = null)
     {
         if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath)) return;
 
@@ -420,7 +422,7 @@ public static class UploadManager
 
         Task.Run(() =>
         {
-            // string source = Core.Indexer.Indexer(folderPath, taskSettings.ToolsSettings.IndexerSettings);
+            source = Indexer.Indexer.Index(folderPath, taskSettings.ToolsSettings.IndexerSettings);
         }).ContinueInCurrentContext(() =>
         {
             if (string.IsNullOrEmpty(source)) return;

@@ -40,7 +40,7 @@ application.OnActivate += (sender, eventArgs) =>
     catch (Exception e)
     {
         errorStarting = true;
-        DebugHelper.Logger.Fatal(e.ToString());
+        DebugHelper.WriteException(e);
         ShowErrorDialog(e, application);
 
     }
@@ -67,7 +67,7 @@ application.OnActivate += (sender, eventArgs) =>
         var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
-        async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
+        void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
         {
             var dialog = new FileChooserDialog()
             {
@@ -187,6 +187,11 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     var messageBuilder = new StringBuilder();
     messageBuilder.AppendLine(ex.GetType() + ": " + ex.Message);
     messageBuilder.AppendLine(ex.StackTrace);
+    var innerException = ex.InnerException;
+    if (innerException != null) {
+    messageBuilder.AppendLine(innerException.GetType() + ": " + innerException.Message);
+    messageBuilder.AppendLine(innerException.StackTrace);
+    }
     messageBuilder.AppendLine(Assembly.GetExecutingAssembly().GetName().Name + ": " + Assembly.GetExecutingAssembly().GetName().Version);
 
     // TextView to show the error message

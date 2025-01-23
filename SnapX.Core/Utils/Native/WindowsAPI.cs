@@ -6,6 +6,9 @@ using System.Runtime.Versioning;
 using System.Text;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
 
@@ -26,6 +29,8 @@ public class WindowsAPI : NativeAPI
 
     // Constants for allocating memory and setting data format
     public const uint CF_TEXT = 1;
+    private const uint CF_DIB = 8;
+
     public const int GMEM_ZEROINIT = 0x0040;
 
     private static readonly object ClipboardLock = new();
@@ -187,7 +192,6 @@ public class WindowsAPI : NativeAPI
         Console.WriteLine("Text copied to clipboard.");
     }
 
-    // Import the necessary Windows API functions via DllImport
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool OpenClipboard(IntPtr hWnd);
 
@@ -214,7 +218,33 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+    public override void CopyImage(Image image)
+    {
+        OpenClipboard(IntPtr.Zero);
+        EmptyClipboard();
 
+
+        using var ms = new MemoryStream();
+        if (image.Metadata.DecodedImageFormat != null)
+        {
+            image.Save(ms, image.Metadata.DecodedImageFormat);
+        }
+        else
+        {
+            image.Save(ms, new PngEncoder());
+        }
+        var imageBytes = ms.ToArray();
+
+        var dataSize = (uint)(imageBytes.Length);
+        var dataPtr = GlobalAlloc(0x0040, dataSize);
+
+        Marshal.Copy(imageBytes, 0, dataPtr, imageBytes.Length);
+
+        SetClipboardData(CF_DIB, dataPtr);
+        GlobalUnlock(dataPtr);
+
+        CloseClipboard();
+    }
     public override Rectangle GetWindowRectangle(WindowInfo Window)
     {
         var handle = Window.Handle;

@@ -12,7 +12,8 @@ public class ImageData
 
     public void Write(string filePath)
     {
-        DebugHelper.WriteException($"ImageData.Write: {filePath}");
+        Image.Load(ImageStream).Save(filePath);
+        DebugHelper.WriteLine($"ImageData.Write: {filePath}");
     }
 }
 
@@ -27,7 +28,7 @@ public class ImageSettings
 
 public static class ImageProcessor
 {
-    public static async Task<ImageData> PrepareImageAsync(Image<Rgba64> image, TaskSettings taskSettings)
+    public static async Task<ImageData> PrepareImageAsync(Image image, TaskSettings taskSettings)
     {
         var imageData = new ImageData();
 
@@ -54,7 +55,7 @@ public static class ImageProcessor
         return imageData;
     }
 
-    private static async Task<Stream> SaveImageAsStreamAsync(Image<Rgba64> image, EImageFormat format, TaskSettings taskSettings)
+    private static async Task<Stream> SaveImageAsStreamAsync(Image image, EImageFormat format, TaskSettings taskSettings)
     {
         var memoryStream = new MemoryStream();
 
@@ -77,7 +78,7 @@ public static class ImageProcessor
         return memoryStream;
     }
 
-    private static async Task<Stream> SaveJPEGAutoQualityAsync(Image<Rgba64> image, long targetSize, int minQuality, int maxQuality, int qualityStep)
+    private static async Task<Stream> SaveJPEGAutoQualityAsync(Image image, long targetSize, int minQuality, int maxQuality, int qualityStep)
     {
         var memoryStream = new MemoryStream();
         int quality = maxQuality;
@@ -99,7 +100,7 @@ public static class ImageProcessor
         return memoryStream;
     }
 
-    private static async Task<Stream> SaveJPEGAsync(Image<Rgba64> image, int quality)
+    private static async Task<Stream> SaveJPEGAsync(Image image, int quality)
     {
         var memoryStream = new MemoryStream();
         await image.SaveAsJpegAsync(memoryStream, new JpegEncoder { Quality = quality });

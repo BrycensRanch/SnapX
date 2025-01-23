@@ -111,14 +111,12 @@ public abstract class CaptureBase
     {
         var metadata = new TaskMetadata();
 
-        var handle = Methods.GetForeground();
-        // var windowInfo = new WindowInfo(handle);
-        //
-        // if ((ignoreProcess == null || !windowInfo.ProcessName.Equals(ignoreProcess, StringComparison.OrdinalIgnoreCase)) &&
-        //     (insideRect.IsEmpty || windowInfo.Rectangle.Contains(insideRect)))
-        // {
-        //     metadata.UpdateInfo(windowInfo);
-        // }
+        var windowInfo = Methods.GetForegroundWindow();
+        if ((ignoreProcess == null || !windowInfo.ProcessName.Equals(ignoreProcess, StringComparison.OrdinalIgnoreCase)) &&
+            (insideRect.IsEmpty || windowInfo.Rectangle.Contains(insideRect)))
+        {
+            metadata.UpdateInfo(windowInfo);
+        }
 
         return metadata;
     }

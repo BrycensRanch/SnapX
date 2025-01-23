@@ -30,6 +30,7 @@ public class WindowInfo
     public Screen Screen { get; set; }
 
     public bool IsMinimized { get; set; } = false;
+    public string ProcessName { get; set; } = string.Empty;
 
     public bool IsActive { get; set; } = false;
     public virtual void Restore()

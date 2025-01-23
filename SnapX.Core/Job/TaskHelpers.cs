@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -267,7 +268,7 @@ public static class TaskHelpers
         }
     }
 
-    public static ImageData PrepareImage(Image<Rgba64> img, TaskSettings taskSettings)
+    public static ImageData PrepareImage(Image img, TaskSettings taskSettings)
     {
         var imageData = new ImageData();
         imageData.ImageStream = SaveImageAsStream(img, taskSettings.ImageSettings.ImageFormat, taskSettings);
@@ -332,41 +333,27 @@ public static class TaskHelpers
 
         try
         {
-            switch (imageFormat)
+            IImageEncoder encoder = imageFormat switch
             {
-                case EImageFormat.PNG:
-
-                    if (SnapX.Settings.PNGStripColorSpaceInformation)
-                    {
-                        using (ms)
-                        {
-                            image.Metadata.IccProfile = null;
-                            image.Save(ms, new PngEncoder());
-                        }
-                        ms.Position = 0;
-
-                        return ms;
-                    }
-                    image.Save(ms, new PngEncoder());
-                    ms.Position = 0;
-                    break;
-                case EImageFormat.JPEG:
-                    image.Save(ms, new JpegEncoder());
-                    ms.Position = 0;
-                    break;
-                case EImageFormat.GIF:
-                    image.Save(ms, new GifEncoder());
-                    ms.Position = 0;
-                    break;
-                case EImageFormat.BMP:
-                    image.Save(ms, new BmpEncoder());
-                    ms.Position = 0;
-                    break;
-                case EImageFormat.TIFF:
-                    image.Save(ms, new TiffEncoder());
-                    ms.Position = 0;
-                    break;
+                EImageFormat.PNG => new PngEncoder()
+                {
+                },
+                EImageFormat.JPEG => new JpegEncoder()
+                {
+                    Quality = jpegQuality
+                },
+                EImageFormat.GIF => new GifEncoder(),
+                EImageFormat.BMP => new BmpEncoder(),
+                EImageFormat.TIFF => new TiffEncoder(),
+                _ => throw new NotSupportedException($"Unsupported image format: {imageFormat} {typeof(EImageFormat)}")
+            };
+            if (SnapX.Settings.PNGStripColorSpaceInformation)
+            {
+                image.Metadata.IccProfile = null;
             }
+
+            image.Save(ms, encoder);
+            ms.Position = 0;
         }
         catch (Exception e)
         {
@@ -692,10 +679,10 @@ public static class TaskHelpers
         return true;
     }
 
-    public static void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings taskSettings = null)
+    public static void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-        throw new NotImplementedException("PlayNotificationSoundAsync is not implemented");
+        DebugHelper.WriteException(new NotImplementedException("PlayNotificationSoundAsync is not implemented"));
     }
 
     public static Screenshot GetScreenshot(TaskSettings taskSettings = null)
