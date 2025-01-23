@@ -266,7 +266,7 @@ public static partial class OsInfo
 
         return 0;
     }
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoLinux()
     {
         try

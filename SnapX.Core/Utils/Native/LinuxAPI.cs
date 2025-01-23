@@ -2,11 +2,11 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 using SnapX.Core.Media;
 
 namespace SnapX.Core.Utils.Native;
 
-[SupportedOSPlatform("linux")]
 public class LinuxAPI : NativeAPI
 {
     private static bool IsWayland()
@@ -115,7 +115,7 @@ public class LinuxAPI : NativeAPI
         return windows;
     }
     [DllImport("libX11.so")]
-    private static extern IntPtr XOpenDisplay(string display);
+    private static extern IntPtr XOpenDisplay(string? display);
 
     [DllImport("libX11.so")]
     private static extern IntPtr XRootWindow(IntPtr display, int screen_number);
@@ -164,6 +164,9 @@ public class LinuxAPI : NativeAPI
 
     [DllImport("libX11.so")]
     private static extern void XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, uint time);
+    [DllImport("libX11.so", CharSet = CharSet.Auto)]
+    private static extern IntPtr XInternAtom(IntPtr display, string type, bool only_if_exists);
+
     [DllImport("libX11.so.6")]
     private static extern int XQueryTree(IntPtr display, IntPtr window, out IntPtr root, out IntPtr parent, out IntPtr windows, out uint nchildren);
 
@@ -203,7 +206,50 @@ public class LinuxAPI : NativeAPI
 
         DebugHelper.WriteLine("Text copied to clipboard.");
     }
-    // Linux (X11): Use X11's XGetGeometry
+
+    public override void CopyImage(Image image, string filename = null)
+    {
+        using var ms = new MemoryStream();
+        if (image.Metadata.DecodedImageFormat != null)
+        {
+            image.Save(ms, image.Metadata.DecodedImageFormat);
+        }
+        else
+        {
+            image.Save(ms, new PngEncoder());
+        }
+
+        var imageBytes = ms.ToArray();
+        if (IsWayland())
+        {
+            DebugHelper.WriteLine("LinuxAPI.CopyImage - Wayland only code");
+
+            return;
+        }
+
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+        {
+            DebugHelper.WriteLine("Unable to open X11 display.");
+            return;
+        }
+
+        var rootWindow = XRootWindow(display, 0);
+        var selection = XA_CLIPBOARD;
+
+        var xaString = XInternAtom(display, "STRING", false);
+
+        XSetSelectionOwner(display, selection, rootWindow, 0);
+        XStoreBytes(display, selection, imageBytes, imageBytes.Length);
+
+        if (!string.IsNullOrEmpty(filename))
+        {
+            var filenameBytes = Encoding.UTF8.GetBytes(filename);
+            XStoreBytes(display, xaString, filenameBytes, filenameBytes.Length);
+        }
+
+        XFlush(display);
+    }
     private static Rectangle GetWindowRectangleX11(IntPtr windowHandle)
     {
         IntPtr display = XOpenDisplay(null);
