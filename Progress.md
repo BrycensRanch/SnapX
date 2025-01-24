@@ -118,4 +118,3 @@ so it is only on talk
 "Talk is cheap, show me the code"—Linus Torvalds
 
 Hence, the broadening of the scope from Linux port to cross-platform modern hard fork.
-We are stronger together than divided.
