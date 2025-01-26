@@ -64,7 +64,6 @@ public static class ImageHelpers
     }
     public static Image ResizeImage(Image img, int targetWidth, int targetHeight, bool preserveAspectRatio, bool fill, Color growFillColor)
     {
-
         // Mutate the image to apply resizing and fill (if necessary)
         img.Mutate(ctx =>
         {
@@ -170,8 +169,8 @@ public static class ImageHelpers
         var sin = Math.Abs(Math.Sin(radians));
 
         // Calculate the new width and height after rotation
-        var newWidth = (int)Math.Ceiling(width * cos + height * sin);
-        var newHeight = (int)Math.Ceiling(width * sin + height * cos);
+        var newWidth = (int)Math.Ceiling((width * cos) + (height * sin));
+        var newHeight = (int)Math.Ceiling((width * sin) + (height * cos));
 
         return new Size(newWidth, newHeight);
     }
@@ -292,8 +291,8 @@ public static class ImageHelpers
     }
     public static Image AddGlow(Image img, int size, float strength, Color color, Point offset, GradientBrush? gradient = null)
     {
-        var expandedWidth = img.Width + size * 2; // Expand the width to simulate the glow
-        var expandedHeight = img.Height + size * 2; // Expand the height to simulate the glow
+        var expandedWidth = img.Width + (size * 2); // Expand the width to simulate the glow
+        var expandedHeight = img.Height + (size * 2); // Expand the height to simulate the glow
 
         // Step 2: Resize the cloned image to create space for the glow
         img.Mutate(ctx => ctx.Resize(expandedWidth, expandedHeight));
@@ -318,8 +317,8 @@ public static class ImageHelpers
     }
     public static Image Outline(Image img, int size, Color color, int padding, bool outlineOnly)
     {
-        var width = img.Width + 2 * padding;
-        var height = img.Height + 2 * padding;
+        var width = img.Width + (2 * padding);
+        var height = img.Height + (2 * padding);
 
         var result = new Image<Rgba32>(width, height);
 
@@ -454,7 +453,7 @@ public static class ImageHelpers
         // Clone the original image to create a new image for shadow
         var width = img.Width;
         var height = img.Height;
-        var shadowImage = new Image<Rgba32>(width + size * 2, height + size * 2);
+        var shadowImage = new Image<Rgba32>(width + (size * 2), height + (size * 2));
 
         // Create the shadow color with the specified opacity
         var shadowColor = new Rgba32(color.R, color.G, color.B, (byte)(opacity * 255));
@@ -468,7 +467,7 @@ public static class ImageHelpers
         if (autoResize)
         {
             // Resize the image if autoResize is enabled, to fit the shadow effect
-            shadowImage.Mutate(ctx => ctx.Resize(new Size(width + size * 2, height + size * 2)));
+            shadowImage.Mutate(ctx => ctx.Resize(new Size(width + (size * 2), height + (size * 2))));
         }
 
         // Apply the darkness effect (saturation control)
@@ -585,7 +584,7 @@ public static class ImageHelpers
         }
         else // Centered vertically
         {
-            y = (imageSize.Height - watermarkSize.Height) / 2 + offset.Y;
+            y = ((imageSize.Height - watermarkSize.Height) / 2) + offset.Y;
         }
 
         if ((placement & AnchorStyles.Left) == AnchorStyles.Left)
@@ -598,7 +597,7 @@ public static class ImageHelpers
         }
         else // Centered horizontally
         {
-            x = (imageSize.Width - watermarkSize.Width) / 2 + offset.X;
+            x = ((imageSize.Width - watermarkSize.Width) / 2) + offset.X;
         }
 
         return new Point(x, y);
@@ -802,7 +801,7 @@ public static class ImageHelpers
 
         for (int x = cropRect.Left; x < cropRect.Right; x++)
         {
-            float y = cropRect.Top + amplitude * (float)Math.Sin((x - cropRect.Left) * Math.PI / effectSize); // Sine wave
+            float y = cropRect.Top + (amplitude * (float)Math.Sin((x - cropRect.Left) * Math.PI / effectSize)); // Sine wave
             points.Add(new PointF(x, y));
         }
 
@@ -906,6 +905,5 @@ public static class ImageHelpers
 
         return ms;
     }
-
 }
 

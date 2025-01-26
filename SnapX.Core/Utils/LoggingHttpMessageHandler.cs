@@ -34,7 +34,6 @@ public class LoggingHttpMessageHandler : DelegatingHandler
             var responseBodySizeMiB = responseBodySizeBytes / (1024.0 * 1024.0);
             _logger.Debug("Response Body ({Size} MiB): {Content}", responseBodySizeMiB, content);
             return response;
-
         }
         catch (Exception ex)
         {

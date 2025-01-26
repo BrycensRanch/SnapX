@@ -17,5 +17,4 @@ public class ImageData : IDisposable
         DebugHelper.WriteLine($"ImageData.Dispose: {ImageFormat}");
         ImageStream?.Dispose();
     }
-
 }
