@@ -2,10 +2,12 @@ using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Core.ImageEffects;
 using SnapX.Core.Media;
+using SnapX.Core.Utils.Extensions;
 using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
 
 namespace SnapX.Core.Utils;
@@ -852,5 +854,58 @@ public static class ImageHelpers
         // Return the rectangle that bounds all non-transparent pixels
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
+
+    public static MemoryStream SaveJPEG(Image img, int quality)
+    {
+        var ms = new MemoryStream();
+        SaveJPEG(img, ms, quality);
+        return ms;
+    }
+
+    public static void SaveJPEG(Image img, string filePath, int quality)
+    {
+        using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+        SaveJPEG(img, fs, quality);
+    }
+
+    public static void SaveJPEG(Image img, Stream stream, int quality)
+    {
+        quality = Math.Clamp(quality, 0, 100);
+        img.Save(stream, new JpegEncoder() { Quality = quality });
+    }
+
+    public static MemoryStream SaveJPEGAutoQuality(Image img, int sizeLimit, int qualityDecrement = 5, int minQuality = 0, int maxQuality = 100)
+    {
+        qualityDecrement = Math.Clamp(qualityDecrement, 1, 100);
+        minQuality = Math.Clamp(minQuality, 0, 100);
+        maxQuality = Math.Clamp(maxQuality, 0, 100);
+
+        if (minQuality >= maxQuality)
+        {
+            return SaveJPEG(img, minQuality);
+        }
+
+        MemoryStream ms = null;
+
+        for (int quality = maxQuality; quality >= minQuality; quality -= qualityDecrement)
+        {
+            if (ms != null)
+            {
+                ms.Dispose();
+            }
+
+            ms = SaveJPEG(img, quality);
+
+            DebugHelper.WriteLine($"Quality: {quality}% - Size: {ms.Length.ToSizeString()}");
+
+            if (ms.Length <= sizeLimit)
+            {
+                break;
+            }
+        }
+
+        return ms;
+    }
+
 }
 

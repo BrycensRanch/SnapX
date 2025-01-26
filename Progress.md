@@ -16,7 +16,7 @@
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
 - [ ] Port `go-keyring` to C#
 - [ ] Bring in CppSharp to access XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
-
+- [x] Remove SnapX as a fork of ShareX that can be merged into upstream. *Completed at 233 commits ahead of upstream*
 ## Studying ShareX's behavior on Windows 11 24H2
 
 It's important to know how the program *should* behave in accordance with user expectations. As such, I've done a little recording of it.

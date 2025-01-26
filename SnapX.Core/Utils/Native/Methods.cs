@@ -30,6 +30,20 @@ public static class Methods
     public static void CopyText(string text) => NativeAPI.CopyText(text);
     public static void CopyImage(Image image, string fileName) => NativeAPI.CopyImage(image, fileName);
 
+    public static Point GetCursorPosition()
+    {
+        var point = Point.Empty;
+        try
+        {
+            point = NativeAPI.GetCursorPosition();
+        }
+        catch (Exception ex) when (ex is PlatformNotSupportedException)
+        {
+            DebugHelper.Logger.Warning(ex.ToString());
+        }
+        return point;
+    }
+
     public static Rectangle GetWindowRectangle(IntPtr windowHandle = 0) =>
         NativeAPI.GetWindowRectangle(windowHandle);
 

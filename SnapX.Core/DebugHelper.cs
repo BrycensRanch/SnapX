@@ -9,6 +9,7 @@ namespace SnapX.Core;
 public static class DebugHelper
 {
     public static ILogger Logger { get; private set; }
+    private static List<string> messageBuffer = new List<string>();
 
     public static void Init(string logFilePath)
     {
@@ -27,11 +28,17 @@ public static class DebugHelper
     {
         if (Logger != null)
         {
+            foreach (var bufferedMessage in messageBuffer)
+            {
+                Logger.Information(bufferedMessage);
+            }
             Logger.Information(message);
+
+            messageBuffer.Clear();
         }
         else
         {
-            Debug.WriteLine(message);
+            messageBuffer.Add(message);
         }
     }
 

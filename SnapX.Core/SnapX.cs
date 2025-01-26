@@ -80,8 +80,6 @@ public class SnapX
             return title;
         }
     }
-    public static string MainWindowName => Title + " " + VersionText;
-
     public static bool MultiInstance { get; private set; }
     public static bool Portable { get; private set; }
     public static bool LogToConsole { get; private set; } = true;
@@ -95,7 +93,7 @@ public class SnapX
     internal static RootConfiguration Settings { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
-    internal static TaskSettings DefaultTaskSettings { get; set; }
+    internal static TaskSettings DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
     internal static UploadersConfig UploadersConfig { get; set; }
     internal static HotkeysConfig HotkeysConfig { get; set; }
 
@@ -259,7 +257,7 @@ public class SnapX
         CLIManager.ParseCommands();
         CLIManager.UseCommandLineArgs(CLIManager.Commands).Wait();
 
-        if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute task as Admin
+        if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute a task as Admin
 
         UpdatePersonalPath();
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;

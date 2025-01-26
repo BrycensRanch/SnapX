@@ -124,6 +124,23 @@ class Build : NukeBuild
                 var assemblyName = projectData.GetProperty("AssemblyName")!;
                 var projectOutput = Path.Combine(OutputDirectory, assemblyName);
 
+
+                var processStartInfo = new ProcessStartInfo
+                {
+                    FileName = "cargo",
+                    Arguments = "build --release",
+                    WorkingDirectory = Path.Join(RootDirectory, "SnapX.Core", "ScreenCapture", "Rust"),
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                using var process = Process.Start(processStartInfo);
+                if (process is not null)
+                {
+                    process.WaitForExit();
+                }
+                var extension = OperatingSystem.IsLinux() ? ".so" : OperatingSystem.IsWindows() ? "snapxrust.dll" : OperatingSystem.IsMacOS() ? ".dylib" : ".so";
+                var filePath = Path.Join(RootDirectory, "SnapX.Core", "ScreenCapture", "Rust", "target", "release", extension == "snapxrust.dll" ? extension : "libsnapxrust" + extension);
+                File.Copy(filePath,  Path.Join(projectOutput, extension == "snapxrust.dll" ? extension : "libsnapxrust" + extension));
                 Information($"Publishing {project}");
                 DotNetPublish(s => s
                     .SetProject(project)

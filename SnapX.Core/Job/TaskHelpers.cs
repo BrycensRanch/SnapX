@@ -14,6 +14,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using SnapX.Core.Capture;
 using SnapX.Core.CLI;
 using SnapX.Core.ImageEffects;
@@ -279,17 +280,16 @@ public static class TaskHelpers
         {
             imageData.ImageStream.Dispose();
 
-            // using (Bitmap newImage = MediaTypeNames.Image.FillBackground(img, Color.White))
-            // {
-            //     if (taskSettings.ImageSettings.ImageAutoJPEGQuality)
-            //     {
-            //         imageData.ImageStream = MediaTypeNames.Image.SaveJPEGAutoQuality(newImage, taskSettings.ImageSettings.ImageAutoUseJPEGSize * 1000, 2, 70, 100);
-            //     }
-            //     else
-            //     {
-            //         imageData.ImageStream = MediaTypeNames.Image.SaveJPEG(newImage, taskSettings.ImageSettings.ImageJPEGQuality);
-            //     }
-            // }
+            var newImage = img.CloneAs<Rgba32>();
+            newImage.Mutate((ctx) => ctx.BackgroundColor(Color.White));
+            if (taskSettings.ImageSettings.ImageAutoJPEGQuality)
+            {
+                imageData.ImageStream = ImageHelpers.SaveJPEGAutoQuality(newImage, taskSettings.ImageSettings.ImageAutoUseJPEGSize * 1000, 2, 70, 100);
+            }
+            else
+            {
+                imageData.ImageStream = ImageHelpers.SaveJPEG(newImage, taskSettings.ImageSettings.ImageJPEGQuality);
+            }
 
             imageData.ImageFormat = EImageFormat.JPEG;
         }
@@ -330,7 +330,7 @@ public static class TaskHelpers
         int jpegQuality = 90, GIFQuality gifQuality = GIFQuality.Default)
     {
         var ms = new MemoryStream();
-
+        DebugHelper.WriteLine(imageFormat.ToString());
         try
         {
             IImageEncoder encoder = imageFormat switch
@@ -353,7 +353,9 @@ public static class TaskHelpers
             }
 
             image.Save(ms, encoder);
+            DebugHelper.WriteLine(image.Width + " x " + image);
             ms.Position = 0;
+            DebugHelper.WriteLine(ms.CanRead.ToString());
         }
         catch (Exception e)
         {
@@ -364,26 +366,26 @@ public static class TaskHelpers
         return ms;
     }
 
-    // public static void SaveImageAsFile(Bitmap bmp, TaskSettings taskSettings, bool overwriteFile = false)
-    // {
-    //     using (ImageData imageData = PrepareImage(bmp, taskSettings))
-    //     {
-    //         string screenshotsFolder = GetScreenshotsFolder(taskSettings);
-    //         string fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), bmp);
-    //         string filePath = Path.Combine(screenshotsFolder, fileName);
-    //
-    //         if (!overwriteFile)
-    //         {
-    //             filePath = HandleExistsFile(filePath, taskSettings);
-    //         }
-    //
-    //         if (!string.IsNullOrEmpty(filePath))
-    //         {
-    //             imageData.Write(filePath);
-    //             DebugHelper.WriteLine("Image saved to file: " + filePath);
-    //         }
-    //     }
-    // }
+    public static void SaveImageAsFile(Image img, TaskSettings taskSettings, bool overwriteFile = false)
+    {
+        using (ImageData imageData = PrepareImage(img, taskSettings))
+        {
+            string screenshotsFolder = GetScreenshotsFolder(taskSettings);
+            string fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), img);
+            string filePath = Path.Combine(screenshotsFolder, fileName);
+
+            if (!overwriteFile)
+            {
+                filePath = HandleExistsFile(filePath, taskSettings);
+            }
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                imageData.Write(filePath);
+                DebugHelper.WriteLine("Image saved to file: " + filePath);
+            }
+        }
+    }
     public static string HandleExistsFile(string filePath, TaskSettings taskSettings)
     {
         if (File.Exists(filePath))
@@ -409,7 +411,7 @@ public static class TaskHelpers
         var filePath = Path.Combine(folderPath, fileName);
         return HandleExistsFile(filePath, taskSettings);
     }
-    public static string GetFileName(TaskSettings taskSettings, string extension, Image<Rgba64> bmp)
+    public static string GetFileName(TaskSettings taskSettings, string extension, Image bmp)
     {
         var metadata = new TaskMetadata(bmp);
         return GetFileName(taskSettings, extension, metadata);

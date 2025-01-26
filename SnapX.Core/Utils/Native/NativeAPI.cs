@@ -19,4 +19,5 @@ public class NativeAPI
     public virtual void CopyImage(Image image, string fileName) => throw new NotImplementedException("NativeAPI.CopyImage is not implemented.");
     public virtual Rectangle GetWindowRectangle(WindowInfo window) => throw new NotImplementedException("NativeAPI.GetWindowRect is not implemented.");
     public virtual Rectangle GetWindowRectangle(IntPtr windowHandle) => throw new NotImplementedException("NativeAPI.GetWindowRect is not implemented.");
+    public virtual Point GetCursorPosition() => throw new NotImplementedException("NativeAPI.GetCursorPosition is not implemented.");
 }

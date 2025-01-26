@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Security.Authentication;
 
 namespace SnapX.Core.Utils.Miscellaneous;
 public static class HttpClientFactory
@@ -13,6 +16,7 @@ public static class HttpClientFactory
         var clientHandler = new HttpClientHandler
         {
             Proxy = HelpersOptions.CurrentProxy.GetWebProxy(),
+            SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12,
         };
         if (SnapX.Settings.AcceptInvalidSSLCertificates)
         {
@@ -27,6 +31,8 @@ public static class HttpClientFactory
         handler = loggingHandler;
 #endif
         var httpClient = new HttpClient(handler);
+        httpClient.DefaultRequestVersion = HttpVersion.Version20;
+        httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(SnapXResources.UserAgent);
         httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
         {

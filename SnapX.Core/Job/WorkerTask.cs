@@ -1091,7 +1091,7 @@ public class WorkerTask : IDisposable
 
             if (SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView && Image != null)
             {
-                throw new NotImplementedException("SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView");
+                DebugHelper.WriteException(new NotImplementedException("SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView"));
             }
 
             threadWorker.InvokeAsync(() =>

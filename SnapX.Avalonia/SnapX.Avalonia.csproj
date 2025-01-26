@@ -1,51 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
-        <PublishReadyToRun>true</PublishReadyToRun>
-        <PublishAot>true</PublishAot>
-        <AssemblyName>snapx-ui</AssemblyName>
-        <AssemblyTitle>SnapX UI</AssemblyTitle>
-        <ApplicationIcon>SnapX_Icon.ico</ApplicationIcon>
-        <InvariantGlobalization>true</InvariantGlobalization>
-        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <AvaloniaVersion>11.2.3</AvaloniaVersion>
-        <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
-        <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called ShareX.Avalonia. Instead create a executable shell script that calls ShareX.Avalonia -->
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishAot>true</PublishAot>
+    <AssemblyName>snapx-ui</AssemblyName>
+    <AssemblyTitle>SnapX UI</AssemblyTitle>
+    <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Recommended Avalonia trimming settings for Native AOT -->
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <TrimMode>link</TrimMode>
+    <AvaloniaVersion>11.2.3</AvaloniaVersion>
+    <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
+    <!-- That way, you hopefully wouldn't need to have the snapx-ui executable right alongside it's .so/.dll/.dylib -->
+    <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
+    <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
+  </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <AvaloniaResource Include="*.ico" />
     <AvaloniaResource Include="*.xaml" />
-
+    <AvaloniaResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
+      <Link>SnapX_Logo.png</Link>
+    </AvaloniaResource>
     <TrimmerRootDescriptor Include="Roots.xml" />
   </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-      <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
-      <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-      <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.3" />
-      <PackageReference Include="FluentAvaloniaUI" Version="2.2.0" />
-      <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-      <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
-      <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Controls\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
-        <Link>SnapX_Logo.png</Link>
-      </EmbeddedResource>
-    </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="FluentAvaloniaUI" Version="2.2.0" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
+    <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controls\" />
+  </ItemGroup>
 </Project>

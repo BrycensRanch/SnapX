@@ -264,7 +264,41 @@ public class LinuxAPI : NativeAPI
 
         throw new InvalidOperationException("Unable to get window attributes.");
     }
+    [DllImport("libX11.so")]
+    private static extern int XQueryPointer(
+        IntPtr display,
+        IntPtr window,
+        out IntPtr root,
+        out IntPtr child,
+        out int rootX,
+        out int rootY,
+        out int winX,
+        out int winY,
+        out int mask
+    );
 
+    public override Point GetCursorPosition()
+    {
+        DebugHelper.WriteLine("Get cursor position.");
+        IntPtr display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+        {
+            DebugHelper.WriteException(new InvalidOperationException("Unable to open X11 display."));
+        }
+
+        // Get the root window (typically the main screen)
+        IntPtr rootWindow = XRootWindow(display, 0);
+
+        // Query the cursor position
+        int rootX, rootY, winX, winY, mask;
+        IntPtr root, child;
+        XQueryPointer(display, rootWindow, out root, out child, out rootX, out rootY, out winX, out winY, out mask);
+
+        // Close the X11 display
+        XCloseDisplay(display);
+        DebugHelper.WriteLine($"Cursor position: {rootX}, {rootY}, {winX}, {winY}, {mask}");
+        return new Point(rootX, rootY);
+    }
     [DllImport("libX11.so")]
     private static extern int XGetWindowAttributes(IntPtr display, IntPtr window, out XWindowAttributes attributes);
 

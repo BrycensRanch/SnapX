@@ -132,12 +132,6 @@ internal static class SettingManager
             configurationBuilder.AddJsonFile(ApplicationConfigFilePath, optional: true, reloadOnChange: true);
         }
         SnapX.Configuration = configurationBuilder.Build();
-#if DEBUG
-        foreach (var kvp in SnapX.Configuration.AsEnumerable())
-        {
-            DebugHelper.WriteLine($"{kvp.Key}: {kvp.Value}");
-        }
-#endif
         var settings = new RootConfiguration();
         SnapX.Configuration.Bind(settings);
         Settings = settings;

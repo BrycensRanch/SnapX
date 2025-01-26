@@ -12,9 +12,11 @@ public class CaptureFullscreen : CaptureBase
 {
     protected override TaskMetadata Execute(TaskSettings taskSettings)
     {
-        Rectangle rect = CaptureHelpers.GetScreenWorkingArea();
-        TaskMetadata metadata = CreateMetadata(rect);
-        metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureFullscreen();
+        DebugHelper.WriteLine("CaptureFullscreen");
+        var img = TaskHelpers.GetScreenshot(taskSettings).CaptureFullscreen();
+        var metadata = CreateMetadata(img.Bounds);
+        metadata.Image = img;
+
         return metadata;
     }
 }

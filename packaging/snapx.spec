@@ -43,7 +43,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -51,6 +51,15 @@ URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
 BuildRequires:  dotnet-sdk-9.0
+BuildRequires:  dbus-devel
+BuildRequires:  libX11-devel
+BuildRequires:  libXrandr-devel
+BuildRequires:  libxcb-devel
+BuildRequires:  rust
+BuildRequires:  cargo
+BuildRequires:  clang
+BuildRequires:  zlib-devel
+
 Requires:       /usr/bin/ffmpeg
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo
 

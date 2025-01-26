@@ -33,6 +33,7 @@ public class SnapXCLIManager : CLIManager
 
                 if (URLHelpers.IsValidURL(command.Command))
                 {
+                    DebugHelper.WriteLine("URL: " + command.Command);
                     UploadManager.DownloadAndUploadFile(command.Command, taskSettings);
                 }
                 else

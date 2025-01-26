@@ -18,7 +18,7 @@
 SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the application [ShareX](https://github.com/ShareX/ShareX).
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image manipulation library)
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28).
-- Additionally, all uploaders are now forced to use HTTPS.
+- Additionally, all uploaders are now forced to use HTTPS <2.0 & TLS 1.3 out of the box.
 - Keeps compatability with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
@@ -49,13 +49,13 @@ I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
 
-It's powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *can* look something like this. Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
+Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *can* look something like this.
+Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
 And yet, it runs on Windows, Linux, and macOS.
 Additionally, it looks the same on every OS. (besides fonts)
 
-Regarding screenshotting, there are a lot of solutions to the problem. I want this port to be easier to maintain than upstream. Personally, I'm open to PRing any missing spots in any cross platform screenshot/capture library instead of maintaining it in the repository.
-
+For screenshotting, it uses [XCap](https://github.com/nashaofu/xcap).
 ## Development Dependencies
 
 Instructions for other projects within the SnapX solution are not provided yet.
@@ -66,25 +66,28 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `ffmpeg` (7.0.0)
 - `clang`
 - `zlib-devel`
+- `rust` & `cargo` (<1.80)
 
 ### Ubuntu 24.04
 
 ```bash
 sudo apt update -q && sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged
+sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged.
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libx11-dev xserver-xorg-dev xorg-dev libdbus-1-dev
+sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libx11-dev xserver-xorg-dev xorg-dev libdbus-1-dev cargo
 ```
 
 ### Fedora 41
 
 ```bash
-sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @development-libs
+sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @x-software-development @development-libs cargo
 ```
 
 ## Building from Source
 
-Only do this if you're a developer, the solution _does_ build, but, you should have a backup of all your ShareX/SnapX data. I do infact mean it when I say the project isn't ready for use.
+Only do this if you're a developer, the solution _does_ build,
+but you should have a backup of all your ShareX/SnapX data.
+I do, in fact, mean it when I say the project isn't ready for use.
 
 ```bash
 git clone https://github.com/BrycensRanch/SnapX

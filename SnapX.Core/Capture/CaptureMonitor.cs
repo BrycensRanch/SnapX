@@ -17,6 +17,7 @@ public class CaptureMonitor : CaptureBase
 
     protected override TaskMetadata Execute(TaskSettings taskSettings)
     {
+        DebugHelper.WriteLine("CaptureMonitor Start");
         var metadata = CreateMetadata(MonitorRectangle);
         metadata.Image = TaskHelpers.GetScreenshot().CaptureRectangle(MonitorRectangle);
         return metadata;

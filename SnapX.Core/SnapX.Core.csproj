@@ -12,6 +12,8 @@
     <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     <!-- Rust support ;) -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
+
   </PropertyGroup>
   <ItemGroup>
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
@@ -27,10 +29,6 @@
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" />
     <!-- I am doing my very best to not touch COM directly -->
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
-    <!-- Multi platform Screenshotting library -->
-    <PackageReference Include="ScreenCapture.NET" Version="3.0.0" />
-    <PackageReference Include="ScreenCapture.NET.DX11" Version="3.0.0" />
-    <PackageReference Include="ScreenCapture.NET.X11" Version="3.0.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
@@ -77,4 +75,21 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Model\" />
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+  <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == ''">
+    <Message Text="Compiling Rust intermediary library..." Importance="High" />
+    <ItemGroup>
+    </ItemGroup>
+    <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
+    <Exec Command="echo $(OutDir) &amp;&amp; kdialog --title 'File Copy Complete' --msgbox 'The file libsnapxrust.so has been successfully copied to: $(OutDir)'" />
+
+    <Message Text="Copying native library from '$(NativeLibrary)' to '$(OutDir)'" Importance="High" />
+    <Message Text="$(NativeOutputPath) test" Importance="High"/>
+  </Target>
+<ItemGroup>
+  <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
+</ItemGroup>
 </Project>
