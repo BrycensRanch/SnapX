@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using SnapX.Core.Utils;
 
 namespace SnapX.Avalonia;
@@ -20,6 +21,9 @@ public partial class AboutWindow : Window
     public string Runtime { get; set; }
     public string OsPlatform { get; set; }
 
+    public string CombinedText =>
+        $"{Description}\n{Version}\n{Copyright}\n{License}\n{SystemInfo}\n{OsArchitecture}\n{Runtime}\n{OsPlatform}";
+
     public AboutWindow()
     {
         _commonAboutDialog = new CommonUI.AboutDialog();
@@ -35,6 +39,16 @@ public partial class AboutWindow : Window
         OsPlatform = _commonAboutDialog.GetOsPlatform();
         DataContext = this;
         InitializeComponent();
+    }
+
+    private void WebsiteURL_OnPointerPressed(object? Sender, PointerPressedEventArgs E)
+    {
+        URLHelpers.OpenURL(Website);
+    }
+
+    private void WebsiteURL_OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
+    {
+        URLHelpers.OpenURL(Website);
     }
 }
 

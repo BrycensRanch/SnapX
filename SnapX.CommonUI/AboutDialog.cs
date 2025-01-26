@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace SnapX.CommonUI;
 
@@ -21,7 +22,7 @@ public class AboutDialog
         .GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? "Image sharing tool";
     public virtual string GetCopyright() =>
         ((AssemblyCopyrightAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyCopyrightAttribute))!).Copyright;
-    public virtual string GetRuntime() => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+    public virtual string GetRuntime() => Assembly.GetExecutingAssembly().GetCustomAttribute<TargetFrameworkAttribute>()!.FrameworkDisplayName!;
     public virtual string GetOsPlatform() => $"{Environment.OSVersion.Platform} {Environment.OSVersion.Version}";
     public virtual string GetOsArchitecture() => System.Runtime.InteropServices.RuntimeInformation.OSArchitecture.ToString();
 

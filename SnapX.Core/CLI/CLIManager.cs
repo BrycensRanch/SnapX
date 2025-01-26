@@ -22,10 +22,10 @@ public class CLIManager
         Arguments = arguments;
     }
 
-    public CLIManager(string arguments) : this()
-    {
-        Arguments = ParseCLI(arguments);
-    }
+    // public CLIManager(string arguments) : this()
+    // {
+    //     Arguments = ParseCLI(arguments);
+    // }
 
     public bool ParseCommands()
     {

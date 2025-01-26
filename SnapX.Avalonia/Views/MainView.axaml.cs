@@ -14,10 +14,10 @@ using SnapX.Core.Upload;
 
 namespace SnapX.Avalonia;
 
-public partial class MainWindow : AppWindow
+public partial class MainView : AppWindow
 {
-
-    public MainWindow()
+    public static string MainWindowName => Core.SnapX.Title + " " + Core.SnapX.VersionText;
+    public MainView()
     {
         InitializeComponent();
         ListenForEvents();

@@ -5,6 +5,11 @@
              x:Class="SnapX.Avalonia.App">
     <Application.Styles>
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" PreferUserAccentColor="True" PreferSystemTheme="True" />
+        <Style Selector="TextBlock.h1">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Margin" Value="5" />
+        </Style>
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>
@@ -15,7 +20,7 @@
     </Application.Resources>
     <NativeMenu.Menu>
         <NativeMenu>
-            <NativeMenuItem Header="{x:Static utils:Lang.AboutSnapX}" />
+            <NativeMenuItem Header="{x:Static utils:Lang.AboutSnapX}" Click="NativeMenuAboutSnapXClick" />
         </NativeMenu>
     </NativeMenu.Menu>
 </Application>
