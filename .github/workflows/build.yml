@@ -60,6 +60,9 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore --locked-mode
+      - name: Install needed build dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt install -y zlib1g-dev libx11-dev xserver-xorg-dev xorg-dev libdbus-1-dev
       # Needed for offline building :3
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
