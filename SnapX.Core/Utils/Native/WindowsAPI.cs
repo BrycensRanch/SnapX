@@ -218,6 +218,14 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+    [DllImport("user32.dll")]
+    private static extern bool GetCursorPos(out Point lpPoint);
+
+    public override Point GetCursorPosition()
+    {
+        GetCursorPos(out var LpPoint);
+        return LpPoint;
+    }
     public override void CopyImage(Image image)
     {
         OpenClipboard(IntPtr.Zero);
