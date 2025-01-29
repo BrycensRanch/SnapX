@@ -41,7 +41,7 @@
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
     <!-- Wayland support -->
-    <PackageReference Include="Tmds.DBus" Version="0.21.2" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
@@ -79,16 +79,6 @@
     <Folder Include="Model\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
-  <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == ''">
-    <Message Text="Compiling Rust intermediary library..." Importance="High" />
-    <ItemGroup>
-    </ItemGroup>
-    <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
-    <Exec Command="echo $(OutDir) &amp;&amp; kdialog --title 'File Copy Complete' --msgbox 'The file libsnapxrust.so has been successfully copied to: $(OutDir)'" />
-
-    <Message Text="Copying native library from '$(NativeLibrary)' to '$(OutDir)'" Importance="High" />
-    <Message Text="$(NativeOutputPath) test" Importance="High"/>
-  </Target>
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>

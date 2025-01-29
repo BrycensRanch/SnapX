@@ -58,13 +58,11 @@ I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
 
-Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *can* look something like this.
+Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this.
 Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
-And yet, it runs on Windows, Linux, and macOS.
-Additionally, it looks the same on every OS. (besides fonts)
+For screenshots, it uses your operating system's respective APIs. On Linux Wayland, it uses portals. This is a less performant implementation as it has to delete the requested screenshot file after reading it into memory.
 
-For screenshotting, it uses [XCap](https://github.com/nashaofu/xcap).
 ## Development Dependencies
 
 Instructions for other projects within the SnapX solution are not provided yet.
@@ -75,7 +73,6 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `ffmpeg` (7.0.0)
 - `clang`
 - `zlib-devel`
-- `rust` & `cargo` (<1.80)
 
 ### Ubuntu 24.04
 
@@ -83,13 +80,13 @@ Instructions for other projects within the SnapX solution are not provided yet.
 sudo apt update -q && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged.
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libx11-dev xserver-xorg-dev xorg-dev libdbus-1-dev cargo
+sudo apt install -y git libgtk-4-dev dotnet-sdk-9.0 ffmpeg clang
 ```
 
 ### Fedora 41
 
 ```bash
-sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @x-software-development @development-libs cargo
+sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs
 ```
 
 ## Building from Source

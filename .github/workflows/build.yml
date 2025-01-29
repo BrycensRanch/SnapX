@@ -52,15 +52,6 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-      - name: Install needed build dependencies
-        if: runner.os == 'Linux'
-        run: sudo apt install -y zlib1g-dev libx11-dev xserver-xorg-dev xorg-dev libdbus-1-dev
-      - name: Build Rust Code
-        run: cargo build --release
-        working-directory: SnapX.Core/ScreenCapture/Rust
-
       - name: Restore dependencies
         run: dotnet restore --locked-mode
       # Needed for offline building :3

@@ -55,13 +55,11 @@ BuildRequires:  dbus-devel
 BuildRequires:  libX11-devel
 BuildRequires:  libXrandr-devel
 BuildRequires:  libxcb-devel
-BuildRequires:  rust
-BuildRequires:  cargo
 BuildRequires:  clang
 BuildRequires:  zlib-devel
 
 Requires:       /usr/bin/ffmpeg
-Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo
+Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
 
 
 # .NET architecture support is rather lacking.
