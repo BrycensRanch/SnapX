@@ -13,6 +13,7 @@
 <p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
 
 # :construction: This project is under development and is not ready for use. :construction:
+
 ## :warning: Disclaimer
 
 SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the application [ShareX](https://github.com/ShareX/ShareX).
@@ -25,22 +26,24 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 - Automatically tone maps HDR screenshots to SDR*
 
 ## Technical Details
+
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28).
+- The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* uses TLS 1.3 out of the box.
 - Keeps compatability with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
-What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and _modern_ application.
+What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and *modern* application.
 
-You will _not_ receive any support from the ShareX project for this software.
+You will *not* receive any support from the ShareX project for this software.
 If you have any issues with this project, please **open an issue** in this repository.
 
 However, it's important to note that this project is maintained by volunteers,
 and we may not be able to provide support for all issues.
 We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
 
-<p align="center">For further information, please check the source code.</p>
+<p align="center"> For further information, please check the source code.</p>
 
 ## Supported Linux Distributions
 
@@ -91,7 +94,7 @@ sudo dnf install -y git gtk4-devel dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-dev
 
 ## Building from Source
 
-Only do this if you're a developer, the solution _does_ build,
+Only do this if you're a developer, the solution *does* build,
 but you should have a backup of all your ShareX/SnapX data.
 I do, in fact, mean it when I say the project isn't ready for use.
 
