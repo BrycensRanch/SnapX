@@ -49,7 +49,7 @@ jobs:
           path: |
             ~/.nuget/packages
             C:\Users\runner\.nuget\packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: Restore dependencies
