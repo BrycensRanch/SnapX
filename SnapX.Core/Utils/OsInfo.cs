@@ -275,10 +275,8 @@ public static partial class OsInfo
         {
             return (long)status.ullAvailPhys;
         }
-        else
-        {
-            throw new Exception("Unable to retrieve memory information.");
-        }
+        DebugHelper.WriteException(new Exception("Unable to retrieve memory information."));
+        return -1;
     }
     [SupportedOSPlatform("linux")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoLinux()
