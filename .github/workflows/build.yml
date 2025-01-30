@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, macos-latest, macos-13, windows-latest ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-latest ]
         configuration:
           - Release
           - Debug
@@ -59,7 +59,7 @@ jobs:
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: SnapX-Vendored-Source
+          name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
           include-hidden-files: false
           compression-level: 9
