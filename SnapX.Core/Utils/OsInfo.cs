@@ -228,43 +228,57 @@ public static partial class OsInfo
     {
         try
         {
-            using var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
-            if (key != null)
-            {
-                // Get total physical memory using the registry
-                var totalMemory = (long)key.GetValue("TotalPhysicalMemory", 0);
-                // Let's assume a fixed value for used memory (this is an approximation)
-                var usedMemory = totalMemory - GetAvailableMemoryWindows();
+            var status = new MEMORYSTATUSEX();
+            status.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
 
-                return (totalMemory / (1024 * 1024), usedMemory / (1024 * 1024)); // Return in MiB
+            if (GlobalMemoryStatusEx(ref status))
+            {
+                var totalMemory = (long)status.ullTotalPhys;
+                var freeMemory = GetAvailableMemoryWindows();
+
+                var usedMemory = totalMemory - freeMemory;
+
+                // Return the total and used memory in MiB (1024 * 1024)
+                return (totalMemory / (1024 * 1024), usedMemory / (1024 * 1024));
             }
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteLine("Error reading memory info on Windows (Registry): " + ex.Message);
+            DebugHelper.WriteException("Error reading memory info on Windows: " + ex.Message);
         }
 
         return (0, 0);
     }
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+    private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    private struct MEMORYSTATUSEX
+    {
+        public uint dwLength;
+        public uint dwMemoryLoad;
+        public ulong ullTotalPhys;
+        public ulong ullAvailPhys;
+        public ulong ullTotalPageFile;
+        public ulong ullAvailPageFile;
+        public ulong ullTotalVirtual;
+        public ulong ullAvailVirtual;
+        public ulong ullAvailExtendedVirtual;
+    }
     [SupportedOSPlatform("windows")]
     private static long GetAvailableMemoryWindows()
     {
-        try
-        {
-            using var key =
-                Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management");
-            if (key != null)
-            {
-                var availableMemory = (long)key.GetValue("AvailablePhysicalMemory", 0);
-                return availableMemory;
-            }
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine("Error accessing registry for available memory: " + ex.Message);
-        }
+        MEMORYSTATUSEX status = new MEMORYSTATUSEX();
+        status.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
 
-        return 0;
+        if (GlobalMemoryStatusEx(ref status))
+        {
+            return (long)status.ullAvailPhys;
+        }
+        else
+        {
+            throw new Exception("Unable to retrieve memory information.");
+        }
     }
     [SupportedOSPlatform("linux")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoLinux()
