@@ -1,0 +1,135 @@
+# Maintainer: Brycen Granville <brycengranville@outlook.com>
+pkgbase=snapx
+pkgname=(snapx snapx-gtk snapx-ui)
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/BrycensRanch/SnapX"
+license=('GPL3')
+makedepends=(
+    'git'
+    'dotnet-sdk>=9.0'
+    'clang'
+    'gtk4'
+    'libx11'
+    'libxrandr'
+    'libxcb'
+    'dbus'
+    'zlib'
+)
+
+source=("$pkgbase::git+https://github.com/BrycensRanch/SnapX.git")
+sha256sums=('SKIP')
+
+build() {
+    cd "$pkgbase"
+    export VERSION=$pkgver
+    ./build.sh --configuration Release
+}
+
+check() {
+    cd "$pkgbase"
+    Output/snapx/snapx --version
+}
+
+package_snapx() {
+    depends=(
+        'ffmpeg'
+        'curl'
+        'fontconfig'
+        'freetype2'
+        'openssl'
+        'icu'
+        'at'
+        'sudo'
+        'libxrandr'
+        'libxcb'
+        'dbus'
+    )
+    
+    cd "$pkgbase"
+    
+    # Create directories
+    install -dm755 "${pkgdir}/usr/bin"
+    install -dm755 "${pkgdir}/usr/lib/${pkgbase}"
+    install -dm755 "${pkgdir}/usr/share/SnapX"
+    
+    # Install common files and libraries
+    install -Dm644 Output/snapx/Resources/host-manifest-chrome.json "${pkgdir}/usr/lib/${pkgbase}/Resources/host-manifest-chrome.json"
+    install -Dm644 Output/snapx/Resources/host-manifest-firefox.json "${pkgdir}/usr/lib/${pkgbase}/Resources/host-manifest-firefox.json"
+    install -Dm644 Output/snapx/SnapX.CommonUI.pdb "${pkgdir}/usr/lib/${pkgbase}/SnapX.CommonUI.pdb"
+    install -Dm644 Output/snapx/SnapX.Core.pdb "${pkgdir}/usr/lib/${pkgbase}/SnapX.Core.pdb"
+    install -Dm755 Output/snapx/SnapX_NativeMessagingHost "${pkgdir}/usr/lib/${pkgbase}/SnapX_NativeMessagingHost"
+    install -Dm755 Output/snapx/libe_sqlite3.so "${pkgdir}/usr/lib/${pkgbase}/libe_sqlite3.so"
+    
+    # Install CLI specific files
+    cp -r Output/snapx/* "${pkgdir}/usr/lib/${pkgbase}/" --no-clobber
+    ln -s "/usr/lib/${pkgbase}/snapx" "${pkgdir}/usr/bin/snapx"
+    
+    # Install license
+    install -Dm644 LICENSE.md "${pkgdir}/usr/share/licenses/${pkgbase}/LICENSE"
+}
+
+package_snapx-gtk() {
+    pkgdesc="SnapX GTK4 UI"
+    depends=('snapx' 'gtk4')
+    
+    cd "$pkgbase"
+    
+    # Create directories
+    install -dm755 "${pkgdir}/usr/bin"
+    install -dm755 "${pkgdir}/usr/lib/${pkgbase}-gtk"
+    
+    # Install GTK UI specific files (excluding common files)
+    for file in Output/snapx-gtk/*; do
+        if [[ ! -f "${file}" ]] || \
+           [[ "${file}" == */Resources/host-manifest-* ]] || \
+           [[ "${file}" == */SnapX.CommonUI.pdb ]] || \
+           [[ "${file}" == */SnapX.Core.pdb ]] || \
+           [[ "${file}" == */SnapX_NativeMessagingHost ]] || \
+           [[ "${file}" == */libe_sqlite3.so ]]; then
+            continue
+        fi
+        install -Dm755 "${file}" "${pkgdir}/usr/lib/${pkgbase}-gtk/$(basename "${file}")"
+    done
+    
+    ln -s "/usr/lib/${pkgbase}-gtk/snapx-gtk" "${pkgdir}/usr/bin/snapx-gtk"
+    
+    # Install license
+    install -Dm644 LICENSE.md "${pkgdir}/usr/share/licenses/snapx-gtk/LICENSE"
+}
+
+package_snapx-ui() {
+    pkgdesc="SnapX Avalonia-based UI (works best on X11)"
+    depends=('snapx')
+    
+    cd "$pkgbase"
+    
+    # Create directories
+    install -dm755 "${pkgdir}/usr/bin"
+    install -dm755 "${pkgdir}/usr/lib/${pkgbase}-ui"
+    install -dm755 "${pkgdir}/usr/share/applications"
+    
+    # Install Avalonia UI specific files (excluding common files)
+    for file in Output/snapx-ui/*; do
+        if [[ ! -f "${file}" ]] || \
+           [[ "${file}" == */Resources/host-manifest-* ]] || \
+           [[ "${file}" == */SnapX.CommonUI.pdb ]] || \
+           [[ "${file}" == */SnapX.Core.pdb ]] || \
+           [[ "${file}" == */SnapX_NativeMessagingHost ]] || \
+           [[ "${file}" == */libe_sqlite3.so ]]; then
+            continue
+        fi
+        install -Dm755 "${file}" "${pkgdir}/usr/lib/${pkgbase}-ui/$(basename "${file}")"
+    done
+    
+    ln -s "/usr/lib/${pkgbase}-ui/snapx-ui" "${pkgdir}/usr/bin/snapx-ui"
+    
+    # Install desktop file
+    install -Dm644 "packaging/usr/share/applications/io.github.BrycensRanch.SnapX.desktop" \
+        "${pkgdir}/usr/share/applications/io.github.BrycensRanch.SnapX.desktop"
+    
+    # Install license
+    install -Dm644 LICENSE.md "${pkgdir}/usr/share/licenses/snapx-ui/LICENSE"
+} 
