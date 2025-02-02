@@ -21,24 +21,9 @@
 %global version         0.1.0
 %bcond check 0
 
-# Set the dotnet runtime
 
-%ifarch x86_64
-%global runtime_arch x64
-%endif
-%ifarch aarch64
-%global runtime_arch arm64
-%endif
-%ifarch arm
-%global runtime_arch arm
-%endif
-%ifarch armhf
-%global runtime_arch arm
-%endif
 
-# The dotnet version folder path
-%global         net             net9.0
-%global         dotnet_runtime  linux-%{runtime_arch}
+
 
 
 Name:           snapx
@@ -51,10 +36,6 @@ URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
 BuildRequires:  dotnet-sdk-9.0
-BuildRequires:  dbus-devel
-BuildRequires:  libX11-devel
-BuildRequires:  libXrandr-devel
-BuildRequires:  libxcb-devel
 BuildRequires:  clang
 BuildRequires:  zlib-devel
 
@@ -69,8 +50,6 @@ ExclusiveArch:  x86_64 aarch64
 %define _debugsource_template %{nil}
 %global         debug_package %{nil}
 
-
-
 %description
 This is a port of the original ShareX application to Linux.
 It is not an official release and is not affiliated with the original ShareX project.
@@ -80,7 +59,7 @@ Specifically, it is the CLI tool.
 Summary:        SnapX GTK4 UI
 Requires:       gtk4
 Requires:       snapx
-BuildRequires:  gtk4-devel
+BuildRequires:  gtk4
 %description gtk
 SnapX but gtk4
 
