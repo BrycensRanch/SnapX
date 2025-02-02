@@ -118,7 +118,7 @@ Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
 
 ## Contributions
 
-Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./github/CONTRIBUTING.md).
+Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
 
 Lastly...
 
