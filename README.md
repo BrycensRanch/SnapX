@@ -23,7 +23,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 - SnapX is a cross-platform application.
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
-- Automatically tone maps HDR screenshots to SDR*
+- Screenshots on a HDR monitor aren't blown out*
 
 [1]: When tested on KDE Plasma Wayland 6.2.90 with HDR on the resulting screenshot's colors were not blown out. Your mileage may vary.
 
