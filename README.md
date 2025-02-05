@@ -1,4 +1,4 @@
-<p align="center"><a href="https://getsharex.com"><img src="./Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="./Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
@@ -6,8 +6,8 @@
   <a href="https://github.com/BrycensRanch/SnapX/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrycensRanch/SnapX/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status"/></a>
   <a href="./LICENSE.txt"><img src="https://img.shields.io/github/license/BrycensRanch/SnapX?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/></a>
   <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/v/release/BrycensRanch/SnapX?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/></a>
-  <a href="https://getsharex.com/downloads"><img src="https://img.shields.io/github/downloads/BrycensRanch/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
-  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://img.shields.io/discord/1267996919922430063?label=Discord&cacheSeconds=3600" alt="Discord"/></a>
+  <a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="https://img.shields.io/github/downloads/BrycensRanch/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
+  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://img.shields.io/discord/1267996919922430063?label=Discord&cacheSeconds=3600" alt="Discord Server"/></a>
 </div>
 <br>
 <p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
@@ -34,6 +34,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp)
 - Uses [Serilog](https://github.com/serilog/serilog) for structured logging
+- Supports PNG (including animated variant), WEBP PNG (including animated variant), JPEG, GIFs, TIFF, and BMP image formats.
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* uses TLS 1.3 out of the box.
 - Keeps compatability with the custom uploader configuration format (.sxcu)
@@ -54,8 +55,8 @@ We will do our best to help you, but we cannot guarantee that we will be able to
 
 This project is built on Ubuntu 24.04 and is tested on the following distributions:
 
-- Ubuntu 24.04
 - Fedora 41
+- Ubuntu 24.04
 
 If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can build the project from source.
 
@@ -84,6 +85,12 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `clang`
 - `zlib-devel`
 
+### Fedora 41
+
+```bash
+sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs
+```
+
 ### Ubuntu 24.04
 
 ```bash
@@ -91,12 +98,6 @@ sudo apt update -q && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged.
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
 sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang
-```
-
-### Fedora 41
-
-```bash
-sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs
 ```
 
 ## Building from Source
