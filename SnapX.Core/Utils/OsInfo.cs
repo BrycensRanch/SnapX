@@ -13,7 +13,6 @@ public static partial class OsInfo
         if (OperatingSystem.IsWindows())
         {
             return GetWindowsVersion();
-
         }
         else if (OperatingSystem.IsLinux())
         {
@@ -46,7 +45,6 @@ public static partial class OsInfo
                 productName = productName.Replace("10", "11");
 
             return $"{productName} {releaseId} {currentBuild}";
-
         }
         catch (Exception ex)
         {
@@ -476,7 +474,7 @@ public static partial class OsInfo
             for (int i = 1; i < lines.Length; i++)
             {
                 var line = lines[i].Trim();
-                if (!string.IsNullOrEmpty(line) && line.Contains("+"))
+                if (!string.IsNullOrEmpty(line) && line.Contains('+'))
                 {
                     var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
