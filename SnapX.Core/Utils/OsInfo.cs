@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
 namespace SnapX.Core.Utils;
@@ -437,8 +438,13 @@ public static partial class OsInfo
             if (!string.IsNullOrWhiteSpace(GpuInfo))
             {
                 DebugHelper.WriteLine("GPU: " + GpuInfo);
-                var driverVersion = RunShellCommand("glxinfo | grep 'OpenGL version'");
-                DebugHelper.WriteLine("Driver Version: " + driverVersion.Split(':')[1].Trim());
+                var glxInfo = RunShellCommand("glxinfo | grep -E 'OpenGL version|OpenGL vendor string'");
+
+                var lines = glxInfo.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                var driverVersion = lines.FirstOrDefault(line => line.Contains("OpenGL version")).Split(':')[1].Trim();
+                var vendor = lines.FirstOrDefault(line => line.Contains("OpenGL vendor string")).Split(':')[1].Trim();
+                DebugHelper.WriteLine($"Driver Version: {vendor} {driverVersion}");
             }
         }
         catch (Exception ex)
@@ -449,7 +455,12 @@ public static partial class OsInfo
         try
         {
             var gpuInfo = File.ReadAllText("/proc/driver/nvidia/version");
-            DebugHelper.WriteLine("NVIDIA GPU Driver Version: " + gpuInfo);
+            var firstLine = gpuInfo.Split(Environment.NewLine)[0];
+            var match = Regex.Match(firstLine, @"\b(\d+\.\d+\.\d+)\b");
+            if (match.Success)
+            {
+                DebugHelper.WriteLine("NVIDIA GPU Driver Version: " + match.Value);
+            }
         }
         catch
         {
@@ -459,12 +470,25 @@ public static partial class OsInfo
         try
         {
             var output = RunShellCommand("xrandr --listmonitors");
-            foreach (var line in output.Split('\n'))
+            var lines = output.Split('\n');
+
+            // Skip the first line (header)
+            for (int i = 1; i < lines.Length; i++)
             {
-                if (line.Contains("connected"))
+                var line = lines[i].Trim();
+                if (!string.IsNullOrEmpty(line) && line.Contains("+"))
                 {
-                    var parts = line.Split(' ');
-                    DebugHelper.WriteLine($"Monitor: {parts[0]}");
+                    var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    var monitorName = parts[3];
+
+                    // The coordinates are at the end of the resolution, typically in format +x+y
+                    var resolutionAndCoords = parts[2];  // e.g., "1920/344x1080/193+885+1080"
+                    var coordinates = resolutionAndCoords.Split('+');
+                    var x = coordinates[1];
+                    var y = coordinates[2];
+
+                    DebugHelper.WriteLine($"Monitor: {monitorName}, Coordinates: ({x}, {y})");
                 }
             }
         }
