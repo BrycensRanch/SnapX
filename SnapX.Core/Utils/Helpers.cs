@@ -64,30 +64,15 @@ public static class Helpers
     }
     public static string GetImageExtension(Image image)
     {
-        if (image.Metadata.DecodedImageFormat is JpegFormat)
+        return image.Metadata.DecodedImageFormat switch
         {
-            return ".jpg";
-        }
-        else if (image.Metadata.DecodedImageFormat is PngFormat)
-        {
-            return ".png";
-        }
-        else if (image.Metadata.DecodedImageFormat is GifFormat)
-        {
-            return ".gif";
-        }
-        else if (image.Metadata.DecodedImageFormat is WebpFormat)
-        {
-            return ".webp";
-        }
-        else if (image.Metadata.DecodedImageFormat is TiffFormat)
-        {
-            return ".tiff";
-        }
-        else
-        {
-            return ".png"; // Default to PNG if format is unknown
-        }
+            JpegFormat => ".jpg",
+            PngFormat => ".png",
+            GifFormat => ".gif",
+            WebpFormat => ".webp",
+            TiffFormat => ".tiff",
+            _ => ".png"
+        };
     }
 
     public static string StripPII(string input)
