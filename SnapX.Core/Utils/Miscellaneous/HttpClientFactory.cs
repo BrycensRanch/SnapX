@@ -4,7 +4,6 @@
 
 using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Security;
 using System.Security.Authentication;
 
 namespace SnapX.Core.Utils.Miscellaneous;
@@ -13,15 +12,20 @@ public static class HttpClientFactory
     // Using Lazy<T> to handle thread-safe initialization of the HttpClient
     private static Lazy<HttpClient> _lazyClient = new(() =>
     {
-        var clientHandler = new HttpClientHandler
+        var clientHandler = new SocketsHttpHandler
         {
+            EnableMultipleHttp3Connections = true,
+            EnableMultipleHttp2Connections = true,
+            SslOptions =
+            {
+                AllowTlsResume = true,
+                EnabledSslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12
+            },
             Proxy = HelpersOptions.CurrentProxy.GetWebProxy(),
-            SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12,
         };
         if (SnapX.Settings.AcceptInvalidSSLCertificates)
         {
-            // Disable SSL certificate validation
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+            clientHandler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => true;
         }
         HttpMessageHandler handler = clientHandler;
 
