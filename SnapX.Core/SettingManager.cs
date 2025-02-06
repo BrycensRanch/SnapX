@@ -259,7 +259,7 @@ internal static class SettingManager
     {
         // Settings.Save(ApplicationConfigFilePath);
         // UploadersConfig.Save(UploadersConfigFilePath);
-        CleanupHotkeysConfig();
+        // CleanupHotkeysConfig();
         // HotkeysConfig.Save(HotkeysConfigFilePath);
     }
 
