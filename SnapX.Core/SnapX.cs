@@ -307,7 +307,6 @@ public class SnapX
             OsInfo.PrintGraphicsInfo();
             // Linux is not supported for HDR detection.
             if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR: {OsInfo.IsHdrSupported()}");
-
         });
         IsAdmin = Helpers.IsAdministrator();
         DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
@@ -323,7 +322,6 @@ public class SnapX
         // SettingManager.LoadInitialSettings();
         SettingManager.LoadAllSettings();
         // CleanupManager.CleanupAsync();
-
     }
 
     public static void CloseSequence()
