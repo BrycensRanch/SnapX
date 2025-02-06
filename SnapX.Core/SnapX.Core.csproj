@@ -18,7 +18,7 @@
   <ItemGroup>
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
-    <PackageReference Include="JsonPath.Net" Version="2.1.0" />
+    <PackageReference Include="JsonPath.Net" Version="2.1.1" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
     <!-- Configuration has never been so intuitive -->
