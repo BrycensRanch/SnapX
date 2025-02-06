@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Diagnostics;
 using Serilog;
 
 namespace SnapX.Core;
@@ -41,7 +40,22 @@ public static class DebugHelper
             messageBuffer.Add(message);
         }
     }
+    public static void FlushBufferedMessages()
+    {
+        foreach (var bufferedMessage in messageBuffer)
+        {
+            if (Logger is null)
+            {
+                Console.WriteLine(bufferedMessage);
+            }
+            else
+            {
+                Logger.Information(bufferedMessage);
+            }
+        }
 
+        messageBuffer.Clear();
+    }
     public static void WriteLine(string format, params object[] args)
     {
         WriteLine(string.Format(format, args));

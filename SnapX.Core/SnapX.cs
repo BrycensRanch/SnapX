@@ -297,13 +297,18 @@ public class SnapX
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + RuntimeInformation.FrameworkDescription);
-        DebugHelper.WriteLine($"CPU: {OsInfo.GetProcessorName()} ({Environment.ProcessorCount})");
-        var (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
-        DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
-        DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
-        OsInfo.PrintGraphicsInfo();
-        // Linux is not supported for HDR detection.
-        if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR: {OsInfo.IsHdrSupported()}");
+
+        _ = Task.Run(() =>
+        {
+            DebugHelper.WriteLine($"CPU: {OsInfo.GetProcessorName()} ({Environment.ProcessorCount})");
+            var (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
+            DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
+            DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
+            OsInfo.PrintGraphicsInfo();
+            // Linux is not supported for HDR detection.
+            if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR: {OsInfo.IsHdrSupported()}");
+
+        });
         IsAdmin = Helpers.IsAdministrator();
         DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
 
@@ -332,6 +337,7 @@ public class SnapX
         SettingManager.SaveAllSettings();
 
         DebugHelper.WriteLine("SnapX closed.");
+        DebugHelper.FlushBufferedMessages();
         Environment.Exit(0);
     }
 
