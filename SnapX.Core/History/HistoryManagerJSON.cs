@@ -5,9 +5,16 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.History;
+[JsonSerializable(typeof(HistoryItem))]
+
+internal partial class HistoryContext : JsonSerializerContext
+{
+}
+
 public class HistoryManagerJSON : HistoryManager
 {
     private static readonly object thisLock = new object();
@@ -25,16 +32,19 @@ public class HistoryManagerJSON : HistoryManager
 
         lock (thisLock)
         {
-            string json = System.IO.File.ReadAllText(filePath, Encoding.UTF8);
+            var json = File.ReadAllText(filePath, Encoding.UTF8);
 
             if (string.IsNullOrEmpty(json))
                 return [];
 
-            // Wrap the json in an array format (since the original code expected a JSON array)
             json = "[" + json + "]";
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                TypeInfoResolver = HistoryContext.Default
+            };
 
-            // Deserialize the JSON string into a List of HistoryItem objects
-            return JsonSerializer.Deserialize<List<HistoryItem>>(json) ?? [];
+            return JsonSerializer.Deserialize<List<HistoryItem>>(json, options) ?? [];
         }
     }
 
@@ -43,38 +53,36 @@ public class HistoryManagerJSON : HistoryManager
     protected override bool Append(string filePath, IEnumerable<HistoryItem> historyItems)
     {
         if (string.IsNullOrEmpty(filePath)) return false;
-
-        // Ensure the directory exists
-        FileHelpers.CreateDirectoryFromFilePath(filePath);
-
-        // Open the file for appending data
-        using var fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096,
-            FileOptions.WriteThrough);
-        using var streamWriter = new StreamWriter(fileStream);
-        var options = new JsonSerializerOptions
+        lock (thisLock)
         {
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault,
-            WriteIndented = false
-        };
+            FileHelpers.CreateDirectoryFromFilePath(filePath);
 
-        // Check if this is the first object being written
-        bool isFirstObject = fileStream.Length == 0;
+            using var fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096,
+                FileOptions.WriteThrough);
+            using var streamWriter = new StreamWriter(fileStream);
+            var options = new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                TypeInfoResolver = HistoryContext.Default,
+                WriteIndented = false
+            };
 
-        foreach (var historyItem in historyItems)
-        {
-            if (!isFirstObject)
-                streamWriter.Write(",\r\n");
+            bool isFirstObject = fileStream.Length == 0;
 
-            // Serialize the current HistoryItem and write it to the stream
-            string json = JsonSerializer.Serialize(historyItem, options);
-            streamWriter.Write(json);
+            foreach (var historyItem in historyItems)
+            {
+                if (!isFirstObject)
+                    streamWriter.Write(",\r\n");
 
-            isFirstObject = false;  // Ensure subsequent objects are properly comma-separated
+                string json = JsonSerializer.Serialize(historyItem, options);
+                streamWriter.Write(json);
+
+                isFirstObject = false;
+            }
+
+            Backup(filePath);
+            return true;
         }
-
-        // Backup after appending
-        Backup(filePath);
-        return true;
     }
 }
 
