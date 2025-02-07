@@ -23,7 +23,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 - SnapX is a cross-platform application.
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
-- Screenshots on a HDR monitor aren't blown out*
+- Screenshots on an HDR monitor aren't blown out*
 
 [1]: When tested on KDE Plasma Wayland 6.2.90 with HDR on the resulting screenshot's colors were not blown out. Your mileage may vary.
 
@@ -31,10 +31,10 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - Dependency on Newtonsoft.JSON dropped, traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28).
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet keeping JSON as an option.
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp)
-- Uses [Serilog](https://github.com/serilog/serilog) for structured logging
-- Supports PNG (including animated variant), WEBP PNG (including animated variant), JPEG, GIFs, TIFF, and BMP image formats.
+- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/) and uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux
+- Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs, TIFF, and BMP image formats.
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* uses TLS 1.3 out of the box.
 - Keeps compatability with the custom uploader configuration format (.sxcu)
