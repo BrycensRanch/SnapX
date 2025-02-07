@@ -19,7 +19,6 @@ public class SnapXCLIManager : CLIManager
 
             foreach (CLICommand command in commands)
             {
-
                 if (command.IsCommand)
                 {
                     if (CheckCustomUploader(command) || CheckImageEffect(command) || await CheckCLIHotkey(command) || await CheckCLIWorkflow(command) ||
