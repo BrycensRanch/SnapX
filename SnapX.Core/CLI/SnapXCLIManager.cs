@@ -19,7 +19,6 @@ public class SnapXCLIManager : CLIManager
 
             foreach (CLICommand command in commands)
             {
-                DebugHelper.WriteLine("CommandLine: " + command);
 
                 if (command.IsCommand)
                 {

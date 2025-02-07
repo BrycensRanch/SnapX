@@ -5,6 +5,7 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.History;
 using SnapX.Core.Upload;
+using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -21,27 +22,31 @@ public static class TaskManager
 
     public static void Start(WorkerTask task)
     {
-        if (task != null)
+        if (task == null) throw new ArgumentNullException(nameof(task));
+        Tasks.Add(task);
+
+        if (task.Status != TaskStatus.History)
         {
-            Tasks.Add(task);
+            task.StatusChanged += Task_StatusChanged;
+            task.ImageReady += Task_ImageReady;
+            task.UploadStarted += Task_UploadStarted;
+            task.UploadProgressChanged += Task_UploadProgressChanged;
+            task.UploadCompleted += Task_UploadCompleted;
+            task.TaskCompleted += Task_TaskCompleted;
+            task.UploadersConfigWindowRequested += Task_UploadersConfigWindowRequested;
 
-            if (task.Status != TaskStatus.History)
-            {
-                task.StatusChanged += Task_StatusChanged;
-                task.ImageReady += Task_ImageReady;
-                task.UploadStarted += Task_UploadStarted;
-                task.UploadProgressChanged += Task_UploadProgressChanged;
-                task.UploadCompleted += Task_UploadCompleted;
-                task.TaskCompleted += Task_TaskCompleted;
-            }
+        }
 
-            if (task.Status != TaskStatus.History)
-            {
-                StartTasks();
-            }
+        if (task.Status != TaskStatus.History)
+        {
+            StartTasks();
         }
     }
-
+    private static void Task_UploadersConfigWindowRequested(IUploaderService uploaderService)
+    {
+        // TaskHelpers.OpenUploadersConfigWindow(uploaderService);
+        DebugHelper.WriteException(new NotImplementedException("Task_UploadersConfigWindowRequested"));
+    }
     public static void Remove(WorkerTask task)
     {
         if (task != null)
@@ -79,6 +84,7 @@ public static class TaskManager
 
     public static void StopAllTasks()
     {
+        DebugHelper.WriteLine("StopAllTasks called.");
         foreach (WorkerTask task in Tasks)
         {
             if (task != null) task.Stop();
@@ -88,11 +94,12 @@ public static class TaskManager
 
     private static void Task_StatusChanged(WorkerTask task)
     {
-        DebugHelper.WriteLine("Task status: " + task.Status);
+        DebugHelper.Logger.Information("Task status for {taskFilePath}: {taskStatus}", task.Info.FilePath, task.Status);
     }
 
     private static void Task_ImageReady(WorkerTask task, Image image)
     {
+        DebugHelper.Logger.Information("Task image for {imageName} is ready", task.Info.FilePath);
     }
 
     private static void Task_UploadStarted(WorkerTask task)
@@ -101,12 +108,21 @@ public static class TaskManager
 
         string status = string.Format("Upload started. File name: {0}", info.FileName);
         if (!string.IsNullOrEmpty(info.FilePath)) status += ", File path: " + info.FilePath;
-        DebugHelper.WriteLine(status);
+        DebugHelper.Logger.Information(status);
 
     }
 
     private static void Task_UploadProgressChanged(WorkerTask task)
     {
+        DebugHelper.WriteLine($"Task_UploadProgressChanged called. Current Task status: {task.Status}");
+        if (task.Status != TaskStatus.Working) return;
+        var info = task.Info;
+        DebugHelper.Logger.Information("{0:0.0}%", info.Progress.Percentage);
+        DebugHelper.Logger.Information("{0} / {1}", info.Progress.Position.ToSizeString(SnapX.Settings.BinaryUnits),
+            info.Progress.Length.ToSizeString(SnapX.Settings.BinaryUnits));
+        DebugHelper.WriteLine(((long)info.Progress.Speed).ToSizeString(SnapX.Settings.BinaryUnits) + "/s");
+        DebugHelper.WriteLine(Helpers.ProperTimeSpan(info.Progress.Elapsed));
+        DebugHelper.WriteLine(Helpers.ProperTimeSpan(info.Progress.Remaining));
     }
 
     private static void Task_UploadCompleted(WorkerTask task)
@@ -226,6 +242,7 @@ public static class TaskManager
 
     private static void AppendHistoryItemAsync(HistoryItem historyItem)
     {
+        DebugHelper.Logger.Debug("Appending history item {historyItem} to task list", historyItem.FilePath);
         Task.Run(() =>
         {
             HistoryManager history = new HistoryManagerJSON(SnapX.HistoryFilePath)

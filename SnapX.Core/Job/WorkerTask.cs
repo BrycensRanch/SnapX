@@ -94,7 +94,7 @@ public class WorkerTask : IDisposable
         if (task.Info.TaskSettings.AdvancedSettings.ProcessImagesDuringFileUpload && task.Info.DataType == EDataType.Image)
         {
             task.Info.Job = TaskJob.Job;
-            task.Image = Image.Load(task.Info.FileName);
+            task.Image = Image.Load(task.Info.FilePath);
         }
         else
         {
@@ -102,6 +102,7 @@ public class WorkerTask : IDisposable
 
             if (!task.LoadFileStream())
             {
+                DebugHelper.WriteException("Failed to load uploader file. The file may be in use or corrupt garbage.");
                 return null;
             }
         }

@@ -2,13 +2,14 @@
 
 
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace SnapX.Core;
 
 public static class DebugHelper
 {
     public static ILogger Logger { get; private set; }
-    private static List<string> messageBuffer = new List<string>();
+    private static List<string> messageBuffer = new();
 
     public static void Init(string logFilePath)
     {
@@ -18,7 +19,7 @@ public static class DebugHelper
             .WriteTo.Async(a => a.File(logFilePath, rollingInterval: RollingInterval.Day, buffered: true));
         if (SnapX.LogToConsole)
         {
-            loggerConfig = loggerConfig.WriteTo.Console();
+            loggerConfig = loggerConfig.WriteTo.Console(theme: AnsiConsoleTheme.Sixteen);
         }
         Logger = loggerConfig.CreateLogger();
     }

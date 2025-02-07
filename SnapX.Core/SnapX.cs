@@ -431,7 +431,6 @@ public class SnapX
 
     private static void MigratePersonalPathConfig()
     {
-        DebugHelper.WriteLine("MigratePersonalPathConfig called");
         if (File.Exists(PreviousPersonalPathConfigFilePath))
         {
             try

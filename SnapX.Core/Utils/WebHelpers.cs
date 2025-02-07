@@ -27,6 +27,7 @@ public static class WebHelpers
 
         if (!responseMessage.IsSuccessStatusCode)
         {
+            DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
             return;
         }
 
@@ -36,7 +37,7 @@ public static class WebHelpers
         await responseStream.CopyToAsync(fileStream);
     }
 
-    public static async Task<Image<Rgba64>> DataURLToImage(string url)
+    public static async Task<Image> DataURLToImage(string url)
     {
         // Ensure the URL is valid and starts with "data:"
         if (url == null || !url.ToString().StartsWith("data:"))
@@ -44,8 +45,7 @@ public static class WebHelpers
             throw new ArgumentException("Invalid data URL.");
         }
 
-        // Extract the base64 data from the data URL
-        var dataUrl = url.ToString();
+        var dataUrl = url;
         var regex = new Regex(@"^data:image\/(?<type>.*?);base64,(?<data>.+)$");
         var match = regex.Match(dataUrl);
 
@@ -59,7 +59,7 @@ public static class WebHelpers
         byte[] imageBytes = Convert.FromBase64String(base64Data);
 
         using var ms = new MemoryStream(imageBytes);
-        var image = await Image.LoadAsync<Rgba64>(ms);
+        var image = await Image.LoadAsync(ms);
         return image;
     }
 
@@ -72,10 +72,13 @@ public static class WebHelpers
 
         var client = HttpClientFactory.Get();
         using var responseMessage = await client.GetAsync(url);
+        if (!responseMessage.IsSuccessStatusCode)
+        {
+            DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
+            return null;
+        }
 
-        return responseMessage.IsSuccessStatusCode
-            ? await responseMessage.Content.ReadAsStringAsync()
-            : null;
+        return await responseMessage.Content.ReadAsStringAsync();
     }
 
 
@@ -93,7 +96,7 @@ public static class WebHelpers
     }
 
 
-    public static async Task<Image<Rgba64>> DownloadImageAsync(string url)
+    public static async Task<Image> DownloadImageAsync(string url)
     {
         if (string.IsNullOrEmpty(url)) return null;
 
@@ -101,11 +104,18 @@ public static class WebHelpers
 
         using var responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 
-        if (!responseMessage.IsSuccessStatusCode || responseMessage.Content.Headers.ContentType == null)
+        if (!responseMessage.IsSuccessStatusCode)
+        {
+            DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
             return null;
+        }
 
         var mediaType = responseMessage.Content.Headers.ContentType.MediaType;
-        if (mediaType == null) return null;
+        if (mediaType == null)
+        {
+            DebugHelper.Logger.Error("{url}: mediaType is null.", url);
+            return null;
+        }
         if (!MimeTypes.IsImageMimeType(mediaType))
             return null;
 
@@ -114,11 +124,12 @@ public static class WebHelpers
         try
         {
             using var memoryStream = new MemoryStream(data);
-            return await Image.LoadAsync<Rgba64>(memoryStream);
+            return await Image.LoadAsync(memoryStream);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading image: {ex.Message}");
+            DebugHelper.Logger.Error("{url}: {message}", url, ex.Message);
+            DebugHelper.WriteException(ex);
             return null;
         }
     }

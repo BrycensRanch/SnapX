@@ -65,9 +65,11 @@ public static class TaskHelpers
                 UploadManager.ClipboardUpload(safeTaskSettings);
                 break;
             case HotkeyType.ClipboardUploadWithContentViewer:
+                DebugHelper.WriteException("HotkeyType.ClipboardUploadWithContentViewer is NOT implemented.");
                 // UploadManager.ClipboardUploadWithContentViewer(safeTaskSettings);
                 break;
             case HotkeyType.UploadText:
+                DebugHelper.WriteException("HotkeyType.UploadText is NOT implemented.");
                 // UploadManager.ShowTextUploadDialog(safeTaskSettings);
 
                 break;
@@ -75,9 +77,11 @@ public static class TaskHelpers
                 UploadManager.UploadURL(safeTaskSettings);
                 break;
             case HotkeyType.DragDropUpload:
+                DebugHelper.WriteException("HotkeyType.DragDropUpload is NOT implemented.");
                 // OpenDropWindow(safeTaskSettings);
                 break;
             case HotkeyType.ShortenURL:
+                DebugHelper.WriteException("HotkeyType.ShortenURL is NOT implemented.");
                 // UploadManager.ShowShortenURLDialog(safeTaskSettings);
                 break;
             case HotkeyType.TweetMessage:
@@ -115,37 +119,48 @@ public static class TaskHelpers
                 new CaptureLastRegion().Capture(safeTaskSettings);
                 break;
             case HotkeyType.ScrollingCapture:
+                DebugHelper.WriteException("HotkeyType.ScrollingCapture is NOT implemented.");
                 // await OpenScrollingCapture(safeTaskSettings);
                 break;
             case HotkeyType.AutoCapture:
+                DebugHelper.WriteException("HotkeyType.AutoCapture is NOT implemented.");
                 // OpenAutoCapture(safeTaskSettings);
                 break;
             case HotkeyType.StartAutoCapture:
+                DebugHelper.WriteException("HotkeyType.StartAutoCapture is NOT implemented.");
                 // StartAutoCapture(safeTaskSettings);
                 break;
             // Screen record
             case HotkeyType.ScreenRecorder:
+                DebugHelper.WriteException("HotkeyType.ScreenRecorder is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.FFmpeg, ScreenRecordStartMethod.Region, safeTaskSettings);
                 break;
             case HotkeyType.ScreenRecorderActiveWindow:
+                DebugHelper.WriteException("HotkeyType.ScreenRecorderActiveWindow is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.FFmpeg, ScreenRecordStartMethod.ActiveWindow, safeTaskSettings);
                 break;
             case HotkeyType.ScreenRecorderCustomRegion:
+                DebugHelper.WriteException("HotkeyType.ScreenRecorderCustomRegion is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.FFmpeg, ScreenRecordStartMethod.CustomRegion, safeTaskSettings);
                 break;
             case HotkeyType.StartScreenRecorder:
+                DebugHelper.WriteException("HotkeyType.StartScreenRecorder is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.FFmpeg, ScreenRecordStartMethod.LastRegion, safeTaskSettings);
                 break;
             case HotkeyType.ScreenRecorderGIF:
+                DebugHelper.WriteException("HotkeyType.ScreenRecorderGIF is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.GIF, ScreenRecordStartMethod.Region, safeTaskSettings);
                 break;
             case HotkeyType.ScreenRecorderGIFActiveWindow:
+                DebugHelper.WriteException("HotkeyType.ScreenRecorderGIFActiveWindow is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.GIF, ScreenRecordStartMethod.ActiveWindow, safeTaskSettings);
                 break;
             case HotkeyType.ScreenRecorderGIFCustomRegion:
+                DebugHelper.WriteException("HotkeyType.ScreenRecorderGIFCustomRegion is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.GIF, ScreenRecordStartMethod.CustomRegion, safeTaskSettings);
                 break;
             case HotkeyType.StartScreenRecorderGIF:
+                DebugHelper.WriteException("HotkeyType.StartScreenRecorderGIF is NOT implemented.");
                 // StartScreenRecording(ScreenRecordOutput.GIF, ScreenRecordStartMethod.LastRegion, safeTaskSettings);
                 break;
             case HotkeyType.StopScreenRecording:
@@ -159,27 +174,35 @@ public static class TaskHelpers
                 break;
             // Tools
             case HotkeyType.ColorPicker:
+                DebugHelper.WriteException("HotkeyType.ColorPicker is NOT implemented.");
                 // ShowScreenColorPickerDialog(safeTaskSettings);
                 break;
             case HotkeyType.ScreenColorPicker:
+                DebugHelper.WriteException("HotkeyType.ScreenColorPicker is NOT implemented.");
                 // OpenScreenColorPicker(safeTaskSettings);
                 break;
             case HotkeyType.Ruler:
+                DebugHelper.WriteException("HotkeyType.Ruler is NOT implemented.");
                 // OpenRuler(safeTaskSettings);
                 break;
             case HotkeyType.PinToScreen:
+                DebugHelper.WriteException("HotkeyType.PinToScreen is NOT implemented.");
                 PinToScreen(safeTaskSettings);
                 break;
             case HotkeyType.PinToScreenFromScreen:
+                DebugHelper.WriteException("HotkeyType.PinToScreenFromScreen is NOT implemented.");
                 // PinToScreenFromScreen(safeTaskSettings);
                 break;
             case HotkeyType.PinToScreenFromClipboard:
+                DebugHelper.WriteException("HotkeyType.PinToScreenFromClipboard is NOT implemented.");
                 // PinToScreenFromClipboard(safeTaskSettings);
                 break;
             case HotkeyType.PinToScreenFromFile:
+                DebugHelper.WriteException("HotkeyType.PinToScreenFromFile is NOT implemented.");
                 // PinToScreenFromFile(safeTaskSettings);
                 break;
             case HotkeyType.PinToScreenCloseAll:
+                DebugHelper.WriteException("HotkeyType.PinToScreenCloseAll is NOT implemented.");
                 // PinToScreenCloseAll(safeTaskSettings);
                 break;
             case HotkeyType.ImageEditor:
@@ -191,54 +214,70 @@ public static class TaskHelpers
             case HotkeyType.ImageViewer:
                 throw new NotImplementedException("ImageViewer not implemented");
             case HotkeyType.ImageCombiner:
+                DebugHelper.WriteException("HotkeyType.ImageCombiner is NOT implemented.");
                 // OpenImageCombiner(null, safeTaskSettings);
                 break;
             case HotkeyType.ImageSplitter:
+                DebugHelper.WriteException("HotkeyType.ImageSplitter is NOT implemented.");
                 // OpenImageSplitter();
                 break;
             case HotkeyType.ImageThumbnailer:
+                DebugHelper.WriteException("HotkeyType.ImageThumbnailer is NOT implemented.");
                 // OpenImageThumbnailer();
                 break;
             case HotkeyType.VideoConverter:
+                DebugHelper.WriteException("HotkeyType.VideoConverter is NOT implemented.");
                 // OpenVideoConverter(safeTaskSettings);
                 break;
             case HotkeyType.VideoThumbnailer:
+                DebugHelper.WriteException("HotkeyType.VideoThumbnailer is NOT implemented.");
                 // OpenVideoThumbnailer(safeTaskSettings);
                 break;
             case HotkeyType.OCR:
                 await OCRImage(safeTaskSettings);
                 break;
             case HotkeyType.QRCode:
+                DebugHelper.WriteException("HotkeyType.QRCode is NOT implemented.");
                 // OpenQRCode();
                 break;
             case HotkeyType.QRCodeDecodeFromScreen:
+                DebugHelper.WriteException("HotkeyType.QRCodeDecodeFromScreen is NOT implemented.");
                 // OpenQRCodeDecodeFromScreen();
                 break;
             case HotkeyType.HashCheck:
+                DebugHelper.WriteException("HotkeyType.HashCheck is NOT implemented.");
                 // OpenHashCheck();
                 break;
             case HotkeyType.IndexFolder:
+                DebugHelper.WriteException("HotkeyType.PinToScreenFromScreen is NOT implemented.");
                 // UploadManager.IndexFolder();
                 break;
             case HotkeyType.ClipboardViewer:
+                DebugHelper.WriteException("HotkeyType.ClipboardViewer is NOT implemented.");
                 // OpenClipboardViewer();
                 break;
             case HotkeyType.BorderlessWindow:
+                DebugHelper.WriteException("HotkeyType.BorderlessWindow is NOT implemented.");
                 // OpenBorderlessWindow(safeTaskSettings);
                 break;
             case HotkeyType.ActiveWindowBorderless:
+                DebugHelper.WriteException("HotkeyType.ActiveWindowBorderless is NOT implemented.");
                 // MakeActiveWindowBorderless(safeTaskSettings);
                 break;
             case HotkeyType.ActiveWindowTopMost:
+                DebugHelper.WriteException("HotkeyType.ActiveWindowTopMost is NOT implemented.");
                 // MakeActiveWindowTopMost(safeTaskSettings);
                 break;
             case HotkeyType.InspectWindow:
+                DebugHelper.WriteException("HotkeyType.InspectWindow is NOT implemented.");
                 // OpenInspectWindow();
                 break;
             case HotkeyType.MonitorTest:
+                DebugHelper.WriteException("HotkeyType.MonitorTest is NOT implemented.");
                 // OpenMonitorTest();
                 break;
             case HotkeyType.DNSChanger:
+                DebugHelper.WriteException("HotkeyType.DNSChanger is NOT implemented.");
                 // OpenDNSChanger();
                 break;
             // Other
@@ -246,21 +285,26 @@ public static class TaskHelpers
                 ToggleHotkeys();
                 break;
             case HotkeyType.OpenMainWindow:
+                DebugHelper.WriteException("HotkeyType.OpenMainWindow is NOT implemented.");
                 // SnapX.MainForm.ForceActivate();
                 break;
             case HotkeyType.OpenScreenshotsFolder:
                 OpenScreenshotsFolder();
                 break;
             case HotkeyType.OpenHistory:
+                DebugHelper.WriteException("HotkeyType.OpenHistory is NOT implemented.");
                 // OpenHistory();
                 break;
             case HotkeyType.OpenImageHistory:
+                DebugHelper.WriteException("HotkeyType.OpenImageHistory is NOT implemented.");
                 // OpenImageHistory();
                 break;
             case HotkeyType.ToggleActionsToolbar:
+                DebugHelper.WriteException("HotkeyType.ToggleActionsToolbar is NOT implemented.");
                 // ToggleActionsToolbar();
                 break;
             case HotkeyType.ToggleTrayMenu:
+                DebugHelper.WriteException("HotkeyType.ToggleTrayMenu is NOT implemented.");
                 // ToggleTrayMenu();
                 break;
             case HotkeyType.ExitShareX:
@@ -280,15 +324,14 @@ public static class TaskHelpers
         {
             imageData.ImageStream.Dispose();
 
-            var newImage = img.CloneAs<Rgba32>();
-            newImage.Mutate((ctx) => ctx.BackgroundColor(Color.White));
+            img.Mutate((ctx) => ctx.BackgroundColor(Color.White));
             if (taskSettings.ImageSettings.ImageAutoJPEGQuality)
             {
-                imageData.ImageStream = ImageHelpers.SaveJPEGAutoQuality(newImage, taskSettings.ImageSettings.ImageAutoUseJPEGSize * 1000, 2, 70, 100);
+                imageData.ImageStream = ImageHelpers.SaveJPEGAutoQuality(img, taskSettings.ImageSettings.ImageAutoUseJPEGSize * 1000, 2, 70, 100);
             }
             else
             {
-                imageData.ImageStream = ImageHelpers.SaveJPEG(newImage, taskSettings.ImageSettings.ImageJPEGQuality);
+                imageData.ImageStream = ImageHelpers.SaveJPEG(img, taskSettings.ImageSettings.ImageJPEGQuality);
             }
 
             imageData.ImageFormat = EImageFormat.JPEG;
@@ -800,7 +843,7 @@ public static class TaskHelpers
 
     public static async Task HandleNativeMessagingInput(string filePath, TaskSettings taskSettings = null)
     {
-        if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+        if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
         {
             NativeMessagingInput nativeMessagingInput = null;
 
@@ -849,6 +892,7 @@ public static class TaskHelpers
                                 }
                                 catch
                                 {
+                                    // I must acknowledge I am swallowing errors. FUCK
                                 }
                             }
 
@@ -885,13 +929,13 @@ public static class TaskHelpers
             }
         }
     }
-    public static Image<Rgba64> GenerateQRCode(string text, int size)
+    public static Image GenerateQRCode(string text, int size)
     {
         if (CheckQRCodeContent(text))
         {
             try
             {
-                var writer = new ZXing.ImageSharp.BarcodeWriter<Rgba64>
+                var writer = new ZXing.ImageSharp.BarcodeWriter<Rgba32>
                 {
                     Format = BarcodeFormat.QR_CODE,
                     Options = new QrCodeEncodingOptions
@@ -903,7 +947,7 @@ public static class TaskHelpers
                         NoPadding = false,
                         Margin = 1
                     },
-                    Renderer = new ImageSharpRenderer<Rgba64>()
+                    Renderer = new ImageSharpRenderer<Rgba32>()
                 };
 
                 return writer.Write(text);
@@ -917,11 +961,11 @@ public static class TaskHelpers
         return null;
     }
 
-    public static string[] BarcodeScan(Image<Rgba64> bmp, bool scanQRCodeOnly = false)
+    public static string[] BarcodeScan(Image<Rgba32> img, bool scanQRCodeOnly = false)
     {
         try
         {
-            var barcodeReader = new ZXing.ImageSharp.BarcodeReader<Rgba64>
+            var barcodeReader = new ZXing.ImageSharp.BarcodeReader<Rgba32>
             {
                 AutoRotate = true,
                 Options = new DecodingOptions
@@ -936,7 +980,7 @@ public static class TaskHelpers
                 barcodeReader.Options.PossibleFormats = [BarcodeFormat.QR_CODE];
             }
 
-            Result[] results = barcodeReader.DecodeMultiple(bmp);
+            Result[] results = barcodeReader.DecodeMultiple(img);
 
             if (results != null)
             {
