@@ -87,8 +87,11 @@ public static class Helpers
             RegexOptions.IgnoreCase);
         var publicIPRegex = new Regex(@"^(?!10(\.|\b))(?!(172\.(1[6-9]|2[0-9]|3[01])(\.|\b)))(?!(192\.168(\.|\b)))(?!0(\.|\b))(?!(255(\.|\b)))(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
         var publicIPv6Regex = new Regex(@"^(?!fe80(:|::))(?!fc00(:|::))(?!ff00(:|::))(?!::1$)(?!2001:db8::)(?!::ffff:.*)([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$", RegexOptions.IgnoreCase);
+        var credentialsRegex = new Regex(@"(?i)(Authorization|Client\-Id|Client\-Token|Api\-Key)\s*:\s*([A-Za-z0-9\-_.]+)", RegexOptions.IgnoreCase);
+
         input = Regex.Replace(input, usernamePattern, "[REDACTED USERNAME]", RegexOptions.IgnoreCase);
         input = Regex.Replace(input, hostnamePattern, "[REDACTED HOSTNAME]", RegexOptions.IgnoreCase);
+        input = credentialsRegex.Replace(input, "[REDACTED CREDENTIALS]");
         input = emailRegex.Replace(input, "[REDACTED EMAIL]");
         input = publicIPRegex.Replace(input, "[REDACTED IPv4]");
         input = publicIPv6Regex.Replace(input, "[REDACTED IPv6]");
