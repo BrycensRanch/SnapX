@@ -210,7 +210,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
             {
                 PropertyNameCaseInsensitive = true,
                 TypeInfoResolver = ImgurSourceGenerationContext.Default,
-
             };
             return JsonSerializer.Deserialize<List<ImgurAlbumData>>(imgurResponse.data.ToString(), options);
         }
