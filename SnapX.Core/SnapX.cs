@@ -149,7 +149,6 @@ public class SnapX
                 : BaseDirectory.ConfigHome,
             AppName)
         : CustomConfigPath;
-
     public const string HistoryFileName = "History.json";
 
     public static string HistoryFilePath
@@ -175,17 +174,18 @@ public class SnapX
     }
 
     public const string LogsFolderName = "Logs";
-
-    public static string LogsFolder => Path.Combine(PersonalFolder, LogsFolderName);
+    // On Linux, strictly adhere to XDG BaseDirectory spec.
+    // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyways so it doesn't really matter.
+    public static string LogsFolder => OperatingSystem.IsLinux() ? Path.Combine(BaseDirectory.StateHome, AppName, LogsFolderName): Path.Combine(PersonalFolder, LogsFolderName) ;
 
     public static string LogsFilePath
     {
         get
         {
-            // if (SystemOptions.DisableLogging)
-            // {
-            //     return null;
-            // }
+            if (Settings.DisableLogging)
+            {
+                return string.Empty;
+            }
             var date = DateTime.Now;
             return Path.Combine(LogsFolder, date.Year.ToString(), date.Month.ToString("D2"), $"SnapX-{date.Day}.log");
         }
