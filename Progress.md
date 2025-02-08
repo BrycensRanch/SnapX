@@ -14,19 +14,27 @@
 - [x] Log files should be a daily log file, not a whole MONTH (wtf?)
 - [ ] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
-- [ ] Port `go-keyring` to C#
-- [ ] Bring in CppSharp to access XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
+- [ ] Add back OCR with [TesseractOCR](https://github.com/Sicos1977/TesseractOCR) and train with [tessdata_best](https://github.com/tesseract-ocr/tessdata_best)
+- [ ] Expose entire Core in UI (Avalonia, GTK4)
+- [ ] Add telemetry
+- [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp) and use it to create a MSIX bundle
+- [ ] Add to Microsoft Store
+- [ ] Add to Winget
+- [ ] Add to COPR
+- [ ] Add to AUR see PR #56 for the initial PKGBUILD
+- [ ] Port `go-keyring` to C# (Needed for not saving auth creds in plaintext, big no no )
+- [ ] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [x] Remove SnapX as a fork of ShareX that can be merged into upstream. *Completed at 233 commits ahead of upstream*
+
 ## Studying ShareX's behavior on Windows 11 24H2
 
 It's important to know how the program *should* behave in accordance with user expectations. As such, I've done a little recording of it.
 
 With GTK4, this is going to be an interesting endeavor.
 
-
 ## Rewrite
 
-ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with Dbus on Dotnet. https://github.com/tmds/Tmds.DBus
+ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with Dbus on Dotnet. <https://github.com/tmds/Tmds.DBus>
 
 I also want to decouple *away* from a specific UI framework
 which will allow for the possibility of using [Avalonia](https://github.com/AvaloniaUI/Avalonia) for Windows and macOS.
@@ -52,9 +60,11 @@ For the commit messages, I will be following the [Conventional Commits](https://
 
 #### Auto Update
 
-ShareX on Windows has auto update functionality. This is a feature that I would like to implement in this port. This will allow users to receive updates automatically without having to manually download and install them. This will also allow for easier distribution of updates and bug fixes. I know this doesn't bode well with Linux users, that's why I ask you which one of you ported ShareX to Linux? Oh, that's right, no one. I'm doing this for free. I'm doing it my way. :laughing:
+ShareX on Windows has auto update functionality. This is a feature that I would like to implement in this port. This will allow users to receive updates automatically without having to manually download and install them. This will also allow for easier distribution of updates and bug fixes. I know this doesn't bode well with Linux users. So on actual Linux packages, they will be disabled because I don't want a situation like Discord on Linux. :laughing:
 
-The idea is for ShareX to check for updates on startup. Since the goal is to have the application with one singular binary with no DLLs/.so files to worry about. Like Electron apps. It'll replace the application binary to the latest version that is the same major version. This will allow for easy updates and bug fixes to be distributed to users. Downgrades will not be allowed.
+![Screenshot showing Discord complaining about being outdated yet suggesting you should download their DEB package on Arch Linux](\.github/discordarchexample.png)
+
+The idea is for SnapX to check for updates on startup. Since the goal is to have the application with one singular binary with no DLLs/.so files to worry about. Like Electron apps. It'll replace the application binary to the latest version that is the same major version. This will allow for easy updates and bug fixes to be distributed to users. Downgrades will not be allowed.
 
 `ShareNoSnap` variant will be not auto update, in fact, it shouldn't ship the code to do it at all.
 
@@ -64,48 +74,43 @@ I'm aiming to add telemetry to the application.
 This will allow for the collection of anonymous usage data.
 
 This data will be used to improve the application and fix bugs.
-Coming in the form of [Sentry](https://sentry.io/).
+Coming in the form of [Sentry](https://sentry.io/) and [Aptabase](https://github.com/aptabase/aptabase).
 
-Allowing for the automatic collection of crash reports and other useful data for debugging.
+Allowing for the automatic collection of crash reports and other useful data for debugging. Aptabase is for application analytics.
 
 It is opt-out and can be disabled in the settings. Additionally, the `ShareNoSnap` variant will not include telemetry, as you'd expect. Nor will the code even exist for it to do so.
 
-Telemetry will be ***enabled*** by default. Telemetry is best when it represents the majority of the user base. I kindly ask you to not disable it. It's for the greater good. I know companies continue to abuse telemetry for their own gain, but this is not the case here. This is for the betterment of the application and the user experience. I'm not selling your data to advertisers. I'm not selling your data to anyone.
+Telemetry is best when it represents the majority of the user base. I kindly ask you to not disable it. It's for the greater good. I know companies continue to abuse "telemetry" for their own gain, but this is not the case here. This is for the betterment of the application and the user experience. I'm not selling your data to advertisers. I'm not selling your data to anyone.
 
 #### Why are you doing this?
 
 WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 9 and GTK4, but with this port, it should become a cross platform application
 
+I am also just not interested in Mono.
+
 #### How are screenshots going to work?
 
 I am going to use a library I have decided to do it. I might keep the Windows code and investigate adding HDR support to it.
 
-### GTK on Windows sucks!
+### GTK on Windows sucks
 
 I agree! That's what SnapX.Avalonia is for.
 
-
-
-
-
 <https://sixlabors.com/products/imagesharp/> This library is a cross-platform library that can be used to manipulate images. This library will be used to handle images in this project.
-
 
 #### Snap & Flatpak
 
 .NET 9 SDK Snap ✅
 
-https://snapcraft.io/dotnet-sdk-90
+<https://snapcraft.io/dotnet-sdk-90>
 
 .NET 9 Flatpak SDK Extension ✅
 
-https://github.com/flathub/org.freedesktop.Sdk.Extension.dotnet9
+<https://github.com/flathub/org.freedesktop.Sdk.Extension.dotnet9>
 
+A snap package should be created easily with examples like <https://github.com/BrycensRanch/Rokon/blob/master/snapcraft.yaml>
 
-
-A snap package should be created easily with examples like https://github.com/BrycensRanch/Rokon/blob/master/snapcraft.yaml
-
-##### Finally...
+##### Finally
 
 ````
 Jaex — 03/04/2017 8:37 PM
