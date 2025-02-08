@@ -94,12 +94,12 @@ public static class TaskManager
 
     private static void Task_StatusChanged(WorkerTask task)
     {
-        DebugHelper.Logger.Information("Task status for {taskFilePath}: {taskStatus}", task.Info.FilePath, task.Status);
+        DebugHelper.Logger?.Debug("Task status for {taskFilePath}: {taskStatus}", task.Info.FilePath, task.Status);
     }
 
     private static void Task_ImageReady(WorkerTask task, Image image)
     {
-        DebugHelper.Logger.Information("Task image for {imageName} is ready", task.Info.FilePath);
+        DebugHelper.Logger?.Debug("Task image for {imageName} is ready", task.Info.FilePath);
     }
 
     private static void Task_UploadStarted(WorkerTask task)
@@ -108,21 +108,21 @@ public static class TaskManager
 
         string status = string.Format("Upload started. File name: {0}", info.FileName);
         if (!string.IsNullOrEmpty(info.FilePath)) status += ", File path: " + info.FilePath;
-        DebugHelper.Logger.Information(status);
+        DebugHelper.Logger?.Debug(status);
 
     }
 
     private static void Task_UploadProgressChanged(WorkerTask task)
     {
-        DebugHelper.WriteLine($"Task_UploadProgressChanged called. Current Task status: {task.Status}");
+        DebugHelper.Logger?.Debug($"Task_UploadProgressChanged called. Current Task status: {task.Status}");
         if (task.Status != TaskStatus.Working) return;
         var info = task.Info;
-        DebugHelper.Logger.Information("{0:0.0}%", info.Progress.Percentage);
-        DebugHelper.Logger.Information("{0} / {1}", info.Progress.Position.ToSizeString(SnapX.Settings.BinaryUnits),
+        DebugHelper.Logger?.Debug("{0:0.0}%", info.Progress.Percentage);
+        DebugHelper.Logger?.Debug("{0} / {1}", info.Progress.Position.ToSizeString(SnapX.Settings.BinaryUnits),
             info.Progress.Length.ToSizeString(SnapX.Settings.BinaryUnits));
-        DebugHelper.WriteLine(((long)info.Progress.Speed).ToSizeString(SnapX.Settings.BinaryUnits) + "/s");
-        DebugHelper.WriteLine(Helpers.ProperTimeSpan(info.Progress.Elapsed));
-        DebugHelper.WriteLine(Helpers.ProperTimeSpan(info.Progress.Remaining));
+        DebugHelper.Logger?.Debug(((long)info.Progress.Speed).ToSizeString(SnapX.Settings.BinaryUnits) + "/s");
+        DebugHelper.Logger?.Debug(Helpers.ProperTimeSpan(info.Progress.Elapsed));
+        DebugHelper.Logger?.Debug(Helpers.ProperTimeSpan(info.Progress.Remaining));
     }
 
     private static void Task_UploadCompleted(WorkerTask task)

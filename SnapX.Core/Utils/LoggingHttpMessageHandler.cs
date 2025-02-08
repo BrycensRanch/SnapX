@@ -18,11 +18,11 @@ public class LoggingHttpMessageHandler : DelegatingHandler
     {
         try
         {
-            _logger.Information("Sending HTTP Request: {Method} {Uri} {@Headers}",
+            _logger.Debug("Sending HTTP Request: {Method} {Uri} {@Headers}",
                 request.Method, request.RequestUri, request.Headers);
             var response = await base.SendAsync(request, cancellationToken);
 
-            _logger.Information("Received HTTP Response: {StatusCode} for {Method} {Uri} (HTTP {Version})",
+            _logger.Debug("Received HTTP Response: {StatusCode} for {Method} {Uri} (HTTP {Version})",
                 response.StatusCode, request.Method, request.RequestUri, response.Version);
 
             _logger.Debug("Response Headers: {@Headers}", response.Headers);

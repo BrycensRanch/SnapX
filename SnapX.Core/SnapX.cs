@@ -286,7 +286,7 @@ public class SnapX
             options.Dsn = "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
 
             // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
-            options.Debug = true;
+            options.Debug = false;
 
             // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
             options.IsGlobalModeEnabled = true;
