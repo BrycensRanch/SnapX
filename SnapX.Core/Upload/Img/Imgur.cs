@@ -57,7 +57,13 @@ public class ImgurImageUploaderService : ImageUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(ImgurResponse))]
+[JsonSerializable(typeof(ImgurError))]
+[JsonSerializable(typeof(OAuth2Token))]
+[JsonSerializable(typeof(ImgurImageData))]
+[JsonSerializable(typeof(ImgurErrorData))]
+internal partial class ImgurSourceGenerationContext: JsonSerializerContext
+{ }
 public sealed class Imgur : ImageUploader, IOAuth2
 {
     public AccountType UploadMethod { get; set; }
@@ -99,7 +105,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
 
         if (string.IsNullOrEmpty(response)) return false;
 
-        var token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response, ImgurSourceGenerationContext.Default.OAuth2Token);
         if (token?.access_token == null) return false;
 
         token.UpdateExpireDate();
@@ -126,7 +132,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
 
         if (string.IsNullOrEmpty(response)) return false;
 
-        var token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response, ImgurSourceGenerationContext.Default.OAuth2Token);
         if (token?.access_token == null) return false;
 
         token.UpdateExpireDate();
@@ -196,11 +202,17 @@ public sealed class Imgur : ImageUploader, IOAuth2
 
         var response = SendRequest(HttpMethod.Get, "https://api.imgur.com/3/account/me/albums", args, GetAuthHeaders());
 
-        var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(response);
+        var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(response, ImgurSourceGenerationContext.Default.ImgurResponse);
 
         if (imgurResponse?.success == true && imgurResponse.status == 200)
         {
-            return JsonSerializer.Deserialize<List<ImgurAlbumData>>(imgurResponse.data.ToString());
+            var options = new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true,
+                TypeInfoResolver = ImgurSourceGenerationContext.Default,
+
+            };
+            return JsonSerializer.Deserialize<List<ImgurAlbumData>>(imgurResponse.data.ToString(), options);
         }
 
         HandleErrors(imgurResponse);
@@ -215,7 +227,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
 
         var response = SendRequest(HttpMethod.Get, $"https://api.imgur.com/3/album/{albumID}/images", headers: GetAuthHeaders());
 
-        var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(response);
+        var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(response, ImgurSourceGenerationContext.Default.ImgurResponse);
 
         if (imgurResponse?.success == true && imgurResponse.status == 200)
         {
@@ -260,12 +272,15 @@ public sealed class Imgur : ImageUploader, IOAuth2
 
         if (string.IsNullOrEmpty(result.Response)) return result;
 
-        var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(result.Response);
+        var imgurResponse = JsonSerializer.Deserialize<ImgurResponse>(result.Response, ImgurSourceGenerationContext.Default.ImgurResponse);
 
         if (imgurResponse?.success != true || imgurResponse.status != 200)
             return HandleUploadError(imgurResponse, stream, fileName, refreshTokenOnError);
-
-        var imageData = JsonDocument.Parse(imgurResponse.data.ToString()).Deserialize<ImgurImageData>();
+        var options = new JsonSerializerOptions()
+        {
+            TypeInfoResolver = ImgurSourceGenerationContext.Default,
+        };
+        var imageData = JsonDocument.Parse(imgurResponse.data.ToString()).Deserialize<ImgurImageData>(options);
         if (imageData == null || string.IsNullOrEmpty(imageData.link)) return result;
 
         result.URL = DirectLink
