@@ -417,6 +417,8 @@ public class RootConfiguration
     //
     [Category("Application"), DefaultValue(false), Description("Automatically expand capture menu when you open the tray menu.")]
     public bool TrayAutoExpandCaptureMenu { get; set; }
+    [Category("Application"), DefaultValue(false), Description("Prevent the application from logging to a file")]
+    public bool DisableLogging { get; set; }
     //
     [Category("Application"), DefaultValue(true), Description("Show tips and hotkeys in main window when task list is empty.")]
     public bool ShowMainWindowTip { get; set; }

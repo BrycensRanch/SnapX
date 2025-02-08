@@ -13,6 +13,7 @@ public static class DebugHelper
 
     public static void Init(string logFilePath)
     {
+        if (string.IsNullOrEmpty(logFilePath)) return;
         var loggerConfig = new LoggerConfiguration()
             .Enrich.WithThreadId()
             .Enrich.WithThreadName()
@@ -45,7 +46,7 @@ public static class DebugHelper
     {
         foreach (var bufferedMessage in messageBuffer)
         {
-            if (Logger is null)
+            if (Logger is null && SnapX.LogToConsole)
             {
                 Console.WriteLine(bufferedMessage);
             }
