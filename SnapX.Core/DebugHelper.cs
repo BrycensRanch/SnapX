@@ -74,7 +74,7 @@ public static class DebugHelper
     {
         if (Logger != null)
         {
-            Logger.Error("{Message} - {Exception}", message, exception);
+            Logger.Error(exception);
         }
         else
         {
@@ -84,6 +84,7 @@ public static class DebugHelper
 
     public static void WriteException(Exception exception, string message = "Exception")
     {
+        if (!FeatureFlags.DisableTelemetry) SentrySdk.CaptureException(exception);
         WriteException(exception.ToString(), message);
     }
 }

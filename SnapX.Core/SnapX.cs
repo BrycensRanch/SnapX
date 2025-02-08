@@ -280,6 +280,33 @@ public class SnapX
         DebugHelper.WriteLine("Command line: " + Environment.CommandLine);
         DebugHelper.WriteLine("Data folder: " + PersonalFolder);
         DebugHelper.WriteLine("Config folder: " + ConfigFolder);
+        if (!FeatureFlags.DisableTelemetry)
+        SentrySdk.Init(options =>
+        {
+            options.Dsn = "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
+
+            // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
+            options.Debug = true;
+
+            // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
+            options.IsGlobalModeEnabled = true;
+
+            // This option is recommended. It enables Sentry's "Release Health" feature.
+            options.AutoSessionTracking = true;
+
+            // Set TracesSampleRate to 1.0 to capture 100%
+            // of transactions for tracing.
+            options.TracesSampleRate = 0.2;
+
+            // Sample rate for profiling, applied on top of the TracesSampleRate,
+            // e.g. 0.2 means we want to profile 20 % of the captured transactions.
+            // We recommend adjusting this value in production.
+            options.ProfilesSampleRate = 0.2;
+            options.AddIntegration(new ProfilingIntegration());
+
+            // This saves events for later when internet connectivity is poor/not working.
+            options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
+        });
 
         if (!string.IsNullOrWhiteSpace(PersonalPathDetectionMethod))
         {
@@ -335,6 +362,7 @@ public class SnapX
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
+        if (!FeatureFlags.DisableTelemetry) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");
         DebugHelper.FlushBufferedMessages();
@@ -358,11 +386,6 @@ public class SnapX
             CustomPersonalPath = PortablePersonalFolder;
             PersonalPathDetectionMethod = $"Portable file ({PortableCheckFilePath})";
         }
-        // else if (!string.IsNullOrEmpty(SystemOptions.PersonalPath))
-        // {
-        //     CustomPersonalPath = SystemOptions.PersonalPath;
-        //     PersonalPathDetectionMethod = "Registry";
-        // }
         else
         {
             MigratePersonalPathConfig();
@@ -546,9 +569,9 @@ public class SnapX
         if (SilentRun) flags.Add(nameof(SilentRun));
         if (Sandbox) flags.Add(nameof(Sandbox));
         if (IgnoreHotkeyWarning) flags.Add(nameof(IgnoreHotkeyWarning));
-        // if (SystemOptions.DisableUpdateCheck) flags.Add(nameof(SystemOptions.DisableUpdateCheck));
-        // if (SystemOptions.DisableUpload) flags.Add(nameof(SystemOptions.DisableUpload));
-        // if (SystemOptions.DisableLogging) flags.Add(nameof(SystemOptions.DisableLogging));
+        if (FeatureFlags.DisableTelemetry) flags.Add(nameof(FeatureFlags.DisableTelemetry));
+        if (FeatureFlags.DisableAutoUpdates) flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
+        if (FeatureFlags.DisableUploads) flags.Add(nameof(FeatureFlags.DisableUploads));
         if (PuushMode) flags.Add(nameof(PuushMode));
 
         var output = string.Join(", ", flags);

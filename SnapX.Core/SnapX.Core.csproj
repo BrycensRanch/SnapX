@@ -6,14 +6,23 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyTitle>SnapX Core</AssemblyTitle>
-    <!-- Uploader JSON migration is not done yet and doesn't work right with trimming. -->
-    <Optimize>false</Optimize>
-    <PublishTrimmed>false</PublishTrimmed>
-    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <Optimize>true</Optimize>
+    <PublishTrimmed>true</PublishTrimmed>
     <!-- Rust support ;) -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
 
+  </PropertyGroup>
+
+  <!-- Feature Flags -->
+  <PropertyGroup Condition="'$(DisableTelemetry)' == '1'">
+    <DefineConstants>DISABLE_TELEMETRY</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(DisableAutoUpdates)' == '1'">
+    <DefineConstants>DISABLE_AUTO_UPDATES</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(DisableUploads)' == '1'">
+    <DefineConstants>DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
@@ -29,6 +38,9 @@
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" />
     <!-- I am doing my very best to not touch COM directly -->
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <!-- Crash analtics & performance analytics -->
+    <PackageReference Include="Sentry" Version="5.1.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.1.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
@@ -42,6 +54,7 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
@@ -74,6 +87,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="WaylandProtocol" />
+    <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
