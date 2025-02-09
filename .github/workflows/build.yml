@@ -68,6 +68,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
+      - name: Install NativeAOT Linux Deps
+        if: runner.os == 'Linux'
+        run: sudo apt install -y clang zlib1g-dev libcurl4-gnutls-dev libcurl4-nss-dev libcurl4-openssl-dev
       - name: Publish
         if: matrix.os != 'windows-latest'
         run: ./build.sh --configuration ${{ matrix.configuration }}
