@@ -19,7 +19,7 @@
     <AssemblyTitle>SnapX GTK4</AssemblyTitle>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>
-    <GirCoreVersion>0.5.0</GirCoreVersion>
+    <GirCoreVersion>0.6.2</GirCoreVersion>
     <!-- Fallback if NativeAOT is disabled by builder -->
     <SelfContained>true</SelfContained>
     <PublishAot>true</PublishAot>
