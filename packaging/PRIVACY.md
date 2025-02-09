@@ -29,7 +29,7 @@ anonymous - not identified by name; of unknown name.
 ## What I will not do
 
 - Sell your data
-- Validate the GDPR, CCPA, whatever.
+- Violate the GDPR or the CCPA.
 - Spy on what you're doing
 - Collect non-anonymous data such as your name, computer's name (Brycen's GamingLaptop), etc.
 - Be evil
