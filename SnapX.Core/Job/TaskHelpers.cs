@@ -19,12 +19,15 @@ using SnapX.Core.Capture;
 using SnapX.Core.CLI;
 using SnapX.Core.ImageEffects;
 using SnapX.Core.Media;
+using SnapX.Core.ScreenCapture;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.SharingServices;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Parsers;
+using TesseractOCR;
+using TesseractOCR.Enums;
 using ZXing;
 using ZXing.Common;
 using ZXing.ImageSharp.Rendering;
@@ -650,35 +653,41 @@ public static class TaskHelpers
         new BingVisualSearchSharingService().CreateSharer(null, null).ShareURL(url);
     }
 
-    public static async Task OCRImage(TaskSettings taskSettings = null)
+    public static async Task<string> OCRImage(TaskSettings taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-        throw new NotImplementedException("OCRImage not implemented");
+        using var img = RegionCaptureTasks.GetRegionImage(taskSettings.CaptureSettings.SurfaceOptions);
+        return await OCRImage(img, taskSettings);
     }
 
-    public static async Task OCRImage(string filePath, TaskSettings taskSettings = null)
+    public static async Task<string> OCRImage(string filePath, TaskSettings taskSettings = null)
     {
-        if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
-        {
-            throw new NotImplementedException("OCRImage not implemented");
-        }
+        if (string.IsNullOrEmpty(filePath)) return string.Empty;
+        using var engine = new Engine("/usr/share/tesseract/tessdata/eng.traineddata", Language.English, EngineMode.Default);
+        using var img = TesseractOCR.Pix.Image.LoadFromFile(filePath);
+        using var page = engine.Process(img);
+        DebugHelper.WriteLine("Mean confidence: {0}", page.MeanConfidence);
+        DebugHelper.WriteLine("Text: \r\n{0}", page.Text);
+        return page.Text;
     }
 
-    public static async Task OCRImage(Image image, TaskSettings taskSettings = null)
+    public static async Task<string> OCRImage(Image image, TaskSettings taskSettings = null)
     {
-        await OCRImage(image, null, taskSettings);
+        return await OCRImage(image, null, taskSettings);
     }
 
-    public static async Task OCRImage(Image image, string filePath = null, TaskSettings taskSettings = null)
+    public static async Task<string> OCRImage(Image image, string filePath = null, TaskSettings taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-
-        throw new NotImplementedException("OCRImage not implemented");
-    }
-
-    private static async Task AsyncOCRImage(Image bmp, string filePath = null, TaskSettings taskSettings = null)
-    {
-        throw new NotImplementedException("AsyncOCRImage not implemented");
+        using var engine = new Engine("/usr/share/tesseract/tessdata/eng.traineddata", Language.English, EngineMode.Default);
+        if (image == null) await Image.LoadAsync(filePath);
+        using var ms  = new MemoryStream();
+        await image.SaveAsPngAsync(ms);
+        using var img = TesseractOCR.Pix.Image.LoadFromMemory(ms.ToArray());
+        using var page = engine.Process(img);
+        DebugHelper.Logger.Warning("Mean confidence: {0}", page.MeanConfidence);
+        DebugHelper.Logger.Warning("Text: \r\n{0}", page.Text);
+        return page.Text;
     }
 
     public static void PinToScreen(TaskSettings taskSettings = null)

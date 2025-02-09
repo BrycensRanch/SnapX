@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 using SixLabors.ImageSharp;
 using SnapX.Core.Indexer;
+using SnapX.Core.ScreenCapture;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -367,6 +368,7 @@ public class TaskSettingsCapture
     // public FFmpegOptions FFmpegOptions = new FFmpegOptions();
     public int ScreenRecordFPS = 30;
     public int GIFFPS = 15;
+    public RegionCaptureOptions SurfaceOptions = new RegionCaptureOptions();
     public bool ScreenRecordShowCursor = true;
     public bool ScreenRecordAutoStart = true;
     public float ScreenRecordStartDelay = 0f;
