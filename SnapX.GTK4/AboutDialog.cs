@@ -14,7 +14,7 @@ public class AboutDialog : Gtk.AboutDialog
         Comments = internalAboutDialog.GetDescription();
         Copyright = internalAboutDialog.GetCopyright();
         License = internalAboutDialog.GetLicense();
-        Logo = LoadFromResource("SnapX.GTK4.SnapX_Logo.png");
+        Logo = LoadFromResource("SnapX.GTK4.SnapX_Logo.png")!;
         Version = internalAboutDialog.GetVersion();
         Website = internalAboutDialog.GetWebsite();
         LicenseType = Gtk.License.Gpl30;
@@ -25,7 +25,7 @@ public class AboutDialog : Gtk.AboutDialog
         try
         {
             var bytes = Assembly.GetExecutingAssembly().ReadResourceAsByteArray(resourceName);
-            var pixbuf = PixbufLoader.New();
+            using var pixbuf = PixbufLoader.New();
             pixbuf.Write(bytes);
             pixbuf.Close();
             return Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);

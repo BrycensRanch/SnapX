@@ -349,6 +349,12 @@ public class SnapX
                 // This saves events for later when internet connectivity is poor/not working.
                 options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
             });
+        if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
+        if (CLIManager.IsCommandExist("sound", "s"))
+        {
+                DebugHelper.WriteLine("Running Sound Command");
+                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+        }
         // CleanupManager.CleanupAsync();
 
     }
