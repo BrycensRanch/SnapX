@@ -18,7 +18,7 @@ snapx.setQualifier(" GTK4");
 
 
 
-var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
+using var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
 var sigintReceived = false;
 
 Console.CancelKeyPress += (_, ea) =>
@@ -55,7 +55,7 @@ application.OnActivate += (sender, eventArgs) =>
             Gst.Module.Initialize();
             GstVideo.Module.Initialize();
             Gst.Application.Init();
-            var ret = Gst.Functions.ParseLaunch(
+            using var ret = Gst.Functions.ParseLaunch(
                 "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
             var bus = ret.GetBus();
@@ -64,7 +64,7 @@ application.OnActivate += (sender, eventArgs) =>
         }
 
 
-        var mainWindow = new ApplicationWindow();
+        using var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
         void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
@@ -125,7 +125,7 @@ application.OnActivate += (sender, eventArgs) =>
         box.Append(demoTestButton);
         mainWindow.SetChild(box);
         mainWindow.SetVisible(true);
-        var dialog = new AboutDialog();
+        using var dialog = new AboutDialog();
         dialog.SetApplication(application);
         dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
         dialog.AddCreditSection("Mentions", ["benbryant0"]);
@@ -137,14 +137,16 @@ application.OnActivate += (sender, eventArgs) =>
             Console.WriteLine(resourceName);
         }
         var bytes = assembly.ReadResourceAsByteArray("SnapX.GTK4.SnapX_Logo.png");
-        var image = SixLabors.ImageSharp.Image.Load(bytes);
+        using var image = SixLabors.ImageSharp.Image.Load(bytes);
         using var memoryStream = new MemoryStream();
         image.SaveAsPng(memoryStream);
         var imageBytes = memoryStream.ToArray();
 
 
-        var pixbuf = PixbufLoader.FromBytes(imageBytes);
-        var logo = Gdk.Texture.NewForPixbuf(pixbuf);
+        using var pixbuf = PixbufLoader.New();
+        pixbuf.Write(imageBytes);
+        pixbuf.Close();
+        using var logo = Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);
         // dialog.SetDecorated(false);
         // dialog.SetFocusable(false);
         // dialog.SetOpacity(0.8);
@@ -169,7 +171,7 @@ application.OnActivate += (sender, eventArgs) =>
 static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
 {
     // Create the error dialog window
-    var errorDialog = new Window()
+    using var errorDialog = new Window()
     {
         DefaultWidth = 600,
         DefaultHeight = 400,
@@ -179,7 +181,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     };
 
     // Create a vertical container for message and buttons
-    var vbox = new Box();
+    using var vbox = new Box();
     vbox.SetOrientation(Orientation.Vertical);
     vbox.SetSpacing(10);
 
@@ -195,7 +197,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     messageBuilder.AppendLine(Assembly.GetExecutingAssembly().GetName().Name + ": " + Assembly.GetExecutingAssembly().GetName().Version);
 
     // TextView to show the error message
-    var textView = new TextView
+    using var textView = new TextView
     {
         Editable = false,
         WrapMode = WrapMode.WordChar,
@@ -205,7 +207,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     textView.Buffer!.Text = messageBuilder.ToString();
 
     // Scroll the text view inside a scrolled window
-    var scrolledWindow = new ScrolledWindow
+    using var scrolledWindow = new ScrolledWindow
     {
         Child = textView
     };
@@ -215,7 +217,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     scrolledWindow.SetPropagateNaturalHeight(true);
     vbox.Append(scrolledWindow);
 
-    var buttonBox = new Box()
+    using var buttonBox = new Box()
     {
         Halign = Align.Center,
         Spacing = 10,
@@ -223,18 +225,18 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     };
 
     // "Report Error" button
-    var reportButton = new Button();
+    using var reportButton = new Button();
     reportButton.Label = Lang.ReportErrorToSentry;
     reportButton.OnClicked += (sender, e) => OnReportErrorClicked(ex);
     buttonBox.Append(reportButton);
 
-    var githubButton = new Button();
+    using var githubButton = new Button();
     githubButton.Label = Lang.CreateGitHubIssue;
     githubButton.OnClicked += (sender, e) => onGitHubButtonClicked(ex);
     buttonBox.Append(githubButton);
 
     // "Copy Error" button
-    var copyButton = new Button();
+    using var copyButton = new Button();
     copyButton.Label = Lang.CopyErrorToClipboard;
     copyButton.OnClicked += (sender, e) => OnCopyErrorClicked(ex);
     buttonBox.Append(copyButton);

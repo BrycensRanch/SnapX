@@ -25,8 +25,10 @@ public class AboutDialog : Gtk.AboutDialog
         try
         {
             var bytes = Assembly.GetExecutingAssembly().ReadResourceAsByteArray(resourceName);
-            var pixbuf = PixbufLoader.FromBytes(bytes);
-            return Gdk.Texture.NewForPixbuf(pixbuf);
+            var pixbuf = PixbufLoader.New();
+            pixbuf.Write(bytes);
+            pixbuf.Close();
+            return Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);
         }
         catch (Exception e)
         {
