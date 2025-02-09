@@ -54,7 +54,7 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
-    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
