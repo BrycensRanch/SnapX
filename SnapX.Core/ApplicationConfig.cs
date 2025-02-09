@@ -419,6 +419,10 @@ public class RootConfiguration
     public bool TrayAutoExpandCaptureMenu { get; set; }
     [Category("Application"), DefaultValue(false), Description("Prevent the application from logging to a file")]
     public bool DisableLogging { get; set; }
+
+    [Category("Application"), DefaultValue(false),
+     Description("Application crash analytics and usage analytics that are anonymized.")]
+    public bool DisableTelemetry { get; set; } = false;
     //
     [Category("Application"), DefaultValue(true), Description("Show tips and hotkeys in main window when task list is empty.")]
     public bool ShowMainWindowTip { get; set; }
