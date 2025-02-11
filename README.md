@@ -55,8 +55,8 @@ We will do our best to help you, but we cannot guarantee that we will be able to
 
 This project is built on Ubuntu 24.04 and is tested on the following distributions:
 
-- Fedora 41
-- Ubuntu 24.04
+- **F**edora 41+
+- **U**buntu 24.04+
 
 If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can build the project from source.
 
@@ -76,7 +76,7 @@ For screenshots, it uses your operating system's respective APIs. On Linux Wayla
 
 Instructions for other projects within the SnapX solution are not provided yet.
 
-> SnapX.GTK4 does not use developer header files and only requires the binary package.
+> SnapX.GTK4 does not use header files and only requires the binary GTK4 package at runtime.
 
 - `git`
 - `gtk4` on Fedora or `libgtk-4-1` on Ubuntu
@@ -85,31 +85,67 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `clang`
 - `zlib-devel`
 
-### Fedora 41
+### Fedora 41+ 🌟
 
 ```bash
 sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs
 ```
 
-### Ubuntu 24.04
+### Ubuntu 24.04+ ⚡
 
 ```bash
 sudo apt update -q && sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged.
+sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
 sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang
 ```
 
+### Windows 10 22H2+ 🪟
+
+End of life Windows versions are not supported. For example, Windows 11 22H2 is EOL and thus not supported.
+
+```shell
+# Installing Visual Studio Community
+# You cannot build with NativeAOT without it.
+# Regardless if you like Rider or VSCode more. https://stackoverflow.com/a/78392544/27578554
+winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+winget install -e --id Git.Git
+```
+
+## macOS Ventura+ 🍎
+
+Avalonia can run on macOS 11 or 12. But you can't develop with such an old version.
+
+#### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
+
+```zsh
+cd ~/Downloads
+curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
+chmod +x dotnet-install.sh
+./dotnet-install.sh -Channel current
+git --version # If prompted to install Git, do it.
+exec $SHELL -l
+```
+
 ## Building from Source
 
-Only do this if you're a developer, the solution *does* build,
-but you should have a backup of all your ShareX/SnapX data.
+Only do this if you're a developer, you should have a backup of all your ShareX/SnapX data.
 I do, in fact, mean it when I say the project isn't ready for use.
+
+Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
+I've been testing with my ShareX configuration. You should place it in the configuration directory it expects.
+
+On Linux, its `~/.config/SnapX`
+
+On Windows, its `%USERPROFILE%\Documents\SnapX`
+
+On macOS, its `~/Library/Application Support/SnapX`
 
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
 cd SnapX
-./build.sh # Calls NUKE (https://nuke.build)
+./build.sh # Calls NUKE (https://nuke.build) (Linux/macOS)
+.\build.ps1 # If on Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
 # There is nothing stopping you from using regular dotnet building tools
@@ -121,8 +157,6 @@ Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
 
 Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
 
-Lastly...
+---
 
-I use Fedora Rawhide btw :^)
-
-[Fine, I'll do it myself.](https://www.youtube.com/watch?v=L_WoOkDAqbM)
+![](https://media1.tenor.com/m/2x6aLHHOUGcAAAAC/programming-windows-forms.gif)
