@@ -22,15 +22,14 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>
     <GirCoreVersion>0.6.2</GirCoreVersion>
-    <PropertyGroup Condition="'$(Configuration)'=='Release'">
-      <DebugSymbols>false</DebugSymbols>
-      <DebugType>none</DebugType>
-    </PropertyGroup>
     <!-- Fallback if NativeAOT is disabled by builder -->
     <SelfContained>true</SelfContained>
     <PublishAot>true</PublishAot>
   </PropertyGroup>
-
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
       <Link>SnapX_Logo.png</Link>
