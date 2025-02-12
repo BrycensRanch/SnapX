@@ -216,12 +216,25 @@ class Build : NukeBuild
                         destinationFile = Path.Join(Metainfodir, Path.GetFileName(file));
                         Information($"Installing metainfo file: {relativePath} -> {destinationFile}");
                         break;
+                    case var file when file.ToLower().EndsWith(".md"):
+                        destinationFile = Path.Join(Docdir, Path.GetFileName(file));
+                        Information($"Installing documentation file: {relativePath} -> {destinationFile}");
+                        break;
                     default:
                         Information($"Installing {Path.GetExtension(sourceFile)} file: {relativePath} -> {destinationFile}");
                         break;
                 }
 
                 InstallFile(sourceFile, destinationFile, permissions);
+            }
+            // Install License
+            InstallFile(Path.Join(RootDirectory, "LICENSE.md"), Path.Join(Licensedir, "LICENSE.md"), "0755");
+            var documentation = Directory.GetFiles(RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
+
+            foreach (var docFile in documentation)
+            {
+                if (docFile.ToLower().Contains("license")) continue;
+                InstallFile(docFile, Path.Join(Docdir, Path.GetFileName(docFile)), "0755");
             }
 
             var outputFiles = OutputDirectory.GetFiles("*", 5).OrderBy(f => f.Name).ToArray();
@@ -328,7 +341,7 @@ class Build : NukeBuild
             else
             {
                 Debug($"{processStartInfo.FileName} {processStartInfo.Arguments}");
-                Information($"Install command succeeded. {process.StandardOutput.ReadToEnd()}");
+                Debug($"Install command succeeded. {process.StandardOutput.ReadToEnd()}");
             }
         }
         catch (System.ComponentModel.Win32Exception ex)
