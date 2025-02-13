@@ -82,7 +82,7 @@ class Build : NukeBuild
     Project NMH => Solution.SnapX_NativeMessagingHost;
     */
 
-    string NMHassemblyName => "SnapX_NativeMessagingHost" + (OperatingSystem.IsWindows() ? ".exe" : "");
+    string NMHassemblyName => "SnapX_NativeMessagingHost";
     [Parameter("Path to NativeMessagingHost for web extension support")]
     string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
 
