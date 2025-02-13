@@ -428,7 +428,7 @@ public class SnapX
                 CustomPersonalPath = "";
             }
         }
-        if (!Directory.Exists(ConfigFolder)) Directory.CreateDirectory(ConfigFolder);
+        if (!Directory.Exists(ConfigFolder)) FileHelpers.CreateDirectory(ConfigFolder);
     }
 
     private static void CreateParentFolders()
