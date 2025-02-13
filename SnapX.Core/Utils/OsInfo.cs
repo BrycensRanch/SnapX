@@ -575,9 +575,7 @@ public static partial class OsInfo
         if (!OperatingSystem.IsLinux()) return false;
         try
         {
-            string procVersion = File.ReadAllText("/proc/version");
-
-            return procVersion.IndexOf("Microsoft", StringComparison.OrdinalIgnoreCase) >= 0;
+            return File.ReadAllText("/proc/version").Contains("WSL", StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception)
         {
