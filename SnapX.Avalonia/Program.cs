@@ -5,11 +5,10 @@ using Avalonia.Dialogs;
 using Avalonia.Media;
 using SnapX.Avalonia;
 
-Console.WriteLine("Initializing Dark Avalonia Core");
+Console.WriteLine("Initializing Avalonia");
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
 
-// Avalonia configuration, don't remove; also used by visual designer.
 AppBuilder BuildAvaloniaApp()
    => AppBuilder.Configure<App>()
        .UsePlatformDetect()

@@ -216,7 +216,7 @@ class Build : NukeBuild
                         destinationFile = Path.Join(Metainfodir, Path.GetFileName(file));
                         Information($"Installing metainfo file: {relativePath} -> {destinationFile}");
                         break;
-                    case var file when file.ToLower().EndsWith(".md"):
+                    case var file when file.EndsWith(".md", StringComparison.OrdinalIgnoreCase):
                         destinationFile = Path.Join(Docdir, Path.GetFileName(file));
                         Information($"Installing documentation file: {relativePath} -> {destinationFile}");
                         break;

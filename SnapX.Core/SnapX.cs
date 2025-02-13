@@ -306,8 +306,7 @@ public class SnapX
             DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
             OsInfo.PrintGraphicsInfo();
             // Linux is not supported for HDR detection.
-            if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR: {OsInfo.IsHdrSupported()}");
-
+            if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR Capable: {OsInfo.IsHdrSupported()}");
         });
         IsAdmin = Helpers.IsAdministrator();
         DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
