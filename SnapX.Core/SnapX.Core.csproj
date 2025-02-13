@@ -39,8 +39,8 @@
     <!-- I am doing my very best to not touch COM directly -->
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <!-- Crash analtics & performance analytics -->
-    <PackageReference Include="Sentry" Version="5.1.0" />
-    <PackageReference Include="Sentry.Profiling" Version="5.1.0" />
+    <PackageReference Include="Sentry" Version="5.1.1" />
+    <PackageReference Include="Sentry.Profiling" Version="5.1.1" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
