@@ -309,7 +309,6 @@ public static class Helpers
         }
         // if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
         DebugHelper.WriteLine("PlaySoundAsync: is not implemented");
-
     }
 
 
@@ -527,7 +526,6 @@ public static class Helpers
         var bufferedStream = new BufferedStream(stream, bufferSize);
 
         return SHA256.HashData(bufferedStream);
-
     }
 
     public static byte[] ComputeSHA256(string data)
@@ -538,7 +536,6 @@ public static class Helpers
     public static byte[] ComputeHMACSHA256(byte[] data, byte[] key)
     {
         return HMACSHA256.HashData(key, data);
-
     }
 
     public static byte[] ComputeHMACSHA256(string data, string key)
