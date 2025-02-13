@@ -78,9 +78,11 @@ class Build : NukeBuild
     string Metainfodir => Path.Join(Datadir, "metainfo");
     AbsolutePath Tarballdir => PackagingDirectory / "tarball";
     string packagingDir => Path.Combine(PackagingDirectory, "usr");
+    /*
     Project NMH => Solution.SnapX_NativeMessagingHost;
+    */
 
-    string NMHassemblyName => NMH.GetProperty("AssemblyName")!;
+    string NMHassemblyName => "SnapX_NativeMessagingHost" + (OperatingSystem.IsWindows() ? ".exe" : "");
     [Parameter("Path to NativeMessagingHost for web extension support")]
     string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
 
@@ -242,7 +244,7 @@ class Build : NukeBuild
             {
                 var permissions = "0755";
                 var destinationFile = Path.Join(Bindir, Path.GetFileName(outputFile));
-                var AvaloniaAssemblyName = Solution.SnapX_Avalonia.GetProperty("AssemblyName")!;
+                var AvaloniaAssemblyName = "snapx-ui" + (OperatingSystem.IsWindows() ? ".exe" : "");
 
                 switch (Path.GetFileNameWithoutExtension(destinationFile))
                 {
