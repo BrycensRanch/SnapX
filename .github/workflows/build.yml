@@ -52,8 +52,6 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      - name: Restore dependencies
-        run: dotnet restore --locked-mode
       # Needed for offline building :3
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
