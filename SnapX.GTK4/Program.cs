@@ -106,7 +106,7 @@ application.OnActivate += (sender, eventArgs) =>
         imageURLTextBox.PlaceholderText =
             "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
 
-        using var demoTestButton = new Button();
+        var demoTestButton = new Button();
         demoTestButton.Label = "Upload Remote Image";
         demoTestButton.OnClicked += (_, __) =>
         {

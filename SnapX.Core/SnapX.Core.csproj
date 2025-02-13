@@ -24,9 +24,6 @@
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
     <DefineConstants>DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <DefineConstants>WINDOWS</DefineConstants>
-  </PropertyGroup>
   <ItemGroup>
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
