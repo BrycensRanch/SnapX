@@ -24,6 +24,9 @@
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
     <DefineConstants>DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <DefineConstants>WINDOWS</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
@@ -35,7 +38,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
     <!-- Windows Registry Configuration Support -->
-    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" />
+    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- I am doing my very best to not touch COM directly -->
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <!-- Crash analtics & performance analytics -->

@@ -1,3 +1,4 @@
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using GdkPixbuf;
@@ -18,7 +19,7 @@ snapx.setQualifier(" GTK4");
 
 
 
-using var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
+var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
 var sigintReceived = false;
 
 Console.CancelKeyPress += (_, ea) =>
@@ -58,13 +59,13 @@ application.OnActivate += (sender, eventArgs) =>
             using var ret = Gst.Functions.ParseLaunch(
                 "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
-            var bus = ret.GetBus();
+            using var bus = ret.GetBus();
             bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
             ret.SetState(Gst.State.Null);
         }
 
 
-        using var mainWindow = new ApplicationWindow();
+        var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
         void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
@@ -105,7 +106,7 @@ application.OnActivate += (sender, eventArgs) =>
         imageURLTextBox.PlaceholderText =
             "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
 
-        var demoTestButton = new Button();
+        using var demoTestButton = new Button();
         demoTestButton.Label = "Upload Remote Image";
         demoTestButton.OnClicked += (_, __) =>
         {
@@ -128,7 +129,15 @@ application.OnActivate += (sender, eventArgs) =>
         using var dialog = new AboutDialog();
         dialog.SetApplication(application);
         dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
-        dialog.AddCreditSection("Mentions", ["benbryant0"]);
+        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        dialog.AddCreditSection("Mentions", ["benbryant0 for .NET 8 PR"]);
+        dialog.AddCreditSection("Dependencies",
+            loadedAssemblies
+                .Where(a => a.GetName().Name != null)
+                .Where(a => !a.GetName().Name.StartsWith("System") && !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
+                .Select(a => $"{a.GetName().Name} {a.GetName().Version}")
+                .OrderBy(name => name)
+                .ToArray());
         var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
         var osInfo = OsInfo.GetFancyOSNameAndVersion();
         var assembly = Assembly.GetExecutingAssembly();
@@ -137,14 +146,9 @@ application.OnActivate += (sender, eventArgs) =>
             Console.WriteLine(resourceName);
         }
         var bytes = assembly.ReadResourceAsByteArray("SnapX.GTK4.SnapX_Logo.png");
-        using var image = SixLabors.ImageSharp.Image.Load(bytes);
-        using var memoryStream = new MemoryStream();
-        image.SaveAsPng(memoryStream);
-        var imageBytes = memoryStream.ToArray();
-
 
         using var pixbuf = PixbufLoader.New();
-        pixbuf.Write(imageBytes);
+        pixbuf.Write(bytes);
         pixbuf.Close();
         using var logo = Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);
         // dialog.SetDecorated(false);

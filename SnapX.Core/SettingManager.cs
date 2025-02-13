@@ -4,7 +4,9 @@
 
 
 using System.Diagnostics.CodeAnalysis;
+#if WINDOWS
 using Esatto.Win32.Registry;
+#endif
 using Microsoft.Extensions.Configuration;
 using SnapX.Core.History;
 using SnapX.Core.Hotkey;
@@ -124,7 +126,9 @@ internal static class SettingManager
             // .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
+            #if WINDOWS
             .AddRegistry(@"Software\BrycensRanch\SnapX")
+            #endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
         if (!SnapX.Sandbox)
@@ -147,7 +151,9 @@ internal static class SettingManager
             // .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
+#if WINDOWS
             .AddRegistry(@"Software\BrycensRanch\SnapX")
+#endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
         if (!SnapX.Sandbox)
@@ -167,7 +173,9 @@ internal static class SettingManager
             // .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
+#if WINDOWS
             .AddRegistry(@"Software\BrycensRanch\SnapX")
+#endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
         if (!SnapX.Sandbox)
