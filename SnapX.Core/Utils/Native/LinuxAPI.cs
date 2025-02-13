@@ -24,7 +24,7 @@ public class LinuxAPI : NativeAPI
     private static bool IsGNOME()
     {
         var sessionVersion = Environment.GetEnvironmentVariable("SESSIONTYPE");
-        return !string.IsNullOrEmpty(sessionVersion) && sessionVersion.ToLower().Contains("gnome");
+        return !string.IsNullOrEmpty(sessionVersion) && sessionVersion.Contains("gnome", StringComparison.OrdinalIgnoreCase);
     }
 
     public static Rectangle GetWindowRectangle(IntPtr windowHandle)

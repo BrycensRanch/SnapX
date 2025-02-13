@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -25,6 +25,9 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
+    <!-- End users expect for a terminal not to open when running our application. -->
+    <!-- During development on Windows though, this is very helpful. -->
+    <OutputType>WinExe</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />

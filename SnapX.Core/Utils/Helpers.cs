@@ -23,10 +23,6 @@ using SixLabors.ImageSharp.Formats.Webp;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Random;
-using SoundFlow.Backends.MiniAudio;
-using SoundFlow.Components;
-using SoundFlow.Enums;
-using SoundFlow.Providers;
 
 namespace SnapX.Core.Utils;
 
@@ -312,37 +308,8 @@ public static class Helpers
             return;
         }
         // if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
+        DebugHelper.WriteLine("PlaySoundAsync: is not implemented");
 
-
-            DebugHelper.WriteLine("PlaySoundAsync: PlaySoundAsync");
-            using var audioEngine = new MiniAudioEngine(44100, Capability.Playback);
-            DebugHelper.WriteLine($"PlaySoundAsync: {stream.Length} bytes {stream.Position} position {stream.Position / stream.Length}");
-
-            DebugHelper.WriteLine("PlaySoundAsync: 2");
-            var player = new SoundPlayer(new StreamDataProvider(stream));
-            DebugHelper.WriteLine("PlaySoundAsync: 3");
-            Mixer.Master.AddComponent(player);
-            DebugHelper.WriteLine("PlaySoundAsync: 4");
-            foreach (var output in Mixer.Master.Outputs)
-            {
-                DebugHelper.WriteLine($"PlaySoundAsync Output: {output.Name}");
-            }
-            foreach (var output in player.Inputs)
-            {
-                DebugHelper.WriteLine($"PlaySoundAsync Input: {output.Name}");
-            }
-            player.Volume = 1;
-            player.Solo = true;
-            player.IsLooping = true;
-
-            player.Play();
-            DebugHelper.WriteLine("PlaySoundAsync: 5");
-            player.PlaybackEnded += (s, e) =>
-            {
-                DebugHelper.Logger.Warning("PlaySoundAsync: PlaybackEnded");
-                stream.Dispose();
-                Mixer.Master.RemoveComponent(player);
-            };
     }
 
 
@@ -351,10 +318,12 @@ public static class Helpers
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
 
 
-        Task.Run(() =>
-        {
+        /*Task.Run(() =>
+        {*/
             PlaySoundAsync(File.OpenRead(filePath));
+        /*
         });
+    */
     }
 
 
