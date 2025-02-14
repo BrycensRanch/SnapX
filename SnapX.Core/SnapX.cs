@@ -272,6 +272,10 @@ public class SnapX
     public EventAggregator getEventAggregator() => EventAggregator;
     public bool isSilent() => SilentRun;
 
+    // Supports the failed standard https://consoledonottrack.com/
+    public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
+                                    Environment.GetEnvironmentVariable("DO_NOT_TRACK") == null;
+
     private static void Run()
     {
         DebugHelper.WriteLine("SnapX starting.");
@@ -321,7 +325,7 @@ public class SnapX
         DebugWriteFlags();
         // SettingManager.LoadInitialSettings();
         SettingManager.LoadAllSettings();
-        if (!FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry)
+        if (TelemetryEnabled())
             SentrySdk.Init(options =>
             {
                 options.Dsn = "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
@@ -367,7 +371,7 @@ public class SnapX
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
-        if (!FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry) SentrySdk.Close();
+        if (TelemetryEnabled()) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");
         DebugHelper.FlushBufferedMessages();
