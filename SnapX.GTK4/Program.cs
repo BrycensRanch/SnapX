@@ -68,6 +68,7 @@ application.OnActivate += (sender, eventArgs) =>
         var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
+        mainWindow.SetIconName("io.github.brycensranch.SnapX");
         void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
         {
             var dialog = new FileChooserDialog()
