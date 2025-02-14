@@ -44,7 +44,7 @@ public class VideoThumbnailer
             return null;
         }
 
-        List<VideoThumbnailInfo> tempThumbnails = new List<VideoThumbnailInfo>();
+        List<VideoThumbnailInfo> tempThumbnails = [];
 
         for (int i = 0; i < Options.ThumbnailCount; i++)
         {
@@ -97,7 +97,7 @@ public class VideoThumbnailer
 
     private List<VideoThumbnailInfo> Finish(List<VideoThumbnailInfo> tempThumbnails)
     {
-        List<VideoThumbnailInfo> thumbnails = new List<VideoThumbnailInfo>();
+        List<VideoThumbnailInfo> thumbnails = [];
 
         if (tempThumbnails != null && tempThumbnails.Count > 0)
         {
@@ -154,7 +154,7 @@ public class VideoThumbnailer
 
     private int GetRandomTimeSlice(int start)
     {
-        List<int> mediaSeekTimes = new List<int>();
+        List<int> mediaSeekTimes = [];
 
         for (int i = 1; i < Options.ThumbnailCount + 2; i++)
         {

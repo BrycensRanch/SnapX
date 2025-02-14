@@ -6,34 +6,51 @@ namespace SnapX.Core.Utils.Native;
 public static class Methods
 {
     private static bool IsMacOS => OperatingSystem.IsMacOS();
+    private static bool IsLinux => OperatingSystem.IsLinux();
+
 
     private static NativeAPI NativeAPI
     {
         get
         {
-#if TARGET_LINUX || LINUX
-            return new LinuxAPI();
-#elif WINDOWS
+#if WINDOWS
             return new WindowsAPI();
 #else
             if (IsMacOS) return new MacOSAPI();
+            if (IsLinux) return new LinuxAPI();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
 #endif
         }
     }
 
+    public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();
 
     public static void ShowWindow(WindowInfo window) => NativeAPI.ShowWindow(window);
     public static void RestoreWindow(WindowInfo window) => ShowWindow(window);
     public static void CopyText(string text) => NativeAPI.CopyText(text);
     public static void CopyImage(Image image, string fileName) => NativeAPI.CopyImage(image, fileName);
 
-    public static Rectangle GetWindowRectangle(IntPtr windowHandle = new()) =>
+    public static Point GetCursorPosition()
+    {
+        var point = Point.Empty;
+        try
+        {
+            point = NativeAPI.GetCursorPosition();
+        }
+        catch (Exception ex) when (ex is PlatformNotSupportedException)
+        {
+            DebugHelper.Logger.Warning(ex.ToString());
+        }
+        return point;
+    }
+
+    public static Rectangle GetWindowRectangle(IntPtr windowHandle = 0) =>
         NativeAPI.GetWindowRectangle(windowHandle);
 
-    public static object GetForeground()
+    public static WindowInfo GetForegroundWindow()
     {
-        throw new NotImplementedException("GetForegroundWindow is not implemented");
+        // TODO: Reimplement GetForegroundWindow
+        return new WindowInfo();
     }
 
     // Linux (Wayland): Use DBus to interact with the Wayland compositor

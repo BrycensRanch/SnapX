@@ -24,13 +24,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, macos-latest, macos-13, windows-latest ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-latest ]
         configuration:
           - Release
           - Debug
 
     env:
-      SOLUTION_FILE_PATH: SnapX.sln
+      SOLUTION_FILE_PATH: SnapX.slnx
       ASSEMBLY_INFO_PATH: Directory.build.props
 
     steps:
@@ -44,23 +44,20 @@ jobs:
         with:
           global-json-file: global.json
       - name: Cache .NET NuGet packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.nuget/packages
             C:\Users\runner\.nuget\packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-
-      - name: Restore dependencies
-        run: dotnet restore --locked-mode
       # Needed for offline building :3
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: SnapX-Vendored-Source
+          name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
           include-hidden-files: false
           compression-level: 9
@@ -69,6 +66,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
+      - name: Install NativeAOT Linux Deps
+        if: runner.os == 'Linux'
+        run: sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev
       - name: Publish
         if: matrix.os != 'windows-latest'
         run: ./build.sh --configuration ${{ matrix.configuration }}

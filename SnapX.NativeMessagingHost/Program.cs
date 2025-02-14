@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -17,7 +16,7 @@ if (args.Length == 0)
 try
 {
     var host = new SnapX.Core.CLI.NativeMessagingHost();
-    string input = host.Read();
+    var input = host.Read();
 
     if (!string.IsNullOrEmpty(input))
     {

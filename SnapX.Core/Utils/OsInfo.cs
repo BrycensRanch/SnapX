@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
 namespace SnapX.Core.Utils;
@@ -228,45 +229,57 @@ public static partial class OsInfo
     {
         try
         {
-            using var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
-            if (key != null)
-            {
-                // Get total physical memory using the registry
-                var totalMemory = (long)key.GetValue("TotalPhysicalMemory", 0);
-                // Let's assume a fixed value for used memory (this is an approximation)
-                var usedMemory = totalMemory - GetAvailableMemoryWindows();
+            var status = new MEMORYSTATUSEX();
+            status.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
 
-                return (totalMemory / (1024 * 1024), usedMemory / (1024 * 1024)); // Return in MiB
+            if (GlobalMemoryStatusEx(ref status))
+            {
+                var totalMemory = (long)status.ullTotalPhys;
+                var freeMemory = GetAvailableMemoryWindows();
+
+                var usedMemory = totalMemory - freeMemory;
+
+                // Return the total and used memory in MiB (1024 * 1024)
+                return (totalMemory / (1024 * 1024), usedMemory / (1024 * 1024));
             }
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteLine("Error reading memory info on Windows (Registry): " + ex.Message);
+            DebugHelper.WriteException("Error reading memory info on Windows: " + ex.Message);
         }
 
         return (0, 0);
     }
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+    private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    private struct MEMORYSTATUSEX
+    {
+        public uint dwLength;
+        public uint dwMemoryLoad;
+        public ulong ullTotalPhys;
+        public ulong ullAvailPhys;
+        public ulong ullTotalPageFile;
+        public ulong ullAvailPageFile;
+        public ulong ullTotalVirtual;
+        public ulong ullAvailVirtual;
+        public ulong ullAvailExtendedVirtual;
+    }
     [SupportedOSPlatform("windows")]
     private static long GetAvailableMemoryWindows()
     {
-        try
-        {
-            using var key =
-                Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management");
-            if (key != null)
-            {
-                var availableMemory = (long)key.GetValue("AvailablePhysicalMemory", 0);
-                return availableMemory;
-            }
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine("Error accessing registry for available memory: " + ex.Message);
-        }
+        MEMORYSTATUSEX status = new MEMORYSTATUSEX();
+        status.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
 
-        return 0;
+        if (GlobalMemoryStatusEx(ref status))
+        {
+            return (long)status.ullAvailPhys;
+        }
+        DebugHelper.WriteException(new Exception("Unable to retrieve memory information."));
+        return -1;
     }
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoLinux()
     {
         try
@@ -425,8 +438,13 @@ public static partial class OsInfo
             if (!string.IsNullOrWhiteSpace(GpuInfo))
             {
                 DebugHelper.WriteLine("GPU: " + GpuInfo);
-                var driverVersion = RunShellCommand("glxinfo | grep 'OpenGL version'");
-                DebugHelper.WriteLine("Driver Version: " + driverVersion.Split(':')[1].Trim());
+                var glxInfo = RunShellCommand("glxinfo | grep -E 'OpenGL version|OpenGL vendor string'");
+
+                var lines = glxInfo.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                var driverVersion = lines.FirstOrDefault(line => line.Contains("OpenGL version")).Split(':')[1].Trim();
+                var vendor = lines.FirstOrDefault(line => line.Contains("OpenGL vendor string")).Split(':')[1].Trim();
+                DebugHelper.WriteLine($"Driver Version: {vendor} {driverVersion}");
             }
         }
         catch (Exception ex)
@@ -437,7 +455,12 @@ public static partial class OsInfo
         try
         {
             var gpuInfo = File.ReadAllText("/proc/driver/nvidia/version");
-            DebugHelper.WriteLine("NVIDIA GPU Driver Version: " + gpuInfo);
+            var firstLine = gpuInfo.Split(Environment.NewLine)[0];
+            var match = Regex.Match(firstLine, @"\b(\d+\.\d+\.\d+)\b");
+            if (match.Success)
+            {
+                DebugHelper.WriteLine("NVIDIA GPU Driver Version: " + match.Value);
+            }
         }
         catch
         {
@@ -447,12 +470,25 @@ public static partial class OsInfo
         try
         {
             var output = RunShellCommand("xrandr --listmonitors");
-            foreach (var line in output.Split('\n'))
+            var lines = output.Split('\n');
+
+            // Skip the first line (header)
+            for (int i = 1; i < lines.Length; i++)
             {
-                if (line.Contains("connected"))
+                var line = lines[i].Trim();
+                if (!string.IsNullOrEmpty(line) && line.Contains("+"))
                 {
-                    var parts = line.Split(' ');
-                    DebugHelper.WriteLine($"Monitor: {parts[0]}");
+                    var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    var monitorName = parts[3];
+
+                    // The coordinates are at the end of the resolution, typically in format +x+y
+                    var resolutionAndCoords = parts[2];  // e.g., "1920/344x1080/193+885+1080"
+                    var coordinates = resolutionAndCoords.Split('+');
+                    var x = coordinates[1];
+                    var y = coordinates[2];
+
+                    DebugHelper.WriteLine($"Monitor: {monitorName}, Coordinates: ({x}, {y})");
                 }
             }
         }
@@ -539,9 +575,7 @@ public static partial class OsInfo
         if (!OperatingSystem.IsLinux()) return false;
         try
         {
-            string procVersion = File.ReadAllText("/proc/version");
-
-            return procVersion.IndexOf("Microsoft", StringComparison.OrdinalIgnoreCase) >= 0;
+            return File.ReadAllText("/proc/version").Contains("WSL", StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception)
         {

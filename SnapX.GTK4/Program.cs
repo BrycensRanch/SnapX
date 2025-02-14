@@ -1,17 +1,17 @@
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using GdkPixbuf;
 using Gio;
 using GObject;
 using Gtk;
+using SixLabors.ImageSharp;
 using SnapX.Core;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Native;
-using SixLabors.ImageSharp;
 using SnapX.Core.Utils.Miscellaneous;
+using SnapX.Core.Utils.Native;
 using AboutDialog = SnapX.GTK4.AboutDialog;
-using Image = Gtk.Image;
 using MessageType = Gst.MessageType;
 
 var snapx = new SnapX.Core.SnapX();
@@ -41,7 +41,7 @@ application.OnActivate += (sender, eventArgs) =>
     catch (Exception e)
     {
         errorStarting = true;
-        DebugHelper.Logger.Fatal(e.ToString());
+        DebugHelper.WriteException(e);
         ShowErrorDialog(e, application);
 
     }
@@ -56,10 +56,10 @@ application.OnActivate += (sender, eventArgs) =>
             Gst.Module.Initialize();
             GstVideo.Module.Initialize();
             Gst.Application.Init();
-            var ret = Gst.Functions.ParseLaunch(
+            using var ret = Gst.Functions.ParseLaunch(
                 "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
-            var bus = ret.GetBus();
+            using var bus = ret.GetBus();
             bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
             ret.SetState(Gst.State.Null);
         }
@@ -68,7 +68,8 @@ application.OnActivate += (sender, eventArgs) =>
         var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
-        async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
+        mainWindow.SetIconName("io.github.brycensranch.SnapX");
+        void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
         {
             var dialog = new FileChooserDialog()
             {
@@ -87,7 +88,7 @@ application.OnActivate += (sender, eventArgs) =>
             else
             {
                 dialog.Show();
-                var file =  dialog.GetFile();
+                var file = dialog.GetFile();
                 if (file == null)
                 {
                     mainWindow.Title = "SnapX | File upload cancelled";
@@ -106,7 +107,7 @@ application.OnActivate += (sender, eventArgs) =>
         imageURLTextBox.PlaceholderText =
             "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
 
-    var demoTestButton = new Button();
+        var demoTestButton = new Button();
         demoTestButton.Label = "Upload Remote Image";
         demoTestButton.OnClicked += (_, __) =>
         {
@@ -126,10 +127,18 @@ application.OnActivate += (sender, eventArgs) =>
         box.Append(demoTestButton);
         mainWindow.SetChild(box);
         mainWindow.SetVisible(true);
-        var dialog = new AboutDialog();
+        using var dialog = new AboutDialog();
         dialog.SetApplication(application);
-        dialog.AddCreditSection("ShareX Team", new[] { Links.Jaex, Links.McoreD });
-        dialog.AddCreditSection("Mentions", new[] { "benbryant0" });
+        dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
+        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        dialog.AddCreditSection("Mentions", ["benbryant0 for .NET 8 PR"]);
+        dialog.AddCreditSection("Dependencies",
+            loadedAssemblies
+                .Where(a => a.GetName().Name != null)
+                .Where(a => !a.GetName().Name.StartsWith("System") && !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
+                .Select(a => $"{a.GetName().Name} {a.GetName().Version}")
+                .OrderBy(name => name)
+                .ToArray());
         var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
         var osInfo = OsInfo.GetFancyOSNameAndVersion();
         var assembly = Assembly.GetExecutingAssembly();
@@ -138,14 +147,11 @@ application.OnActivate += (sender, eventArgs) =>
             Console.WriteLine(resourceName);
         }
         var bytes = assembly.ReadResourceAsByteArray("SnapX.GTK4.SnapX_Logo.png");
-        var image = SixLabors.ImageSharp.Image.Load(bytes);
-        using var memoryStream = new MemoryStream();
-        image.SaveAsPng(memoryStream);
-        var imageBytes = memoryStream.ToArray();
 
-
-        var pixbuf = PixbufLoader.FromBytes(imageBytes);
-        var logo = Gdk.Texture.NewForPixbuf(pixbuf);
+        using var pixbuf = PixbufLoader.New();
+        pixbuf.Write(bytes);
+        pixbuf.Close();
+        using var logo = Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);
         // dialog.SetDecorated(false);
         // dialog.SetFocusable(false);
         // dialog.SetOpacity(0.8);
@@ -170,7 +176,7 @@ application.OnActivate += (sender, eventArgs) =>
 static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
 {
     // Create the error dialog window
-    var errorDialog = new Window()
+    using var errorDialog = new Window()
     {
         DefaultWidth = 600,
         DefaultHeight = 400,
@@ -180,7 +186,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     };
 
     // Create a vertical container for message and buttons
-    var vbox = new Box();
+    using var vbox = new Box();
     vbox.SetOrientation(Orientation.Vertical);
     vbox.SetSpacing(10);
 
@@ -188,10 +194,15 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     var messageBuilder = new StringBuilder();
     messageBuilder.AppendLine(ex.GetType() + ": " + ex.Message);
     messageBuilder.AppendLine(ex.StackTrace);
+    var innerException = ex.InnerException;
+    if (innerException != null) {
+    messageBuilder.AppendLine(innerException.GetType() + ": " + innerException.Message);
+    messageBuilder.AppendLine(innerException.StackTrace);
+    }
     messageBuilder.AppendLine(Assembly.GetExecutingAssembly().GetName().Name + ": " + Assembly.GetExecutingAssembly().GetName().Version);
 
     // TextView to show the error message
-    var textView = new TextView
+    using var textView = new TextView
     {
         Editable = false,
         WrapMode = WrapMode.WordChar,
@@ -201,7 +212,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     textView.Buffer!.Text = messageBuilder.ToString();
 
     // Scroll the text view inside a scrolled window
-    var scrolledWindow = new ScrolledWindow
+    using var scrolledWindow = new ScrolledWindow
     {
         Child = textView
     };
@@ -211,7 +222,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     scrolledWindow.SetPropagateNaturalHeight(true);
     vbox.Append(scrolledWindow);
 
-    var buttonBox = new Box()
+    using var buttonBox = new Box()
     {
         Halign = Align.Center,
         Spacing = 10,
@@ -219,18 +230,18 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     };
 
     // "Report Error" button
-    var reportButton = new Button();
+    using var reportButton = new Button();
     reportButton.Label = Lang.ReportErrorToSentry;
     reportButton.OnClicked += (sender, e) => OnReportErrorClicked(ex);
     buttonBox.Append(reportButton);
 
-    var githubButton = new Button();
+    using var githubButton = new Button();
     githubButton.Label = Lang.CreateGitHubIssue;
     githubButton.OnClicked += (sender, e) => onGitHubButtonClicked(ex);
     buttonBox.Append(githubButton);
 
     // "Copy Error" button
-    var copyButton = new Button();
+    using var copyButton = new Button();
     copyButton.Label = Lang.CopyErrorToClipboard;
     copyButton.OnClicked += (sender, e) => OnCopyErrorClicked(ex);
     buttonBox.Append(copyButton);

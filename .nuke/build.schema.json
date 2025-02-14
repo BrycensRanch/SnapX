@@ -109,9 +109,13 @@
             "Release"
           ]
         },
-        "Destdir": {
+        "DestDir": {
           "type": "string",
           "description": "DESTDIR"
+        },
+        "LibDir": {
+          "type": "string",
+          "description": "LIBDIR"
         },
         "NMHostPath": {
           "type": "string",
@@ -128,10 +132,6 @@
         "Solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"
-        },
-        "Target": {
-          "type": "string",
-          "description": "TARGET"
         }
       }
     },

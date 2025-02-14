@@ -13,18 +13,23 @@
     <SelfContained>true</SelfContained>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishAot>true</PublishAot>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <!-- ShareX.GTK4 is Linux only. -->
     <RuntimeIdentifiers>linux-x64;linux-musl-x64;linux-bionic-arm64;linux-musl-arm64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <AssemblyName>snapx-gtk</AssemblyName>
     <AssemblyTitle>SnapX GTK4</AssemblyTitle>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>
-    <GirCoreVersion>0.5.0</GirCoreVersion>
+    <GirCoreVersion>0.6.2</GirCoreVersion>
     <!-- Fallback if NativeAOT is disabled by builder -->
     <SelfContained>true</SelfContained>
     <PublishAot>true</PublishAot>
   </PropertyGroup>
-
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
       <Link>SnapX_Logo.png</Link>

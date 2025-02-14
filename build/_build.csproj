@@ -9,19 +9,26 @@
     <NukeRootDirectory>..</NukeRootDirectory>
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
-    <NukeVersion>9.0.3</NukeVersion>
+    <NukeVersion>9.0.4</NukeVersion>
     <IsPackable>false</IsPackable>
+    <!--Seems to be broken with NUKE. -->
+    <ImplicitUsings>false</ImplicitUsings>
+    <NbgvVersion>3.7.115</NbgvVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="$(NbgvVersion)" />
     <PackageReference Include="Nuke.Common" Version="$(NukeVersion)" />
     <PackageReference Include="Nuke.Components" Version="$(NukeVersion)" />
-
+    <!-- If you start SnapX.Core from here, you will be fired. -->
+    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" PrivateAssets="All" Exclude="Microsoft.EntityFrameworkCore.Sqlite" NoWarn="*;NU1701;CS8604;CS8600;CS0414;CA1416;CS8603;CS8604;CS8625">
+      <!-- We do not need ScreenCapture code here -->
+      <Properties>nocargobuild=True</Properties>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageDownload Include="nbgv" Version="[3.7.112]" />
+    <PackageDownload Include="nbgv" Version="[$(NbgvVersion)]" />
   </ItemGroup>
 
 </Project>

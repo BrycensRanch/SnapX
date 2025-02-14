@@ -37,7 +37,7 @@ public class PingResult
 
     public PingResult()
     {
-        PingReplyList = new List<PingReply>();
+        PingReplyList = [];
     }
 
     public override string ToString()

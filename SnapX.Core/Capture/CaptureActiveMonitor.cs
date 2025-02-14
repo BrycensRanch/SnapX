@@ -11,9 +11,10 @@ public class CaptureActiveMonitor : CaptureBase
 {
     protected override TaskMetadata Execute(TaskSettings taskSettings)
     {
-        var rect = CaptureHelpers.GetActiveScreenWorkingArea();
-        var metadata = CreateMetadata(rect);
-        metadata.Image = TaskHelpers.GetScreenshot(taskSettings).CaptureActiveMonitor();
+        DebugHelper.WriteLine("CaptureActiveMonitor started");
+        var img = TaskHelpers.GetScreenshot(taskSettings).CaptureActiveMonitor();
+        var metadata = CreateMetadata(img.Bounds);
+        metadata.Image = img;
         return metadata;
     }
 }

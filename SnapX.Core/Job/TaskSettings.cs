@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 using SixLabors.ImageSharp;
 using SnapX.Core.Indexer;
+using SnapX.Core.ScreenCapture;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -90,7 +91,7 @@ public class TaskSettings
     public TaskSettingsUpload UploadSettings = new TaskSettingsUpload();
 
     public bool UseDefaultActions = true;
-    public List<ExternalProgram> ExternalPrograms = new List<ExternalProgram>();
+    public List<ExternalProgram> ExternalPrograms = [];
 
     public bool UseDefaultToolsSettings = true;
     public TaskSettingsTools ToolsSettings = new TaskSettingsTools();
@@ -113,7 +114,7 @@ public class TaskSettings
     public TaskSettingsAdvanced AdvancedSettings = new TaskSettingsAdvanced();
 
     public bool WatchFolderEnabled = false;
-    public List<WatchFolderSettings> WatchFolderList = new List<WatchFolderSettings>();
+    public List<WatchFolderSettings> WatchFolderList = [];
 
     public override string ToString()
     {
@@ -367,6 +368,7 @@ public class TaskSettingsCapture
     // public FFmpegOptions FFmpegOptions = new FFmpegOptions();
     public int ScreenRecordFPS = 30;
     public int GIFFPS = 15;
+    public RegionCaptureOptions SurfaceOptions = new RegionCaptureOptions();
     public bool ScreenRecordShowCursor = true;
     public bool ScreenRecordAutoStart = true;
     public float ScreenRecordStartDelay = 0f;
@@ -418,7 +420,7 @@ public class TaskSettingsUpload
 
     #region Upload / Uploader filters
 
-    public List<UploaderFilter> UploaderFilters = new List<UploaderFilter>();
+    public List<UploaderFilter> UploaderFilters = [];
 
     #endregion Upload / Uploader filters
 }

@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-namespace SnapX.Core.Upload.BaseServices
+namespace SnapX.Core.Upload.BaseServices;
+
+public interface IUploaderService
 {
-    public interface IUploaderService
-    {
-        string ServiceIdentifier { get; }
+    string ServiceIdentifier { get; }
 
-        string ServiceName { get; }
+    string ServiceName { get; }
 
-        bool CheckConfig(UploadersConfig config);
+    bool CheckConfig(UploadersConfig config);
 
-    }
 }

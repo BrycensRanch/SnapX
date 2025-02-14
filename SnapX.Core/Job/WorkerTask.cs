@@ -38,7 +38,7 @@ public class WorkerTask : IDisposable
     public bool RequestSettingUpdate { get; private set; }
     public bool EarlyURLCopied { get; private set; }
     public Stream Data { get; private set; }
-    public Image<Rgba64> Image { get; private set; }
+    public Image Image { get; private set; }
     public bool KeepImage { get; set; }
     public string Text { get; private set; }
 
@@ -94,7 +94,7 @@ public class WorkerTask : IDisposable
         if (task.Info.TaskSettings.AdvancedSettings.ProcessImagesDuringFileUpload && task.Info.DataType == EDataType.Image)
         {
             task.Info.Job = TaskJob.Job;
-            // task.Image = Image.LoadImage(task.Info.FilePath);
+            task.Image = Image.Load(task.Info.FilePath);
         }
         else
         {
@@ -102,6 +102,7 @@ public class WorkerTask : IDisposable
 
             if (!task.LoadFileStream())
             {
+                DebugHelper.WriteException("Failed to load uploader file. The file may be in use or corrupt garbage.");
                 return null;
             }
         }
@@ -1091,7 +1092,7 @@ public class WorkerTask : IDisposable
 
             if (SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView && Image != null)
             {
-                throw new NotImplementedException("SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView");
+                DebugHelper.WriteException(new NotImplementedException("SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView"));
             }
 
             threadWorker.InvokeAsync(() =>
@@ -1136,6 +1137,7 @@ public class WorkerTask : IDisposable
         {
             Status = TaskStatus.Stopped;
             Info.Status = "Stopped";
+            DebugHelper.WriteLine("StopRequested");
         }
         else if (Info.Result.IsError)
         {

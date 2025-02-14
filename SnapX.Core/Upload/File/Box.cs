@@ -219,6 +219,6 @@ public class BoxFolder
 
     //public List<BoxTag> Tags;
     //public List<BoxFile> Files;
-    public List<BoxFolder> Folders = new();
+    public List<BoxFolder> Folders = [];
 }
 

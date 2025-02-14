@@ -5,26 +5,25 @@
 using System.Text.RegularExpressions;
 using SnapX.Core.Upload.BaseUploaders;
 
-namespace SnapX.Core.Upload.File
+namespace SnapX.Core.Upload.File;
+
+public sealed class ShareCX : FileUploader
 {
-    public sealed class ShareCX : FileUploader
+    public override UploadResult Upload(Stream stream, string fileName)
     {
-        public override UploadResult Upload(Stream stream, string fileName)
+        var result = SendRequestFile("https://file1.share.cx/cgi-bin/upload.cgi", stream, fileName, "file_0");
+
+        if (result.IsSuccess)
         {
-            UploadResult result = SendRequestFile("https://file1.share.cx/cgi-bin/upload.cgi", stream, fileName, "file_0");
+            MatchCollection matches = Regex.Matches(result.Response, "(?<=value=\")http:.+?(?=\".*></td>)");
 
-            if (result.IsSuccess)
+            if (matches.Count == 2)
             {
-                MatchCollection matches = Regex.Matches(result.Response, "(?<=value=\")http:.+?(?=\".*></td>)");
-
-                if (matches.Count == 2)
-                {
-                    result.URL = matches[0].Value;
-                    result.DeletionURL = matches[1].Value;
-                }
+                result.URL = matches[0].Value;
+                result.DeletionURL = matches[1].Value;
             }
-
-            return result;
         }
+
+        return result;
     }
 }

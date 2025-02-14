@@ -107,7 +107,7 @@ public class FileDownloader
                 bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length);
                 if (bytesRead == 0) break; // Exit if no more data is read
 
-                await fileStream.WriteAsync(buffer, 0, bytesRead);
+                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                 DownloadedSize += bytesRead;
                 speedTest += bytesRead;
 

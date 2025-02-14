@@ -46,7 +46,7 @@ public class StringLineReader
 
     public string[] ReadAllLines(bool autoTrim = true)
     {
-        List<string> lines = new List<string>();
+        List<string> lines = [];
 
         string line;
 

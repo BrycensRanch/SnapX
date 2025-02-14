@@ -8,8 +8,8 @@ namespace SnapX.Core.Utils;
 
 public static class ColorHelpers
 {
-    public static Rgba64[] StandardColors = new Rgba64[]
-    {
+    public static Rgba64[] StandardColors =
+    [
         Color.FromRgb(0, 0, 0),
         Color.FromRgb(64, 64, 64),
         Color.FromRgb(255, 0, 0),
@@ -42,7 +42,7 @@ public static class ColorHelpers
         Color.FromRgb(87, 0, 127),
         Color.FromRgb(127, 0, 110),
         Color.FromRgb(127, 0, 55)
-    };
+    ];
 
     #region Convert Color to ...
 
@@ -380,33 +380,34 @@ public static class ColorHelpers
 
     public static List<Color> GetKnownColors()
     {
-        List<Color> colors = new();
-
-        colors.Add(Color.White);
-        colors.Add(Color.Black);
-        colors.Add(Color.AliceBlue);
-        colors.Add(Color.Aquamarine);
-        colors.Add(Color.Azure);
-        colors.Add(Color.Beige);
-        colors.Add(Color.Bisque);
-        colors.Add(Color.BurlyWood);
-        colors.Add(Color.CadetBlue);
-        colors.Add(Color.Coral);
-        colors.Add(Color.Crimson);
-        colors.Add(Color.Cyan);
-        colors.Add(Color.DarkBlue);
-        colors.Add(Color.DarkCyan);
-        colors.Add(Color.DarkGoldenrod);
-        colors.Add(Color.DarkGray);
-        colors.Add(Color.DarkGreen);
-        colors.Add(Color.DarkMagenta);
-        colors.Add(Color.DarkOrange);
-        colors.Add(Color.DarkRed);
-        colors.Add(Color.DarkSlateBlue);
-        colors.Add(Color.DarkSlateGray);
-        colors.Add(Color.Red);
-        colors.Add(Color.Blue);
-        colors.Add(Color.Green);
+        List<Color> colors =
+        [
+            Color.White,
+            Color.Black,
+            Color.AliceBlue,
+            Color.Aquamarine,
+            Color.Azure,
+            Color.Beige,
+            Color.Bisque,
+            Color.BurlyWood,
+            Color.CadetBlue,
+            Color.Coral,
+            Color.Crimson,
+            Color.Cyan,
+            Color.DarkBlue,
+            Color.DarkCyan,
+            Color.DarkGoldenrod,
+            Color.DarkGray,
+            Color.DarkGreen,
+            Color.DarkMagenta,
+            Color.DarkOrange,
+            Color.DarkRed,
+            Color.DarkSlateBlue,
+            Color.DarkSlateGray,
+            Color.Red,
+            Color.Blue,
+            Color.Green,
+        ];
 
         return colors;
     }

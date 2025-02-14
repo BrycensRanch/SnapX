@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -23,7 +24,11 @@ public class ImageShackImageUploaderService : ImageUploaderService
         return new ImageShackUploader(APIKeys.ImageShackKey, config.ImageShackSettings);
     }
 }
-
+[JsonSerializable(typeof(ImageShackUploader.ImageShackLoginResponse))]
+[JsonSerializable(typeof(ImageShackUploader.ImageShackErrorInfo))]
+[JsonSerializable(typeof(ImageShackUploader.ImageShackUploadResponse))]
+internal partial class ImageShackContext: JsonSerializerContext
+{ }
 public sealed class ImageShackUploader : ImageUploader
 {
     private const string URLAPI = "https://api.imageshack.com/v2/";

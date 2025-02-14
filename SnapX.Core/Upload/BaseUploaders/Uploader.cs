@@ -283,7 +283,7 @@ public class Uploader
 
             if (headers == null)
             {
-                headers = new NameValueCollection();
+                headers = [];
             }
             long startByte = contentPosition;
             long endByte = startByte + contentLength - 1;

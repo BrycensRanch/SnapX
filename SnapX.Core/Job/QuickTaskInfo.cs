@@ -21,8 +21,8 @@ public class QuickTaskInfo
         }
     }
 
-    public static List<QuickTaskInfo> DefaultPresets => new()
-    {
+    public static List<QuickTaskInfo> DefaultPresets =>
+    [
         new("Save, Upload, Copy URL", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.UploadImageToHost, AfterUploadTasks.CopyURLToClipboard),
         new("Save, Copy image", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.CopyImageToClipboard),
         new("Save, Copy image file", AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.CopyFileToClipboard),
@@ -32,7 +32,7 @@ public class QuickTaskInfo
         new("Save", AfterCaptureTasks.SaveImageToFile),
         new("Copy image", AfterCaptureTasks.CopyImageToClipboard),
         new("Annotate", AfterCaptureTasks.AnnotateImage)
-    };
+    ];
 
     public QuickTaskInfo()
     {

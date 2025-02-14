@@ -67,7 +67,7 @@ public class ProxyInfo
         {
             // Need better solution
             return (WebProxy)typeof(WebProxy).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic,
-                null, new Type[] { typeof(bool) }, null).Invoke(new object[] { true });
+                null, [typeof(bool)], null).Invoke([true]);
         }
         catch (Exception e)
         {

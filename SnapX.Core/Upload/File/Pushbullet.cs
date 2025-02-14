@@ -51,9 +51,10 @@ public sealed class Pushbullet : FileUploader
     {
         NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
-        Dictionary<string, string> pushArgs, upArgs = new Dictionary<string, string>();
-
-        upArgs.Add("file_name", fileName);
+        Dictionary<string, string> pushArgs, upArgs = new Dictionary<string, string>
+        {
+            { "file_name", fileName }
+        };
 
         string uploadRequest = SendRequestMultiPart(apiRequestFileUploadURL, upArgs, headers);
 
@@ -65,14 +66,15 @@ public sealed class Pushbullet : FileUploader
 
         pushArgs = upArgs;
 
-        upArgs = new Dictionary<string, string>();
-
-        upArgs.Add("awsaccesskeyid", fileInfo.data.awsaccesskeyid);
-        upArgs.Add("acl", fileInfo.data.acl);
-        upArgs.Add("key", fileInfo.data.key);
-        upArgs.Add("signature", fileInfo.data.signature);
-        upArgs.Add("policy", fileInfo.data.policy);
-        upArgs.Add("content-type", fileInfo.data.content_type);
+        upArgs = new Dictionary<string, string>
+        {
+            { "awsaccesskeyid", fileInfo.data.awsaccesskeyid },
+            { "acl", fileInfo.data.acl },
+            { "key", fileInfo.data.key },
+            { "signature", fileInfo.data.signature },
+            { "policy", fileInfo.data.policy },
+            { "content-type", fileInfo.data.content_type }
+        };
 
         UploadResult uploadResult = SendRequestFile(fileInfo.upload_url, stream, fileName, "file", upArgs);
 
@@ -101,11 +103,13 @@ public sealed class Pushbullet : FileUploader
     {
         NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("device_iden", Config.CurrentDevice.Key);
-        args.Add("type", pushType);
-        args.Add("title", title);
-        args.Add(valueType, value);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "device_iden", Config.CurrentDevice.Key },
+            { "type", pushType },
+            { "title", title },
+            { valueType, value }
+        };
 
         if (valueType != "body")
         {
@@ -160,7 +164,7 @@ public sealed class Pushbullet : FileUploader
             return devicesResponse.devices.Where(x => !string.IsNullOrEmpty(x.nickname)).Select(x1 => new PushbulletDevice { Key = x1.iden, Name = x1.nickname }).ToList();
         }
 
-        return new List<PushbulletDevice>();
+        return [];
     }
 
     private class PushbulletResponseDevices
@@ -219,7 +223,7 @@ public class PushbulletDevice
 public class PushbulletSettings
 {
     public string UserAPIKey { get; set; } = "";
-    public List<PushbulletDevice> DeviceList { get; set; } = new List<PushbulletDevice>();
+    public List<PushbulletDevice> DeviceList { get; set; } = [];
     public int SelectedDevice { get; set; } = 0;
 
     public PushbulletDevice CurrentDevice

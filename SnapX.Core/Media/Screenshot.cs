@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using ScreenCapture.NET;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Native;
+using uniffi.snapxrust;
 
 namespace SnapX.Core.Media;
 
@@ -15,22 +17,8 @@ public partial class Screenshot
     public bool CaptureShadow { get; set; } = false;
     public int ShadowOffset { get; set; } = 20;
     public bool AutoHideTaskbar { get; set; } = false;
-    public IScreenCaptureService? ScreenCaptureService
-    {
-        get
-        {
-#if WINDOWS
-        return new DX11ScreenCaptureService();
-#elif LINUX
-        return new X11ScreenCaptureService();
-#else
-            return null;
-#endif
-        }
-    }
 
-
-    public Image<Rgba64> CaptureRectangle(Rectangle rect)
+    public Image CaptureRectangle(Rectangle rect)
     {
         if (RemoveOutsideScreenArea)
         {
@@ -41,14 +29,12 @@ public partial class Screenshot
         return CaptureRectangleNative(rect, CaptureCursor);
     }
 
-    public Image<Rgba64> CaptureFullscreen()
+    public Image CaptureFullscreen()
     {
-        Rectangle bounds = CaptureHelpers.GetScreenBounds();
-
-        return CaptureRectangle(bounds);
+        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureFullscreen());
     }
 
-    public Image<Rgba64> CaptureWindow(IntPtr handle)
+    public Image CaptureWindow(IntPtr handle)
     {
         if (handle.ToInt32() > 0)
         {
@@ -89,26 +75,37 @@ public partial class Screenshot
         return null;
     }
 
-    public Image<Rgba64> CaptureActiveWindow()
+    public Image CaptureWindow(Point pos)
     {
-        throw new NotImplementedException("CaptureActiveWindow not implemented");
+        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureWindow((uint)pos.X, (uint)pos.Y));
+    }
+    public Image CaptureActiveWindow()
+    {
+        return CaptureWindow(Methods.GetCursorPosition());
     }
 
-    public Image<Rgba64> CaptureActiveMonitor()
+    public Image CaptureActiveMonitor()
     {
-        Rectangle bounds = CaptureHelpers.GetActiveScreenBounds();
-
-        return CaptureRectangle(bounds);
+        return CaptureMonitor(Methods.GetCursorPosition());
     }
 
-    private Image<Rgba64> CaptureRectangleNative(Rectangle rect, bool captureCursor = false)
+    private Image CaptureMonitor(Point pos)
+    {
+        var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
+        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureMonitor(monitor.name));
+    }
+    private Image CaptureRectangleNative(Rectangle rect, bool captureCursor = false)
     {
         // IntPtr handle = NativeMethods.GetDesktopWindow();
         // return CaptureRectangleNative(handle, rect, captureCursor);
-        throw new NotImplementedException("CaptureRectangleNative not implemented");
+        var imageData = SnapxrustMethods.CaptureRect((uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
+        DebugHelper.WriteLine($"CaptureRectangleNative: {imageData.image.Length} {imageData.width} {imageData.height}");
+
+        var img = Image.LoadPixelData<Rgba32>(imageData.image, (int) imageData.width, (int)imageData.height);
+        return img;
     }
 
-    // private Image<Rgba64> CaptureRectangleNative(IntPtr handle, Rectangle rect, bool captureCursor = false)
+    // private Image CaptureRectangleNative(IntPtr handle, Rectangle rect, bool captureCursor = false)
     // {
     //     if (rect.Width == 0 || rect.Height == 0)
     //     {

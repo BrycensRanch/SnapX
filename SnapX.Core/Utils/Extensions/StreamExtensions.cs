@@ -83,21 +83,15 @@ public static class StreamExtensions
 
     public static bool WriteToFile(this Stream stream, string filePath)
     {
-        if (stream.Length > 0 && !string.IsNullOrEmpty(filePath))
-        {
-            FileHelpers.CreateDirectoryFromFilePath(filePath);
+        if (stream.Length == 0 || string.IsNullOrEmpty(filePath)) return false;
 
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
-            {
-                stream.CopyStreamTo(fileStream);
-            }
+        FileHelpers.CreateDirectoryFromFilePath(filePath);
 
-            return true;
-        }
+        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+        stream.CopyStreamTo(fileStream);
 
-        return false;
+        return true;
     }
-
     public static byte[] GetBytes(this Stream stream)
     {
         using (MemoryStream ms = new MemoryStream())

@@ -4,6 +4,8 @@
 
 
 using SixLabors.ImageSharp;
+using SnapX.Core.Utils.Native;
+using uniffi.snapxrust;
 
 
 namespace SnapX.Core.Utils;
@@ -12,45 +14,32 @@ public static class CaptureHelpers
 {
     public static Rectangle GetScreenBounds()
     {
-        // TODO: Move all calls to SnapX.CommonUI.GetScreenBounds
-        // Both Avalonia and GTK4 have functions to call for this that don't have us calling native APIs directly.
-        // Any code relying on this should be refactored onto SnapX.CommonUI.GetScreenBounds
-        throw new NotImplementedException("GetScreenBounds is not implemented");
+        return GetScreenWorkingArea();
     }
 
     public static Rectangle GetScreenWorkingArea()
     {
-        throw new NotImplementedException("GetScreenWorkingArea is not implemented");
-    }
-
-    private static Rectangle GetScreenBounds2()
-    {
-        throw new NotImplementedException("GetScreenBounds2 is not implemented");
-    }
-
-    private static Rectangle GetScreenBounds3()
-    {
-        throw new NotImplementedException("GetScreenBounds3 is not implemented");
-    }
-
-    private static Rectangle GetScreenBounds4()
-    {
-        throw new NotImplementedException("GetScreenBounds4 is not implemented");
+        var ScreenDimensions = SnapxrustMethods.GetWorkingArea();
+        return new Rectangle(ScreenDimensions.x, ScreenDimensions.y, (int)ScreenDimensions.width, (int) ScreenDimensions.height);
     }
 
     public static Rectangle GetActiveScreenBounds()
     {
-        throw new NotImplementedException("GetActiveScreenBounds is not implemented");
+        return GetActiveScreenWorkingArea();
     }
 
     public static Rectangle GetActiveScreenWorkingArea()
     {
-        throw new NotImplementedException("GetActiveScreenWorkingArea is not implemented");
+        var pos = GetCursorPosition();
+        var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
+        DebugHelper.WriteLine($"Monitor: {monitor.x} {monitor.y} {monitor.width} {monitor.height}");
+       return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
     }
 
     public static Rectangle GetPrimaryScreenBounds()
     {
-        throw new NotImplementedException("GetPrimaryScreenBounds is not implemented");
+       var monitor = SnapxrustMethods.GetPrimaryMonitor();
+       return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
     }
 
     public static Point ScreenToClient(Point p)
@@ -73,10 +62,7 @@ public static class CaptureHelpers
         return new Rectangle(ClientToScreen(r.Location), r.Size);
     }
 
-    public static Point GetCursorPosition()
-    {
-        return Point.Empty;
-    }
+    public static Point GetCursorPosition() => Methods.GetCursorPosition();
 
     public static void SetCursorPosition(int x, int y)
     {
@@ -263,27 +249,7 @@ public static class CaptureHelpers
         return CreateRectangle(posOnClick, newPosition);
     }
 
-    public static Rectangle GetWindowRectangle(IntPtr handle)
-    {
-        var rect = Rectangle.Empty;
-
-        // if (NativeMethods.IsDWMEnabled() && NativeMethods.GetExtendedFrameBounds(handle, out Rectangle tempRect))
-        // {
-        //     rect = tempRect;
-        // }
-        //
-        // if (rect.IsEmpty)
-        // {
-        //     rect = NativeMethods.GetWindowRect(handle);
-        // }
-        //
-        // if (!Helpers.IsWindows10OrGreater() && NativeMethods.IsZoomed(handle))
-        // {
-        //     rect = NativeMethods.MaximizedWindowFix(handle, rect);
-        // }
-
-        return rect;
-    }
+    public static Rectangle GetWindowRectangle(IntPtr handle) => Methods.GetWindowRectangle(handle);
 
     public static Rectangle GetActiveWindowRectangle()
     {

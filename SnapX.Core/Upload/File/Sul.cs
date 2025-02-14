@@ -10,83 +10,84 @@ using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.Upload.File
+namespace SnapX.Core.Upload.File;
+public class SulFileUploaderService : FileUploaderService
 {
-    public class SulFileUploaderService : FileUploaderService
+    public override FileDestination EnumValue { get; } = FileDestination.Sul;
+
+
+    public override bool CheckConfig(UploadersConfig config)
     {
-        public override FileDestination EnumValue { get; } = FileDestination.Sul;
-
-
-        public override bool CheckConfig(UploadersConfig config)
-        {
-            return !string.IsNullOrEmpty(config.SulAPIKey);
-        }
-
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new SulUploader(config.SulAPIKey);
-        }
+        return !string.IsNullOrEmpty(config.SulAPIKey);
     }
 
-    public sealed class SulUploader : FileUploader
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        private string APIKey { get; set; }
+        return new SulUploader(config.SulAPIKey);
+    }
+}
 
-        public SulUploader(string apiKey)
+public sealed class SulUploader : FileUploader
+{
+    private string APIKey { get; set; }
+
+    public SulUploader(string apiKey)
+    {
+        APIKey = apiKey;
+    }
+
+    public override UploadResult Upload(Stream stream, string fileName)
+    {
+        var args = new Dictionary<string, string>
         {
-            APIKey = apiKey;
-        }
+            { "wizard", "true" },
+            { "key", APIKey },
+            { "client", "sharex-native" }
+        };
 
-        public override UploadResult Upload(Stream stream, string fileName)
+        string url = "https://s-ul.eu";
+        string upload_url = URLHelpers.CombineURL(url, "api/v1/upload");
+
+        UploadResult result = SendRequestFile(upload_url, stream, fileName, "file", args);
+
+        if (result.IsSuccess)
         {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            args.Add("wizard", "true");
-            args.Add("key", APIKey);
-            args.Add("client", "sharex-native");
+            var jsonResponse = JsonNode.Parse(result.Response);
 
-            string url = "https://s-ul.eu";
-            string upload_url = URLHelpers.CombineURL(url, "api/v1/upload");
+            string protocol = "";
+            string domain = "";
+            string file = "";
+            string extension = "";
+            string error = "";
 
-            UploadResult result = SendRequestFile(upload_url, stream, fileName, "file", args);
-
-            if (result.IsSuccess)
+            if (jsonResponse != null)
             {
-                var jsonResponse = JsonNode.Parse(result.Response);
+                protocol = jsonResponse.SelectToken("protocol").ObjectToString();
+                domain = jsonResponse.SelectToken("domain").ObjectToString();
+                file = jsonResponse.SelectToken("filename").ObjectToString();
+                extension = jsonResponse.SelectToken("extension").ObjectToString();
+                error = jsonResponse.SelectToken("error").ObjectToString();
+            }
 
-                string protocol = "";
-                string domain = "";
-                string file = "";
-                string extension = "";
-                string error = "";
-
-                if (jsonResponse != null)
+            if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(protocol))
+            {
+                if (string.IsNullOrEmpty(error))
                 {
-                    protocol = jsonResponse.SelectToken("protocol").ObjectToString();
-                    domain = jsonResponse.SelectToken("domain").ObjectToString();
-                    file = jsonResponse.SelectToken("filename").ObjectToString();
-                    extension = jsonResponse.SelectToken("extension").ObjectToString();
-                    error = jsonResponse.SelectToken("error").ObjectToString();
-                }
-
-                if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(protocol))
-                {
-                    if (string.IsNullOrEmpty(error))
-                    {
-                        Errors.Add("Generic error occurred, please contact support@s-ul.eu");
-                    }
-                    else
-                    {
-                        Errors.Add(error);
-                    }
+                    Errors.Add("Generic error occurred, please contact support@s-ul.eu");
                 }
                 else
                 {
-                    result.URL = protocol + domain + "/" + file + extension;
-                    result.DeletionURL = URLHelpers.CombineURL(url, "delete.php?key=" + APIKey + "&file=" + file);
+                    Errors.Add(error);
                 }
             }
-
-            return result;
+            else
+            {
+                result.URL = protocol + domain + "/" + file + extension;
+                result.DeletionURL = URLHelpers.CombineURL(url, "delete.php?key=" + APIKey + "&file=" + file);
+            }
         }
+
+        return result;
     }
 }
+

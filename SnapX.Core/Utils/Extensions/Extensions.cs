@@ -221,10 +221,10 @@ public static class Extensions
     public static List<T> Range<T>(this List<T> source, T start, T end)
     {
         int startIndex = source.IndexOf(start);
-        if (startIndex == -1) return new List<T>();
+        if (startIndex == -1) return [];
 
         int endIndex = source.IndexOf(end);
-        if (endIndex == -1) return new List<T>();
+        if (endIndex == -1) return [];
 
         return Range(source, startIndex, endIndex);
     }

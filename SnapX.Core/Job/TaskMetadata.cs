@@ -3,7 +3,6 @@
 
 
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Job;
@@ -12,7 +11,7 @@ public class TaskMetadata : IDisposable
 {
     private const int WindowInfoMaxLength = 255;
 
-    public Image<Rgba64> Image { get; set; }
+    public Image Image { get; set; }
 
     private string windowTitle;
 
@@ -46,7 +45,7 @@ public class TaskMetadata : IDisposable
     {
     }
 
-    public TaskMetadata(Image<Rgba64> image)
+    public TaskMetadata(Image image)
     {
         Image = image;
     }

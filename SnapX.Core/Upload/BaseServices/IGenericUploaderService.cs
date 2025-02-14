@@ -5,10 +5,9 @@
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 
-namespace SnapX.Core.Upload.BaseServices
+namespace SnapX.Core.Upload.BaseServices;
+
+public interface IGenericUploaderService : IUploaderService
 {
-    public interface IGenericUploaderService : IUploaderService
-    {
-        GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo);
-    }
+    GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo);
 }

@@ -29,7 +29,7 @@ public abstract class HistoryManager
             DebugHelper.WriteException(e);
         }
 
-        return new List<HistoryItem>();
+        return [];
     }
 
     public async Task<List<HistoryItem>> GetHistoryItemsAsync()

@@ -3,6 +3,8 @@ using System.Reflection;
 using SixLabors.ImageSharp;
 using SnapX.Core.Indexer;
 using SnapX.Core.Job;
+using SnapX.Core.ScreenCapture;
+using SnapX.Core.ScreenCapture.ScreenRecording;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core;
@@ -30,47 +32,6 @@ public class GeneralSettings
     public bool DisableNotificationsOnFullscreen { get; set; } = false;
 }
 
-
-public class ImageEffectPreset
-{
-    public string Name { get; set; } = "";
-    public List<ImageEffect> Effects { get; set; } = new();
-}
-// This is working around the fact that ImageEffectsLib is still infested with System.Drawing and WPF.
-public class ImageEffect
-{
-    public string Name { get; set; } = "";
-    public string Margin { get; set; }
-    public string MarginMode { get; set; }
-    public string Color { get; set; }
-    public bool Enabled { get; set; } = true;
-    public string Text { get; set; }
-    public string Placement { get; set; }
-    public string Offset { get; set; }
-    public bool AutoHide { get; set; }
-    public string TextFont { get; set; }
-    public string TextRenderingMode { get; set; }
-    public string TextColor { get; set; }
-    public bool DrawTextShadow { get; set; }
-    public string TextShadowColor { get; set; }
-    public string TextShadowOffset { get; set; }
-    public int CornerRadius { get; set; }
-    public string Padding { get; set; }
-    public bool DrawBorder { get; set; }
-    public string BorderColor { get; set; }
-    public int BorderSize { get; set; }
-    public bool DrawBackground { get; set; }
-    public string BackgroundColor { get; set; }
-    public bool UseGradient { get; set; }
-    public Gradient Gradient { get; set; }
-}
-
-public class Gradient
-{
-    public string Type { get; set; }
-    public List<GradientColor> Colors { get; set; }
-}
-
 public class GradientColor
 {
     public string Color { get; set; }
@@ -88,7 +49,7 @@ public class CaptureSettings
     public bool CaptureAutoHideTaskbar { get; set; } = false;
     public string CaptureCustomRegion { get; set; } = String.Empty;
     public string CaptureCustomWindow { get; set; } = String.Empty;
-    public SurfaceOptions SurfaceOptions { get; set; }
+    public RegionCaptureOptions RegionCaptureOptions { get; set; }
     public FFmpegOptions FFmpegOptions { get; set; }
     public int ScreenRecordFPS { get; set; } = 30;
     public int GIFFPS { get; set; } = 15;
@@ -100,203 +61,7 @@ public class CaptureSettings
     public bool ScreenRecordTwoPassEncoding { get; set; } = false;
     public bool ScreenRecordAskConfirmationOnAbort { get; set; } = true;
     public bool ScreenRecordTransparentRegion { get; set; } = true;
-    public ScrollingCaptureOptions ScrollingCaptureOptions { get; set; }
     public OCROptions OCROptions { get; set; }
-}
-
-public class SurfaceOptions
-{
-    public bool QuickCrop { get; set; }
-    public int MinimumSize { get; set; }
-    public string RegionCaptureActionRightClick { get; set; }
-    public string RegionCaptureActionMiddleClick { get; set; }
-    public string RegionCaptureActionX1Click { get; set; }
-    public string RegionCaptureActionX2Click { get; set; }
-    public bool DetectWindows { get; set; }
-    public bool DetectControls { get; set; }
-    public bool UseDimming { get; set; }
-    public int BackgroundDimStrength { get; set; }
-    public bool UseCustomInfoText { get; set; }
-    public string CustomInfoText { get; set; }
-    public List<SnapSize> SnapSizes { get; set; }
-    public bool ShowInfo { get; set; }
-    public bool ShowMagnifier { get; set; }
-    public bool UseSquareMagnifier { get; set; }
-    public int MagnifierPixelCount { get; set; }
-    public int MagnifierPixelSize { get; set; }
-    public bool ShowCrosshair { get; set; }
-    public bool UseLightResizeNodes { get; set; }
-    public bool EnableAnimations { get; set; }
-    public bool IsFixedSize { get; set; }
-    public string FixedSize { get; set; }
-    public bool ShowFPS { get; set; }
-    public int FPSLimit { get; set; }
-    public int MenuIconSize { get; set; }
-    public bool MenuLocked { get; set; }
-    public bool RememberMenuState { get; set; }
-    public bool MenuCollapsed { get; set; }
-    public string MenuPosition { get; set; }
-    public int InputDelay { get; set; }
-    public bool SwitchToDrawingToolAfterSelection { get; set; }
-    public bool SwitchToSelectionToolAfterDrawing { get; set; }
-    public bool ActiveMonitorMode { get; set; }
-    public AnnotationOptions AnnotationOptions { get; set; }
-    public string LastRegionTool { get; set; }
-    public string LastAnnotationTool { get; set; }
-    public string LastEditorTool { get; set; }
-    public string ImageEditorStartMode { get; set; }
-    public ImageEditorWindowState ImageEditorWindowState { get; set; }
-    public bool ZoomToFitOnOpen { get; set; }
-    public bool EditorAutoCopyImage { get; set; }
-    public bool AutoCloseEditorOnTask { get; set; }
-    public bool ShowEditorPanTip { get; set; }
-    public string ImageEditorResizeInterpolationMode { get; set; }
-    public string EditorNewImageSize { get; set; }
-    public bool EditorNewImageTransparent { get; set; }
-    public string EditorNewImageBackgroundColor { get; set; }
-    public string EditorCanvasColor { get; set; }
-    public List<ImageEffectPreset> ImageEffectPresets { get; set; }
-    public int SelectedImageEffectPreset { get; set; }
-    public ColorPickerOptions ColorPickerOptions { get; set; }
-    public string ScreenColorPickerInfoText { get; set; }
-}
-
-public class SnapSize
-{
-    public int Width { get; set; }
-    public int Height { get; set; }
-}
-
-public class AnnotationOptions
-{
-    public string ImageInterpolationMode { get; set; }
-    public List<StickerPack> StickerPacks { get; set; }
-    public int SelectedStickerPack { get; set; }
-    public int RegionCornerRadius { get; set; }
-    public string BorderColor { get; set; }
-    public int BorderSize { get; set; }
-    public string BorderStyle { get; set; }
-    public string FillColor { get; set; }
-    public int DrawingCornerRadius { get; set; }
-    public bool Shadow { get; set; }
-    public string ShadowColor { get; set; }
-    public string ShadowOffset { get; set; }
-    public int LineCenterPointCount { get; set; }
-    public string ArrowHeadDirection { get; set; }
-    public TextOutlineOptions TextOutlineOptions { get; set; }
-    public string TextOutlineBorderColor { get; set; }
-    public int TextOutlineBorderSize { get; set; }
-    public TextOptions TextOptions { get; set; }
-    public string TextBorderColor { get; set; }
-    public int TextBorderSize { get; set; }
-    public string TextFillColor { get; set; }
-    public string LastImageFilePath { get; set; }
-    public string StepBorderColor { get; set; }
-    public int StepBorderSize { get; set; }
-    public string StepFillColor { get; set; }
-    public int StepFontSize { get; set; }
-    public string StepType { get; set; }
-    public int MagnifyStrength { get; set; }
-    public int StickerSize { get; set; }
-    public string LastStickerPath { get; set; }
-    public int BlurRadius { get; set; }
-    public int PixelateSize { get; set; }
-    public string HighlightColor { get; set; }
-    public string CutOutEffectType { get; set; }
-    public int CutOutEffectSize { get; set; }
-    public string CutOutBackgroundColor { get; set; }
-}
-
-public class StickerPack
-{
-    public string FolderPath { get; set; }
-    public string Name { get; set; }
-}
-
-public class TextOutlineOptions
-{
-    public string Font { get; set; }
-    public int Size { get; set; }
-    public bool Bold { get; set; }
-    public bool Italic { get; set; }
-    public bool Underline { get; set; }
-    public string AlignmentHorizontal { get; set; }
-    public string AlignmentVertical { get; set; }
-    public bool Gradient { get; set; }
-    public string Color2 { get; set; }
-    public string GradientMode { get; set; }
-    public bool EnterKeyNewLine { get; set; }
-}
-
-public class TextOptions
-{
-    public string Font { get; set; }
-    public int Size { get; set; }
-    public bool Bold { get; set; }
-    public bool Italic { get; set; }
-    public bool Underline { get; set; }
-    public string AlignmentHorizontal { get; set; }
-    public string AlignmentVertical { get; set; }
-    public bool Gradient { get; set; }
-    public string Color2 { get; set; }
-    public string GradientMode { get; set; }
-    public bool EnterKeyNewLine { get; set; }
-}
-
-public class ImageEditorWindowState
-{
-    public string Location { get; set; }
-    public string Size { get; set; }
-    public bool IsMaximized { get; set; }
-}
-
-public class ColorPickerOptions
-{
-    public bool RecentColorsSelected { get; set; }
-}
-
-public class FFmpegOptions
-{
-    public bool OverrideCLIPath { get; set; }
-    public string CLIPath { get; set; }
-    public string VideoSource { get; set; }
-    public string AudioSource { get; set; }
-    public string VideoCodec { get; set; }
-    public string AudioCodec { get; set; }
-    public string UserArgs { get; set; }
-    public bool UseCustomCommands { get; set; }
-    public string CustomCommands { get; set; }
-    public string x264_Preset { get; set; }
-    public int x264_CRF { get; set; }
-    public bool x264_Use_Bitrate { get; set; }
-    public int x264_Bitrate { get; set; }
-    public int VPx_Bitrate { get; set; }
-    public int XviD_QScale { get; set; }
-    public string NVENC_Preset { get; set; }
-    public string NVENC_Tune { get; set; }
-    public int NVENC_Bitrate { get; set; }
-    public string GIFStatsMode { get; set; }
-    public string GIFDither { get; set; }
-    public int GIFBayerScale { get; set; }
-    public string AMF_Usage { get; set; }
-    public string AMF_Quality { get; set; }
-    public int AMF_Bitrate { get; set; }
-    public string QSV_Preset { get; set; }
-    public int QSV_Bitrate { get; set; }
-    public int AAC_Bitrate { get; set; }
-    public int Opus_Bitrate { get; set; }
-    public int Vorbis_QScale { get; set; }
-    public int MP3_QScale { get; set; }
-}
-
-public class ScrollingCaptureOptions
-{
-    public int StartDelay { get; set; }
-    public bool AutoScrollTop { get; set; }
-    public int ScrollDelay { get; set; }
-    public int ScrollAmount { get; set; }
-    public bool AutoUpload { get; set; }
-    public bool ShowRegion { get; set; }
 }
 
 public class OCROptions
@@ -463,6 +228,7 @@ public class AdvancedSettings
     public bool RegionCaptureDisableAnnotation { get; set; }
     public List<string> ImageExtensions { get; set; }
     public List<string> TextExtensions { get; set; }
+    public ProxySettings ProxySettings { get; set; } = new();
     public bool EarlyCopyURL { get; set; }
     public bool UserAnalyticsTelemetry => true;
     public bool CrashReportingTelemetry => true;
@@ -567,10 +333,10 @@ public class RootConfiguration
     public DateTime FirstTimeRunDate = DateTime.Now;
     public string FileUploadDefaultDirectory = "";
     public int NameParserAutoIncrementNumber = 0;
-    public List<QuickTaskPreset> QuickTaskPresets = new();
+    public List<QuickTaskPreset> QuickTaskPresets = [];
     // Main window
     public bool FirstTimeMinimizeToTray = true;
-    public List<int> TaskListViewColumnWidths = new();
+    public List<int> TaskListViewColumnWidths = [];
     public int PreviewSplitterDistance = 335;
     public SupportedLanguage Language = SupportedLanguage.English;
     public bool ShowTray = true;
@@ -610,12 +376,12 @@ public class RootConfiguration
     public ProxyInfo ProxySettings = new();
     public int UploadLimit = 5;
     public int BufferSizePower = 5;
-    public List<string> ClipboardContentFormats { get; set; } = new();
+    public List<string> ClipboardContentFormats { get; set; } = [];
     public int MaxUploadFailRetry = 1;
     public bool UseSecondaryUploaders = false;
-    public List<Upload.ImageDestination> SecondaryImageUploaders = new();
-    public List<Upload.TextDestination> SecondaryTextUploaders = new();
-    public List<Upload.FileDestination> SecondaryFileUploaders = new();
+    public List<Upload.ImageDestination> SecondaryImageUploaders = [];
+    public List<Upload.TextDestination> SecondaryTextUploaders = [];
+    public List<Upload.FileDestination> SecondaryFileUploaders = [];
     public bool HistorySaveTasks = true;
     public bool HistoryCheckURL = false;
     public List<RecentTask> RecentTasks { get; set; }
@@ -633,13 +399,13 @@ public class RootConfiguration
     public bool AutoCaptureMinimizeToTray = true;
     public bool AutoCaptureWaitUpload = true;
     public Rectangle ScreenRecordRegion = Rectangle.Empty;
-    public List<HotkeyType> ActionsToolbarList = new() { HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
-        HotkeyType.None, HotkeyType.FileUpload, HotkeyType.ClipboardUploadWithContentViewer };
+    public List<HotkeyType> ActionsToolbarList = [ HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
+        HotkeyType.None, HotkeyType.FileUpload, HotkeyType.ClipboardUploadWithContentViewer ];
     public bool ActionsToolbarRunAtStartup = false;
     public Point ActionsToolbarPosition = Point.Empty;
     public bool ActionsToolbarLockPosition = false;
     public bool ActionsToolbarStayTopMost = true;
-    public List<Color> RecentColors = new();
+    public List<Color> RecentColors = [];
     [Category("Application"), DefaultValue(false), Description("Calculate and show file sizes in binary units (KiB, MiB etc.)")]
     public bool BinaryUnits { get; set; }
     //
@@ -651,6 +417,12 @@ public class RootConfiguration
     //
     [Category("Application"), DefaultValue(false), Description("Automatically expand capture menu when you open the tray menu.")]
     public bool TrayAutoExpandCaptureMenu { get; set; }
+    [Category("Application"), DefaultValue(false), Description("Prevent the application from logging to a file")]
+    public bool DisableLogging { get; set; }
+
+    [Category("Application"), DefaultValue(false),
+     Description("Application crash analytics and usage analytics that are anonymized.")]
+    public bool DisableTelemetry { get; set; } = false;
     //
     [Category("Application"), DefaultValue(true), Description("Show tips and hotkeys in main window when task list is empty.")]
     public bool ShowMainWindowTip { get; set; }

@@ -64,15 +64,15 @@ public sealed class Paste_ee : TextUploader
             encrypted = EncryptPaste,
             description = string.Empty,
             expiration = "never",
-            sections = new[]
-            {
+            sections =
+            [
                 new Paste_eeSubmitRequestBodySection
                 {
                     name = string.Empty,
                     syntax = "autodetect",
                     contents = text
                 }
-            }
+            ]
         };
 
         var json = JsonSerializer.Serialize(requestBody);

@@ -55,7 +55,7 @@ public partial class HistoryItemManager
         IsImageURL = IsURLExist && FileHelpers.IsImageFile(HistoryItem.URL);
         IsTextURL = IsURLExist && FileHelpers.IsTextFile(HistoryItem.URL);
         IsFilePathValid = !string.IsNullOrEmpty(HistoryItem.FilePath) && Path.HasExtension(HistoryItem.FilePath);
-        IsFileExist = IsFilePathValid && System.IO.File.Exists(HistoryItem.FilePath);
+        IsFileExist = IsFilePathValid && File.Exists(HistoryItem.FilePath);
         IsImageFile = IsFileExist && FileHelpers.IsImageFile(HistoryItem.FilePath);
         IsTextFile = IsFileExist && FileHelpers.IsTextFile(HistoryItem.FilePath);
 

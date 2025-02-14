@@ -42,8 +42,10 @@ public sealed class LobFile : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("api_key", Config.UserAPIKey);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "api_key", Config.UserAPIKey }
+        };
 
         UploadResult result = SendRequestFile("https://lobfile.com/api/v3/upload", stream, fileName, "file", args);
 

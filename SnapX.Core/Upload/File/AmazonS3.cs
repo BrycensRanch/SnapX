@@ -54,8 +54,8 @@ public sealed class AmazonS3 : FileUploader
     private const string DefaultRegion = "us-east-1";
 
     // http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
-    public static List<AmazonS3Endpoint> Endpoints { get; } = new()
-    {
+    public static List<AmazonS3Endpoint> Endpoints { get; } =
+    [
         new("Asia Pacific (Hong Kong)", "s3.ap-east-1.amazonaws.com", "ap-east-1"),
         new("Asia Pacific (Mumbai)", "s3.ap-south-1.amazonaws.com", "ap-south-1"),
         new("Asia Pacific (Seoul)", "s3.ap-northeast-2.amazonaws.com", "ap-northeast-2"),
@@ -82,7 +82,7 @@ public sealed class AmazonS3 : FileUploader
         new("DigitalOcean (San Francisco)", "sfo2.digitaloceanspaces.com", "sfo2"),
         new("DigitalOcean (Singapore)", "sgp1.digitaloceanspaces.com", "sgp1"),
         new("Wasabi", "s3.wasabisys.com")
-    };
+    ];
 
     private AmazonS3Settings Settings { get; set; }
 

@@ -233,13 +233,15 @@ public sealed class SendSpace : FileUploader
     /// <returns>true = success, false = error</returns>
     public bool AuthRegister(string username, string fullname, string email, string password)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("method", "auth.register");
-        args.Add("api_key", APIKey);
-        args.Add("user_name", username);
-        args.Add("full_name", fullname);
-        args.Add("email", email);
-        args.Add("password", password);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "method", "auth.register" },
+            { "api_key", APIKey },
+            { "user_name", username },
+            { "full_name", fullname },
+            { "email", email },
+            { "password", password }
+        };
 
         string response = SendRequestMultiPart(APIURL, args);
 
@@ -258,12 +260,14 @@ public sealed class SendSpace : FileUploader
     /// <returns>A token to be used with the auth.login method</returns>
     public string AuthCreateToken()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("method", "auth.createToken");
-        args.Add("api_key", APIKey); // Received from sendspace
-        args.Add("api_version", APIVersion); // Value must be: 1.0
-        args.Add("app_version", AppVersion); // Application specific, formatting / style is up to you
-        args.Add("response_format", "xml"); // Value must be: XML
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "method", "auth.createToken" },
+            { "api_key", APIKey }, // Received from sendspace
+            { "api_version", APIVersion }, // Value must be: 1.0
+            { "app_version", AppVersion }, // Application specific, formatting / style is up to you
+            { "response_format", "xml" } // Value must be: XML
+        };
 
         string response = SendRequestMultiPart(APIURL, args);
 
@@ -290,10 +294,12 @@ public sealed class SendSpace : FileUploader
     /// <returns>Account informations including session key</returns>
     public LoginInfo AuthLogin(string token, string username, string password)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("method", "auth.login");
-        args.Add("token", token);
-        args.Add("user_name", username);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "method", "auth.login" },
+            { "token", token },
+            { "user_name", username }
+        };
         // lowercase(md5(token+lowercase(md5(password)))) - md5 values should always be lowercase.
         string passwordHash = TranslatorHelper.TextToHash(password, HashType.MD5);
         args.Add("tokened_password", TranslatorHelper.TextToHash(token + passwordHash, HashType.MD5));
@@ -322,9 +328,11 @@ public sealed class SendSpace : FileUploader
     /// <returns>true = success, false = error</returns>
     public bool AuthCheckSession(string sessionKey)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("method", "auth.checkSession");
-        args.Add("session_key", sessionKey);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "method", "auth.checkSession" },
+            { "session_key", sessionKey }
+        };
 
         string response = SendRequestMultiPart(APIURL, args);
 
@@ -354,9 +362,11 @@ public sealed class SendSpace : FileUploader
     /// <returns>true = success, false = error</returns>
     public bool AuthLogout(string sessionKey)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("method", "auth.logout");
-        args.Add("session_key", sessionKey);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "method", "auth.logout" },
+            { "session_key", sessionKey }
+        };
 
         string response = SendRequestMultiPart(APIURL, args);
 
@@ -380,10 +390,12 @@ public sealed class SendSpace : FileUploader
     /// <returns>URL to upload the file to, progress_url for real-time progress information, max_file_size for max size current user can upload, upload_identifier & extra_info to be passed with the upload form</returns>
     public UploadInfo UploadGetInfo(string sessionKey)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("method", "upload.getInfo");
-        args.Add("session_key", sessionKey);
-        args.Add("speed_limit", SpeedLimit.ToString());
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "method", "upload.getInfo" },
+            { "session_key", sessionKey },
+            { "speed_limit", SpeedLimit.ToString() }
+        };
 
         string response = SendRequest(HttpMethod.Get, APIURL, args);
 
@@ -407,12 +419,14 @@ public sealed class SendSpace : FileUploader
     /// <returns>URL to upload the file to, progress_url for real-time progress information, max_file_size for max size current user can upload, upload_identifier & extra_info to be passed in the upload form</returns>
     public UploadInfo AnonymousUploadGetInfo()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("method", "anonymous.uploadGetInfo");
-        args.Add("speed_limit", SpeedLimit.ToString());
-        args.Add("api_key", APIKey);
-        args.Add("api_version", APIVersion);
-        args.Add("app_version", AppVersion);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "method", "anonymous.uploadGetInfo" },
+            { "speed_limit", SpeedLimit.ToString() },
+            { "api_key", APIKey },
+            { "api_version", APIVersion },
+            { "app_version", AppVersion }
+        };
 
         string response = SendRequest(HttpMethod.Get, APIURL, args);
 
@@ -446,10 +460,12 @@ public sealed class SendSpace : FileUploader
     public Dictionary<string, string> PrepareArguments(string max_file_size, string upload_identifier, string extra_info,
         string description, string password, string folder_id, string recipient_email, string notify_uploader, string redirect_url)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>();
-        args.Add("MAX_FILE_SIZE", max_file_size);
-        args.Add("UPLOAD_IDENTIFIER", upload_identifier);
-        args.Add("extra_info", extra_info);
+        Dictionary<string, string> args = new Dictionary<string, string>
+        {
+            { "MAX_FILE_SIZE", max_file_size },
+            { "UPLOAD_IDENTIFIER", upload_identifier },
+            { "extra_info", extra_info }
+        };
 
         // Optional fields
 

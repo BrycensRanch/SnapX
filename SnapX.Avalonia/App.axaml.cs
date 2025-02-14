@@ -25,9 +25,9 @@ public class App : Application
         };
         // for macOS
         Current!.Name = Core.SnapX.AppName;
-        #if DEBUG
-          Current.AttachDevTools();
-        #endif
+#if DEBUG
+        Current.AttachDevTools();
+#endif
 
         // Default logic doesn't auto detect windows theme anymore in designer
         // to stop light mode, force here
@@ -45,7 +45,15 @@ public class App : Application
         var stackPanel = new StackPanel
         {
             Orientation = Orientation.Vertical,
+            Spacing = 3,
+
+
+        };
+        var buttonPanel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
             Spacing = 5,
+            HorizontalAlignment = HorizontalAlignment.Right,
 
 
         };
@@ -54,22 +62,38 @@ public class App : Application
         {
             Text = ex.GetType() + ": " + ex.Message,
             FontWeight = FontWeight.Bold,
-            Padding = new Thickness(10)
+            // Padding = new Thickness(10)
         });
         stackPanel.Children.Add(new SelectableTextBlock
         {
             Text = ex.StackTrace,
             FontWeight = FontWeight.SemiLight,
-            Padding = new Thickness(10),
+            // Padding = new Thickness(10),
         });
+        var innerException = ex.InnerException;
+        if (innerException != null)
+        {
+            stackPanel.Children.Add(new SelectableTextBlock
+            {
+                Text = innerException.GetType() + ": " + innerException.Message,
+                FontWeight = FontWeight.Bold,
+                // Padding = new Thickness(10)
+            });
+            stackPanel.Children.Add(new SelectableTextBlock
+            {
+                Text = innerException.StackTrace,
+                FontWeight = FontWeight.SemiLight,
+                // Padding = new Thickness(10),
+            });
+        }
         stackPanel.Children.Add(new SelectableTextBlock
         {
             Text = GetType().Assembly.GetName().Name + ": " + GetType().Assembly.GetName().Version,
             FontWeight = FontWeight.SemiLight,
             FontSize = 16,
             FontFamily = new FontFamily("Consolas"),
-            Padding = new Thickness(10),
-            HorizontalAlignment = HorizontalAlignment.Center,
+            // Padding = new Thickness(10),
+            HorizontalAlignment = HorizontalAlignment.Left,
         });
 
         var reportButton = new Button
@@ -92,10 +116,11 @@ public class App : Application
             Content = Lang.CreateGitHubIssue,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 5, 0, 0),
-            Background = Brushes.GreenYellow,
-            Foreground = Brushes.White,
-            BorderBrush = Brushes.PaleGreen,
+            Background = Brushes.Green,
+            // Foreground = Brushes.White,
+            // BorderBrush = Brushes.IndianRed,
             BorderThickness = new Thickness(1),
+            FontSize = 16,
             Padding = new Thickness(10),
             FontWeight = FontWeight.Bold,
             CornerRadius = new CornerRadius(5)
@@ -108,9 +133,10 @@ public class App : Application
             Content = Lang.CopyErrorToClipboard,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 5, 0, 0),
-            Background = Brushes.Green,
-            Foreground = Brushes.White,
-            BorderBrush = Brushes.Green,
+            // Background = Brushes.Green,
+            // Foreground = Brushes.White,
+            // BorderBrush = Brushes.Green,
+            Background = Brushes.SlateGray,
             BorderThickness = new Thickness(1),
             Padding = new Thickness(10),
             FontWeight = FontWeight.Bold,
@@ -121,9 +147,10 @@ public class App : Application
         copyButton.Click += (sender, e) => CopyErrorToClipboard(ex.ToString());
 
 
-        stackPanel.Children.Add(reportButton);
-        stackPanel.Children.Add(githubButton);
-        stackPanel.Children.Add(copyButton);
+        buttonPanel.Children.Add(reportButton);
+        buttonPanel.Children.Add(githubButton);
+        buttonPanel.Children.Add(copyButton);
+        stackPanel.Children.Add(buttonPanel);
 
         // Create and show the error dialog with the formatted message
         var dialog = new Window
@@ -150,12 +177,7 @@ public class App : Application
         URLHelpers.OpenURL(newIssueURL);
     }
 
-    private void CopyErrorToClipboard(string errorMessage)
-    {
-        // Copy the error message (exception + stack trace) to the clipboard
-        Clipboard.CopyText(errorMessage);
-        Console.WriteLine("Error copied to clipboard.");
-    }
+    private void CopyErrorToClipboard(string errorMessage) => Clipboard.CopyText(errorMessage);
 
     private void OnReportErrorClicked()
     {
@@ -172,7 +194,7 @@ public class App : Application
             desktop.ShutdownRequested += (_, _) =>
             {
                 sigintReceived = true;
-                DebugHelper.WriteLine("Recieved Shutdown from Avalonia");
+                DebugHelper.WriteLine("Received Shutdown from Avalonia");
                 SnapX.shutdown();
                 desktop.Shutdown();
             };
@@ -183,6 +205,7 @@ public class App : Application
                 sigintReceived = true;
 
                 DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
+                SnapX.shutdown();
                 desktop.Shutdown();
             };
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
@@ -199,6 +222,7 @@ public class App : Application
                 }
             };
             var errorStarting = false;
+            // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
             try
             {
                 SnapX.start(desktop.Args ?? []);
@@ -212,9 +236,7 @@ public class App : Application
             if (errorStarting) return;
             DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
             if (SnapX.isSilent()) return;
-            var about = new AboutWindow();
-            about.Show();
-            var Window = new MainWindow();
+            var Window = new MainView();
             Window.Show();
             desktop.MainWindow = Window;
 
@@ -222,7 +244,13 @@ public class App : Application
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
         {
             if (SnapX.isSilent()) return;
-            // singleView.MainView = new MainView();
+            singleView.MainView = new MainView();
         }
+    }
+
+    private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E)
+    {
+        var aboutWindow = new AboutWindow();
+        aboutWindow.Show();
     }
 }

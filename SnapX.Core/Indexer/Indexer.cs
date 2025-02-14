@@ -33,6 +33,29 @@ public abstract class Indexer
 
         return indexer?.Index(folderPath);
     }
+    public static string Index(string folderPath, IndexerSettings settings)
+    {
+        Indexer indexer = null;
+
+        switch (settings.Output)
+        {
+            case IndexerOutput.Html:
+                indexer = new IndexerHtml(settings);
+                break;
+            case IndexerOutput.Txt:
+                indexer = new IndexerText(settings);
+                break;
+            case IndexerOutput.Xml:
+                indexer = new IndexerXml(settings);
+                break;
+            case IndexerOutput.Json:
+                indexer = new IndexerJson(settings);
+                break;
+        }
+
+        return indexer.Index(folderPath);
+    }
+
     protected abstract void IndexFolder(FolderInfo dir, int level = 0);
 
     protected FolderInfo GetFolderInfo(string folderPath, int level = 0)

@@ -95,14 +95,14 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
 
         if (SetPublicACL)
         {
-            googleCloudStorageMetadata.acl = new[]
-            {
+            googleCloudStorageMetadata.acl =
+            [
                 new GoogleCloudStorageAcl
                 {
                     entity = "allUsers",
                     role = "READER"
                 }
-            };
+            ];
         }
 
         var serializedGoogleCloudStorageMetadata = JsonSerializer.Serialize(googleCloudStorageMetadata);

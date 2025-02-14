@@ -35,6 +35,16 @@ public static class StringExtensions
         return str;
     }
 
+    public static string AfterLast(this string input, char delimiter)
+    {
+        if (string.IsNullOrEmpty(input)) return string.Empty;
+
+        var lastIndex = input.LastIndexOf(delimiter);
+        if (lastIndex == -1 || lastIndex == input.Length - 1) return string.Empty;
+
+        return input[(lastIndex + 1)..];
+    }
+
     public static string RemoveRight(this string str, int length)
     {
         if (length < 1) return "";
@@ -260,7 +270,7 @@ public static class StringExtensions
 
     public static string[] Lines(this string text)
     {
-        return text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+        return text.Split(["\r\n", "\n"], StringSplitOptions.None);
     }
 
     public static string ReplaceNewLines(this string text, string replacement = "\r\n")

@@ -139,7 +139,7 @@ public class UploadersConfig
 
     #region FTP
 
-    public List<FTPAccount> FTPAccountList { get; set; } = new();
+    public List<FTPAccount> FTPAccountList { get; set; } = [];
     public int FTPSelectedImage { get; set; } = 0;
     public int FTPSelectedText { get; set; } = 0;
     public int FTPSelectedFile { get; set; } = 0;
@@ -200,7 +200,7 @@ public class UploadersConfig
 
     #region Shared folder
 
-    public List<LocalhostAccount> LocalhostAccountList { get; set; } = new();
+    public List<LocalhostAccount> LocalhostAccountList { get; set; } = [];
     public int LocalhostSelectedImages { get; set; } = 0;
     public int LocalhostSelectedText { get; set; } = 0;
     public int LocalhostSelectedFiles { get; set; } = 0;
@@ -436,7 +436,7 @@ public class UploadersConfig
 
     #region Twitter
 
-    public List<OAuthInfo> TwitterOAuthInfoList { get; set; } = new();
+    public List<OAuthInfo> TwitterOAuthInfoList { get; set; } = [];
     public int TwitterSelectedAccount { get; set; } = 0;
     public bool TwitterSkipMessageBox { get; set; } = false;
     public string TwitterDefaultMessage { get; set; } = "";
@@ -445,7 +445,7 @@ public class UploadersConfig
 
     #region Custom uploaders
 
-    public List<CustomUploaderItem> CustomUploadersList { get; set; } = new();
+    public List<CustomUploaderItem> CustomUploadersList { get; set; } = [];
     public int CustomImageUploaderSelected { get; set; } = 0;
     public int CustomTextUploaderSelected { get; set; } = 0;
     public int CustomFileUploaderSelected { get; set; } = 0;

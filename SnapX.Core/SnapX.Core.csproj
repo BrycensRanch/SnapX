@@ -6,46 +6,61 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyTitle>SnapX Core</AssemblyTitle>
-    <!-- Uploader JSON migration is not done yet and doesn't work right with trimming. -->
-    <Optimize>false</Optimize>
-    <PublishTrimmed>false</PublishTrimmed>
-    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <Optimize>true</Optimize>
+    <PublishTrimmed>true</PublishTrimmed>
+    <!-- Rust support ;) -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
+
+  </PropertyGroup>
+
+  <!-- Feature Flags -->
+  <PropertyGroup Condition="'$(DisableTelemetry)' == '1'">
+    <DefineConstants>DISABLE_TELEMETRY</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(DisableAutoUpdates)' == '1'">
+    <DefineConstants>DISABLE_AUTO_UPDATES</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(DisableUploads)' == '1'">
+    <DefineConstants>DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
-    <PackageReference Include="JsonPath.Net" Version="2.0.0" />
+    <PackageReference Include="JsonPath.Net" Version="2.1.1" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.2" />
     <!-- Configuration has never been so intuitive -->
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
     <!-- Windows Registry Configuration Support -->
-    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" />
+    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- I am doing my very best to not touch COM directly -->
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0.0" PrivateAssets="all" />
-    <!-- Multi platform Screenshotting library -->
-    <PackageReference Include="ScreenCapture.NET" Version="3.0.0" />
-    <PackageReference Include="ScreenCapture.NET.DX11" Version="3.0.0" />
-    <PackageReference Include="ScreenCapture.NET.X11" Version="3.0.0" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <!-- Crash analtics & performance analytics -->
+    <PackageReference Include="Sentry" Version="5.1.1" />
+    <PackageReference Include="Sentry.Profiling" Version="5.1.1" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" Condition="'$(Configuration)'=='Debug'" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
     <!-- Helpers for drawing -->
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
+    <PackageReference Include="TesseractOCR" Version="5.4.2" />
     <!-- Wayland support -->
-    <PackageReference Include="Tmds.DBus" Version="0.21.2" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
-    <PackageReference Include="ZXing.Net" Version="0.16.9" />
-    <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.16" />
+    <PackageReference Include="ZXing.Net" Version="0.16.10" />
+    <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
     <PackageReference Include="FluentFTP" Version="52.0.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
@@ -67,6 +82,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\*.flac" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Localization\Resources.Designer.cs">
@@ -75,4 +91,15 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="WaylandProtocol" />
+    <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Model\" />
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+<ItemGroup>
+  <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
+</ItemGroup>
 </Project>

@@ -7,23 +7,26 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Reflection;
+using System.Text;
+
 namespace SnapX.Core.Resources {
     using System;
-    
-    
+
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
-        
+
         private static System.Resources.ResourceManager resourceMan;
-        
+
         private static System.Globalization.CultureInfo resourceCulture;
-        
+
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal Resources() {
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         internal static System.Resources.ResourceManager ResourceManager {
             get {
@@ -34,7 +37,7 @@ namespace SnapX.Core.Resources {
                 return resourceMan;
             }
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         internal static System.Globalization.CultureInfo Culture {
             get {
@@ -43,6 +46,42 @@ namespace SnapX.Core.Resources {
             set {
                 resourceCulture = value;
             }
+        }
+        public static Stream TaskCompletedSound
+        {
+            get
+            {
+                return GetSoundStream("TaskCompletedSound");
+            }
+        }
+        public static Stream ActionCompletedSound
+        {
+            get
+            {
+                return GetSoundStream("ActionCompletedSound");
+
+            }
+        }
+        public static Stream CaptureSound
+        {
+            get
+            {
+                return GetSoundStream("CaptureSound");
+            }
+        }
+        public static Stream ErrorSound
+        {
+            get
+            {
+                return GetSoundStream("ErrorSound");
+            }
+        }
+
+        private static Stream GetSoundStream(string soundName)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var name = assembly.GetName().Name;
+            return assembly.GetManifestResourceStream($"{name}.Resources.{soundName}.flac");
         }
     }
 }

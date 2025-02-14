@@ -6,32 +6,31 @@ using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 
-namespace SnapX.Core.Upload.File
+namespace SnapX.Core.Upload.File;
+
+public class TransfershFileUploaderService : FileUploaderService
 {
-    public class TransfershFileUploaderService : FileUploaderService
+    public override FileDestination EnumValue { get; } = FileDestination.Transfersh;
+
+    public override bool CheckConfig(UploadersConfig config) => true;
+
+    public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        public override FileDestination EnumValue { get; } = FileDestination.Transfersh;
-
-        public override bool CheckConfig(UploadersConfig config) => true;
-
-        public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
-        {
-            return new Transfersh();
-        }
+        return new Transfersh();
     }
+}
 
-    public sealed class Transfersh : FileUploader
+public sealed class Transfersh : FileUploader
+{
+    public override UploadResult Upload(Stream stream, string fileName)
     {
-        public override UploadResult Upload(Stream stream, string fileName)
+        UploadResult result = SendRequestFile("https://transfer.sh", stream, fileName, "file");
+
+        if (result.IsSuccess)
         {
-            UploadResult result = SendRequestFile("https://transfer.sh", stream, fileName, "file");
-
-            if (result.IsSuccess)
-            {
-                result.URL = result.Response.Trim();
-            }
-
-            return result;
+            result.URL = result.Response.Trim();
         }
+
+        return result;
     }
 }

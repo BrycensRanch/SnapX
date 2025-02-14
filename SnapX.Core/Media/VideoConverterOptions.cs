@@ -33,7 +33,7 @@ public class VideoConverterOptions
         }
     }
 
-    private static readonly string[] AnimationOnlyFiles = new string[] { "gif", "webp", "png", "apng" };
+    private static readonly string[] AnimationOnlyFiles = ["gif", "webp", "png", "apng"];
 
     public bool IsInputFileAnimationOnly
     {

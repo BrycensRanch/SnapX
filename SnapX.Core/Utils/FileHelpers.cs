@@ -15,11 +15,11 @@ namespace SnapX.Core.Utils;
 
 public static class FileHelpers
 {
-    public static readonly string[] ImageFileExtensions = new[] { "jpg", "jpeg", "png", "gif", "bmp", "ico", "tif", "tiff" };
-    public static readonly string[] TextFileExtensions = new[] { "txt", "log", "nfo", "c", "cpp", "cc", "cxx", "h", "hpp", "hxx", "cs", "vb",
-        "html", "htm", "xhtml", "xht", "xml", "css", "js", "php", "bat", "java", "lua", "py", "pl", "cfg", "ini", "dart", "go", "gohtml" };
-    public static readonly string[] VideoFileExtensions = new[] { "mp4", "webm", "mkv", "avi", "vob", "ogv", "ogg", "mov", "qt", "wmv", "m4p",
-        "m4v", "mpg", "mp2", "mpeg", "mpe", "mpv", "m2v", "m4v", "flv", "f4v" };
+    public static readonly string[] ImageFileExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "ico", "tif", "tiff"];
+    public static readonly string[] TextFileExtensions = [ "txt", "log", "nfo", "c", "cpp", "cc", "cxx", "h", "hpp", "hxx", "cs", "vb",
+        "html", "htm", "xhtml", "xht", "xml", "css", "js", "php", "bat", "java", "lua", "py", "pl", "cfg", "ini", "dart", "go", "gohtml" ];
+    public static readonly string[] VideoFileExtensions = [ "mp4", "webm", "mkv", "avi", "vob", "ogv", "ogg", "mov", "qt", "wmv", "m4p",
+        "m4v", "mpg", "mp2", "mpeg", "mpe", "mpv", "m2v", "m4v", "flv", "f4v" ];
 
     public static string GetFileNameExtension(string filePath, bool includeDot = false, bool checkSecondExtension = true)
     {
@@ -547,7 +547,7 @@ public static class FileHelpers
 
     public static void CopyFiles(string filePath, string destinationFolder)
     {
-        CopyFiles(new string[] { filePath }, destinationFolder);
+        CopyFiles([filePath], destinationFolder);
     }
 
     public static void CopyFiles(string[] files, string destinationFolder)
@@ -573,7 +573,7 @@ public static class FileHelpers
 
         if (ignoreFiles != null)
         {
-            List<string> newFiles = new List<string>();
+            List<string> newFiles = [];
 
             foreach (string file in files)
             {

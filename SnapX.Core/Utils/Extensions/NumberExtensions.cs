@@ -7,8 +7,8 @@ namespace SnapX.Core.Utils.Extensions;
 
 public static class NumberExtensions
 {
-    private static readonly string[] suffixDecimal = new[] { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
-    private static readonly string[] suffixBinary = new[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
+    private static readonly string[] suffixDecimal = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+    private static readonly string[] suffixBinary = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
 
     public static T Min<T>(this T num, T min) where T : IComparable<T>
     {

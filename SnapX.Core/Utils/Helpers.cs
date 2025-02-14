@@ -64,30 +64,15 @@ public static class Helpers
     }
     public static string GetImageExtension(Image image)
     {
-        if (image.Metadata.DecodedImageFormat is JpegFormat)
+        return image.Metadata.DecodedImageFormat switch
         {
-            return ".jpg";
-        }
-        else if (image.Metadata.DecodedImageFormat is PngFormat)
-        {
-            return ".png";
-        }
-        else if (image.Metadata.DecodedImageFormat is GifFormat)
-        {
-            return ".gif";
-        }
-        else if (image.Metadata.DecodedImageFormat is WebpFormat)
-        {
-            return ".webp";
-        }
-        else if (image.Metadata.DecodedImageFormat is TiffFormat)
-        {
-            return ".tiff";
-        }
-        else
-        {
-            return ".png"; // Default to PNG if format is unknown
-        }
+            JpegFormat => ".jpg",
+            PngFormat => ".png",
+            GifFormat => ".gif",
+            WebpFormat => ".webp",
+            TiffFormat => ".tiff",
+            _ => ".png"
+        };
     }
 
     public static string StripPII(string input)
@@ -102,8 +87,11 @@ public static class Helpers
             RegexOptions.IgnoreCase);
         var publicIPRegex = new Regex(@"^(?!10(\.|\b))(?!(172\.(1[6-9]|2[0-9]|3[01])(\.|\b)))(?!(192\.168(\.|\b)))(?!0(\.|\b))(?!(255(\.|\b)))(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
         var publicIPv6Regex = new Regex(@"^(?!fe80(:|::))(?!fc00(:|::))(?!ff00(:|::))(?!::1$)(?!2001:db8::)(?!::ffff:.*)([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$", RegexOptions.IgnoreCase);
+        var credentialsRegex = new Regex(@"(?i)(Authorization|Client\-Id|Client\-Token|Api\-Key)\s*:\s*([A-Za-z0-9\-_.]+)", RegexOptions.IgnoreCase);
+
         input = Regex.Replace(input, usernamePattern, "[REDACTED USERNAME]", RegexOptions.IgnoreCase);
         input = Regex.Replace(input, hostnamePattern, "[REDACTED HOSTNAME]", RegexOptions.IgnoreCase);
+        input = credentialsRegex.Replace(input, "[REDACTED CREDENTIALS]");
         input = emailRegex.Replace(input, "[REDACTED EMAIL]");
         input = publicIPRegex.Replace(input, "[REDACTED IPv4]");
         input = publicIPv6Regex.Replace(input, "[REDACTED IPv6]");
@@ -120,8 +108,8 @@ public static class Helpers
         try
         {
             // Format the title and body for the issue
-            var title = "[BUG] " + ex.Message;  // Prefix the title with [BUG]
-            var body = StripPII($"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n{ex.StackTrace}\n\nAssembly: {Assembly.GetExecutingAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}");
+            var title = "[BUG] " + ex.Message;
+            var body = StripPII($"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n```\n{ex.StackTrace}\n```\n\nInner Exception: {ex.InnerException?.Message}\n\n## Stack Trace:\n\n```\n{ex.InnerException?.StackTrace}\n```\n\nAssembly: {Assembly.GetEntryAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}");
 
             var encodedTitle = HttpUtility.UrlEncode(title);
             var encodedBody = HttpUtility.UrlEncode(body);
@@ -293,11 +281,6 @@ public static class Helpers
         return Version.Parse(version).Normalize(ignoreRevision);
     }
 
-    public static bool IsWindows10OrGreater(int build = -1)
-    {
-        return OSVersion.Major >= 10 && OSVersion.Build >= build;
-    }
-
     public static bool IsWindows11OrGreater(int build = -1)
     {
         build = System.Math.Max(22000, build);
@@ -315,10 +298,18 @@ public static class Helpers
     {
         if (stream == null)
         {
+            DebugHelper.Logger.Warning("PlaySoundAsync: stream is null");
             return;
         }
-        Task.Run(() =>
-            throw new NotImplementedException("PlaySoundAsync (stream) not implemented"));
+
+        if (!stream.CanRead)
+        {
+            DebugHelper.Logger.Warning("PlaySoundAsync: stream is not readable");
+            return;
+        }
+        // if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
+        DebugHelper.WriteLine("PlaySoundAsync: is not implemented");
+
     }
 
 
@@ -326,8 +317,13 @@ public static class Helpers
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
 
-        Task.Run(() =>
-            throw new NotImplementedException("PlaySoundAsync (filePath) not implemented"));
+
+        /*Task.Run(() =>
+        {*/
+            PlaySoundAsync(File.OpenRead(filePath));
+        /*
+        });
+    */
     }
 
 
@@ -427,21 +423,33 @@ public static class Helpers
 
     private static int GetCurrentUid()
     {
+        var uidStr = Environment.GetEnvironmentVariable("UID");
+        if (!string.IsNullOrEmpty(uidStr) && int.TryParse(uidStr, out var uid)) return uid;
 
-        var processStartInfo = new ProcessStartInfo
+        try
         {
-            FileName = "id",
-            Arguments = "-u",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = "id",
+                Arguments = "-u",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-        using var process = Process.Start(processStartInfo);
-        if (process == null) return 1000;
-        using var reader = process.StandardOutput;
-        var output = reader.ReadToEnd();
-        return int.Parse(output.Trim());
+            using var process = Process.Start(processStartInfo);
+            if (process == null) return 1000;
+
+            process.WaitForExit();
+            if (process.ExitCode != 0) return 1000;
+
+            using var reader = process.StandardOutput;
+            var output = reader.ReadToEnd();
+            if (int.TryParse(output.Trim(), out uid)) return uid;
+
+            return 1000;
+        }
+        catch (Exception) { return 1000; }
     }
 
     public static bool IsRunning(string name)

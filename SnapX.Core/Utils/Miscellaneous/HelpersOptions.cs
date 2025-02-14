@@ -18,7 +18,7 @@ public static class HelpersOptions
     public static bool UseAlternativeClipboardGetImage { get; set; } = false;
     public static bool RotateImageByExifOrientationData { get; set; } = true;
     public static string BrowserPath { get; set; } = "";
-    public static List<Color> RecentColors { get; set; } = new List<Color>();
+    public static List<Color> RecentColors { get; set; } = [];
     public static string LastSaveDirectory { get; set; } = "";
     public static bool URLEncodeIgnoreEmoji { get; set; } = false;
     public static Dictionary<string, string> ShareXUserFolders { get; set; } = new()

@@ -10,10 +10,6 @@ public class SnapXCLIManager : CLIManager
     public SnapXCLIManager(string[] arguments) : base(arguments)
     {
     }
-    public async Task UseCommandLineArgs()
-    {
-        await UseCommandLineArgs(Commands);
-    }
 
     public async Task UseCommandLineArgs(List<CLICommand> commands)
     {
@@ -23,7 +19,6 @@ public class SnapXCLIManager : CLIManager
 
             foreach (CLICommand command in commands)
             {
-                DebugHelper.WriteLine("CommandLine: " + command);
 
                 if (command.IsCommand)
                 {
@@ -37,6 +32,7 @@ public class SnapXCLIManager : CLIManager
 
                 if (URLHelpers.IsValidURL(command.Command))
                 {
+                    DebugHelper.WriteLine("URL: " + command.Command);
                     UploadManager.DownloadAndUploadFile(command.Command, taskSettings);
                 }
                 else

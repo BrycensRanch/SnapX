@@ -1,0 +1,42 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core"
+        xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
+        xmlns:local="clr-namespace:SnapX.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        MinWidth="512" MinHeight="200"
+        MaxWidth="1024" MaxHeight="600"
+        x:Class="SnapX.Avalonia.MainView"
+        x:DataType="local:MainView"
+
+        Title="{Binding MainWindowName}">
+    <Design.DataContext>
+        <local:MainView/>
+    </Design.DataContext>
+    <Grid Background="#262626" ColumnDefinitions="Auto, *" MaxWidth="400">
+        <Border Padding="20">
+            <Grid RowDefinitions="*, Auto">
+                <StackPanel Spacing="12">
+                    <Button HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Classes="icon" Content="#3335a"></Label>
+                            <Label Classes="akko" Content="Capture"></Label>
+                        </StackPanel>
+                    </Button>
+                    <TextBox Text="{x:Static utils:Lang.WelcomeMessage}" Classes="h1"/>
+
+                    <!-- TextBox for the image URL with placeholder text -->
+                    <TextBox Name="ImageURLTextBox" Watermark="https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg"
+                             Margin="0,0,0,10"/>
+
+                    <!-- Button that triggers the upload action -->
+                    <Button Content="Upload Remote Image" Click="OnDemoTestButtonClick"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+
+

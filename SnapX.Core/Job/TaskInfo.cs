@@ -144,7 +144,7 @@ public class TaskInfo
     {
         if (Metadata != null)
         {
-            Dictionary<string, string> tags = new Dictionary<string, string>();
+            Dictionary<string, string> tags = [];
 
             if (!string.IsNullOrEmpty(Metadata.WindowTitle))
             {

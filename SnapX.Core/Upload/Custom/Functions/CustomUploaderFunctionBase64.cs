@@ -4,25 +4,24 @@
 
 using SnapX.Core.Utils.Cryptographic;
 
-namespace SnapX.Core.Upload.Custom.Functions
+namespace SnapX.Core.Upload.Custom.Functions;
+
+// Example: Basic {base64:username:password}
+internal class CustomUploaderFunctionBase64 : CustomUploaderFunction
 {
-    // Example: Basic {base64:username:password}
-    internal class CustomUploaderFunctionBase64 : CustomUploaderFunction
+    public override string Name { get; } = "base64";
+
+    public override int MinParameterCount { get; } = 1;
+
+    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
     {
-        public override string Name { get; } = "base64";
+        string text = parameters[0];
 
-        public override int MinParameterCount { get; } = 1;
-
-        public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+        if (!string.IsNullOrEmpty(text))
         {
-            string text = parameters[0];
-
-            if (!string.IsNullOrEmpty(text))
-            {
-                return TranslatorHelper.TextToBase64(text);
-            }
-
-            return null;
+            return TranslatorHelper.TextToBase64(text);
         }
+
+        return null;
     }
 }

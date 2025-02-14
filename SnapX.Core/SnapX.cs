@@ -80,8 +80,6 @@ public class SnapX
             return title;
         }
     }
-    public static string MainWindowName => Title + " " + VersionText;
-
     public static bool MultiInstance { get; private set; }
     public static bool Portable { get; private set; }
     public static bool LogToConsole { get; private set; } = true;
@@ -95,7 +93,7 @@ public class SnapX
     internal static RootConfiguration Settings { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
-    internal static TaskSettings DefaultTaskSettings { get; set; }
+    internal static TaskSettings DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
     internal static UploadersConfig UploadersConfig { get; set; }
     internal static HotkeysConfig HotkeysConfig { get; set; }
 
@@ -151,7 +149,6 @@ public class SnapX
                 : BaseDirectory.ConfigHome,
             AppName)
         : CustomConfigPath;
-
     public const string HistoryFileName = "History.json";
 
     public static string HistoryFilePath
@@ -177,17 +174,18 @@ public class SnapX
     }
 
     public const string LogsFolderName = "Logs";
-
-    public static string LogsFolder => Path.Combine(PersonalFolder, LogsFolderName);
+    // On Linux, strictly adhere to XDG BaseDirectory spec.
+    // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyways so it doesn't really matter.
+    public static string LogsFolder => OperatingSystem.IsLinux() ? Path.Combine(BaseDirectory.StateHome, AppName, LogsFolderName): Path.Combine(PersonalFolder, LogsFolderName) ;
 
     public static string LogsFilePath
     {
         get
         {
-            // if (SystemOptions.DisableLogging)
-            // {
-            //     return null;
-            // }
+            if (Settings.DisableLogging)
+            {
+                return string.Empty;
+            }
             var date = DateTime.Now;
             return Path.Combine(LogsFolder, date.Year.ToString(), date.Month.ToString("D2"), $"SnapX-{date.Day}.log");
         }
@@ -257,9 +255,9 @@ public class SnapX
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
         CLIManager.ParseCommands();
-        CLIManager.UseCommandLineArgs().Wait();
+        CLIManager.UseCommandLineArgs(CLIManager.Commands).Wait();
 
-        if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute task as Admin
+        if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute a task as Admin
 
         UpdatePersonalPath();
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
@@ -296,16 +294,20 @@ public class SnapX
             DebugHelper.WriteLine($"Session Type: {sessionType}");
             DebugHelper.WriteLine($"Desktop Environment: {desktopEnvironment}{(desktopEnvironment == "KDE" ? $" {kdePlasmaMajorVersion}" : "")}");
         }
-        DebugHelper.WriteLine($"Platform: {RuntimeInformation.OSDescription}");
+        DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + RuntimeInformation.FrameworkDescription);
-        DebugHelper.WriteLine($"CPU: {OsInfo.GetProcessorName()} ({Environment.ProcessorCount})");
-        var (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
-        DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
-        DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
-        OsInfo.PrintGraphicsInfo();
-        // Linux is not supported for HDR detection.
-        if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR: {OsInfo.IsHdrSupported()}");
+
+        _ = Task.Run(() =>
+        {
+            DebugHelper.WriteLine($"CPU: {OsInfo.GetProcessorName()} ({Environment.ProcessorCount})");
+            var (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
+            DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
+            DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
+            OsInfo.PrintGraphicsInfo();
+            // Linux is not supported for HDR detection.
+            if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR Capable: {OsInfo.IsHdrSupported()}");
+        });
         IsAdmin = Helpers.IsAdministrator();
         DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
 
@@ -319,6 +321,39 @@ public class SnapX
         DebugWriteFlags();
         // SettingManager.LoadInitialSettings();
         SettingManager.LoadAllSettings();
+        if (!FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry)
+            SentrySdk.Init(options =>
+            {
+                options.Dsn = "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
+
+                // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
+                options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
+
+                // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
+                options.IsGlobalModeEnabled = true;
+
+                // This option is recommended. It enables Sentry's "Release Health" feature.
+                options.AutoSessionTracking = true;
+
+                // Set TracesSampleRate to 1.0 to capture 100%
+                // of transactions for tracing.
+                options.TracesSampleRate = 0.2;
+
+                // Sample rate for profiling, applied on top of the TracesSampleRate,
+                // e.g. 0.2 means we want to profile 20 % of the captured transactions.
+                // We recommend adjusting this value in production.
+                options.ProfilesSampleRate = 0.2;
+                options.AddIntegration(new ProfilingIntegration());
+
+                // This saves events for later when internet connectivity is poor/not working.
+                options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
+            });
+        if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
+        if (CLIManager.IsCommandExist("sound", "s"))
+        {
+                DebugHelper.WriteLine("Running Sound Command");
+                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+        }
         // CleanupManager.CleanupAsync();
 
     }
@@ -332,8 +367,11 @@ public class SnapX
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
+        if (!FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");
+        DebugHelper.FlushBufferedMessages();
+        Environment.Exit(0);
     }
 
     private static void UpdatePersonalPath()
@@ -353,11 +391,6 @@ public class SnapX
             CustomPersonalPath = PortablePersonalFolder;
             PersonalPathDetectionMethod = $"Portable file ({PortableCheckFilePath})";
         }
-        // else if (!string.IsNullOrEmpty(SystemOptions.PersonalPath))
-        // {
-        //     CustomPersonalPath = SystemOptions.PersonalPath;
-        //     PersonalPathDetectionMethod = "Registry";
-        // }
         else
         {
             MigratePersonalPathConfig();
@@ -395,7 +428,7 @@ public class SnapX
                 CustomPersonalPath = "";
             }
         }
-        if (!Directory.Exists(ConfigFolder)) Directory.CreateDirectory(ConfigFolder);
+        if (!Directory.Exists(ConfigFolder)) FileHelpers.CreateDirectory(ConfigFolder);
     }
 
     private static void CreateParentFolders()
@@ -426,7 +459,6 @@ public class SnapX
 
     private static void MigratePersonalPathConfig()
     {
-        DebugHelper.WriteLine("MigratePersonalPathConfig called");
         if (File.Exists(PreviousPersonalPathConfigFilePath))
         {
             try
@@ -542,9 +574,9 @@ public class SnapX
         if (SilentRun) flags.Add(nameof(SilentRun));
         if (Sandbox) flags.Add(nameof(Sandbox));
         if (IgnoreHotkeyWarning) flags.Add(nameof(IgnoreHotkeyWarning));
-        // if (SystemOptions.DisableUpdateCheck) flags.Add(nameof(SystemOptions.DisableUpdateCheck));
-        // if (SystemOptions.DisableUpload) flags.Add(nameof(SystemOptions.DisableUpload));
-        // if (SystemOptions.DisableLogging) flags.Add(nameof(SystemOptions.DisableLogging));
+        if (FeatureFlags.DisableTelemetry) flags.Add(nameof(FeatureFlags.DisableTelemetry));
+        if (FeatureFlags.DisableAutoUpdates) flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
+        if (FeatureFlags.DisableUploads) flags.Add(nameof(FeatureFlags.DisableUploads));
         if (PuushMode) flags.Add(nameof(PuushMode));
 
         var output = string.Join(", ", flags);
