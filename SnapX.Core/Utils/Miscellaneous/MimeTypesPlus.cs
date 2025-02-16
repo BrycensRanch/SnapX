@@ -13,6 +13,7 @@ public static class MimeTypesPlus
              mimeType.Equals(Mappings["apng"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["jpeg"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["gif"], StringComparison.OrdinalIgnoreCase) ||
+             mimeType.Equals(Mappings["bmp"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["webp"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["tiff"], StringComparison.OrdinalIgnoreCase));
     }
