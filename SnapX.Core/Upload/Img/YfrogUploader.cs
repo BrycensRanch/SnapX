@@ -65,7 +65,6 @@ public sealed class YfrogUploader : ImageUploader
             YfrogUploadType.UPLOAD_IMAGE_AND_TWITTER => throw new NotImplementedException("YfrogUploadType UPLOAD_IMAGE_AND_TWITTER is not implemented."),
             _ => throw new InvalidOperationException("Unknown upload type.")
         };
-
     }
 
     private UploadResult Upload(Stream stream, string fileName, string msg)

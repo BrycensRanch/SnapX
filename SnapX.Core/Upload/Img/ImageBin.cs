@@ -9,7 +9,6 @@ namespace SnapX.Core.Upload.Img;
 
 public sealed class ImageBin : ImageUploader
 {
-
     public override UploadResult Upload(Stream stream, string fileName)
     {
         var arguments = new Dictionary<string, string>

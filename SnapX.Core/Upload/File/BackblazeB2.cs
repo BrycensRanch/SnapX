@@ -390,7 +390,7 @@ public sealed class BackblazeB2 : ImageUploader
         string sha1Hash;
         file.Seek(0, SeekOrigin.Begin);
         byte[] bytes = SHA1.HashData(file);
-        sha1Hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        sha1Hash = Convert.ToHexStringLower(bytes);
         file.Seek(0, SeekOrigin.Begin);
         DebugHelper.WriteLine($"B2 uploader: SHA1 hash is '{sha1Hash}'.");
 

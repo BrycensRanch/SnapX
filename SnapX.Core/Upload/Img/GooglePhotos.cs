@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using CasCap.Models;
 using CasCap.Services;
 using Microsoft.Extensions.Logging;
@@ -60,7 +60,6 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
                 GooglePhotosScope.Sharing,
                 GooglePhotosScope.AppendOnly,
             }
-
         };
         Client.BaseAddress = new Uri(GPOptions.BaseAddress);
         var logger = new LoggerFactory().CreateLogger<GooglePhotosService>();
