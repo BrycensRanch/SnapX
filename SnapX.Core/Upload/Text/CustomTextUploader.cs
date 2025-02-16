@@ -124,7 +124,7 @@ public sealed class CustomTextUploader : TextUploader
                         uploader.RequestMethod,
                         uploader.GetRequestURL(input),
                         binaryStream,
-                        MimeTypes.GetMimeTypeFromFileName(fileName),
+                        MimeTypes.GetMimeType(fileName),
                         null,
                         uploader.GetHeaders(input)
                     );

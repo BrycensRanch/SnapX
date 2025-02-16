@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -32,7 +33,10 @@ public class MediaFireFileUploaderService : FileUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(MediaFire.SimpleUploadResponse))]
+[JsonSerializable(typeof(MediaFire.GetSessionTokenResponse))]
+[JsonSerializable(typeof(MediaFire.PollUploadResponse))]
+internal partial class MediaFireContext : JsonSerializerContext;
 public sealed class MediaFire : FileUploader
 {
     public string UploadPath { get; set; }
@@ -187,7 +191,10 @@ public sealed class MediaFire : FileUploader
 
         // Extract the value of the "response" property from the JSON document and deserialize it into T
         var responseElement = jsonDoc.RootElement.GetProperty("response");
-        return JsonSerializer.Deserialize<T>(responseElement.GetRawText());
+        return JsonSerializer.Deserialize<T>(responseElement.GetRawText(), new JsonSerializerOptions
+        {
+            TypeInfoResolver = MediaFireContext.Default
+        });
     }
     private static char IntToChar(int x)
     {
@@ -213,7 +220,7 @@ public sealed class MediaFire : FileUploader
         return url;
     }
 
-    private class MFResponse
+    public class MFResponse
     {
         public string result { get; set; }
         public int? error { get; set; }
@@ -221,14 +228,14 @@ public sealed class MediaFire : FileUploader
         public string new_key { get; set; }
     }
 
-    private class GetSessionTokenResponse : MFResponse
+    public class GetSessionTokenResponse : MFResponse
     {
         public string session_token { get; set; }
         public int? secret_key { get; set; }
         public string time { get; set; }
     }
 
-    private class SimpleUploadResponse : MFResponse
+    public class SimpleUploadResponse : MFResponse
     {
         public DoUpload doupload { get; set; }
 
@@ -239,7 +246,7 @@ public sealed class MediaFire : FileUploader
         }
     }
 
-    private class PollUploadResponse : MFResponse
+    public class PollUploadResponse : MFResponse
     {
         public DoUpload doupload { get; set; }
 

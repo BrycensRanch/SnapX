@@ -29,10 +29,21 @@ public class PushbulletFileUploaderService : FileUploaderService
     }
 }
 
+[JsonSerializable(typeof(Pushbullet.PushbulletResponseFileUpload))]
+[JsonSerializable(typeof(Pushbullet.PushbulletResponseDevice))]
+[JsonSerializable(typeof(Pushbullet.PushbulletResponseDevices))]
+[JsonSerializable(typeof(Pushbullet.PushbulletResponseFileUpload))]
+[JsonSerializable(typeof(Pushbullet.PushbulletResponsePush))]
+[JsonSerializable(typeof(Pushbullet.PushbulletResponseFileUploadData))]
+internal partial class PushbulletContext : JsonSerializerContext;
 public sealed class Pushbullet : FileUploader
 {
     public PushbulletSettings Config { get; private set; }
 
+    private JsonSerializerOptions Options = new()
+    {
+        TypeInfoResolver = PushbulletContext.Default
+    };
     public Pushbullet(PushbulletSettings config)
     {
         Config = config;
@@ -49,18 +60,18 @@ public sealed class Pushbullet : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public UploadResult PushFile(Stream stream, string fileName)
     {
-        NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
+        var headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
         Dictionary<string, string> pushArgs, upArgs = new Dictionary<string, string>
         {
             { "file_name", fileName }
         };
 
-        string uploadRequest = SendRequestMultiPart(apiRequestFileUploadURL, upArgs, headers);
+        var uploadRequest = SendRequestMultiPart(apiRequestFileUploadURL, upArgs, headers);
 
         if (uploadRequest == null) return null;
 
-        PushbulletResponseFileUpload fileInfo = JsonSerializer.Deserialize<PushbulletResponseFileUpload>(uploadRequest);
+        var fileInfo = JsonSerializer.Deserialize<PushbulletResponseFileUpload>(uploadRequest, Options);
 
         if (fileInfo == null) return null;
 
@@ -76,7 +87,7 @@ public sealed class Pushbullet : FileUploader
             { "content-type", fileInfo.data.content_type }
         };
 
-        UploadResult uploadResult = SendRequestFile(fileInfo.upload_url, stream, fileName, "file", upArgs);
+        var uploadResult = SendRequestFile(fileInfo.upload_url, stream, fileName, "file", upArgs);
 
         if (uploadResult == null) return null;
 
@@ -86,11 +97,11 @@ public sealed class Pushbullet : FileUploader
         pushArgs.Add("body", "Sent via SnapX");
         pushArgs.Add("file_type", fileInfo.file_type);
 
-        string pushResult = SendRequestMultiPart(apiSendPushURL, pushArgs, headers);
+        var pushResult = SendRequestMultiPart(apiSendPushURL, pushArgs, headers);
 
         if (pushResult == null) return null;
 
-        PushbulletResponsePush push = JsonSerializer.Deserialize<PushbulletResponsePush>(pushResult);
+        var push = JsonSerializer.Deserialize<PushbulletResponsePush>(pushResult, Options);
 
         if (push != null)
             uploadResult.URL = wwwPushesURL + "?push_iden=" + push.iden;
@@ -119,11 +130,11 @@ public sealed class Pushbullet : FileUploader
                 args.Add("body", "Sent via SnapX");
         }
 
-        string response = SendRequestMultiPart(apiSendPushURL, args, headers);
+        var response = SendRequestMultiPart(apiSendPushURL, args, headers);
 
         if (response == null) return null;
 
-        PushbulletResponsePush push = JsonSerializer.Deserialize<PushbulletResponsePush>(response);
+        var push = JsonSerializer.Deserialize<PushbulletResponsePush>(response, Options);
 
         if (push != null)
             return wwwPushesURL + "?push_iden=" + push.iden;
@@ -153,11 +164,11 @@ public sealed class Pushbullet : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public List<PushbulletDevice> GetDeviceList()
     {
-        NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
+        var headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
         string response = SendRequest(HttpMethod.Get, apiGetDevicesURL, headers: headers);
 
-        PushbulletResponseDevices devicesResponse = JsonSerializer.Deserialize<PushbulletResponseDevices>(response);
+        var devicesResponse = JsonSerializer.Deserialize<PushbulletResponseDevices>(response, Options);
 
         if (devicesResponse != null && devicesResponse.devices != null)
         {
@@ -167,18 +178,18 @@ public sealed class Pushbullet : FileUploader
         return [];
     }
 
-    private class PushbulletResponseDevices
+    public class PushbulletResponseDevices
     {
         public List<PushbulletResponseDevice> devices { get; set; }
     }
 
-    private class PushbulletResponseDevice
+    public class PushbulletResponseDevice
     {
         public string iden { get; set; }
         public string nickname { get; set; }
     }
 
-    private class PushbulletResponsePush
+    public class PushbulletResponsePush
     {
         public string iden { get; set; }
         public string device_iden { get; set; }
@@ -186,14 +197,14 @@ public sealed class Pushbullet : FileUploader
         public long created { get; set; }
     }
 
-    private class PushbulletResponsePushData
+    public class PushbulletResponsePushData
     {
         public string type { get; set; }
         public string title { get; set; }
         public string body { get; set; }
     }
 
-    private class PushbulletResponseFileUpload
+    public class PushbulletResponseFileUpload
     {
         public string file_type { get; set; }
         public string file_name { get; set; }
@@ -202,7 +213,7 @@ public sealed class Pushbullet : FileUploader
         public PushbulletResponseFileUploadData data { get; set; }
     }
 
-    private class PushbulletResponseFileUploadData
+    public class PushbulletResponseFileUploadData
     {
         public string awsaccesskeyid { get; set; }
         public string acl { get; set; }

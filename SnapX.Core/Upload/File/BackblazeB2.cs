@@ -406,7 +406,7 @@ public sealed class BackblazeB2 : ImageUploader
             ["X-Bz-Info-b2-content-disposition"] = URLHelpers.URLEncode(contentDisposition.ToString()),
         };
 
-        string contentType = MimeTypes.GetMimeTypeFromFileName(destinationPath);
+        string contentType = MimeTypes.GetMimeType(destinationPath);
 
         using (HttpWebResponse res = GetResponse(HttpMethod.Post, b2UploadUrl.uploadUrl,
             contentType: contentType, headers: headers, data: file, allowNon2xxResponses: true))

@@ -213,7 +213,7 @@ public sealed class FTP : FileUploader, IDisposable
             }
             catch (FtpCommandException e)
             {
-                // Probably directory not exist, try creating it
+                // Directly likely doesn't exist, try creating it
                 if (e.CompletionCode == "550" || e.CompletionCode == "553")
                 {
                     CreateMultiDirectory(URLHelpers.GetDirectoryPath(remotePath));

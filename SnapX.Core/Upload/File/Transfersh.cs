@@ -24,7 +24,7 @@ public sealed class Transfersh : FileUploader
 {
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        UploadResult result = SendRequestFile("https://transfer.sh", stream, fileName, "file");
+        var result = SendRequestFile("https://transfer.sh", stream, fileName, "file");
 
         if (result.IsSuccess)
         {

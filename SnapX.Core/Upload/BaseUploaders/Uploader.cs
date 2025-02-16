@@ -279,7 +279,7 @@ public class Uploader
             }
             contentLength = Math.Min(contentLength, data.Length - contentPosition);
 
-            string contentType = MimeTypes.GetMimeTypeFromFileName(fileName);
+            string contentType = MimeTypes.GetMimeType(fileName);
 
             if (headers == null)
             {

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Utils.Extensions;
@@ -19,14 +20,14 @@ public class UploadScreenshot : ImageUploader
 
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        Dictionary<string, string> arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string>
         {
             { "apiKey", APIKey },
             { "xmlOutput", "1" }
         };
         //arguments.Add("testMode", "1");
 
-        UploadResult result = SendRequestFile("https://img1.uploadscreenshot.com/api-upload.php", stream, fileName, "userfile", arguments);
+        var result = SendRequestFile("https://img1.uploadscreenshot.com/api-upload.php", stream, fileName, "userfile", arguments);
 
         return ParseResult(result);
     }

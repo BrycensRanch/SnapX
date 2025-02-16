@@ -4,74 +4,21 @@
 
 namespace SnapX.Core.Utils.Miscellaneous;
 
-public static class MimeTypes
+public static class MimeTypesPlus
 {
-    public static readonly string DefaultMimeType = "application/octet-stream";
-    private static readonly Dictionary<string, string> MimeTypeLookup = new()
-    {
-        { ".txt", "text/plain" },
-        { ".html", "text/html" },
-        { ".htm", "text/html" },
-        { ".css", "text/css" },
-        { ".js", "application/javascript" },
-        { ".json", "application/json" },
-        { ".jpg", "image/jpeg" },
-        { ".jpeg", "image/jpeg" },
-        { ".png", "image/png" },
-        { ".gif", "image/gif" },
-        { ".bmp", "image/bmp" },
-        { ".pdf", "application/pdf" },
-        { ".zip", "application/zip" },
-        // TODO: Look for Mime database
-    };
-
-    public static string GetMimeTypeFromExtension(string extension)
-    {
-        if (!string.IsNullOrEmpty(extension))
-        {
-            if (extension[0] == '.')
-            {
-                extension = extension.Substring(1);
-            }
-
-            if (Mappings.TryGetValue(extension, out string mime))
-            {
-                return mime;
-            }
-        }
-
-        return null;
-    }
-
-    public static string GetMimeTypeFromFileName(string fileName)
-    {
-        if (string.IsNullOrEmpty(fileName)) return DefaultMimeType;
-
-        string extension = Path.GetExtension(fileName)?.ToLowerInvariant();
-        if (string.IsNullOrEmpty(extension)) return DefaultMimeType;
-
-        // Try to get MIME type based on file extension
-        if (MimeTypeLookup.TryGetValue(extension, out string mimeType))
-        {
-            return mimeType;
-        }
-
-        // Fallback: Use some external library or predefined mapping for more comprehensive support
-        return DefaultMimeType;
-    }
-
     public static bool IsImageMimeType(string mimeType)
     {
         return !string.IsNullOrEmpty(mimeType) &&
             (mimeType.Equals(Mappings["png"], StringComparison.OrdinalIgnoreCase) ||
+             mimeType.Equals(Mappings["apng"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["jpeg"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["gif"], StringComparison.OrdinalIgnoreCase) ||
-            mimeType.Equals(Mappings["bmp"], StringComparison.OrdinalIgnoreCase) ||
+            mimeType.Equals(Mappings["webp"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["tiff"], StringComparison.OrdinalIgnoreCase));
     }
 
     // http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
-    private static Dictionary<string, string> Mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private static Dictionary<string, string> Mappings = new(StringComparer.OrdinalIgnoreCase)
     {
         { "123", "application/vnd.lotus-1-2-3" },
         { "3dml", "text/vnd.in3d.3dml" },

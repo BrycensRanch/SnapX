@@ -16,7 +16,7 @@ public class Paste2TextUploaderService : TextUploaderService
 
     public override GenericUploader CreateUploader(UploadersConfig config, TaskReferenceHelper taskInfo)
     {
-        Paste2Settings settings = new Paste2Settings()
+        var settings = new Paste2Settings()
         {
             TextFormat = taskInfo.TextFormat
         };

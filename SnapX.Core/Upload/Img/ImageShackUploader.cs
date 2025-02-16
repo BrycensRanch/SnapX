@@ -67,7 +67,12 @@ public sealed class ImageShackUploader : ImageUploader
             return false;
         }
 
-        var resp = JsonSerializer.Deserialize<ImageShackLoginResponse>(response);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = ImageShackContext.Default,
+        };
+
+        var resp = JsonSerializer.Deserialize<ImageShackLoginResponse>(response, options);
         if (resp?.result?.auth_token == null) return false;
 
         Config.Auth_token = resp.result.auth_token;
@@ -113,7 +118,11 @@ public sealed class ImageShackUploader : ImageUploader
     {
         if (root.TryGetProperty("error", out var error))
         {
-            var errorInfo = JsonSerializer.Deserialize<ImageShackErrorInfo>(error.GetRawText());
+            var options = new JsonSerializerOptions
+            {
+                TypeInfoResolver = ImageShackContext.Default,
+            };
+            var errorInfo = JsonSerializer.Deserialize<ImageShackErrorInfo>(error.GetRawText(), options);
             Errors.Add(errorInfo?.ToString());
         }
 

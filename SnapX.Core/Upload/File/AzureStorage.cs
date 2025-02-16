@@ -75,7 +75,7 @@ public sealed class AzureStorage : FileUploader
 
         OnEarlyURLCopyRequested(resultURL);
 
-        var contentType = MimeTypes.GetMimeTypeFromFileName(fileName);
+        var contentType = MimeTypes.GetMimeType(fileName);
         var requestHeaders = new NameValueCollection
         {
             { "x-ms-date", date },

@@ -58,7 +58,7 @@ public sealed class CustomImageUploader : ImageUploader
         }
         else if (uploader.Body == CustomUploaderBody.Binary)
         {
-            ur.Response = SendRequest(uploader.RequestMethod, uploader.GetRequestURL(input), stream, MimeTypes.GetMimeTypeFromFileName(fileName),
+            ur.Response = SendRequest(uploader.RequestMethod, uploader.GetRequestURL(input), stream, MimeTypes.GetMimeType(fileName),
                 null, uploader.GetHeaders(input));
         }
         else

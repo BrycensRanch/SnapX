@@ -58,9 +58,9 @@ public sealed class TwitSnapsUploader : ImageUploader
     {
         if (result.IsSuccess)
         {
-            XDocument xd = XDocument.Parse(result.Response);
+            var xd = XDocument.Parse(result.Response);
 
-            XElement xe = xd.Element("image");
+            var xe = xd.Element("image");
 
             if (xe != null)
             {

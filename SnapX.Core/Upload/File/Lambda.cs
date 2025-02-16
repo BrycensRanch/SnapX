@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -30,7 +31,8 @@ public class LambdaFileUploaderService : FileUploaderService
         return new Lambda(config.LambdaSettings);
     }
 }
-
+[JsonSerializable(typeof(Lambda.LambdaResponse))]
+internal partial class LambdaContext : JsonSerializerContext;
 public sealed class Lambda : FileUploader
 {
     public LambdaSettings Config { get; private set; }
@@ -48,11 +50,11 @@ public sealed class Lambda : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        Dictionary<string, string> arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string>
         {
             { "api_key", Config.UserAPIKey }
         };
-        UploadResult result = SendRequestFile(uploadUrl, stream, fileName, "file", arguments, method: HttpMethod.Put);
+        var result = SendRequestFile(uploadUrl, stream, fileName, "file", arguments, method: HttpMethod.Put);
 
         if (result.Response == null)
         {
@@ -60,7 +62,10 @@ public sealed class Lambda : FileUploader
             return result;
         }
 
-        LambdaResponse response = JsonSerializer.Deserialize<LambdaResponse>(result.Response);
+        var response = JsonSerializer.Deserialize<LambdaResponse>(result.Response, new JsonSerializerOptions
+        {
+            TypeInfoResolver = LambdaContext.Default
+        });
         if (result.IsSuccess)
         {
             result.URL = Config.UploadURL + response.url;

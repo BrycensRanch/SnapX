@@ -5,6 +5,7 @@
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Web;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -43,6 +44,10 @@ public enum GoogleDrivePermissionType
 {
     user, group, domain, anyone
 }
+[JsonSerializable(typeof(GoogleDriveFile))]
+[JsonSerializable(typeof(GoogleDriveFileList))]
+[JsonSerializable(typeof(GoogleDriveSharedDriveList))]
+internal partial class GoogleDriveContext : JsonSerializerContext;
 
 public sealed class GoogleDrive : FileUploader, IOAuth2
 {
@@ -52,6 +57,11 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
     public bool DirectLink { get; set; }
     public string FolderID { get; set; }
     public string DriveID { get; set; }
+
+    public JsonSerializerOptions Options { get; set; } = new()
+    {
+        TypeInfoResolver = GoogleDriveContext.Default
+    };
 
     public static GoogleDriveSharedDrive MyDrive = new()
     {
@@ -182,7 +192,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
 
             if (!string.IsNullOrEmpty(response))
             {
-                GoogleDriveFileList fileList = JsonSerializer.Deserialize<GoogleDriveFileList>(response);
+                GoogleDriveFileList fileList = JsonSerializer.Deserialize<GoogleDriveFileList>(response, Options);
 
                 if (fileList != null)
                 {
@@ -214,7 +224,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
 
             if (!string.IsNullOrEmpty(response))
             {
-                GoogleDriveSharedDriveList driveList = JsonSerializer.Deserialize<GoogleDriveSharedDriveList>(response);
+                GoogleDriveSharedDriveList driveList = JsonSerializer.Deserialize<GoogleDriveSharedDriveList>(response, Options);
 
                 if (driveList != null)
                 {
@@ -240,7 +250,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
 
         if (!string.IsNullOrEmpty(result.Response))
         {
-            GoogleDriveFile upload = JsonSerializer.Deserialize<GoogleDriveFile>(result.Response);
+            GoogleDriveFile upload = JsonSerializer.Deserialize<GoogleDriveFile>(result.Response, Options);
 
             if (upload != null)
             {

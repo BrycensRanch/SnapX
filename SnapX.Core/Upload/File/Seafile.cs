@@ -38,6 +38,11 @@ public class SeafileFileUploaderService : FileUploaderService
         };
     }
 }
+[JsonSerializable(typeof(SeafileCheckAccInfoResponse))]
+[JsonSerializable(typeof(SeafileAuthResponse))]
+[JsonSerializable(typeof(SeafileLibraryObj))]
+[JsonSerializable(typeof(SeafileDefaultLibraryObj))]
+internal partial class SeafileContext : JsonSerializerContext;
 
 public sealed class Seafile : FileUploader
 {
@@ -53,6 +58,11 @@ public sealed class Seafile : FileUploader
     public bool CreateShareableURLRaw { get; set; }
     public bool IgnoreInvalidCert { get; set; }
 
+    private JsonSerializerOptions Options = new()
+    {
+        TypeInfoResolver = SeafileContext.Default
+    };
+
     public Seafile(string apiurl, string authtoken, string repoid)
     {
         APIURL = apiurl;
@@ -66,20 +76,20 @@ public sealed class Seafile : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public string GetAuthToken(string username, string password)
     {
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "auth-token/?format=json");
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "username", username },
             { "password", password }
         };
 
-        string response = SendRequestMultiPart(url, args);
+        var response = SendRequestMultiPart(url, args);
 
         if (!string.IsNullOrEmpty(response))
         {
-            SeafileAuthResponse AuthResult = JsonSerializer.Deserialize<SeafileAuthResponse>(response);
+            var AuthResult = JsonSerializer.Deserialize<SeafileAuthResponse>(response, Options);
 
             return AuthResult.token;
         }
@@ -93,7 +103,7 @@ public sealed class Seafile : FileUploader
 
     public bool CheckAPIURL()
     {
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "ping/?format=json");
 
         SSLBypassHelper sslBypassHelper = null;
@@ -145,7 +155,7 @@ public sealed class Seafile : FileUploader
                 sslBypassHelper = new SSLBypassHelper();
             }
 
-            string response = SendRequest(HttpMethod.Get, url, null, headers);
+            var response = SendRequest(HttpMethod.Get, url, null, headers);
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -174,10 +184,10 @@ public sealed class Seafile : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public SeafileCheckAccInfoResponse GetAccountInfo()
     {
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "account/info/?format=json");
 
-        NameValueCollection headers = new NameValueCollection
+        var headers = new NameValueCollection
         {
             { "Authorization", "Token " + AuthToken }
         };
@@ -191,11 +201,11 @@ public sealed class Seafile : FileUploader
                 sslBypassHelper = new SSLBypassHelper();
             }
 
-            string response = SendRequest(HttpMethod.Get, url, null, headers);
+            var response = SendRequest(HttpMethod.Get, url, null, headers);
 
             if (!string.IsNullOrEmpty(response))
             {
-                SeafileCheckAccInfoResponse AccInfoResponse = JsonSerializer.Deserialize<SeafileCheckAccInfoResponse>(response);
+                var AccInfoResponse = JsonSerializer.Deserialize<SeafileCheckAccInfoResponse>(response, Options);
 
                 return AccInfoResponse;
             }
@@ -221,7 +231,7 @@ public sealed class Seafile : FileUploader
         string url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "default-repo/?format=json");
 
-        NameValueCollection headers = new NameValueCollection
+        var headers = new NameValueCollection
         {
             { "Authorization", "Token " + (authtoken ?? AuthToken) }
         };
@@ -239,7 +249,7 @@ public sealed class Seafile : FileUploader
 
             if (!string.IsNullOrEmpty(response))
             {
-                SeafileDefaultLibraryObj JsonResponse = JsonSerializer.Deserialize<SeafileDefaultLibraryObj>(response);
+                var JsonResponse = JsonSerializer.Deserialize<SeafileDefaultLibraryObj>(response, Options);
 
                 return JsonResponse.repo_id;
             }
@@ -258,10 +268,10 @@ public sealed class Seafile : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public List<SeafileLibraryObj> GetLibraries()
     {
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "repos/?format=json");
 
-        NameValueCollection headers = new NameValueCollection
+        var headers = new NameValueCollection
         {
             { "Authorization", "Token " + AuthToken }
         };
@@ -275,11 +285,11 @@ public sealed class Seafile : FileUploader
                 sslBypassHelper = new SSLBypassHelper();
             }
 
-            string response = SendRequest(HttpMethod.Get, url, null, headers);
+            var response = SendRequest(HttpMethod.Get, url, null, headers);
 
             if (!string.IsNullOrEmpty(response))
             {
-                List<SeafileLibraryObj> JsonResponse = JsonSerializer.Deserialize<List<SeafileLibraryObj>>(response);
+                var JsonResponse = JsonSerializer.Deserialize<List<SeafileLibraryObj>>(response, Options);
 
                 return JsonResponse;
             }
@@ -297,10 +307,10 @@ public sealed class Seafile : FileUploader
 
     public bool ValidatePath(string path)
     {
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "repos/" + RepoID + "/dir/?p=" + path + "&format=json");
 
-        NameValueCollection headers = new NameValueCollection
+        var headers = new NameValueCollection
         {
             { "Authorization", "Token " + AuthToken }
         };
@@ -314,7 +324,7 @@ public sealed class Seafile : FileUploader
                 sslBypassHelper = new SSLBypassHelper();
             }
 
-            string response = SendRequest(HttpMethod.Get, url, null, headers);
+            var response = SendRequest(HttpMethod.Get, url, null, headers);
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -338,15 +348,15 @@ public sealed class Seafile : FileUploader
 
     public bool DecryptLibrary(string libraryPassword)
     {
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "repos/" + RepoID + "/?format=json");
 
-        NameValueCollection headers = new NameValueCollection
+        var headers = new NameValueCollection
         {
             { "Authorization", "Token " + AuthToken }
         };
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "password", libraryPassword }
         };
@@ -360,7 +370,7 @@ public sealed class Seafile : FileUploader
                 sslBypassHelper = new SSLBypassHelper();
             }
 
-            string response = SendRequestMultiPart(url, args, headers);
+            var response = SendRequestMultiPart(url, args, headers);
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -414,10 +424,10 @@ public sealed class Seafile : FileUploader
             }
         }
 
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "repos/" + RepoID + "/upload-link/?format=json");
 
-        NameValueCollection headers = new NameValueCollection
+        var headers = new NameValueCollection
         {
             { "Authorization", "Token " + AuthToken }
         };
@@ -431,17 +441,17 @@ public sealed class Seafile : FileUploader
                 sslBypassHelper = new SSLBypassHelper();
             }
 
-            string response = SendRequest(HttpMethod.Get, url, null, headers);
+            var response = SendRequest(HttpMethod.Get, url, null, headers);
 
-            string responseURL = response.Trim('"');
+            var responseURL = response.Trim('"');
 
-            Dictionary<string, string> args = new Dictionary<string, string>
+            var args = new Dictionary<string, string>
             {
                 { "filename", fileName },
                 { "parent_dir", Path }
             };
 
-            UploadResult result = SendRequestFile(responseURL, stream, fileName, "file", args, headers);
+            var result = SendRequestFile(responseURL, stream, fileName, "file", args, headers);
 
             if (!IsError)
             {
@@ -452,8 +462,8 @@ public sealed class Seafile : FileUploader
 
                     if (CreateShareableURLRaw)
                     {
-                        UriBuilder uriBuilder = new UriBuilder(result.URL);
-                        NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
+                        var uriBuilder = new UriBuilder(result.URL);
+                        var query = HttpUtility.ParseQueryString(uriBuilder.Query);
                         query["raw"] = "1";
                         uriBuilder.Query = query.ToString();
                         result.URL = $"{uriBuilder.Scheme}://{uriBuilder.Host}{uriBuilder.Path}{uriBuilder.Query}";
@@ -478,10 +488,10 @@ public sealed class Seafile : FileUploader
 
     public string ShareFile(string path)
     {
-        string url = URLHelpers.FixPrefix(APIURL);
+        var url = URLHelpers.FixPrefix(APIURL);
         url = URLHelpers.CombineURL(url, "repos", RepoID, "file/shared-link/");
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "p", path },
             { "share_type", "download" }
@@ -489,7 +499,7 @@ public sealed class Seafile : FileUploader
         if (!string.IsNullOrEmpty(SharePassword)) args.Add("password", SharePassword);
         if (ShareDaysToExpire > 0) args.Add("expire", ShareDaysToExpire.ToString());
 
-        NameValueCollection headers = new NameValueCollection
+        var headers = new NameValueCollection
         {
             { "Authorization", "Token " + AuthToken }
         };

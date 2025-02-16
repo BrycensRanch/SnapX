@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
@@ -33,7 +34,8 @@ public class TwitterImageUploaderService : ImageUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(TwitterStatusResponse))]
+internal partial class TwitterContext : JsonSerializerContext;
 public class Twitter : ImageUploader, IOAuth
 {
     private const string APIVersion = "1.1";
@@ -91,56 +93,55 @@ public class Twitter : ImageUploader, IOAuth
     public TwitterStatusResponse TweetMessage(string message)
     {
         if (message.Length > MessageLimit)
-        {
             message = message.Remove(MessageLimit);
-        }
 
-        string url = string.Format("https://api.twitter.com/{0}/statuses/update.json", APIVersion);
-        string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
+        var url = $"https://api.twitter.com/{APIVersion}/statuses/update.json";
+        var query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "status", message }
         };
 
-        string response = SendRequestMultiPart(query, args);
-
-        if (!string.IsNullOrEmpty(response))
+        var response = SendRequestMultiPart(query, args);
+        var options = new JsonSerializerOptions
         {
-            return JsonSerializer.Deserialize<TwitterStatusResponse>(response);
-        }
+            TypeInfoResolver = TwitterContext.Default
+        };
+        if (string.IsNullOrEmpty(response))
+            return null;
 
-        return null;
+        return JsonSerializer.Deserialize<TwitterStatusResponse>(response, options);
     }
+
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
     public UploadResult TweetMessageWithMedia(string message, Stream stream, string fileName)
     {
         if (message.Length > MessageMediaLimit)
-        {
             message = message.Remove(MessageMediaLimit);
-        }
 
-        string url = string.Format("https://api.twitter.com/{0}/statuses/update_with_media.json", APIVersion);
-        string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
+        var url = $"https://api.twitter.com/{APIVersion}/statuses/update_with_media.json";
+        var query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "status", message }
         };
 
-        UploadResult result = SendRequestFile(query, stream, fileName, "media[]", args);
-
-        if (!string.IsNullOrEmpty(result.Response))
+        var result = SendRequestFile(query, stream, fileName, "media[]", args);
+        var options = new JsonSerializerOptions
         {
-            TwitterStatusResponse status = JsonSerializer.Deserialize<TwitterStatusResponse>(result.Response);
+            TypeInfoResolver = TwitterContext.Default
+        };
+        if (string.IsNullOrEmpty(result.Response))
+            return result;
 
-            if (status != null && status.user != null)
-            {
-                result.URL = status.GetTweetURL();
-            }
-        }
+        var status = JsonSerializer.Deserialize<TwitterStatusResponse>(result.Response, options);
+
+        if (status?.user != null)
+            result.URL = status.GetTweetURL();
 
         return result;
     }

@@ -57,13 +57,13 @@ public class ImgurImageUploaderService : ImageUploaderService
         };
     }
 }
+
 [JsonSerializable(typeof(ImgurResponse))]
 [JsonSerializable(typeof(ImgurError))]
 [JsonSerializable(typeof(OAuth2Token))]
 [JsonSerializable(typeof(ImgurImageData))]
 [JsonSerializable(typeof(ImgurErrorData))]
-internal partial class ImgurSourceGenerationContext: JsonSerializerContext
-{ }
+internal partial class ImgurSourceGenerationContext : JsonSerializerContext;
 public sealed class Imgur : ImageUploader, IOAuth2
 {
     public AccountType UploadMethod { get; set; }

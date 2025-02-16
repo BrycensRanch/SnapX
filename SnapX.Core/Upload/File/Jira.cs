@@ -173,6 +173,7 @@ public class Jira : FileUploader, IOAuth
 
     public override UploadResult Upload(Stream stream, string fileName)
     {
+        // TODO: Reimplement Jira
         throw new NotImplementedException("Jira Upload is not implemented");
         // using (new SSLBypassHelper())
         // {

@@ -29,7 +29,8 @@ public class HostrFileUploaderService : FileUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(Hostr.HostrFileUploadResponse))]
+internal partial class HostrContext : JsonSerializerContext;
 public sealed class Hostr : FileUploader
 {
     public string Email { get; set; }
@@ -50,12 +51,15 @@ public sealed class Hostr : FileUploader
 
         if (!string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(Password))
         {
-            NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Email, Password);
+            var headers = RequestHelpers.CreateAuthenticationHeader(Email, Password);
             result = SendRequestFile("https://api.hostr.co/file", stream, fileName, "file", headers: headers);
 
             if (result.IsSuccess)
             {
-                HostrFileUploadResponse response = JsonSerializer.Deserialize<HostrFileUploadResponse>(result.Response);
+                var response = JsonSerializer.Deserialize<HostrFileUploadResponse>(result.Response, new JsonSerializerOptions
+                {
+                    TypeInfoResolver = HostrContext.Default
+                });
 
                 if (response != null)
                 {

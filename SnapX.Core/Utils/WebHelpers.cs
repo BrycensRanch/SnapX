@@ -116,7 +116,7 @@ public static class WebHelpers
             DebugHelper.Logger.Error("{url}: mediaType is null.", url);
             return null;
         }
-        if (!MimeTypes.IsImageMimeType(mediaType))
+        if (!MimeTypesPlus.IsImageMimeType(mediaType))
             return null;
 
         var data = await responseMessage.Content.ReadAsByteArrayAsync();

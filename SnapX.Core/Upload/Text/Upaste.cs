@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -23,7 +24,8 @@ public class UpasteTextUploaderService : TextUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(Upaste.UpasteResponse))]
+internal partial class UpasteContext : JsonSerializerContext;
 public sealed class Upaste : TextUploader
 {
     private const string APIURL = "https://upaste.me/api";
@@ -63,8 +65,11 @@ public sealed class Upaste : TextUploader
         if (string.IsNullOrEmpty(ur.Response))
             return ur;
 
-        // Deserialize response
-        var response = JsonSerializer.Deserialize<UpasteResponse>(ur.Response);
+        var options = new JsonSerializerOptions()
+        {
+            TypeInfoResolver = UpasteContext.Default
+        };
+        var response = JsonSerializer.Deserialize<UpasteResponse>(ur.Response, options);
 
         if (response?.status?.Equals("success", StringComparison.OrdinalIgnoreCase) == true)
         {

@@ -26,7 +26,7 @@ public class FileSonic : FileUploader
     {
         UploadResult result = null;
 
-        string url = GetUploadURL();
+        var url = GetUploadURL();
 
         if (!string.IsNullOrEmpty(url))
         {
@@ -47,7 +47,7 @@ public class FileSonic : FileUploader
 
     public string GetUploadURL()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "method", "getUploadUrl" },
             { "format", "xml" },
@@ -55,9 +55,9 @@ public class FileSonic : FileUploader
             { "p", Password }
         };
 
-        string response = SendRequest(HttpMethod.Get, APIURL, args);
+        var response = SendRequest(HttpMethod.Get, APIURL, args);
 
-        XDocument xd = XDocument.Parse(response);
+        var xd = XDocument.Parse(response);
         return xd.GetValue("FSApi_Upload/getUploadUrl/response/url");
     }
 }

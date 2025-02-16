@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -11,7 +12,7 @@ using SnapX.Core.Upload.Utils;
 namespace SnapX.Core.Upload.File;
 public class LobFileFileUploaderService : FileUploaderService
 {
-    public override FileDestination EnumValue { get; } = FileDestination.Lithiio;
+    public override FileDestination EnumValue => FileDestination.Lithiio;
 
 
     public override bool CheckConfig(UploadersConfig config)
@@ -24,9 +25,16 @@ public class LobFileFileUploaderService : FileUploaderService
         return new LobFile(config.LithiioSettings);
     }
 }
-
+[JsonSerializable(typeof(LobFile.LobFileUploadResponse))]
+[JsonSerializable(typeof(LobFile.LobFileFetchAPIKeyResponse))]
+internal partial class LobFileContext : JsonSerializerContext;
 public sealed class LobFile : FileUploader
 {
+    private JsonSerializerOptions Options { get; } = new()
+    {
+        TypeInfoResolver = LobFileContext.Default
+    };
+
     public LobFileSettings Config { get; private set; }
 
     public LobFile()
@@ -42,16 +50,16 @@ public sealed class LobFile : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "api_key", Config.UserAPIKey }
         };
 
-        UploadResult result = SendRequestFile("https://lobfile.com/api/v3/upload", stream, fileName, "file", args);
+        var result = SendRequestFile("https://lobfile.com/api/v3/upload", stream, fileName, "file", args);
 
         if (result.IsSuccess)
         {
-            LobFileUploadResponse uploadResponse = JsonSerializer.Deserialize<LobFileUploadResponse>(result.Response);
+            var uploadResponse = JsonSerializer.Deserialize<LobFileUploadResponse>(result.Response, Options);
 
             if (uploadResponse.Success)
             {
@@ -80,7 +88,7 @@ public sealed class LobFile : FileUploader
 
         if (string.IsNullOrEmpty(response)) return null;
 
-        var apiKeyResponse = JsonSerializer.Deserialize<LobFileFetchAPIKeyResponse>(response);
+        var apiKeyResponse = JsonSerializer.Deserialize<LobFileFetchAPIKeyResponse>(response, Options);
 
         if (apiKeyResponse?.Success ?? false)
             return apiKeyResponse.API_Key;
@@ -89,18 +97,18 @@ public sealed class LobFile : FileUploader
     }
 
 
-    private class LobFileResponse
+    public class LobFileResponse
     {
         public bool Success { get; set; }
         public string Error { get; set; }
     }
 
-    private class LobFileUploadResponse : LobFileResponse
+    public class LobFileUploadResponse : LobFileResponse
     {
         public string URL { get; set; }
     }
 
-    private class LobFileFetchAPIKeyResponse : LobFileResponse
+    public class LobFileFetchAPIKeyResponse : LobFileResponse
     {
         public string API_Key { get; set; }
     }

@@ -5,6 +5,7 @@
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -27,7 +28,8 @@ public class OneTimeSecretTextUploaderService : TextUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(OneTimeSecret.OneTimeSecretResponse))]
+internal partial class OneTimeContext : JsonSerializerContext;
 public sealed class OneTimeSecret : TextUploader
 {
     private const string API_ENDPOINT = "https://onetimesecret.com/api/v1/share";
@@ -53,8 +55,11 @@ public sealed class OneTimeSecret : TextUploader
 
         ur.Response = SendRequestMultiPart(API_ENDPOINT, args, headers);
         if (string.IsNullOrEmpty(ur.Response)) return ur;
-
-        var jsonResponse = JsonSerializer.Deserialize<OneTimeSecretResponse>(ur.Response);
+        var options = new JsonSerializerOptions()
+        {
+            TypeInfoResolver = OneTimeContext.Default
+        };
+        var jsonResponse = JsonSerializer.Deserialize<OneTimeSecretResponse>(ur.Response, options);
 
         if (jsonResponse != null)
         {

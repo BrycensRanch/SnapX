@@ -149,14 +149,14 @@ internal static class RequestHelpers
 
     public static byte[] MakeFileInputContentOpen(string boundary, string fileFormName, string fileName)
     {
-        var mimeType = MimeTypes.GetMimeTypeFromFileName(fileName);
+        var mimeType = MimeTypes.GetMimeType(fileName);
         var content = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{fileFormName}\"; filename=\"{fileName}\"\r\nContent-Type: {mimeType}\r\n\r\n";
         return Encoding.UTF8.GetBytes(content);
     }
 
     public static byte[] MakeRelatedFileInputContentOpen(string boundary, string contentType, string relatedData, string fileName)
     {
-        var mimeType = MimeTypes.GetMimeTypeFromFileName(fileName);
+        var mimeType = MimeTypes.GetMimeType(fileName);
         var content = $"--{boundary}\r\nContent-Type: {contentType}\r\n\r\n{relatedData}\r\n\r\n";
         content += $"--{boundary}\r\nContent-Type: {mimeType}\r\n\r\n";
         return Encoding.UTF8.GetBytes(content);

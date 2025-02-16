@@ -9,6 +9,7 @@ namespace SnapX.Core.Upload.Img;
 
 public sealed class ImageBin : ImageUploader
 {
+
     public override UploadResult Upload(Stream stream, string fileName)
     {
         var arguments = new Dictionary<string, string>
@@ -29,7 +30,7 @@ public sealed class ImageBin : ImageUploader
             return result;
         }
 
-        var match = Regex.Match(result.Response, @"(?<=ca/view/).+(?=\.html'>)");
+        var match = Regex.Match(result.Response, @"(?<=ca/view/).+(?=\.html'>)", RegexOptions.Compiled);
         if (!match.Success) return result;
 
         var imageUrl = $"https://imagebin.ca/img/{match.Value}{Path.GetExtension(fileName)}";
