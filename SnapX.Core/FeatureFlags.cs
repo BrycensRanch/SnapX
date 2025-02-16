@@ -5,19 +5,19 @@ namespace SnapX.Core;
 
 public static class FeatureFlags
 {
-    #if DISABLE_TELEMETRY
+#if DISABLE_TELEMETRY
     public static readonly bool DisableTelemetry = true;
-    #else
+#else
     public static readonly bool DisableTelemetry = false;
-    #endif
-    #if DISABLE_AUTO_UPDATES
+#endif
+#if DISABLE_AUTO_UPDATES
     public static readonly bool DisableAutoUpdates = true;
-    #else
+#else
     public static readonly bool DisableAutoUpdates = false;
-    #endif
-    #if DISABLE_UPLOADS
+#endif
+#if DISABLE_UPLOADS
     public static readonly bool DisableUploads = true;
-    #else
+#else
     public static readonly bool DisableUploads = false;
-    #endif
+#endif
 }

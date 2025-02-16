@@ -16,10 +16,10 @@ public static class DebugHelper
     {
         if (string.IsNullOrEmpty(logFilePath)) return;
         var loggerConfig = new LoggerConfiguration()
-            #if DEBUG
+#if DEBUG
             .MinimumLevel.Debug()
             .WriteTo.Debug()
-            #endif
+#endif
             .Enrich.WithThreadId()
             .Enrich.WithThreadName()
             .WriteTo.Async(a => a.File(logFilePath, rollingInterval: RollingInterval.Day, buffered: true, restrictedToMinimumLevel: LogEventLevel.Information));
@@ -28,7 +28,8 @@ public static class DebugHelper
             loggerConfig = loggerConfig.WriteTo.Console(theme: AnsiConsoleTheme.Sixteen);
         }
 
-        if (SnapX.Configuration != null) {
+        if (SnapX.Configuration != null)
+        {
             loggerConfig.ReadFrom.Configuration(SnapX.Configuration);
         }
         Logger = loggerConfig.CreateLogger();

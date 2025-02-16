@@ -71,6 +71,7 @@ public sealed class MediaFire : FileUploader
         return new UploadResult() { IsSuccess = true, URL = url };
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private void GetSessionToken()
     {
         var args = new Dictionary<string, string>
@@ -95,6 +96,7 @@ public sealed class MediaFire : FileUploader
         signatureKey = (int)resp.secret_key;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private string SimpleUpload(Stream stream, string fileName)
     {
         var args = new Dictionary<string, string>
@@ -119,6 +121,7 @@ public sealed class MediaFire : FileUploader
         return resp.doupload.key;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private string PollUpload(string uploadKey, string fileName)
     {
         var args = new Dictionary<string, string>

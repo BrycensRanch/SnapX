@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -40,6 +41,7 @@ public class DrawBorder : ImageEffect
 
     public GradientBrush Gradient { get; set; }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public DrawBorder()
     {
         this.ApplyDefaultPropertyValues();

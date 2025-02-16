@@ -51,6 +51,7 @@ public static class JsonHelpers
         JsonSerializer.Serialize(stream, obj, options);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static MemoryStream SerializeToMemoryStream<T>(T obj, JsonSerializerOptions options = null)
     {
         var memoryStream = new MemoryStream();
@@ -58,6 +59,7 @@ public static class JsonHelpers
         return memoryStream;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void SerializeToFile<T>(T obj, string filePath, JsonSerializerOptions options = null)
     {
         if (string.IsNullOrEmpty(filePath)) return;
@@ -90,6 +92,7 @@ public static class JsonHelpers
         return JsonSerializer.Deserialize<T>(stream, options);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static T DeserializeFromFile<T>(string filePath, JsonSerializerOptions options = null)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return default;

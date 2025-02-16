@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Utils;
 
@@ -17,6 +18,7 @@ public static class UploaderFactory
     public static Dictionary<UrlShortenerType, URLShortenerService> URLShortenerServices { get; } = CacheServices<UrlShortenerType, URLShortenerService>();
     public static Dictionary<URLSharingServices, URLSharingService> URLSharingServices { get; } = CacheServices<URLSharingServices, URLSharingService>();
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static Dictionary<T, T2> CacheServices<T, T2>() where T2 : UploaderService<T>
     {
         var instances = Helpers.GetInstances<T2>();

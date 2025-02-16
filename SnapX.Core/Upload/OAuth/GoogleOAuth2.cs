@@ -13,7 +13,7 @@ namespace SnapX.Core.Upload.OAuth;
 
 [JsonSerializable(typeof(OAuth2Token))]
 [JsonSerializable(typeof(OAuthUserInfo))]
-internal partial class GoogleContext: JsonSerializerContext
+internal partial class GoogleContext : JsonSerializerContext
 { }
 
 public class GoogleOAuth2 : IOAuth2Loopback
@@ -104,7 +104,7 @@ public class GoogleOAuth2 : IOAuth2Loopback
         return true;
     }
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool CheckAuthorization()
     {
         if (OAuth2Info.CheckOAuth(AuthInfo))

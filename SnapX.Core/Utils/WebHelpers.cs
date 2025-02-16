@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Utils;

@@ -21,7 +21,8 @@ public class Clipboard
     public static string GetText() => string.Empty;
     public static void CopyText(string text) => Methods.CopyText(text);
     public static void CopyImage(string imagePath) => CopyImage(Image.Load(imagePath), Path.GetFileName(imagePath));
-    public static void CopyImage(Image image) {
+    public static void CopyImage(Image image)
+    {
         var format = image.Metadata.DecodedImageFormat ?? null;
 
         var extension = format switch
@@ -33,7 +34,7 @@ public class Clipboard
             TiffFormat _ => ".tiff",
             _ => ".png"
         };
-        CopyImage(image,  "image" + extension);
+        CopyImage(image, "image" + extension);
 
     }
 

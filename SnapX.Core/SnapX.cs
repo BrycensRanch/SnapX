@@ -176,7 +176,7 @@ public class SnapX
     public const string LogsFolderName = "Logs";
     // On Linux, strictly adhere to XDG BaseDirectory spec.
     // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyways so it doesn't really matter.
-    public static string LogsFolder => OperatingSystem.IsLinux() ? Path.Combine(BaseDirectory.StateHome, AppName, LogsFolderName): Path.Combine(PersonalFolder, LogsFolderName) ;
+    public static string LogsFolder => OperatingSystem.IsLinux() ? Path.Combine(BaseDirectory.StateHome, AppName, LogsFolderName) : Path.Combine(PersonalFolder, LogsFolderName);
 
     public static string LogsFilePath
     {
@@ -255,7 +255,7 @@ public class SnapX
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
         CLIManager.ParseCommands();
-        CLIManager.UseCommandLineArgs(CLIManager.Commands).Wait();
+        CLIManager.UseCommandLineArgs(CLIManager.Commands).GetAwaiter().GetResult();
 
         if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute a task as Admin
 
@@ -355,8 +355,8 @@ public class SnapX
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
         if (CLIManager.IsCommandExist("sound", "s"))
         {
-                DebugHelper.WriteLine("Running Sound Command");
-                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+            DebugHelper.WriteLine("Running Sound Command");
+            TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
         }
         // CleanupManager.CleanupAsync();
 

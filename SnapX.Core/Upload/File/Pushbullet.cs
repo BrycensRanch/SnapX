@@ -142,16 +142,19 @@ public sealed class Pushbullet : FileUploader
         return null;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public string PushNote(string note, string title)
     {
         return Push("note", "body", note, title);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public string PushLink(string link, string title)
     {
         return Push("link", "url", link, title);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         if (string.IsNullOrEmpty(Config.UserAPIKey)) throw new Exception("Missing API key.");

@@ -225,7 +225,7 @@ public class App : Application
             // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
             try
             {
-                SnapX.start(desktop.Args ?? []);
+                Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {

@@ -75,6 +75,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
         AuthInfo = oauth;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         return UploadFile(stream, UploadPath, fileName, AutoCreateShareableLink, UseDirectLink);
@@ -276,6 +277,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
         return metadata;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool IsExists(string path)
     {
         var metadata = GetMetadata(path);

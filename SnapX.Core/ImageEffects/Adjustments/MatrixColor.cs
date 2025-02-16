@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Core.Utils.Extensions;
@@ -56,6 +57,7 @@ internal class MatrixColor : ImageEffect
     [DefaultValue(0f)]
     public float Ao { get; set; }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public MatrixColor()
     {
         this.ApplyDefaultPropertyValues();

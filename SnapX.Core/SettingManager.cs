@@ -88,6 +88,7 @@ internal static class SettingManager
     private static ManualResetEvent uploadersConfigResetEvent = new(false);
     private static ManualResetEvent hotkeysConfigResetEvent = new(false);
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void LoadInitialSettings()
     {
         LoadApplicationConfig();
@@ -126,9 +127,9 @@ internal static class SettingManager
             // .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
-            #if WINDOWS
+#if WINDOWS
             .AddRegistry(@"Software\BrycensRanch\SnapX")
-            #endif
+#endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
         if (!SnapX.Sandbox)
@@ -188,6 +189,7 @@ internal static class SettingManager
         HotkeysConfigBackwardCompatibilityTasks();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void LoadAllSettings()
     {
         LoadApplicationConfig();
@@ -297,6 +299,7 @@ internal static class SettingManager
         SaveHotkeysConfigAsync();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void ResetSettings()
     {
         if (File.Exists(ApplicationConfigFilePath)) File.Delete(ApplicationConfigFilePath);

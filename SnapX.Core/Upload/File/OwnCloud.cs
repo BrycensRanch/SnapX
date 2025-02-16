@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,7 +9,6 @@ using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Upload.File;
 
@@ -62,6 +60,7 @@ public sealed class OwnCloud : FileUploader
         Password = password;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         if (string.IsNullOrEmpty(Host))

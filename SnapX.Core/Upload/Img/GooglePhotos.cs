@@ -54,7 +54,7 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
             User = OAuth2.AuthInfo.Email,
             ClientId = OAuth2.AuthInfo.Client_ID,
             ClientSecret = OAuth2.AuthInfo.Client_Secret,
-            Scopes = new []
+            Scopes = new[]
             {
                 GooglePhotosScope.AppCreatedData,
                 GooglePhotosScope.Sharing,
@@ -67,6 +67,8 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
 
         GooglePhotosService = new GooglePhotosService(logger, Options.Create(GPOptions), Client);
     }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool RefreshAccessToken()
     {
         return OAuth2.RefreshAccessToken();
@@ -83,16 +85,18 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         return OAuth2.GetAuthorizationURL();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool GetAccessToken(string code)
     {
         return OAuth2.GetAccessToken(code);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public OAuthUserInfo GetUserInfo()
     {
         return OAuth2.GetUserInfo();
     }
-        [RequiresDynamicCode("Uploader")]
+    [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
     public Album CreateAlbum(string albumName)
     {

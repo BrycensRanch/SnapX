@@ -42,8 +42,21 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="PaddleInference.runtime.osx-arm64" Version="2.5.2" />
     <!-- I am doing my very best to not touch COM directly -->
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <!-- Cross platform OCR library -->
+    <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="2.6.1" />
+    <PackageReference Include="Sdcb.PaddleOCR" Version="2.7.0.3" />
+    <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="2.7.0" />
+    <!-- Please send help the application binaries are so huge & bloated AHHHHHH -->
+    <PackageReference Include="OpenCvSharp4.official.runtime.linux-x64" Version="4.10.0.20241108" />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.linux-loongarch64" Version="2.6.0-preview.1" />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.linux64.mkl.gcc82" Version="2.6.0-preview.1" />
+    <PackageReference Include="OpenCvSharp4.runtime.linux-arm" Version="4.10.0.20241107" />
+    <PackageReference Include="OpenCvSharp4.runtime.osx.10.15-x64" Version="4.6.0.20230105" />
+    <PackageReference Include="OpenCvSharp4.runtime.osx_arm64" Version="4.8.1-rc" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
     <!-- Crash analtics & performance analytics -->
     <PackageReference Include="Sentry" Version="5.1.1" />
     <PackageReference Include="Sentry.Profiling" Version="5.1.1" />
@@ -59,8 +72,6 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
-    <!-- Open source cross platform OCR that currently isn't supported by NativeAOT -->
-    <PackageReference Include="TesseractOCR" Version="5.4.2" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
     <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->

@@ -320,7 +320,7 @@ public static class Helpers
 
         /*Task.Run(() =>
         {*/
-            PlaySoundAsync(File.OpenRead(filePath));
+        PlaySoundAsync(File.OpenRead(filePath));
         /*
         });
     */

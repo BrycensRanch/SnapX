@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils.Extensions;
@@ -40,6 +41,7 @@ internal class MatrixConvolution : ImageEffect
     [DefaultValue((byte)0)]
     public byte Offset { get; set; }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public MatrixConvolution()
     {
         this.ApplyDefaultPropertyValues();

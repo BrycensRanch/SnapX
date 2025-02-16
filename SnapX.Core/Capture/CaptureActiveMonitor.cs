@@ -3,7 +3,6 @@
 
 
 using SnapX.Core.Job;
-using SnapX.Core.Utils;
 
 namespace SnapX.Core.Capture;
 

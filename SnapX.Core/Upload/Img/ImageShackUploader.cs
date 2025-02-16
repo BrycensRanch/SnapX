@@ -27,7 +27,7 @@ public class ImageShackImageUploaderService : ImageUploaderService
 [JsonSerializable(typeof(ImageShackUploader.ImageShackLoginResponse))]
 [JsonSerializable(typeof(ImageShackUploader.ImageShackErrorInfo))]
 [JsonSerializable(typeof(ImageShackUploader.ImageShackUploadResponse))]
-internal partial class ImageShackContext: JsonSerializerContext
+internal partial class ImageShackContext : JsonSerializerContext
 { }
 public sealed class ImageShackUploader : ImageUploader
 {
@@ -79,7 +79,7 @@ public sealed class ImageShackUploader : ImageUploader
         return true;
     }
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         var arguments = new Dictionary<string, string>

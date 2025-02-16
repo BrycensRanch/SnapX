@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Utils.Extensions;

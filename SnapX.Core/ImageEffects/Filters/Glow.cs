@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SnapX.Core.Utils;
@@ -52,6 +53,7 @@ internal class Glow : ImageEffect
     [DefaultValue(typeof(Point), "0, 0")]
     public Point Offset { get; set; }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public Glow()
     {
         this.ApplyDefaultPropertyValues();

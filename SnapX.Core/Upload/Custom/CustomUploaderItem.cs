@@ -4,6 +4,7 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -185,6 +186,7 @@ public class CustomUploaderItem
         return result;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private string EncodeBodyData(string input)
     {
         if (!string.IsNullOrEmpty(input))

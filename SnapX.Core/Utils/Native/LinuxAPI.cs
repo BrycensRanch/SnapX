@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;

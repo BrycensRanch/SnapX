@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
@@ -101,7 +100,7 @@ public partial class Screenshot
         var imageData = SnapxrustMethods.CaptureRect((uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
         DebugHelper.WriteLine($"CaptureRectangleNative: {imageData.image.Length} {imageData.width} {imageData.height}");
 
-        var img = Image.LoadPixelData<Rgba32>(imageData.image, (int) imageData.width, (int)imageData.height);
+        var img = Image.LoadPixelData<Rgba32>(imageData.image, (int)imageData.width, (int)imageData.height);
         return img;
     }
 

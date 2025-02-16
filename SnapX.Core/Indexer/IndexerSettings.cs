@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using SnapX.Core.Utils.Extensions;
 
@@ -51,6 +52,7 @@ public class IndexerSettings
     [JsonIgnore]
     public bool BinaryUnits;
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public IndexerSettings()
     {
         this.ApplyDefaultPropertyValues();

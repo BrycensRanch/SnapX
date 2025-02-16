@@ -20,7 +20,7 @@ public static class CaptureHelpers
     public static Rectangle GetScreenWorkingArea()
     {
         var ScreenDimensions = SnapxrustMethods.GetWorkingArea();
-        return new Rectangle(ScreenDimensions.x, ScreenDimensions.y, (int)ScreenDimensions.width, (int) ScreenDimensions.height);
+        return new Rectangle(ScreenDimensions.x, ScreenDimensions.y, (int)ScreenDimensions.width, (int)ScreenDimensions.height);
     }
 
     public static Rectangle GetActiveScreenBounds()
@@ -33,13 +33,13 @@ public static class CaptureHelpers
         var pos = GetCursorPosition();
         var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
         DebugHelper.WriteLine($"Monitor: {monitor.x} {monitor.y} {monitor.width} {monitor.height}");
-       return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
+        return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
     }
 
     public static Rectangle GetPrimaryScreenBounds()
     {
-       var monitor = SnapxrustMethods.GetPrimaryMonitor();
-       return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
+        var monitor = SnapxrustMethods.GetPrimaryMonitor();
+        return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
     }
 
     public static Point ScreenToClient(Point p)

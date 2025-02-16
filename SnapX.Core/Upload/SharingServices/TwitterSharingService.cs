@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Img;
@@ -36,6 +37,7 @@ public sealed class TwitterSharer : URLSharer
         this.config = config;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult ShareURL(string url)
     {
         var result = new UploadResult { URL = url, IsURLExpected = false };

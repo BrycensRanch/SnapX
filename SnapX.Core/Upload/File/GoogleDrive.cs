@@ -77,6 +77,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
         };
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool RefreshAccessToken()
     {
         return OAuth2.RefreshAccessToken();
@@ -92,6 +93,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
         return OAuth2.GetAuthorizationURL();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool GetAccessToken(string code)
     {
         return OAuth2.GetAccessToken(code);
