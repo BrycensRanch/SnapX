@@ -108,7 +108,7 @@ public class SnapX
 
     // Many Windows users consider %USERPROFILE%\Documents\SnapX the correct location,
     // and I'm not here to subvert expectations.
-    public static readonly string DefaultPersonalFolder = Path.Combine(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? UserDirectory.DocumentsDir : BaseDirectory.DataHome, AppName);
+    public static readonly string DefaultPersonalFolder = Path.Combine(OperatingSystem.IsWindows() ? UserDirectory.DocumentsDir : BaseDirectory.DataHome, AppName);
     public static readonly string PortablePersonalFolder = FileHelpers.GetAbsolutePath(AppName);
 
     private static string PersonalPathConfigFilePath
@@ -144,7 +144,7 @@ public class SnapX
 
     public static string ConfigFolder => string.IsNullOrEmpty(CustomConfigPath)
         ? Path.Combine(
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            OperatingSystem.IsWindows()
                 ? UserDirectory.DocumentsDir
                 : BaseDirectory.ConfigHome,
             AppName)
@@ -463,6 +463,19 @@ public class SnapX
 
     private static void MigratePersonalPathConfig()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            try
+            {
+                // @see https://github.com/BrycensRanch/SnapX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
+                Directory.CreateSymbolicLink(Path.Combine(UserDirectory.DocumentsDir, AppName), PersonalFolder);
+            }
+            catch (Exception e)
+            {
+                DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
+                DebugHelper.WriteLine(e.Message);
+            }
+        }
         if (File.Exists(PreviousPersonalPathConfigFilePath))
         {
             try
@@ -472,19 +485,6 @@ public class SnapX
                     FileHelpers.CreateDirectoryFromFilePath(CurrentPersonalPathConfigFilePath);
                     FileHelpers.CreateDirectoryFromFilePath(ConfigFolder);
                     File.Move(PreviousPersonalPathConfigFilePath, CurrentPersonalPathConfigFilePath);
-                }
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    try
-                    {
-                        // @see https://github.com/BrycensRanch/SnapX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
-                        Directory.CreateSymbolicLink(Path.Combine(UserDirectory.DocumentsDir, AppName), CurrentPersonalPathConfigFilePath);
-                    }
-                    catch (Exception e)
-                    {
-                        DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
-                        DebugHelper.WriteLine(e.Message);
-                    }
                 }
                 File.Delete(PreviousPersonalPathConfigFilePath);
                 Directory.Delete(Path.GetDirectoryName(PreviousPersonalPathConfigFilePath));

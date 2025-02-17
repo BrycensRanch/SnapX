@@ -12,18 +12,18 @@
 - [x] Investigate `HistoryLib` (What is it? What does it do?)
 - [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
 - [x] Log files should be a daily log file, not a whole MONTH (wtf?)
-- [ ] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
+- [x] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
 - [ ] Add back OCR with [TesseractOCR](https://github.com/Sicos1977/TesseractOCR) and train with [tessdata_best](https://github.com/tesseract-ocr/tessdata_best)
 - [ ] Expose entire Core in UI (Avalonia, GTK4)
-- [ ] Add telemetry
+- [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
 - [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp) and use it to create a MSIX bundle
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget
 - [ ] Add to COPR
 - [ ] Add to AUR see PR #56 for the initial PKGBUILD
 - [ ] Port `go-keyring` to C# (Needed for not saving auth creds in plaintext, big no no )
-- [ ] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
+- [x] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [x] Remove SnapX as a fork of ShareX that can be merged into upstream. *Completed at 233 commits ahead of upstream*
 
 ## Studying ShareX's behavior on Windows 11 24H2
