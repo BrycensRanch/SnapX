@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using OpenCvSharp;
 using Sdcb.PaddleInference;
@@ -680,11 +682,17 @@ public static class TaskHelpers
         using var ms = new MemoryStream();
         await image.SaveAsPngAsync(ms);
         DebugHelper.WriteLine(filePath);
+        if (OperatingSystem.IsLinux())
+        {
+            DebugHelper.WriteException(new ConstraintException("PaddleOCR is not supported on Linux. It is only supported on Windows X64, ARM64, and macOS ARM64"));
+            return string.Empty;
+        }
+        var config = PaddleDevice.Openblas();
 
-        using var all = new PaddleOcrAll(model, PaddleDevice.Openblas()) {
+        using var all = new PaddleOcrAll(model, config) {
             AllowRotateDetection = false,
             Enable180Classification = false,
-        };;
+        };
         // Load local file by following code:
         // using (Mat src2 = Cv2.ImRead(@"C:\test.jpg"))
         DebugHelper.WriteLine($"OCR image bytes: {ms.Length}");
