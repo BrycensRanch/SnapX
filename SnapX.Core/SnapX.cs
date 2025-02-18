@@ -468,12 +468,12 @@ public class SnapX
             try
             {
                 // @see https://github.com/BrycensRanch/SnapX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
-                Directory.CreateSymbolicLink(Path.Combine(UserDirectory.DocumentsDir, AppName), PersonalFolder);
+                if (Directory.Exists(UserDirectory.DocumentsDir)) Directory.CreateSymbolicLink(Path.Join(UserDirectory.DocumentsDir, AppName), PersonalFolder);
             }
             catch (Exception e)
             {
                 DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
-                DebugHelper.WriteLine(e.Message);
+                DebugHelper.WriteException(e);
             }
         }
         if (File.Exists(PreviousPersonalPathConfigFilePath))
