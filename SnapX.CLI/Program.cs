@@ -3,13 +3,12 @@ using SnapX.Core;
 using SnapX.Core.Utils;
 
 
-var sharex = new SnapX.Core.SnapX();
+var snapx = new SnapX.Core.SnapX();
 #if RELEASE
-sharex.silenceLogging();
+snapx.silenceLogging();
 #endif
-sharex.start(args);
+snapx.start(args);
 var version = Helpers.GetApplicationVersion();
-
 if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
 {
     var changelog = new CLIChangelog(version);
@@ -32,7 +31,7 @@ Console.CancelKeyPress += (_, ea) =>
         ea.Cancel = true;
         sigintReceived = true;
         Console.WriteLine("Received SIGINT (Ctrl+C)");
-        sharex.shutdown();
+        snapx.shutdown();
         Environment.Exit(0);
     }
 };
@@ -42,7 +41,7 @@ AppDomain.CurrentDomain.ProcessExit += (_, _) =>
     {
         sigintReceived = true;
         DebugHelper.WriteLine("Received SIGTERM");
-        sharex.shutdown();
+        snapx.shutdown();
         Environment.Exit(0);
     }
     else
@@ -50,5 +49,4 @@ AppDomain.CurrentDomain.ProcessExit += (_, _) =>
         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
     }
 };
-
-sharex.shutdown();
+snapx.shutdown();
