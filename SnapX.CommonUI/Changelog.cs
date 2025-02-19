@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.CommonUI.Types;
 using SnapX.Core;
@@ -72,7 +72,6 @@ public abstract class Changelog
 
     private async Task<string> GetLatestReleasesSinceVersion()
     {
-
         var response = await Client.GetAsync(Links.ApiGitHub + "/releases");
         if (!response.IsSuccessStatusCode)
             return string.Empty;
@@ -111,8 +110,6 @@ public abstract class Changelog
 
     private async Task<string> GetTagsSinceVersion()
     {
-
-
         var response = await Client.GetAsync(Links.ApiGitHub + "/tags");
         if (!response.IsSuccessStatusCode)
             return string.Empty;
