@@ -749,66 +749,6 @@ public static class TaskHelpers
         return true;
     }
 
-    public static void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
-    {
-        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-        switch (notificationSound)
-        {
-            case NotificationSound.Capture:
-                if (taskSettings.GeneralSettings.PlaySoundAfterCapture)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomCaptureSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomCaptureSoundPath))
-                    {
-                        Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomCaptureSoundPath);
-                    }
-                    else
-                    {
-                        Helpers.PlaySoundAsync(Resources.Resources.CaptureSound);
-                    }
-                }
-                break;
-            case NotificationSound.TaskCompleted:
-                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomTaskCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath))
-                    {
-                        Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath);
-                    }
-                    else
-                    {
-                        Helpers.PlaySoundAsync(Resources.Resources.TaskCompletedSound);
-                    }
-                }
-                break;
-            case NotificationSound.ActionCompleted:
-                if (taskSettings.GeneralSettings.PlaySoundAfterAction)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomActionCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomActionCompletedSoundPath))
-                    {
-                        Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomActionCompletedSoundPath);
-                    }
-                    else
-                    {
-                        Helpers.PlaySoundAsync(Resources.Resources.ActionCompletedSound);
-                    }
-                }
-                break;
-            case NotificationSound.Error:
-                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomErrorSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomErrorSoundPath))
-                    {
-                        Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomErrorSoundPath);
-                    }
-                    else
-                    {
-                        Helpers.PlaySoundAsync(Resources.Resources.ErrorSound);
-                    }
-                }
-                break;
-        }
-    }
-
     public static Screenshot GetScreenshot(TaskSettings taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
@@ -945,7 +885,7 @@ public static class TaskHelpers
             {
                 if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
-                PlayNotificationSoundAsync(NotificationSound.ActionCompleted, taskSettings);
+                // PlayNotificationSoundAsync(NotificationSound.ActionCompleted, taskSettings);
 
                 switch (nativeMessagingInput.Action)
                 {

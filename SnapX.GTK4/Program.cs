@@ -5,16 +5,16 @@ using GdkPixbuf;
 using Gio;
 using GObject;
 using Gtk;
-using SixLabors.ImageSharp;
 using SnapX.Core;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Native;
+using SnapX.GTK4;
 using AboutDialog = SnapX.GTK4.AboutDialog;
 using MessageType = Gst.MessageType;
 
-var snapx = new SnapX.Core.SnapX();
+var snapx = new SnapXGTK4();
 snapx.setQualifier(" GTK4");
 
 
@@ -50,18 +50,20 @@ application.OnActivate += (sender, eventArgs) =>
     {
         DebugHelper.WriteLine("Internal Startup time: {0} ms", snapx.getStartupTime());
         if (snapx.isSilent()) return;
+        Gst.Module.Initialize();
+        Gst.Application.Init();
+        GstVideo.Module.Initialize();
 
         if (SnapX.Core.SnapX.CLIManager.IsCommandExist("video"))
         {
-            Gst.Module.Initialize();
-            GstVideo.Module.Initialize();
-            Gst.Application.Init();
+
             using var ret = Gst.Functions.ParseLaunch(
                 "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
             using var bus = ret.GetBus();
             bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
             ret.SetState(Gst.State.Null);
+            ret.Unref();
         }
 
 
@@ -101,7 +103,7 @@ application.OnActivate += (sender, eventArgs) =>
         var eventAggregator = snapx.getEventAggregator();
         eventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
 
-        var box = new Box();
+        var box = new Gtk.Box();
         box.SetOrientation(Orientation.Vertical);
         var imageURLTextBox = new Entry();
         imageURLTextBox.PlaceholderText =
@@ -128,6 +130,7 @@ application.OnActivate += (sender, eventArgs) =>
         mainWindow.SetChild(box);
         mainWindow.SetVisible(true);
         using var dialog = new AboutDialog();
+        dialog.SetName(Lang.AboutSnapX);
         dialog.SetApplication(application);
         dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
         var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -186,7 +189,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     };
 
     // Create a vertical container for message and buttons
-    using var vbox = new Box();
+    using var vbox = new Gtk.Box();
     vbox.SetOrientation(Orientation.Vertical);
     vbox.SetSpacing(10);
 
@@ -222,7 +225,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     scrolledWindow.SetPropagateNaturalHeight(true);
     vbox.Append(scrolledWindow);
 
-    using var buttonBox = new Box()
+    using var buttonBox = new Gtk.Box()
     {
         Halign = Align.Center,
         Spacing = 10,

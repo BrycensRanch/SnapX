@@ -294,39 +294,6 @@ public static class Helpers
         return time;
     }
 
-    public static void PlaySoundAsync(Stream stream)
-    {
-        if (stream == null)
-        {
-            DebugHelper.Logger.Warning("PlaySoundAsync: stream is null");
-            return;
-        }
-
-        if (!stream.CanRead)
-        {
-            DebugHelper.Logger.Warning("PlaySoundAsync: stream is not readable");
-            return;
-        }
-        // if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
-        DebugHelper.WriteLine("PlaySoundAsync: is not implemented");
-
-    }
-
-
-    public static void PlaySoundAsync(string filePath)
-    {
-        if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
-
-
-        /*Task.Run(() =>
-        {*/
-        PlaySoundAsync(File.OpenRead(filePath));
-        /*
-        });
-    */
-    }
-
-
     public static bool WaitWhile(Func<bool> check, int interval, int timeout = -1)
     {
         var timer = Stopwatch.StartNew();

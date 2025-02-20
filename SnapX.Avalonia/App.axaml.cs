@@ -5,6 +5,7 @@ using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Styling;
+using LibVLCSharp.Shared;
 using SnapX.Core;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
@@ -13,11 +14,11 @@ namespace SnapX.Avalonia;
 
 public class App : Application
 {
-    public SnapX.Core.SnapX SnapX { get; set; }
+    public SnapXAvalonia SnapX { get; set; }
     public override void Initialize()
     {
 
-        SnapX = new SnapX.Core.SnapX();
+        SnapX = new SnapXAvalonia();
         AvaloniaXamlLoader.Load(this);
         AppDomain.CurrentDomain.UnhandledException += (Sender, Args) =>
         {
@@ -236,6 +237,22 @@ public class App : Application
             if (errorStarting) return;
             DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
             if (SnapX.isSilent()) return;
+            if (SnapX.GetCLIManager().IsCommandExist("video"))
+            {
+                var vlc = new LibVLC(enableDebugLogs: false);
+                DebugHelper.WriteLine($"VLC Version: {vlc.Version}");
+                var MediaPlayer = new MediaPlayer(vlc);
+                var input = new Uri("https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
+
+                var media = new Media(vlc, input);
+                MediaPlayer.EnableHardwareDecoding = true;
+                MediaPlayer.Play(media);
+                MediaPlayer.Stopped += async(Sender, Args) =>
+                {
+                    media.Dispose();
+                    vlc.Dispose();
+                };
+            }
             var Window = new MainView();
             Window.Show();
             desktop.MainWindow = Window;

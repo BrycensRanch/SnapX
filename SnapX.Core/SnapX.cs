@@ -265,6 +265,11 @@ public class SnapX
         DebugHelper.Init(LogsFilePath);
 
         MultiInstance = CLIManager.IsCommandExist("multi", "m");
+        if (CLIManager.IsCommandExist("sound", "s"))
+        {
+            DebugHelper.WriteLine("Running Sound Command");
+            PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+        }
         Run();
     }
 
@@ -276,6 +281,67 @@ public class SnapX
     public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
                                     Environment.GetEnvironmentVariable("DO_NOT_TRACK") == null;
 
+    // Coding nerds, please, forgive me for this mortal sin.
+    // The code here is instance dependent thus cannot be called from static stuff yada yada yada.
+    public void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
+    {
+        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
+        switch (notificationSound)
+        {
+            case NotificationSound.Capture:
+                if (taskSettings.GeneralSettings.PlaySoundAfterCapture)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomCaptureSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomCaptureSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomCaptureSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.CaptureSound);
+                    }
+                }
+                break;
+            case NotificationSound.TaskCompleted:
+                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomTaskCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.TaskCompletedSound);
+                    }
+                }
+                break;
+            case NotificationSound.ActionCompleted:
+                if (taskSettings.GeneralSettings.PlaySoundAfterAction)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomActionCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomActionCompletedSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomActionCompletedSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.ActionCompletedSound);
+                    }
+                }
+                break;
+            case NotificationSound.Error:
+                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomErrorSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomErrorSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomErrorSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.ErrorSound);
+                    }
+                }
+                break;
+        }
+    }
     private static void Run()
     {
         DebugHelper.WriteLine("SnapX starting.");
@@ -353,15 +419,15 @@ public class SnapX
                 options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
             });
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
-        if (CLIManager.IsCommandExist("sound", "s"))
-        {
-            DebugHelper.WriteLine("Running Sound Command");
-            TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
-        }
         // CleanupManager.CleanupAsync();
 
     }
 
+    public CLIManager GetCLIManager() => CLIManager;
+    // TODO: Implement Dependency Injection to pass around instance of SnapX to classes
+    // TODO: Add back all notification sounds calls
+    public async virtual Task PlaySound(Stream stream) => throw new NotImplementedException("PlaySound is not implemented.");
+    private async Task PlaySound(string filePath) => await PlaySound(File.OpenRead(filePath));
     public static void CloseSequence()
     {
         if (closeSequenceStarted) return;
@@ -468,10 +534,15 @@ public class SnapX
             try
             {
                 // @see https://github.com/BrycensRanch/SnapX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
-                if (Directory.Exists(UserDirectory.DocumentsDir)) Directory.CreateSymbolicLink(Path.Join(UserDirectory.DocumentsDir, AppName), PersonalFolder);
+                var InformalPath = Path.Join(UserDirectory.DocumentsDir, AppName);
+                if (Directory.Exists(UserDirectory.DocumentsDir) && !File.Exists(InformalPath)) Directory.CreateSymbolicLink(InformalPath, PersonalFolder);
             }
             catch (Exception e)
             {
+                if (e is FileNotFoundException)
+                {
+                    return;
+                }
                 DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
                 DebugHelper.WriteException(e);
             }

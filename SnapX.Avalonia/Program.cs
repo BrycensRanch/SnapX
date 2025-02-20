@@ -8,7 +8,6 @@ using SnapX.Avalonia;
 Console.WriteLine("Initializing Avalonia");
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
-
 AppBuilder BuildAvaloniaApp()
    => AppBuilder.Configure<App>()
        .UsePlatformDetect()
