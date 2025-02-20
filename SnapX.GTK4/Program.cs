@@ -65,6 +65,10 @@ application.OnActivate += (sender, eventArgs) =>
             ret.SetState(Gst.State.Null);
             ret.Unref();
         }
+        if (SnapX.Core.SnapX.CLIManager.IsCommandExist("sound"))
+        {
+            snapx.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+        }
 
 
         var mainWindow = new ApplicationWindow();

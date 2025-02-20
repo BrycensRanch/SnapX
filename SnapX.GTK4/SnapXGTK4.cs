@@ -1,4 +1,5 @@
 ﻿using Gst;
+using SnapX.Core;
 using Xdg.Directories;
 using Stream = System.IO.Stream;
 using Task = System.Threading.Tasks.Task;
@@ -45,18 +46,20 @@ public class SnapXGTK4 : Core.SnapX
         // pipeline.SetState(State.Playing);
 
 
-        var tempFilePath = Path.GetTempFileName();
+        var tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".flac");
         // TODO: Directly use Stream instead of saving to file
         // Gstreamer is hard, okay?!?! I'm trying to go and see my family.
         await using var tempFileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write);
         // Copy the contents of the input stream to the temporary file
         await stream.CopyToAsync(tempFileStream);
+        var escapedFilePath = tempFilePath.Replace(@"\", @"\\").Replace("\"", "\\\"");
 
-        using var ret = Functions.ParseLaunch($"filesrc location={tempFilePath} ! decodebin ! audioconvert ! audioresample ! autoaudiosink");
+        var pipeline =
+            $"filesrc location=\"{escapedFilePath}\" ! decodebin ! audioconvert ! audioresample ! autoaudiosink";
+        using var ret = Functions.ParseLaunch(pipeline);
         using var bus = ret.GetBus()!;
         ret.SetState(Gst.State.Playing);
         bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
         ret.SetState(Gst.State.Null);
-        ret.Unref();
     }
 }
