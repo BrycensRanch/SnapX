@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <!--Created with jdAppStreamEdit 9.0-->
   <!-- Semantic-release should generate Version changelogs -->
-  <id>io.github.brycensranch.SnapX</id>
+  <id>io.github.BrycensRanch.SnapX</id>
   <name>SnapX</name>
   <summary>Screenshot and screen recording tool</summary>
   <developer id="app.brycen">
