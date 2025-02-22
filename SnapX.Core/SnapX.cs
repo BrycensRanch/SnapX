@@ -398,6 +398,19 @@ public class SnapX
 
                 // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
                 options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
+                // VLCException includes multiple paths with username
+                // For full transparency, I discovered this issue on my computer.
+                // No other users are effected to my knowledge.
+                options.SetBeforeSend((sentryEvent, hint) =>
+                {
+                    if (sentryEvent.Exception != null
+                        && !string.IsNullOrEmpty(sentryEvent.Exception.Message))
+                    {
+                        if (sentryEvent.Exception.Message.Contains(Environment.UserName)) return null;
+                    }
+
+                    return sentryEvent;
+                });
 
                 // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
                 options.IsGlobalModeEnabled = true;
