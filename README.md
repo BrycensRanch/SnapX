@@ -36,6 +36,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/) and uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs, TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!!)
+- Uses the power of VLC to playback video on Avalonia & uses Gstreamer on GTK4
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* uses TLS 1.3 out of the box.
