@@ -394,7 +394,9 @@ public class SnapX
         if (TelemetryEnabled())
             SentrySdk.Init(options =>
             {
-                options.Dsn = "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
+                // This allows end users to test themselves what data is sent to Sentry
+                var sentryDsnEnv = Environment.GetEnvironmentVariable("SENTRY_DSN");
+                options.Dsn = !string.IsNullOrWhiteSpace(sentryDsnEnv) ? sentryDsnEnv : "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
 
                 // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
                 options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
