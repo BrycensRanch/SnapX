@@ -87,20 +87,20 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `ffmpeg` (7.0.0)
 - `clang`
 - `zlib-devel`
-
+- `vlc-libs` (libvlc)
 ### Fedora 41+ 🌟
 
 ```bash
-sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs
+sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs vlc-libs
 ```
 
 ### Ubuntu 24.04+ ⚡
 
 ```bash
-sudo apt update -q && sudo apt install -y software-properties-common
+sudo apt update && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang
+sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev
 ```
 
 ### Windows 10 22H2+ 🪟
