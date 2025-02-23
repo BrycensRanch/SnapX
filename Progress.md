@@ -18,6 +18,7 @@
 - [ ] Expose entire Core in UI (Avalonia, GTK4)
 - [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
 - [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp) and use it to create a MSIX bundle
+- [ ] Integrate with Windows Share https://discussions.unity.com/t/calling-windows-shareui-dialog-from-unity-on-windows-10-11-on-non-uwp-build-target/1586504
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget
 - [ ] Add to COPR
