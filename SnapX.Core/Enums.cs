@@ -11,6 +11,14 @@ public enum BuildType
 {
     Debug,
     Release,
+    Flatpak,
+    Snap,
+    AppImage,
+    Runfile,
+    RPM,
+    DEB,
+    PKG,
+    APK, // Not to be confused with Android. For Alpine Linux
     Unknown
 }
 

@@ -18,10 +18,23 @@ public class SnapX
     public const string AppName = "SnapX";
     public static string Qualifier = "";
     public const BuildType Build =
-#if RELEASE
-            BuildType.Release;
-#elif DEBUG
+
+#if DEBUG
             BuildType.Debug;
+#elif RPM
+            BuildType.RPM;
+#elif DEB
+            BuildType.DEB;
+#elif APPIMAGE
+            BuildType.AppImage;
+#elif FLATPAK
+            BuildType.Flatpak;
+#elif SNAP
+            BuildType.Snap;
+#elif RUNFILE
+            BuildType.Runfile;
+#elif RELEASE
+            BuildType.Release;
 #else
             BuildType.Unknown;
 #endif

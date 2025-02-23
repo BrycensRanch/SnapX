@@ -6,6 +6,9 @@ using SnapX.Core.Utils;
 var snapx = new SnapX.Core.SnapX();
 #if RELEASE
 snapx.silenceLogging();
+#elif DEBUG
+#else
+snapx.silenceLogging();
 #endif
 snapx.start(args);
 var version = Helpers.GetApplicationVersion();
