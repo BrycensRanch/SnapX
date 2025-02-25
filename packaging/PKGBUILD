@@ -11,11 +11,6 @@ makedepends=(
     'git'
     'dotnet-sdk>=9.0'
     'clang'
-    'gtk4'
-    'libx11'
-    'libxrandr'
-    'libxcb'
-    'dbus'
     'zlib'
 )
 
@@ -50,15 +45,10 @@ package_snapx() {
     
     cd "$pkgbase"
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
-    
-    # Удаляем файлы, которые принадлежат другим пакетам
-    rm -f "${pkgdir}/usr/bin/snapx-gtk"
-    rm -f "${pkgdir}/usr/bin/snapx-ui"
-    
-    # Install license
-    install -Dm644 LICENSE.md "${pkgdir}/usr/share/licenses/${pkgbase}/LICENSE"
 }
 
+# This is a temporary solution until packaging allows you to install files specific to snapx-ui.
+# For now, we delete files we don't want. 
 package_snapx-gtk() {
     pkgdesc="SnapX GTK4 UI"
     depends=('snapx' 'gtk4')
@@ -66,16 +56,11 @@ package_snapx-gtk() {
     cd "$pkgbase"
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
     
-    # Оставляем только файлы для GTK UI
-    mkdir -p "${pkgdir}/usr/bin"
-    mv "${pkgdir}/usr/bin/snapx-gtk" "${pkgdir}/usr/bin/"
+    # Leave only files for GTK UI
     rm -rf "${pkgdir}/usr/lib"
     rm -rf "${pkgdir}/usr/share"
     rm -f "${pkgdir}/usr/bin/snapx"
     rm -f "${pkgdir}/usr/bin/snapx-ui"
-    
-    # Install license
-    install -Dm644 LICENSE.md "${pkgdir}/usr/share/licenses/snapx-gtk/LICENSE"
 }
 
 package_snapx-ui() {
@@ -85,19 +70,10 @@ package_snapx-ui() {
     cd "$pkgbase"
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
     
-    # Оставляем только файлы для Avalonia UI
-    mkdir -p "${pkgdir}/usr/bin"
-    mv "${pkgdir}/usr/bin/snapx-ui" "${pkgdir}/usr/bin/"
+    # Keep the files only for Avalonia UI
     rm -rf "${pkgdir}/usr/lib"
+    rm -rf "${pkgdir}/usr/share"
     rm -f "${pkgdir}/usr/bin/snapx"
     rm -f "${pkgdir}/usr/bin/snapx-gtk"
-    
-    # Install desktop and metainfo files
-    install -Dm644 "packaging/usr/share/applications/io.github.BrycensRanch.SnapX.desktop" \
-        "${pkgdir}/usr/share/applications/io.github.BrycensRanch.SnapX.desktop"
-    install -Dm644 "packaging/usr/share/metainfo/io.github.BrycensRanch.SnapX.metainfo.xml" \
-        "${pkgdir}/usr/share/metainfo/io.github.BrycensRanch.SnapX.metainfo.xml"
-    
-    # Install license
-    install -Dm644 LICENSE.md "${pkgdir}/usr/share/licenses/snapx-ui/LICENSE"
+
 } 
