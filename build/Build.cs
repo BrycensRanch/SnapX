@@ -274,13 +274,22 @@ class Build : NukeBuild
             }
 
             var localAvaloniaWrapperScript = Path.Join(RootDirectory, "snapx-ui");
+            
+            var avaloniaPath = Path.Join(Prefix, "lib", "snapx", "snapx-ui");
+            var fallbackPath = Path.Join(LibDir, "snapx", "snapx-ui");
             using (var writer = new StreamWriter(localAvaloniaWrapperScript))
             {
                 writer.WriteLine("#!/bin/sh");
                 writer.WriteLine("# Wrapper script provided by SnapX to invoke the true Avalonia binary.");
                 writer.WriteLine($"# NMH Path: {NMHostPath}");
                 writer.WriteLine($"# Version: {SnapXVersion}");
-                writer.WriteLine($"exec {Path.Join(LibDir, "snapx", "snapx-ui")} \"$@\"");
+                writer.WriteLine(@"
+if [ -f ""{avaloniaPath}"" ]; then
+    exec {avaloniaPath} ""$@""
+else
+    exec {fallbackPath} ""$@""
+fi
+");
             }
 
             InstallFile(localAvaloniaWrapperScript, Path.Join(Bindir, "snapx-ui"), "0755");
