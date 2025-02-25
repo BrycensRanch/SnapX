@@ -71,7 +71,6 @@ package_snapx-ui() {
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
     
     # Keep the files only for Avalonia UI
-    rm -rf "${pkgdir}/usr/lib"
     rm -rf "${pkgdir}/usr/share"
     rm -f "${pkgdir}/usr/bin/snapx"
     rm -f "${pkgdir}/usr/bin/snapx-gtk"
