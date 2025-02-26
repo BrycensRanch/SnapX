@@ -1,4 +1,4 @@
-﻿using LibVLCSharp.Shared;
+using LibVLCSharp.Shared;
 using SnapX.Core;
 
 namespace SnapX.Avalonia;
@@ -25,6 +25,5 @@ public class SnapXAvalonia : Core.SnapX
             input.Dispose();
             vlc.Dispose();
         };
-
     }
 }

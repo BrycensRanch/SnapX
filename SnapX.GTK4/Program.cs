@@ -43,7 +43,6 @@ application.OnActivate += (sender, eventArgs) =>
         errorStarting = true;
         DebugHelper.WriteException(e);
         ShowErrorDialog(e, application);
-
     }
 
     if (!errorStarting)
@@ -56,7 +55,6 @@ application.OnActivate += (sender, eventArgs) =>
 
         if (SnapX.Core.SnapX.CLIManager.IsCommandExist("video"))
         {
-
             using var ret = Gst.Functions.ParseLaunch(
                 "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
@@ -102,7 +100,6 @@ application.OnActivate += (sender, eventArgs) =>
                 }
                 UploadManager.UploadFile(file.GetPath()!);
             }
-
         }
         var eventAggregator = snapx.getEventAggregator();
         eventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
