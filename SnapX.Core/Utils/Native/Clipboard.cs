@@ -24,16 +24,6 @@ public class Clipboard
     public static void CopyImage(Image image, string fileName = "")
     {
         var format = image.Metadata.DecodedImageFormat ?? null;
-
-        var extension = format switch
-        {
-            JpegFormat _ => ".jpg",
-            PngFormat _ => ".png",
-            GifFormat _ => ".gif",
-            BmpFormat _ => ".bmp",
-            TiffFormat _ => ".tiff",
-            _ => ".png"
-        };
         if (string.IsNullOrEmpty(fileName)) fileName = $"image{Helpers.GetImageExtension(image)}";
         DebugHelper.WriteLine($"Clipboard.CopyImage: {image.Width}x{image.Height}: {fileName}");
         Methods.CopyImage(image, fileName);

@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
@@ -71,6 +72,7 @@ public static class Helpers
             GifFormat => ".gif",
             WebpFormat => ".webp",
             TiffFormat => ".tiff",
+            BmpFormat _ => ".bmp",
             _ => ".png"
         };
     }
