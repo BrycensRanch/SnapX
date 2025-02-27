@@ -2,7 +2,8 @@ using SixLabors.ImageSharp;
 using SnapX.Core.Media;
 using SnapX.Core.ScreenCapture.SharpCapture;
 using SnapX.Core.ScreenCapture.SharpCapture.Linux;
-using SnapX.Core.ScreenCapture.SharpCapture.Linux.macOS;
+using SnapX.Core.ScreenCapture.SharpCapture.macOS;
+using SnapX.Core.ScreenCapture.SharpCapture.Windows;
 
 namespace SnapX.Core.Utils.Native;
 

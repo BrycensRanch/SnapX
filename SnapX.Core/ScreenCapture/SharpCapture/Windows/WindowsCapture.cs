@@ -1,4 +1,4 @@
-namespace SnapX.Core.ScreenCapture.SharpCapture.Linux.Windows;
+namespace SnapX.Core.ScreenCapture.SharpCapture.Windows;
 
 public class WindowsCapture : BaseCapture
 {

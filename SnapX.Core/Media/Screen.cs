@@ -47,7 +47,6 @@ public class Screen
         Id = id;
         Bounds = new Rectangle(x, y, width, height);
         Name = name;
-        Resolution = resolution;
         RefreshRate = refreshRate;
         DiagonalSizeInches = diagonalSizeInches;
         DPI = dpi;

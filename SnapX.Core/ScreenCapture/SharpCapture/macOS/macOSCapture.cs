@@ -1,4 +1,4 @@
-namespace SnapX.Core.ScreenCapture.SharpCapture.Linux.macOS;
+namespace SnapX.Core.ScreenCapture.SharpCapture.macOS;
 
 public class macOSCapture : BaseCapture
 {
