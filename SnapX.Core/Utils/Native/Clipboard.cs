@@ -34,12 +34,6 @@ public class Clipboard
             TiffFormat _ => ".tiff",
             _ => ".png"
         };
-        CopyImage(image, "image" + extension);
-
-    }
-
-    public static void CopyImage(Image image, string fileName)
-    {
         if (string.IsNullOrEmpty(fileName)) fileName = $"image{Helpers.GetImageExtension(image)}";
         DebugHelper.WriteLine($"Clipboard.CopyImage: {image.Width}x{image.Height}: {fileName}");
         Methods.CopyImage(image, fileName);
