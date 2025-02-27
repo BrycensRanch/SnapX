@@ -10,7 +10,6 @@ using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Upload.File;
 
@@ -28,7 +27,8 @@ public class PlikFileUploaderService : FileUploaderService
         return !string.IsNullOrEmpty(config.PlikSettings.URL) && !string.IsNullOrEmpty(config.PlikSettings.APIKey);
     }
 }
-
+[JsonSerializable(typeof(UploadMetadataResponse))]
+internal partial class PlikContext : JsonSerializerContext;
 public sealed class Plik : FileUploader
 {
     public PlikSettings Settings { get; private set; }
@@ -54,7 +54,7 @@ public sealed class Plik : FileUploader
         metaDataReq.Files = new UploadMetadataRequestFile0();
         metaDataReq.Files.File0 = new UploadMetadataRequestFile();
         metaDataReq.Files.File0.FileName = fileName;
-        metaDataReq.Files.File0.FileType = MimeTypes.GetMimeTypeFromFileName(fileName);
+        metaDataReq.Files.File0.FileType = MimeTypes.GetMimeType(fileName);
         metaDataReq.Files.File0.FileSize = Convert.ToInt32(stream.Length);
         metaDataReq.Removable = Settings.Removable;
         metaDataReq.OneShot = Settings.OneShot;
@@ -76,7 +76,10 @@ public sealed class Plik : FileUploader
             metaDataReq.Password = Settings.Password;
         }
         var metaDataResp = SendRequest(HttpMethod.Post, Settings.URL + "/upload", JsonSerializer.Serialize(metaDataReq), headers: requestHeaders);
-        var metaData = JsonSerializer.Deserialize<UploadMetadataResponse>(metaDataResp);
+        var metaData = JsonSerializer.Deserialize<UploadMetadataResponse>(metaDataResp, new JsonSerializerOptions
+        {
+            TypeInfoResolver = PlikContext.Default
+        });
         requestHeaders["x-uploadtoken"] = metaData.uploadToken;
         var url = $"{Settings.URL}/file/{metaData.id}/{metaData.files.First().Value.id}/{fileName}";
         var FileDatReq = SendRequestFile(url, stream, fileName, "file", headers: requestHeaders);

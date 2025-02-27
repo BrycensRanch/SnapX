@@ -47,17 +47,14 @@ public sealed class TwitPicUploader : ImageUploader
         TwitPicThumbnailMode = TwitPicThumbnailType.Thumb;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        switch (TwitPicUploadType)
+        return TwitPicUploadType switch
         {
-            case TwitPicUploadType.UPLOAD_IMAGE_ONLY:
-                return Upload(stream, fileName, UploadLink);
-            case TwitPicUploadType.UPLOAD_IMAGE_AND_TWITTER:
-                throw new NotImplementedException("TwitPicUploadType.UPLOAD_IMAGE_AND_TWITTER is not implemented yet.");
-        }
-
-        return null;
+            TwitPicUploadType.UPLOAD_IMAGE_ONLY => Upload(stream, fileName, UploadLink),
+            TwitPicUploadType.UPLOAD_IMAGE_AND_TWITTER => throw new NotImplementedException("TwitPicUploadType.UPLOAD_IMAGE_AND_TWITTER is not implemented yet."),
+        };
     }
 
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]

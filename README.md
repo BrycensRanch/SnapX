@@ -35,6 +35,9 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the applicatio
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/) and uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs, TIFF, and BMP image formats.
+- Supports 95% of ShareX uploaders (we're a fork!!)
+- Uses the power of VLC to playback video on Avalonia & uses Gstreamer on GTK4
+- Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* uses TLS 1.3 out of the box.
 - Keeps compatability with the custom uploader configuration format (.sxcu)
@@ -55,8 +58,8 @@ We will do our best to help you, but we cannot guarantee that we will be able to
 
 This project is built on Ubuntu 24.04 and is tested on the following distributions:
 
-- Fedora 41
-- Ubuntu 24.04
+- **F**edora 41+
+- **U**buntu 24.04+
 
 If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can build the project from source.
 
@@ -76,7 +79,7 @@ For screenshots, it uses your operating system's respective APIs. On Linux Wayla
 
 Instructions for other projects within the SnapX solution are not provided yet.
 
-> SnapX.GTK4 does not use developer header files and only requires the binary package.
+> SnapX.GTK4 does not use header files and only requires the binary GTK4 package at runtime.
 
 - `git`
 - `gtk4` on Fedora or `libgtk-4-1` on Ubuntu
@@ -84,32 +87,68 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `ffmpeg` (7.0.0)
 - `clang`
 - `zlib-devel`
-
-### Fedora 41
+- `vlc-libs` (libvlc)
+### Fedora 41+ 🌟
 
 ```bash
-sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs
+sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs vlc-libs
 ```
 
-### Ubuntu 24.04
+### Ubuntu 24.04+ ⚡
 
 ```bash
-sudo apt update -q && sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged.
+sudo apt update && sudo apt install -y software-properties-common
+sudo add-apt-repository ppa:dotnet/backports # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang
+sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev
+```
+
+### Windows 10 22H2+ 🪟
+
+End of life Windows versions are not supported. For example, Windows 11 22H2 is EOL and thus not supported.
+
+```shell
+# Installing Visual Studio Community
+# You cannot build with NativeAOT without it.
+# Regardless if you like Rider or VSCode more. https://stackoverflow.com/a/78392544/27578554
+winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+winget install -e --id Git.Git
+```
+
+## macOS Ventura+ 🍎
+
+Avalonia can run on macOS 11+. But you can't develop with such an old version.
+
+#### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
+
+```zsh
+cd ~/Downloads
+curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
+chmod +x dotnet-install.sh
+./dotnet-install.sh -Channel current
+git --version # If prompted to install Git, do it.
+exec $SHELL -l
 ```
 
 ## Building from Source
 
-Only do this if you're a developer, the solution *does* build,
-but you should have a backup of all your ShareX/SnapX data.
+Only do this if you're a developer, you should have a backup of all your ShareX/SnapX data.
 I do, in fact, mean it when I say the project isn't ready for use.
+
+Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
+I've been testing with my ShareX configuration. You should place it in the configuration directory it expects.
+
+On Linux, its `~/.config/SnapX`
+
+On Windows, its `%USERPROFILE%\Documents\SnapX`
+
+On macOS, its `~/Library/Application Support/SnapX`
 
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
 cd SnapX
-./build.sh # Calls NUKE (https://nuke.build)
+./build.sh # Calls NUKE (https://nuke.build) (Linux/macOS)
+.\build.ps1 # If on Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
 # There is nothing stopping you from using regular dotnet building tools
@@ -121,8 +160,6 @@ Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
 
 Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
 
-Lastly...
+---
 
-I use Fedora Rawhide btw :^)
-
-[Fine, I'll do it myself.](https://www.youtube.com/watch?v=L_WoOkDAqbM)
+![](https://media1.tenor.com/m/2x6aLHHOUGcAAAAC/programming-windows-forms.gif)

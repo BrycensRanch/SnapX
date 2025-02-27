@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using SixLabors.ImageSharp;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -20,6 +21,7 @@ public class Resize : ImageEffect
     [DefaultValue(ResizeMode.ResizeAll)]
     public ResizeMode Mode { get; set; } = ResizeMode.ResizeAll;
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public Resize()
     {
         this.ApplyDefaultPropertyValues();

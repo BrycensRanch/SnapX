@@ -279,7 +279,7 @@ public class Uploader
             }
             contentLength = Math.Min(contentLength, data.Length - contentPosition);
 
-            string contentType = MimeTypes.GetMimeTypeFromFileName(fileName);
+            string contentType = MimeTypes.GetMimeType(fileName);
 
             if (headers == null)
             {
@@ -503,9 +503,7 @@ public class Uploader
     {
         LastResponseInfo = null;
 
-        var request = RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength);
-        request.Wait();
-        return request.Result;
+        return RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength).GetAwaiter().GetResult();
     }
     private ResponseInfo ProcessWebResponse(HttpResponseMessage response)
     {

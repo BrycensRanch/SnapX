@@ -26,22 +26,21 @@ public class IsgdURLShortener : URLShortener
 
     public override UploadResult ShortenURL(string url)
     {
-        UploadResult result = new UploadResult { URL = url };
+        var result = new UploadResult { URL = url };
 
-        if (!string.IsNullOrEmpty(url))
+        if (string.IsNullOrEmpty(url)) return result;
+
+        var arguments = new Dictionary<string, string>
         {
-            Dictionary<string, string> arguments = new Dictionary<string, string>
-            {
-                { "format", "simple" },
-                { "url", url }
-            };
+            { "format", "simple" },
+            { "url", url }
+        };
 
-            result.Response = SendRequest(HttpMethod.Get, APIURL, arguments);
+        result.Response = SendRequest(HttpMethod.Get, APIURL, arguments);
 
-            if (!result.Response.StartsWith("Error:", StringComparison.OrdinalIgnoreCase))
-            {
-                result.ShortenedURL = result.Response;
-            }
+        if (!result.Response.StartsWith("Error:", StringComparison.OrdinalIgnoreCase))
+        {
+            result.ShortenedURL = result.Response;
         }
 
         return result;

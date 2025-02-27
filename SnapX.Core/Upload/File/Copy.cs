@@ -173,6 +173,7 @@ public sealed class Copy : FileUploader, IOAuth
 
     #endregion Files and metadata
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         return UploadFile(stream, UploadPath, fileName);
@@ -222,6 +223,7 @@ public sealed class Copy : FileUploader, IOAuth
         return "";
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public string GetPublicURL(string path, CopyURLType urlType = CopyURLType.Default)
     {
         path = path.Trim('/');

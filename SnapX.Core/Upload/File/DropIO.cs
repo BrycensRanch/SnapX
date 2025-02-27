@@ -37,9 +37,9 @@ public sealed class DropIO : FileUploader
     {
         DropName = "ShareX_" + Helpers.GetRandomAlphanumeric(10);
         DropDescription = "";
-        Drop drop = CreateDrop(DropName, DropDescription, false, false, false);
+        var drop = CreateDrop(DropName, DropDescription, false, false, false);
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "version", "2.0" },
             { "api_key", APIKey },
@@ -48,11 +48,11 @@ public sealed class DropIO : FileUploader
             { "drop_name", drop.Name }
         };
 
-        UploadResult result = SendRequestFile("https://assets.drop.io/upload", stream, fileName, "file", args);
+        var result = SendRequestFile("https://assets.drop.io/upload", stream, fileName, "file", args);
 
         if (result.IsSuccess)
         {
-            Asset asset = ParseAsset(result.Response);
+            var asset = ParseAsset(result.Response);
             result.URL = string.Format("https://drop.io/{0}/asset/{1}", drop.Name, asset.Name);
         }
 
@@ -61,11 +61,11 @@ public sealed class DropIO : FileUploader
 
     public Asset ParseAsset(string response)
     {
-        XDocument doc = XDocument.Parse(response);
-        XElement root = doc.Element("asset");
+        var doc = XDocument.Parse(response);
+        var root = doc.Element("asset");
         if (root != null)
         {
-            Asset asset = new Asset();
+            var asset = new Asset();
             asset.Name = root.GetElementValue("name");
             asset.OriginalFilename = root.GetElementValue("original-filename");
             return asset;
@@ -76,7 +76,7 @@ public sealed class DropIO : FileUploader
 
     private Drop CreateDrop(string name, string description, bool guests_can_comment, bool guests_can_add, bool guests_can_delete)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "version", "2.0" },
             { "api_key", APIKey },
@@ -93,13 +93,13 @@ public sealed class DropIO : FileUploader
             { "guests_can_delete", guests_can_delete.ToString() }
         };
 
-        string response = SendRequestMultiPart("https://api.drop.io/drops", args);
+        var response = SendRequestMultiPart("https://api.drop.io/drops", args);
 
-        XDocument doc = XDocument.Parse(response);
-        XElement root = doc.Element("drop");
+        var doc = XDocument.Parse(response);
+        var root = doc.Element("drop");
         if (root != null)
         {
-            Drop drop = new Drop();
+            var drop = new Drop();
             drop.Name = root.GetElementValue("name");
             drop.AdminToken = root.GetElementValue("admin_token");
             return drop;

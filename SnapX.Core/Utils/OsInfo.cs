@@ -39,13 +39,12 @@ public static partial class OsInfo
                 return $"Windows {Environment.OSVersion.Version}";
 
             var productName = key.GetValue("ProductName")?.ToString() ?? "Unknown Windows";
-            var releaseId = key.GetValue("ReleaseId")?.ToString() ?? "Unknown Release";
             var currentBuild = key.GetValue("CurrentBuild")?.ToString() ?? "Unknown Version";
 
             if (Helpers.IsWindows11OrGreater())
                 productName = productName.Replace("10", "11");
 
-            return $"{productName} {releaseId} {currentBuild}";
+            return $"{productName} {currentBuild}";
 
         }
         catch (Exception ex)
@@ -575,9 +574,7 @@ public static partial class OsInfo
         if (!OperatingSystem.IsLinux()) return false;
         try
         {
-            string procVersion = File.ReadAllText("/proc/version");
-
-            return procVersion.IndexOf("Microsoft", StringComparison.OrdinalIgnoreCase) >= 0;
+            return File.ReadAllText("/proc/version").Contains("WSL", StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception)
         {

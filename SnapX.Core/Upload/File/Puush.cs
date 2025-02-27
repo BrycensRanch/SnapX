@@ -102,7 +102,7 @@ public class Puush : FileUploader
 
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        Dictionary<string, string> arguments = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "k", APIKey },
             { "z", SnapXResources.UserAgent }
@@ -110,11 +110,11 @@ public class Puush : FileUploader
 
         // Successful: status,url,id,usage
         // Failed: status
-        UploadResult result = SendRequestFile(PuushAPIUploadURL, stream, fileName, "f", arguments);
+        var result = SendRequestFile(PuushAPIUploadURL, stream, fileName, "f", args);
 
         if (result.IsSuccess)
         {
-            string[] values = result.Response.Split(',');
+            var values = result.Response.Split(',');
 
             if (values.Length > 0)
             {

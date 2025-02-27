@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -21,7 +22,8 @@ public class TwoGPURLShortenerService : URLShortenerService
         return new TwoGPURLShortener();
     }
 }
-
+[JsonSerializable(typeof(TwoGPURLShortenerResponse))]
+internal partial class TwoGPUContext : JsonSerializerContext;
 public sealed class TwoGPURLShortener : URLShortener
 {
     private const string API_ENDPOINT = "https://2.gp/api/short";
@@ -38,8 +40,8 @@ public sealed class TwoGPURLShortener : URLShortener
 
         if (string.IsNullOrEmpty(response))
             return result;
-
-        var jsonResponse = JsonSerializer.Deserialize<TwoGPURLShortenerResponse>(response);
+        var options = new JsonSerializerOptions() { TypeInfoResolver = TwoGPUContext.Default };
+        var jsonResponse = JsonSerializer.Deserialize<TwoGPURLShortenerResponse>(response, options);
 
         if (jsonResponse != null)
         {

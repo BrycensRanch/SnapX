@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -28,7 +29,10 @@ public class CheveretoImageUploaderService : ImageUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(Chevereto.CheveretoResponse))]
+[JsonSerializable(typeof(Chevereto.CheveretoImage))]
+[JsonSerializable(typeof(Chevereto.CheveretoThumb))]
+internal partial class CheveretoContext : JsonSerializerContext;
 public sealed class Chevereto : ImageUploader
 {
     public CheveretoUploader Uploader { get; private set; }
@@ -50,7 +54,7 @@ public sealed class Chevereto : ImageUploader
             { "format", "json" }
         };
 
-        string url = URLHelpers.FixPrefix(Uploader.UploadURL);
+        var url = URLHelpers.FixPrefix(Uploader.UploadURL);
 
         var result = SendRequestFile(url, stream, fileName, "source", args);
 
@@ -59,7 +63,11 @@ public sealed class Chevereto : ImageUploader
             return result;
         }
 
-        var response = JsonSerializer.Deserialize<CheveretoResponse>(result.Response);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = CheveretoContext.Default
+        };
+        var response = JsonSerializer.Deserialize<CheveretoResponse>(result.Response, options);
 
         if (response?.Image == null)
         {
@@ -77,19 +85,19 @@ public sealed class Chevereto : ImageUploader
     }
 
 
-    private class CheveretoResponse
+    public class CheveretoResponse
     {
         public CheveretoImage Image { get; set; }
     }
 
-    private class CheveretoImage
+    public class CheveretoImage
     {
         public string URL { get; set; }
         public string URL_Viewer { get; set; }
         public CheveretoThumb Thumb { get; set; }
     }
 
-    private class CheveretoThumb
+    public class CheveretoThumb
     {
         public string URL { get; set; }
     }

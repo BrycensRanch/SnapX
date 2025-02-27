@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using SixLabors.ImageSharp;
 using SnapX.Core.Indexer;
@@ -508,6 +509,7 @@ public class TaskSettingsAdvanced
     [Category("Name pattern"), DefaultValue(50), Description("Maximum name pattern title (%t) length for file name.")]
     public int NamePatternMaxTitleLength { get; set; }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public TaskSettingsAdvanced()
     {
         this.ApplyDefaultPropertyValues();

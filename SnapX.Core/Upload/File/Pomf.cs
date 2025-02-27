@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -26,6 +27,8 @@ public class PomfFileUploaderService : FileUploaderService
     }
 }
 
+[JsonSerializable(typeof(Pomf.PomfResponse))]
+internal partial class PomfContext : JsonSerializerContext;
 public class Pomf : FileUploader
 {
     public PomfUploader Uploader { get; private set; }
@@ -39,19 +42,22 @@ public class Pomf : FileUploader
     [RequiresUnreferencedCode("Uploader")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        UploadResult result = SendRequestFile(Uploader.UploadURL, stream, fileName, "files[]");
+        var result = SendRequestFile(Uploader.UploadURL, stream, fileName, "files[]");
 
         if (result.IsSuccess)
         {
-            PomfResponse response = JsonSerializer.Deserialize<PomfResponse>(result.Response);
+            var response = JsonSerializer.Deserialize<PomfResponse>(result.Response, new JsonSerializerOptions
+            {
+                TypeInfoResolver = PomfContext.Default
+            });
 
             if (response.success && response.files != null && response.files.Count > 0)
             {
-                string url = response.files[0].url;
+                var url = response.files[0].url;
 
                 if (!URLHelpers.HasPrefix(url) && !string.IsNullOrEmpty(Uploader.ResultURL))
                 {
-                    string resultURL = URLHelpers.FixPrefix(Uploader.ResultURL);
+                    var resultURL = URLHelpers.FixPrefix(Uploader.ResultURL);
                     url = URLHelpers.CombineURL(resultURL, url);
                 }
 
@@ -62,14 +68,14 @@ public class Pomf : FileUploader
         return result;
     }
 
-    private class PomfResponse
+    public class PomfResponse
     {
         public bool success { get; set; }
         public object error { get; set; }
         public List<PomfFile> files { get; set; }
     }
 
-    private class PomfFile
+    public class PomfFile
     {
         public string hash { get; set; }
         public string name { get; set; }

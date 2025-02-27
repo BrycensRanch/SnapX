@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Diagnostics.CodeAnalysis;
 using SnapX.Core.Upload.Custom.Functions;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
@@ -11,6 +12,7 @@ namespace SnapX.Core.Upload.Custom;
 
 public class ShareXCustomUploaderSyntaxParser : ShareXSyntaxParser
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static IEnumerable<CustomUploaderFunction> Functions = Helpers.GetInstances<CustomUploaderFunction>();
 
     public string FileName { get; set; }

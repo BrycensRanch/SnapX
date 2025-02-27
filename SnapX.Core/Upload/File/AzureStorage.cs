@@ -10,7 +10,6 @@ using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.File;
@@ -75,7 +74,7 @@ public sealed class AzureStorage : FileUploader
 
         OnEarlyURLCopyRequested(resultURL);
 
-        var contentType = MimeTypes.GetMimeTypeFromFileName(fileName);
+        var contentType = MimeTypes.GetMimeType(fileName);
         var requestHeaders = new NameValueCollection
         {
             { "x-ms-date", date },

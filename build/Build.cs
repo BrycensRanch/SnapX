@@ -78,9 +78,11 @@ class Build : NukeBuild
     string Metainfodir => Path.Join(Datadir, "metainfo");
     AbsolutePath Tarballdir => PackagingDirectory / "tarball";
     string packagingDir => Path.Combine(PackagingDirectory, "usr");
+    /*
     Project NMH => Solution.SnapX_NativeMessagingHost;
+    */
 
-    string NMHassemblyName => NMH.GetProperty("AssemblyName")!;
+    string NMHassemblyName => "SnapX_NativeMessagingHost";
     [Parameter("Path to NativeMessagingHost for web extension support")]
     string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
 
@@ -216,6 +218,10 @@ class Build : NukeBuild
                         destinationFile = Path.Join(Metainfodir, Path.GetFileName(file));
                         Information($"Installing metainfo file: {relativePath} -> {destinationFile}");
                         break;
+                    case var file when file.EndsWith(".md", StringComparison.OrdinalIgnoreCase):
+                        destinationFile = Path.Join(Docdir, Path.GetFileName(file));
+                        Information($"Installing documentation file: {relativePath} -> {destinationFile}");
+                        break;
                     default:
                         Information($"Installing {Path.GetExtension(sourceFile)} file: {relativePath} -> {destinationFile}");
                         break;
@@ -223,13 +229,22 @@ class Build : NukeBuild
 
                 InstallFile(sourceFile, destinationFile, permissions);
             }
+            // Install License
+            InstallFile(Path.Join(RootDirectory, "LICENSE.md"), Path.Join(Licensedir, "LICENSE.md"), "0755");
+            var documentation = Directory.GetFiles(RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
+
+            foreach (var docFile in documentation)
+            {
+                if (docFile.ToLower().Contains("license")) continue;
+                InstallFile(docFile, Path.Join(Docdir, Path.GetFileName(docFile)), "0755");
+            }
 
             var outputFiles = OutputDirectory.GetFiles("*", 5).OrderBy(f => f.Name).ToArray();
             foreach (var outputFile in outputFiles)
             {
                 var permissions = "0755";
                 var destinationFile = Path.Join(Bindir, Path.GetFileName(outputFile));
-                var AvaloniaAssemblyName = Solution.SnapX_Avalonia.GetProperty("AssemblyName")!;
+                var AvaloniaAssemblyName = "snapx-ui" + (OperatingSystem.IsWindows() ? ".exe" : "");
 
                 switch (Path.GetFileNameWithoutExtension(destinationFile))
                 {
@@ -259,13 +274,22 @@ class Build : NukeBuild
             }
 
             var localAvaloniaWrapperScript = Path.Join(RootDirectory, "snapx-ui");
+            
+            var avaloniaPath = Path.Join(Prefix, "lib", "snapx", "snapx-ui");
+            var fallbackPath = Path.Join(LibDir, "snapx", "snapx-ui");
             using (var writer = new StreamWriter(localAvaloniaWrapperScript))
             {
                 writer.WriteLine("#!/bin/sh");
                 writer.WriteLine("# Wrapper script provided by SnapX to invoke the true Avalonia binary.");
                 writer.WriteLine($"# NMH Path: {NMHostPath}");
                 writer.WriteLine($"# Version: {SnapXVersion}");
-                writer.WriteLine($"exec {Path.Join(LibDir, "snapx", "snapx-ui")} \"$@\"");
+                writer.WriteLine(@"
+if [ -f ""{avaloniaPath}"" ]; then
+    exec {avaloniaPath} ""$@""
+else
+    exec {fallbackPath} ""$@""
+fi
+");
             }
 
             InstallFile(localAvaloniaWrapperScript, Path.Join(Bindir, "snapx-ui"), "0755");
@@ -328,7 +352,7 @@ class Build : NukeBuild
             else
             {
                 Debug($"{processStartInfo.FileName} {processStartInfo.Arguments}");
-                Information($"Install command succeeded. {process.StandardOutput.ReadToEnd()}");
+                Debug($"Install command succeeded. {process.StandardOutput.ReadToEnd()}");
             }
         }
         catch (System.ComponentModel.Win32Exception ex)

@@ -18,7 +18,7 @@ public static class SendSpaceManager
 
     public static UploaderErrorManager PrepareUploadInfo(string apiKey, string username = null, string password = null)
     {
-        SendSpace sendSpace = new SendSpace(apiKey);
+        var sendSpace = new SendSpace(apiKey);
 
         try
         {

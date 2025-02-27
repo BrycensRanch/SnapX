@@ -5,6 +5,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
@@ -28,7 +29,8 @@ public class FlickrImageUploaderService : ImageUploaderService
         return new FlickrUploader(config.FlickrOAuthInfo, config.FlickrSettings);
     }
 }
-
+[JsonSerializable(typeof(FlickrPhotosGetSizesResponse))]
+internal partial class FlickrContext : JsonSerializerContext;
 public class FlickrUploader : ImageUploader, IOAuth
 {
     public OAuthInfo AuthInfo { get; set; }
@@ -47,12 +49,12 @@ public class FlickrUploader : ImageUploader, IOAuth
 
     public string GetAuthorizationURL()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        var args = new Dictionary<string, string>
         {
             { "oauth_callback", Links.Callback }
         };
 
-        string url = GetAuthorizationURL("https://www.flickr.com/services/oauth/request_token", "https://www.flickr.com/services/oauth/authorize", AuthInfo, args);
+        var url = GetAuthorizationURL("https://www.flickr.com/services/oauth/request_token", "https://www.flickr.com/services/oauth/authorize", AuthInfo, args);
 
         return url + "&perms=write";
     }
@@ -80,22 +82,24 @@ public class FlickrUploader : ImageUploader, IOAuth
             { "photo_id", photoid }
         };
 
-        string query = OAuthManager.GenerateQuery("https://api.flickr.com/services/rest", args, HttpMethod.Post, AuthInfo);
-        string response = SendRequest(HttpMethod.Get, query);
-
+        var query = OAuthManager.GenerateQuery("https://api.flickr.com/services/rest", args, HttpMethod.Post, AuthInfo);
+        var response = SendRequest(HttpMethod.Get, query);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = FlickrContext.Default
+        };
         return string.IsNullOrEmpty(response)
             ? null
-            : JsonSerializer.Deserialize<FlickrPhotosGetSizesResponse>(response);
+            : JsonSerializer.Deserialize<FlickrPhotosGetSizesResponse>(response, options);
     }
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         var url = "https://up.flickr.com/services/upload/";
 
         var args = new Dictionary<string, string>();
 
-        // Add valid keys only if their values are non-null and non-empty
         if (!string.IsNullOrEmpty(Settings.Title)) args.Add("title", Settings.Title);
         if (!string.IsNullOrEmpty(Settings.Description)) args.Add("description", Settings.Description);
         if (!string.IsNullOrEmpty(Settings.Tags)) args.Add("tags", Settings.Tags);
@@ -116,7 +120,7 @@ public class FlickrUploader : ImageUploader, IOAuth
 
         if (xele == null) return result;
 
-        string photoid = xele.Value;
+        var photoid = xele.Value;
 
         var photos = PhotosGetSizes(photoid);
 

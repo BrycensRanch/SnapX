@@ -14,7 +14,6 @@ using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
 using Math = System.Math;
 
@@ -73,6 +72,7 @@ public sealed class BackblazeB2 : ImageUploader
         CustomUrl = customUrl;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         var parsedUploadPath = NameParser.Parse(NameParserType.FilePath, UploadPath);
@@ -260,6 +260,7 @@ public sealed class BackblazeB2 : ImageUploader
     /// <param name="bucketName">The bucket to get the ID for.</param>
     /// <param name="error">Will be set to a non-null value on failure.</param>
     /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, the bucket ID.</returns>
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public string B2ApiGetBucketId(B2Authorization auth, string bucketName, out string error)
     {
         NameValueCollection headers = new NameValueCollection()
@@ -406,7 +407,7 @@ public sealed class BackblazeB2 : ImageUploader
             ["X-Bz-Info-b2-content-disposition"] = URLHelpers.URLEncode(contentDisposition.ToString()),
         };
 
-        string contentType = MimeTypes.GetMimeTypeFromFileName(destinationPath);
+        string contentType = MimeTypes.GetMimeType(destinationPath);
 
         using (HttpWebResponse res = GetResponse(HttpMethod.Post, b2UploadUrl.uploadUrl,
             contentType: contentType, headers: headers, data: file, allowNon2xxResponses: true))
@@ -505,6 +506,7 @@ public sealed class BackblazeB2 : ImageUploader
     /// </summary>
     /// <param name="res">A <see cref="HttpWebResponse"/> with a non-2xx status code.</param>
     /// <returns>A string describing the error.</returns>
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static string StringifyB2Error(HttpWebResponse res)
     {
         B2Error err = ParseB2Error(res);

@@ -18,10 +18,23 @@ public class SnapX
     public const string AppName = "SnapX";
     public static string Qualifier = "";
     public const BuildType Build =
-#if RELEASE
-            BuildType.Release;
-#elif DEBUG
+
+#if DEBUG
             BuildType.Debug;
+#elif RPM
+            BuildType.RPM;
+#elif DEB
+            BuildType.DEB;
+#elif APPIMAGE
+            BuildType.AppImage;
+#elif FLATPAK
+            BuildType.Flatpak;
+#elif SNAP
+            BuildType.Snap;
+#elif RUNFILE
+            BuildType.Runfile;
+#elif RELEASE
+            BuildType.Release;
 #else
             BuildType.Unknown;
 #endif
@@ -108,7 +121,7 @@ public class SnapX
 
     // Many Windows users consider %USERPROFILE%\Documents\SnapX the correct location,
     // and I'm not here to subvert expectations.
-    public static readonly string DefaultPersonalFolder = Path.Combine(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? UserDirectory.DocumentsDir : BaseDirectory.DataHome, AppName);
+    public static readonly string DefaultPersonalFolder = Path.Combine(OperatingSystem.IsWindows() ? UserDirectory.DocumentsDir : BaseDirectory.DataHome, AppName);
     public static readonly string PortablePersonalFolder = FileHelpers.GetAbsolutePath(AppName);
 
     private static string PersonalPathConfigFilePath
@@ -144,7 +157,7 @@ public class SnapX
 
     public static string ConfigFolder => string.IsNullOrEmpty(CustomConfigPath)
         ? Path.Combine(
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            OperatingSystem.IsWindows()
                 ? UserDirectory.DocumentsDir
                 : BaseDirectory.ConfigHome,
             AppName)
@@ -176,7 +189,7 @@ public class SnapX
     public const string LogsFolderName = "Logs";
     // On Linux, strictly adhere to XDG BaseDirectory spec.
     // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyways so it doesn't really matter.
-    public static string LogsFolder => OperatingSystem.IsLinux() ? Path.Combine(BaseDirectory.StateHome, AppName, LogsFolderName): Path.Combine(PersonalFolder, LogsFolderName) ;
+    public static string LogsFolder => OperatingSystem.IsLinux() ? Path.Combine(BaseDirectory.StateHome, AppName, LogsFolderName) : Path.Combine(PersonalFolder, LogsFolderName);
 
     public static string LogsFilePath
     {
@@ -255,7 +268,7 @@ public class SnapX
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
         CLIManager.ParseCommands();
-        CLIManager.UseCommandLineArgs(CLIManager.Commands).Wait();
+        CLIManager.UseCommandLineArgs(CLIManager.Commands).GetAwaiter().GetResult();
 
         if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute a task as Admin
 
@@ -265,6 +278,11 @@ public class SnapX
         DebugHelper.Init(LogsFilePath);
 
         MultiInstance = CLIManager.IsCommandExist("multi", "m");
+        if (CLIManager.IsCommandExist("sound", "s"))
+        {
+            DebugHelper.WriteLine("Running Sound Command");
+            PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+        }
         Run();
     }
 
@@ -272,6 +290,71 @@ public class SnapX
     public EventAggregator getEventAggregator() => EventAggregator;
     public bool isSilent() => SilentRun;
 
+    // Supports the failed standard https://consoledonottrack.com/
+    public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
+                                    Environment.GetEnvironmentVariable("DO_NOT_TRACK") == null;
+
+    // Coding nerds, please, forgive me for this mortal sin.
+    // The code here is instance dependent thus cannot be called from static stuff yada yada yada.
+    public void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
+    {
+        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
+        switch (notificationSound)
+        {
+            case NotificationSound.Capture:
+                if (taskSettings.GeneralSettings.PlaySoundAfterCapture)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomCaptureSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomCaptureSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomCaptureSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.CaptureSound);
+                    }
+                }
+                break;
+            case NotificationSound.TaskCompleted:
+                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomTaskCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.TaskCompletedSound);
+                    }
+                }
+                break;
+            case NotificationSound.ActionCompleted:
+                if (taskSettings.GeneralSettings.PlaySoundAfterAction)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomActionCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomActionCompletedSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomActionCompletedSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.ActionCompletedSound);
+                    }
+                }
+                break;
+            case NotificationSound.Error:
+                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomErrorSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomErrorSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomErrorSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.ErrorSound);
+                    }
+                }
+                break;
+        }
+    }
     private static void Run()
     {
         DebugHelper.WriteLine("SnapX starting.");
@@ -306,8 +389,7 @@ public class SnapX
             DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
             OsInfo.PrintGraphicsInfo();
             // Linux is not supported for HDR detection.
-            if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR: {OsInfo.IsHdrSupported()}");
-
+            if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR Capable: {OsInfo.IsHdrSupported()}");
         });
         IsAdmin = Helpers.IsAdministrator();
         DebugHelper.WriteLine("Running as elevated process: " + IsAdmin);
@@ -322,13 +404,28 @@ public class SnapX
         DebugWriteFlags();
         // SettingManager.LoadInitialSettings();
         SettingManager.LoadAllSettings();
-        if (!FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry)
+        if (TelemetryEnabled())
             SentrySdk.Init(options =>
             {
-                options.Dsn = "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
+                // This allows end users to test themselves what data is sent to Sentry
+                var sentryDsnEnv = Environment.GetEnvironmentVariable("SENTRY_DSN");
+                options.Dsn = !string.IsNullOrWhiteSpace(sentryDsnEnv) ? sentryDsnEnv : "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
 
                 // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
-                options.Debug = false;
+                options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
+                // VLCException includes multiple paths with username
+                // For full transparency, I discovered this issue on my computer.
+                // No other users are effected to my knowledge.
+                options.SetBeforeSend((sentryEvent, hint) =>
+                {
+                    if (sentryEvent.Exception != null
+                        && !string.IsNullOrEmpty(sentryEvent.Exception.Message))
+                    {
+                        if (sentryEvent.Exception.Message.Contains(Environment.UserName)) return null;
+                    }
+
+                    return sentryEvent;
+                });
 
                 // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
                 options.IsGlobalModeEnabled = true;
@@ -350,15 +447,15 @@ public class SnapX
                 options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
             });
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
-        if (CLIManager.IsCommandExist("sound", "s"))
-        {
-                DebugHelper.WriteLine("Running Sound Command");
-                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
-        }
         // CleanupManager.CleanupAsync();
 
     }
 
+    public CLIManager GetCLIManager() => CLIManager;
+    // TODO: Implement Dependency Injection to pass around instance of SnapX to classes
+    // TODO: Add back all notification sounds calls
+    public async virtual Task PlaySound(Stream stream) => throw new NotImplementedException("PlaySound is not implemented.");
+    private async Task PlaySound(string filePath) => await PlaySound(File.OpenRead(filePath));
     public static void CloseSequence()
     {
         if (closeSequenceStarted) return;
@@ -368,7 +465,7 @@ public class SnapX
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
-        if (!FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry) SentrySdk.Close();
+        if (TelemetryEnabled()) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");
         DebugHelper.FlushBufferedMessages();
@@ -429,7 +526,7 @@ public class SnapX
                 CustomPersonalPath = "";
             }
         }
-        if (!Directory.Exists(ConfigFolder)) Directory.CreateDirectory(ConfigFolder);
+        if (!Directory.Exists(ConfigFolder)) FileHelpers.CreateDirectory(ConfigFolder);
     }
 
     private static void CreateParentFolders()
@@ -460,6 +557,24 @@ public class SnapX
 
     private static void MigratePersonalPathConfig()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            try
+            {
+                // @see https://github.com/BrycensRanch/SnapX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
+                var InformalPath = Path.Join(UserDirectory.DocumentsDir, AppName);
+                if (Directory.Exists(UserDirectory.DocumentsDir) && !File.Exists(InformalPath)) Directory.CreateSymbolicLink(InformalPath, PersonalFolder);
+            }
+            catch (Exception e)
+            {
+                if (e is FileNotFoundException)
+                {
+                    return;
+                }
+                DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
+                DebugHelper.WriteException(e);
+            }
+        }
         if (File.Exists(PreviousPersonalPathConfigFilePath))
         {
             try
@@ -469,19 +584,6 @@ public class SnapX
                     FileHelpers.CreateDirectoryFromFilePath(CurrentPersonalPathConfigFilePath);
                     FileHelpers.CreateDirectoryFromFilePath(ConfigFolder);
                     File.Move(PreviousPersonalPathConfigFilePath, CurrentPersonalPathConfigFilePath);
-                }
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    try
-                    {
-                        // @see https://github.com/BrycensRanch/SnapX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
-                        Directory.CreateSymbolicLink(Path.Combine(UserDirectory.DocumentsDir, AppName), CurrentPersonalPathConfigFilePath);
-                    }
-                    catch (Exception e)
-                    {
-                        DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
-                        DebugHelper.WriteLine(e.Message);
-                    }
                 }
                 File.Delete(PreviousPersonalPathConfigFilePath);
                 Directory.Delete(Path.GetDirectoryName(PreviousPersonalPathConfigFilePath));

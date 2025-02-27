@@ -24,7 +24,7 @@ public class Uguu : FileUploader
 {
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        UploadResult result = SendRequestFile("https://uguu.se/upload.php?output=text", stream, fileName, "files[]");
+        var result = SendRequestFile("https://uguu.se/upload.php?output=text", stream, fileName, "files[]");
 
         if (result.IsSuccess)
         {

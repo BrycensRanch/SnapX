@@ -2,10 +2,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
+using OpenCvSharp;
+using Sdcb.PaddleInference;
+using Sdcb.PaddleOCR;
+using Sdcb.PaddleOCR.Models.Local;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
@@ -26,8 +32,6 @@ using SnapX.Core.Upload.SharingServices;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Parsers;
-using TesseractOCR;
-using TesseractOCR.Enums;
 using ZXing;
 using ZXing.Common;
 using ZXing.ImageSharp.Rendering;
@@ -237,7 +241,7 @@ public static class TaskHelpers
                 // OpenVideoThumbnailer(safeTaskSettings);
                 break;
             case HotkeyType.OCR:
-                await OCRImage(safeTaskSettings);
+                await OCRImage(command.Parameter);
                 break;
             case HotkeyType.QRCode:
                 DebugHelper.WriteException("HotkeyType.QRCode is NOT implemented.");
@@ -653,22 +657,18 @@ public static class TaskHelpers
         new BingVisualSearchSharingService().CreateSharer(null, null).ShareURL(url);
     }
 
+    public static async Task<string> OCRImage(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath)) return string.Empty;
+        var img = await Image.LoadAsync(filePath);
+        return await OCRImage(img, TaskSettings.GetDefaultTaskSettings());
+    }
+
     public static async Task<string> OCRImage(TaskSettings taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-        using var img = RegionCaptureTasks.GetRegionImage(taskSettings.CaptureSettings.SurfaceOptions);
+        var img = RegionCaptureTasks.GetRegionImage(taskSettings.CaptureSettings.SurfaceOptions);
         return await OCRImage(img, taskSettings);
-    }
-
-    public static async Task<string> OCRImage(string filePath, TaskSettings taskSettings = null)
-    {
-        if (string.IsNullOrEmpty(filePath)) return string.Empty;
-        using var engine = new Engine("/usr/share/tesseract/tessdata/eng.traineddata", Language.English, EngineMode.Default);
-        using var img = TesseractOCR.Pix.Image.LoadFromFile(filePath);
-        using var page = engine.Process(img);
-        DebugHelper.WriteLine("Mean confidence: {0}", page.MeanConfidence);
-        DebugHelper.WriteLine("Text: \r\n{0}", page.Text);
-        return page.Text;
     }
 
     public static async Task<string> OCRImage(Image image, TaskSettings taskSettings = null)
@@ -678,16 +678,32 @@ public static class TaskHelpers
 
     public static async Task<string> OCRImage(Image image, string filePath = null, TaskSettings taskSettings = null)
     {
-        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-        using var engine = new Engine("/usr/share/tesseract/tessdata/eng.traineddata", Language.English, EngineMode.Default);
-        if (image == null) await Image.LoadAsync(filePath);
-        using var ms  = new MemoryStream();
+        var model = LocalFullModels.EnglishV4;
+        using var ms = new MemoryStream();
         await image.SaveAsPngAsync(ms);
-        using var img = TesseractOCR.Pix.Image.LoadFromMemory(ms.ToArray());
-        using var page = engine.Process(img);
-        DebugHelper.Logger.Warning("Mean confidence: {0}", page.MeanConfidence);
-        DebugHelper.Logger.Warning("Text: \r\n{0}", page.Text);
-        return page.Text;
+        DebugHelper.WriteLine(filePath);
+        if (OperatingSystem.IsLinux())
+        {
+            DebugHelper.WriteException(new ConstraintException("PaddleOCR is not supported on Linux. It is only supported on Windows X64, ARM64, and macOS ARM64"));
+            return string.Empty;
+        }
+        var config = PaddleDevice.Openblas();
+
+        using var all = new PaddleOcrAll(model, config) {
+            AllowRotateDetection = false,
+            Enable180Classification = false,
+        };
+        // Load local file by following code:
+        // using (Mat src2 = Cv2.ImRead(@"C:\test.jpg"))
+        DebugHelper.WriteLine($"OCR image bytes: {ms.Length}");
+        using var src = Cv2.ImDecode(ms.ToArray(), ImreadModes.Color);
+        var result = all.Run(src);
+        DebugHelper.WriteLine("Detected all texts: \n" + result.Text);
+        foreach (var region in result.Regions)
+        {
+            DebugHelper.WriteLine($"Text: {region.Text}, Score: {region.Score}, RectCenter: {region.Rect.Center}, RectSize:    {region.Rect.Size}, Angle: {region.Rect.Angle}");
+        }
+        return result.Text;
     }
 
     public static void PinToScreen(TaskSettings taskSettings = null)
@@ -731,66 +747,6 @@ public static class TaskHelpers
     public static bool CheckFFmpeg(TaskSettings taskSettings)
     {
         return true;
-    }
-
-    public static void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
-    {
-        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-        switch (notificationSound)
-            {
-                case NotificationSound.Capture:
-                    if (taskSettings.GeneralSettings.PlaySoundAfterCapture)
-                    {
-                        if (taskSettings.GeneralSettings.UseCustomCaptureSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomCaptureSoundPath))
-                        {
-                            Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomCaptureSoundPath);
-                        }
-                        else
-                        {
-                            Helpers.PlaySoundAsync(Resources.Resources.CaptureSound);
-                        }
-                    }
-                    break;
-                case NotificationSound.TaskCompleted:
-                    if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
-                    {
-                        if (taskSettings.GeneralSettings.UseCustomTaskCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath))
-                        {
-                            Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath);
-                        }
-                        else
-                        {
-                            Helpers.PlaySoundAsync(Resources.Resources.TaskCompletedSound);
-                        }
-                    }
-                    break;
-                case NotificationSound.ActionCompleted:
-                    if (taskSettings.GeneralSettings.PlaySoundAfterAction)
-                    {
-                        if (taskSettings.GeneralSettings.UseCustomActionCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomActionCompletedSoundPath))
-                        {
-                            Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomActionCompletedSoundPath);
-                        }
-                        else
-                        {
-                            Helpers.PlaySoundAsync(Resources.Resources.ActionCompletedSound);
-                        }
-                    }
-                    break;
-                case NotificationSound.Error:
-                    if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
-                    {
-                        if (taskSettings.GeneralSettings.UseCustomErrorSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomErrorSoundPath))
-                        {
-                            Helpers.PlaySoundAsync(taskSettings.GeneralSettings.CustomErrorSoundPath);
-                        }
-                        else
-                        {
-                            Helpers.PlaySoundAsync(Resources.Resources.ErrorSound);
-                        }
-                    }
-                    break;
-            }
     }
 
     public static Screenshot GetScreenshot(TaskSettings taskSettings = null)
@@ -884,6 +840,8 @@ public static class TaskHelpers
             }
         }
     }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void ImportImageEffect(string json)
     {
         ImageEffectPreset preset = null;
@@ -927,7 +885,7 @@ public static class TaskHelpers
             {
                 if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
-                PlayNotificationSoundAsync(NotificationSound.ActionCompleted, taskSettings);
+                // PlayNotificationSoundAsync(NotificationSound.ActionCompleted, taskSettings);
 
                 switch (nativeMessagingInput.Action)
                 {

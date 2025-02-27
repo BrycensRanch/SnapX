@@ -30,7 +30,7 @@ jobs:
           - Debug
 
     env:
-      SOLUTION_FILE_PATH: SnapX.sln
+      SOLUTION_FILE_PATH: SnapX.slnx
       ASSEMBLY_INFO_PATH: Directory.build.props
 
     steps:
@@ -52,8 +52,6 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      - name: Restore dependencies
-        run: dotnet restore --locked-mode
       # Needed for offline building :3
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
@@ -70,7 +68,7 @@ jobs:
           ./build.ps1 --configuration ${{ matrix.configuration }}
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
-        run: sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev
+        run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
       - name: Publish
         if: matrix.os != 'windows-latest'
         run: ./build.sh --configuration ${{ matrix.configuration }}

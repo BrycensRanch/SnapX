@@ -108,7 +108,7 @@ public sealed class Box : FileUploader, IOAuth2
     private NameValueCollection GetAuthHeaders() =>
         new NameValueCollection { { "Authorization", $"Bearer {AuthInfo.Token.access_token}" } };
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool CheckAuthorization()
     {
         if (OAuth2Info.CheckOAuth(AuthInfo))
@@ -128,6 +128,7 @@ public sealed class Box : FileUploader, IOAuth2
         return true;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public BoxFileInfo GetFiles(BoxFileEntry folder)
     {
         return GetFiles(folder.id);

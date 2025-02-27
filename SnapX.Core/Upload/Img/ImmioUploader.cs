@@ -4,10 +4,12 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseUploaders;
 
 namespace SnapX.Core.Upload.Img;
-
+[JsonSerializable(typeof(ImmioUploader.ImmioResponse))]
+internal partial class ImmioContext : JsonSerializerContext;
 public sealed class ImmioUploader : ImageUploader
 {
     [RequiresDynamicCode("Uploader")]
@@ -16,19 +18,19 @@ public sealed class ImmioUploader : ImageUploader
     {
         var result = SendRequestFile("https://imm.io/store/", stream, fileName, "image");
         if (!result.IsSuccess) return result;
-
-        var response = JsonSerializer.Deserialize<ImmioResponse>(result.Response);
+        var options = new JsonSerializerOptions { TypeInfoResolver = ImmioContext.Default };
+        var response = JsonSerializer.Deserialize<ImmioResponse>(result.Response, options);
         if (response != null) result.URL = response.Payload.Uri;
         return result;
     }
 
-    private class ImmioResponse
+    public class ImmioResponse
     {
         public bool Success { get; set; }
         public ImmioPayload Payload { get; set; }
     }
 
-    private class ImmioPayload
+    public class ImmioPayload
     {
         public string Uid { get; set; }
         public string Uri { get; set; }

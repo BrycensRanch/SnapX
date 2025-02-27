@@ -5,6 +5,7 @@
     <AssemblyName>SnapX_NativeMessagingHost</AssemblyName>
     <AssemblyTitle>SnapX NativeMessagingHost</AssemblyTitle>
     <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
     <Optimize>true</Optimize>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>

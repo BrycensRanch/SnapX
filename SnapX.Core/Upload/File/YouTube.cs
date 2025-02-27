@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
@@ -30,7 +31,8 @@ public class YouTubeFileUploaderService : FileUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(YouTubeVideoResponse))]
+internal partial class YouTubeContext : JsonSerializerContext;
 public sealed class YouTube : FileUploader, IOAuth2
 {
     public GoogleOAuth2 OAuth2 { get; private set; }
@@ -47,6 +49,7 @@ public sealed class YouTube : FileUploader, IOAuth2
         };
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool RefreshAccessToken()
     {
         return OAuth2.RefreshAccessToken();
@@ -62,6 +65,7 @@ public sealed class YouTube : FileUploader, IOAuth2
         return OAuth2.GetAuthorizationURL();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool GetAccessToken(string code)
     {
         return OAuth2.GetAccessToken(code);
@@ -73,12 +77,13 @@ public sealed class YouTube : FileUploader, IOAuth2
     {
         if (!CheckAuthorization()) return null;
 
-        string title = Path.GetFileNameWithoutExtension(fileName);
-        string description = "";
-        YouTubeVideoPrivacy visibility = PrivacyType;
+        var title = Path.GetFileNameWithoutExtension(fileName);
+        var description = "";
+        var visibility = PrivacyType;
 
         if (ShowDialog)
         {
+            // TODO: Reimplement YouTube ShowDialog
             // using (YouTubeVideoOptionsForm form = new YouTubeVideoOptionsForm(title, description, visibility))
             // {
             //     if (form.ShowDialog() == DialogResult.OK)
@@ -94,7 +99,7 @@ public sealed class YouTube : FileUploader, IOAuth2
             // }
         }
 
-        YouTubeVideoUpload uploadVideo = new YouTubeVideoUpload()
+        var uploadVideo = new YouTubeVideoUpload()
         {
             snippet = new YouTubeVideoSnippet()
             {
@@ -107,14 +112,17 @@ public sealed class YouTube : FileUploader, IOAuth2
             }
         };
 
-        string metadata = JsonSerializer.Serialize(uploadVideo);
+        var metadata = JsonSerializer.Serialize(uploadVideo);
 
-        UploadResult result = SendRequestFile("https://www.googleapis.com/upload/youtube/v3/videos?part=id,snippet,status", stream, fileName, "file",
+        var result = SendRequestFile("https://www.googleapis.com/upload/youtube/v3/videos?part=id,snippet,status", stream, fileName, "file",
             headers: OAuth2.GetAuthHeaders(), relatedData: metadata);
 
         if (!string.IsNullOrEmpty(result.Response))
         {
-            YouTubeVideoResponse responseVideo = JsonSerializer.Deserialize<YouTubeVideoResponse>(result.Response);
+            var responseVideo = JsonSerializer.Deserialize<YouTubeVideoResponse>(result.Response, new JsonSerializerOptions
+            {
+                TypeInfoResolver = YouTubeContext.Default
+            });
 
             if (responseVideo != null)
             {

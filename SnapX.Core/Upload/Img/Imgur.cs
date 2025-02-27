@@ -57,13 +57,13 @@ public class ImgurImageUploaderService : ImageUploaderService
         };
     }
 }
+
 [JsonSerializable(typeof(ImgurResponse))]
 [JsonSerializable(typeof(ImgurError))]
 [JsonSerializable(typeof(OAuth2Token))]
 [JsonSerializable(typeof(ImgurImageData))]
 [JsonSerializable(typeof(ImgurErrorData))]
-internal partial class ImgurSourceGenerationContext: JsonSerializerContext
-{ }
+internal partial class ImgurSourceGenerationContext : JsonSerializerContext;
 public sealed class Imgur : ImageUploader, IOAuth2
 {
     public AccountType UploadMethod { get; set; }
@@ -151,6 +151,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return headers;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool CheckAuthorization()
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo))
@@ -168,6 +169,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return true;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public List<ImgurAlbumData> GetAlbums(int maxPage = 10, int perPage = 100)
     {
         var albums = new List<ImgurAlbumData>();
@@ -238,7 +240,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return null;
     }
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         return InternalUpload(stream, fileName, true);
@@ -317,6 +319,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return $"https://i.imgur.com/{imageData.id}{thumbnail}.jpg";
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private UploadResult HandleUploadError(ImgurResponse imgurResponse, Stream stream, string fileName, bool refreshTokenOnError)
     {
         var errorData = ParseError(imgurResponse);
@@ -333,7 +336,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return new UploadResult();
     }
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private void HandleErrors(ImgurResponse response)
     {
         ImgurErrorData errorData = ParseError(response);

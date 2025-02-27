@@ -8,13 +8,13 @@ public static class FeatureFlags
     #if DISABLE_TELEMETRY
     public static readonly bool DisableTelemetry = true;
     #else
-    #if DISABLE_OCR
-    public static readonly bool DisableOCR = true;
-    #else
-    public static readonly bool DisableOCR = false;
-    #endif
     public static readonly bool DisableTelemetry = false;
     #endif
+#if DISABLE_OCR
+    public static readonly bool DisableOCR = true;
+#else
+    public static readonly bool DisableOCR = false;
+#endif
     #if DISABLE_AUTO_UPDATES
     public static readonly bool DisableAutoUpdates = true;
     #else

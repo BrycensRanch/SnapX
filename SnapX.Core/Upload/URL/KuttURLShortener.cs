@@ -5,6 +5,7 @@
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -25,7 +26,8 @@ public class KuttURLShortenerService : URLShortenerService
         return new KuttURLShortener(config.KuttSettings);
     }
 }
-
+[JsonSerializable(typeof(KuttURLShortener.KuttShortenLinkResponse))]
+internal partial class KuttContext : JsonSerializerContext;
 public sealed class KuttURLShortener : URLShortener
 {
     public KuttSettings Settings { get; set; }
@@ -35,6 +37,7 @@ public sealed class KuttURLShortener : URLShortener
         Settings = settings;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult ShortenURL(string url)
     {
         var result = new UploadResult { URL = url };
@@ -73,8 +76,11 @@ public sealed class KuttURLShortener : URLShortener
         var response = SendRequest(HttpMethod.Post, requestURL, json, RequestHelpers.ContentTypeJSON, headers: headers);
 
         if (string.IsNullOrEmpty(response)) return null;
-
-        var shortenLinkResponse = JsonSerializer.Deserialize<KuttShortenLinkResponse>(response);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = KuttContext.Default
+        };
+        var shortenLinkResponse = JsonSerializer.Deserialize<KuttShortenLinkResponse>(response, options);
 
         return shortenLinkResponse != null ? shortenLinkResponse.link : null;
     }
@@ -96,7 +102,7 @@ public sealed class KuttURLShortener : URLShortener
         public string domain { get; set; }
     }
 
-    private class KuttShortenLinkResponse
+    public class KuttShortenLinkResponse
     {
         /// <summary>Unique ID of the URL</summary>
         public string id { get; set; }

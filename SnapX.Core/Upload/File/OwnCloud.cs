@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Upload.File;
 
@@ -37,7 +36,9 @@ public class OwnCloudFileUploaderService : FileUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(OwnCloud.OwnCloudShareResponse))]
+[JsonSerializable(typeof(OwnCloud.OwnCloudShareResponseData))]
+internal partial class OwnCloudContext : JsonSerializerContext;
 public sealed class OwnCloud : FileUploader
 {
     public string Host { get; set; }
@@ -59,6 +60,7 @@ public sealed class OwnCloud : FileUploader
         Password = password;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         if (string.IsNullOrEmpty(Host))
@@ -77,19 +79,19 @@ public sealed class OwnCloud : FileUploader
         }
 
         // Original, unencoded path. Necessary for shared files
-        string path = URLHelpers.CombineURL(Path, fileName);
+        var path = URLHelpers.CombineURL(Path, fileName);
         // Encoded path, necessary when sent in the URL
-        string encodedPath = URLHelpers.CombineURL(Path, URLHelpers.URLEncode(fileName));
+        var encodedPath = URLHelpers.CombineURL(Path, URLHelpers.URLEncode(fileName));
 
-        string url = URLHelpers.CombineURL(Host, "remote.php/webdav", encodedPath);
+        var url = URLHelpers.CombineURL(Host, "remote.php/webdav", encodedPath);
         url = URLHelpers.FixPrefix(url);
 
-        NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Username, Password);
+        var headers = RequestHelpers.CreateAuthenticationHeader(Username, Password);
         headers["OCS-APIREQUEST"] = "true";
 
-        string response = SendRequest(HttpMethod.Put, url, stream, MimeTypes.GetMimeTypeFromFileName(fileName), null, headers);
+        var response = SendRequest(HttpMethod.Put, url, stream, MimeTypes.GetMimeType(fileName), null, headers);
 
-        UploadResult result = new UploadResult(response);
+        var result = new UploadResult(response);
 
         if (!IsError)
         {
@@ -144,11 +146,14 @@ public sealed class OwnCloud : FileUploader
 
         var response = SendRequestMultiPart(url, args, headers);
         if (string.IsNullOrEmpty(response)) return null;
-
-        var result = JsonSerializer.Deserialize<OwnCloudShareResponse>(response);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = OwnCloudContext.Default
+        };
+        var result = JsonSerializer.Deserialize<OwnCloudShareResponse>(response, options);
         if (result?.ocs?.meta?.statuscode != 100 || result.ocs.data == null) return null;
 
-        var data = JsonSerializer.Deserialize<OwnCloudShareResponseData>(result.ocs.data.ToString());
+        var data = JsonSerializer.Deserialize<OwnCloudShareResponseData>(result.ocs.data.ToString(), options);
         var link = data.url;
 
         if (PreviewLink && FileHelpers.IsImageFile(path))

@@ -27,7 +27,7 @@ public class ImageShackImageUploaderService : ImageUploaderService
 [JsonSerializable(typeof(ImageShackUploader.ImageShackLoginResponse))]
 [JsonSerializable(typeof(ImageShackUploader.ImageShackErrorInfo))]
 [JsonSerializable(typeof(ImageShackUploader.ImageShackUploadResponse))]
-internal partial class ImageShackContext: JsonSerializerContext
+internal partial class ImageShackContext : JsonSerializerContext
 { }
 public sealed class ImageShackUploader : ImageUploader
 {
@@ -67,14 +67,19 @@ public sealed class ImageShackUploader : ImageUploader
             return false;
         }
 
-        var resp = JsonSerializer.Deserialize<ImageShackLoginResponse>(response);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = ImageShackContext.Default,
+        };
+
+        var resp = JsonSerializer.Deserialize<ImageShackLoginResponse>(response, options);
         if (resp?.result?.auth_token == null) return false;
 
         Config.Auth_token = resp.result.auth_token;
         return true;
     }
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string fileName)
     {
         var arguments = new Dictionary<string, string>
@@ -113,7 +118,11 @@ public sealed class ImageShackUploader : ImageUploader
     {
         if (root.TryGetProperty("error", out var error))
         {
-            var errorInfo = JsonSerializer.Deserialize<ImageShackErrorInfo>(error.GetRawText());
+            var options = new JsonSerializerOptions
+            {
+                TypeInfoResolver = ImageShackContext.Default,
+            };
+            var errorInfo = JsonSerializer.Deserialize<ImageShackErrorInfo>(error.GetRawText(), options);
             Errors.Add(errorInfo?.ToString());
         }
 

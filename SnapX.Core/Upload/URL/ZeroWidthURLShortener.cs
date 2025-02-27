@@ -5,6 +5,7 @@
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -27,7 +28,8 @@ public class ZeroWidthURLShortenerService : URLShortenerService
     }
 
 }
-
+[JsonSerializable(typeof(ZeroWidthURLShortenerResponse))]
+internal partial class ZeroWidthContext : JsonSerializerContext;
 public sealed class ZeroWidthURLShortener : URLShortener
 {
     public string RequestURL { get; set; }
@@ -57,8 +59,11 @@ public sealed class ZeroWidthURLShortener : URLShortener
         var response = SendRequest(HttpMethod.Post, RequestURL, json, RequestHelpers.ContentTypeJSON, null, headers);
 
         if (string.IsNullOrEmpty(response)) return result;
-
-        var jsonResponse = JsonSerializer.Deserialize<ZeroWidthURLShortenerResponse>(response);
+        var options = new JsonSerializerOptions()
+        {
+            TypeInfoResolver = ZeroWidthContext.Default
+        };
+        var jsonResponse = JsonSerializer.Deserialize<ZeroWidthURLShortenerResponse>(response, options);
 
         if (jsonResponse?.URL != null)
         {

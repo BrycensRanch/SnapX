@@ -1,24 +1,25 @@
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using GdkPixbuf;
 using Gio;
 using GObject;
 using Gtk;
-using SixLabors.ImageSharp;
 using SnapX.Core;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Native;
+using SnapX.GTK4;
 using AboutDialog = SnapX.GTK4.AboutDialog;
 using MessageType = Gst.MessageType;
 
-var snapx = new SnapX.Core.SnapX();
+var snapx = new SnapXGTK4();
 snapx.setQualifier(" GTK4");
 
 
 
-using var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
+var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
 var sigintReceived = false;
 
 Console.CancelKeyPress += (_, ea) =>
@@ -42,31 +43,36 @@ application.OnActivate += (sender, eventArgs) =>
         errorStarting = true;
         DebugHelper.WriteException(e);
         ShowErrorDialog(e, application);
-
     }
 
     if (!errorStarting)
     {
         DebugHelper.WriteLine("Internal Startup time: {0} ms", snapx.getStartupTime());
         if (snapx.isSilent()) return;
+        Gst.Module.Initialize();
+        Gst.Application.Init();
+        GstVideo.Module.Initialize();
 
         if (SnapX.Core.SnapX.CLIManager.IsCommandExist("video"))
         {
-            Gst.Module.Initialize();
-            GstVideo.Module.Initialize();
-            Gst.Application.Init();
             using var ret = Gst.Functions.ParseLaunch(
                 "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
-            var bus = ret.GetBus();
+            using var bus = ret.GetBus();
             bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
             ret.SetState(Gst.State.Null);
+            ret.Unref();
+        }
+        if (SnapX.Core.SnapX.CLIManager.IsCommandExist("sound"))
+        {
+            snapx.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
         }
 
 
-        using var mainWindow = new ApplicationWindow();
+        var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
+        mainWindow.SetIconName("io.github.brycensranch.SnapX");
         void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
         {
             var dialog = new FileChooserDialog()
@@ -94,12 +100,11 @@ application.OnActivate += (sender, eventArgs) =>
                 }
                 UploadManager.UploadFile(file.GetPath()!);
             }
-
         }
         var eventAggregator = snapx.getEventAggregator();
         eventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
 
-        var box = new Box();
+        var box = new Gtk.Box();
         box.SetOrientation(Orientation.Vertical);
         var imageURLTextBox = new Entry();
         imageURLTextBox.PlaceholderText =
@@ -126,9 +131,18 @@ application.OnActivate += (sender, eventArgs) =>
         mainWindow.SetChild(box);
         mainWindow.SetVisible(true);
         using var dialog = new AboutDialog();
+        dialog.SetName(Lang.AboutSnapX);
         dialog.SetApplication(application);
         dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
-        dialog.AddCreditSection("Mentions", ["benbryant0"]);
+        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        dialog.AddCreditSection("Mentions", ["benbryant0 for .NET 8 PR"]);
+        dialog.AddCreditSection("Dependencies",
+            loadedAssemblies
+                .Where(a => a.GetName().Name != null)
+                .Where(a => !a.GetName().Name.StartsWith("System") && !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
+                .Select(a => $"{a.GetName().Name} {a.GetName().Version}")
+                .OrderBy(name => name)
+                .ToArray());
         var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
         var osInfo = OsInfo.GetFancyOSNameAndVersion();
         var assembly = Assembly.GetExecutingAssembly();
@@ -137,14 +151,9 @@ application.OnActivate += (sender, eventArgs) =>
             Console.WriteLine(resourceName);
         }
         var bytes = assembly.ReadResourceAsByteArray("SnapX.GTK4.SnapX_Logo.png");
-        using var image = SixLabors.ImageSharp.Image.Load(bytes);
-        using var memoryStream = new MemoryStream();
-        image.SaveAsPng(memoryStream);
-        var imageBytes = memoryStream.ToArray();
-
 
         using var pixbuf = PixbufLoader.New();
-        pixbuf.Write(imageBytes);
+        pixbuf.Write(bytes);
         pixbuf.Close();
         using var logo = Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);
         // dialog.SetDecorated(false);
@@ -181,7 +190,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     };
 
     // Create a vertical container for message and buttons
-    using var vbox = new Box();
+    using var vbox = new Gtk.Box();
     vbox.SetOrientation(Orientation.Vertical);
     vbox.SetSpacing(10);
 
@@ -217,7 +226,7 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     scrolledWindow.SetPropagateNaturalHeight(true);
     vbox.Append(scrolledWindow);
 
-    using var buttonBox = new Box()
+    using var buttonBox = new Gtk.Box()
     {
         Halign = Align.Center,
         Spacing = 10,

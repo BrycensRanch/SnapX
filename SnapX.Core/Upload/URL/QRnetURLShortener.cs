@@ -5,6 +5,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -22,7 +23,8 @@ public class QRnetURLShortenerService : URLShortenerService
         return new QRnetURLShortener();
     }
 }
-
+[JsonSerializable(typeof(QRnetURLShortenerResponse))]
+internal partial class QRnetContext : JsonSerializerContext;
 public sealed class QRnetURLShortener : URLShortener
 {
     private const string API_ENDPOINT = "https://qr.net/api/short";
@@ -42,7 +44,11 @@ public sealed class QRnetURLShortener : URLShortener
 
         if (string.IsNullOrEmpty(response)) return result;
 
-        var jsonResponse = JsonSerializer.Deserialize<QRnetURLShortenerResponse>(response);
+        var options = new JsonSerializerOptions()
+        {
+            TypeInfoResolver = QRnetContext.Default
+        };
+        var jsonResponse = JsonSerializer.Deserialize<QRnetURLShortenerResponse>(response, options);
 
         if (jsonResponse != null)
         {

@@ -5,6 +5,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -27,7 +28,8 @@ public class HastebinTextUploaderService : TextUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(Hastebin.HastebinResponse))]
+internal partial class HastebinContext : JsonSerializerContext;
 public sealed class Hastebin : TextUploader
 {
     public string CustomDomain { get; set; }
@@ -44,8 +46,11 @@ public sealed class Hastebin : TextUploader
 
         ur.Response = SendRequest(HttpMethod.Post, URLHelpers.CombineURL(domain, "documents"), text);
         if (string.IsNullOrEmpty(ur.Response)) return ur;
-
-        var response = JsonSerializer.Deserialize<HastebinResponse>(ur.Response);
+        var options = new JsonSerializerOptions()
+        {
+            TypeInfoResolver = HastebinContext.Default
+        };
+        var response = JsonSerializer.Deserialize<HastebinResponse>(ur.Response, options);
         if (response == null || string.IsNullOrEmpty(response.Key)) return ur;
 
         var url = URLHelpers.CombineURL(domain, response.Key);
@@ -73,7 +78,7 @@ public sealed class Hastebin : TextUploader
         return ur;
     }
 
-    private class HastebinResponse
+    public class HastebinResponse
     {
         public string Key { get; set; }
     }

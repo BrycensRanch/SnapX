@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -47,7 +48,8 @@ public class FirebaseSuffix
 {
     public string option { get; set; }
 }
-
+[JsonSerializable(typeof(FirebaseResponse))]
+internal partial class FirebaseContext : JsonSerializerContext;
 public class FirebaseResponse
 {
     public string shortLink { get; set; }
@@ -91,8 +93,11 @@ public sealed class FirebaseDynamicLinksURLShortener : URLShortener
 
         var serializedRequestOptions = JsonSerializer.Serialize(requestOptions);
         result.Response = SendRequest(HttpMethod.Post, "https://firebasedynamiclinks.googleapis.com/v1/shortLinks", serializedRequestOptions, RequestHelpers.ContentTypeJSON, args);
-
-        var firebaseResponse = JsonSerializer.Deserialize<FirebaseResponse>(result.Response);
+        var options = new JsonSerializerOptions()
+        {
+            TypeInfoResolver = FirebaseContext.Default
+        };
+        var firebaseResponse = JsonSerializer.Deserialize<FirebaseResponse>(result.Response, options);
 
         if (firebaseResponse != null)
         {

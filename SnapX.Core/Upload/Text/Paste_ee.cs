@@ -5,6 +5,7 @@
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -35,7 +36,8 @@ public class Paste_eeTextUploaderService : TextUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(Paste_eeSubmitResponse))]
+internal partial class Paste_eeContext : JsonSerializerContext;
 public sealed class Paste_ee : TextUploader
 {
     public string APIKey { get; private set; }
@@ -83,7 +85,11 @@ public sealed class Paste_ee : TextUploader
 
         if (string.IsNullOrEmpty(ur.Response)) return ur;
 
-        var response = JsonSerializer.Deserialize<Paste_eeSubmitResponse>(ur.Response);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = Paste_eeContext.Default
+        };
+        var response = JsonSerializer.Deserialize<Paste_eeSubmitResponse>(ur.Response, options);
 
         ur.URL = response?.link;
 

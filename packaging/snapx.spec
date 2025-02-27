@@ -66,6 +66,7 @@ SnapX but gtk4
 %package ui
 Summary:        SnapX Avalonia-based UI
 Requires:       snapx
+Requires:       (vlc-libs OR pkgconfig(libvlc) OR vlc-devel)
 
 
 %description ui

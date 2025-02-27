@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -12,7 +13,7 @@ namespace SnapX.Core.Upload.Img;
 
 public class VgymeImageUploaderService : ImageUploaderService
 {
-    public override ImageDestination EnumValue { get; } = ImageDestination.Vgyme;
+    public override ImageDestination EnumValue => ImageDestination.Vgyme;
 
     public override bool CheckConfig(UploadersConfig config) => true;
 
@@ -24,7 +25,8 @@ public class VgymeImageUploaderService : ImageUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(VgymeUploader.VgymeResponse))]
+internal partial class VgymeContext : JsonSerializerContext;
 public sealed class VgymeUploader : ImageUploader
 {
     public string UserKey { get; set; }
@@ -36,11 +38,15 @@ public sealed class VgymeUploader : ImageUploader
         Dictionary<string, string> args = [];
         if (!string.IsNullOrEmpty(UserKey)) args.Add("userkey", UserKey);
 
-        UploadResult result = SendRequestFile("https://vgy.me/upload", stream, fileName, "file", args);
+        var result = SendRequestFile("https://vgy.me/upload", stream, fileName, "file", args);
 
         if (result.IsSuccess)
         {
-            VgymeResponse response = JsonSerializer.Deserialize<VgymeResponse>(result.Response);
+            var options = new JsonSerializerOptions
+            {
+                TypeInfoResolver = VgymeContext.Default
+            };
+            var response = JsonSerializer.Deserialize<VgymeResponse>(result.Response, options);
 
             if (response != null && !response.Error)
             {
@@ -52,7 +58,7 @@ public sealed class VgymeUploader : ImageUploader
         return result;
     }
 
-    private class VgymeResponse
+    public class VgymeResponse
     {
         public bool Error { get; set; }
         public string URL { get; set; }

@@ -20,6 +20,9 @@ using Math = System.Math;
 
 namespace SnapX.Core.Job;
 
+// TODO: Refactor WorkerTask to reduce cognitive complexity
+// Congitive complexity hits as high as 350% god damn.
+
 public class WorkerTask : IDisposable
 {
     public delegate void TaskEventHandler(WorkerTask task);

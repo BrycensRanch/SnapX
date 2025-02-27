@@ -1,14 +1,14 @@
-
-// SPDX-License-Identifier: GPL-3.0-or-later
-
-
-using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using CasCap.Models;
+using CasCap.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
+using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Upload.Img;
 
@@ -33,10 +33,15 @@ public class GooglePhotosImageUploaderService : ImageUploaderService
 
 public sealed class GooglePhotos : ImageUploader, IOAuth2
 {
-    public GoogleOAuth2 OAuth2 { get; private set; }
+    public static GoogleOAuth2 OAuth2 { get; private set; }
     public OAuth2Info AuthInfo => OAuth2.AuthInfo;
     public string AlbumID { get; set; }
     public bool IsPublic { get; set; }
+
+    public GooglePhotosOptions GPOptions { get; set; }
+    // Most things should be using the shared HttpClient but in this scenario, we are modifying the baseURL so instead we copy it.
+    public HttpClient Client { get; private set; } = HttpClientFactory.Get().Copy();
+    public GooglePhotosService GooglePhotosService { get; private set; }
 
     public GooglePhotos(OAuth2Info oauth)
     {
@@ -44,8 +49,26 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         {
             Scope = "https://www.googleapis.com/auth/photoslibrary https://www.googleapis.com/auth/photoslibrary.sharing https://www.googleapis.com/auth/userinfo.profile"
         };
+        GPOptions = new()
+        {
+            User = OAuth2.AuthInfo.Email,
+            ClientId = OAuth2.AuthInfo.Client_ID,
+            ClientSecret = OAuth2.AuthInfo.Client_Secret,
+            Scopes = new[]
+            {
+                GooglePhotosScope.AppCreatedData,
+                GooglePhotosScope.Sharing,
+                GooglePhotosScope.AppendOnly,
+            }
+
+        };
+        Client.BaseAddress = new Uri(GPOptions.BaseAddress);
+        var logger = new LoggerFactory().CreateLogger<GooglePhotosService>();
+
+        GooglePhotosService = new GooglePhotosService(logger, Options.Create(GPOptions), Client);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool RefreshAccessToken()
     {
         return OAuth2.RefreshAccessToken();
@@ -53,6 +76,7 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
 
     public bool CheckAuthorization()
     {
+        GooglePhotosService.LoginAsync().Wait();
         return OAuth2.CheckAuthorization();
     }
 
@@ -61,87 +85,30 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         return OAuth2.GetAuthorizationURL();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool GetAccessToken(string code)
     {
         return OAuth2.GetAccessToken(code);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public OAuthUserInfo GetUserInfo()
     {
         return OAuth2.GetUserInfo();
     }
-
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public GooglePhotosAlbum CreateAlbum(string albumName)
+    public Album CreateAlbum(string albumName)
     {
-        var newItemAlbum = new GooglePhotosNewAlbum
-        {
-            album = new GooglePhotosAlbum
-            {
-                title = albumName
-            }
-        };
-
-        var newItemAlbumArgs = new Dictionary<string, string>
-        {
-            { "fields", "id" }
-        };
-
-        var serializedNewItemAlbum = JsonSerializer.Serialize(newItemAlbum);
-        var serializedNewItemAlbumResponse = SendRequest(HttpMethod.Post, "https://photoslibrary.googleapis.com/v1/albums", serializedNewItemAlbum, RequestHelpers.ContentTypeJSON, newItemAlbumArgs, OAuth2.GetAuthHeaders());
-        var newItemAlbumResponse = JsonSerializer.Deserialize<GooglePhotosAlbum>(serializedNewItemAlbumResponse);
-
-        return newItemAlbumResponse;
+        var album = GooglePhotosService.CreateAlbumAsync(albumName);
+        return album.GetAwaiter().GetResult()!;
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public List<GooglePhotosAlbumInfo> GetAlbumList()
+    public List<Album> GetAlbumList()
     {
-        if (!CheckAuthorization()) return null;
-
-        var albumList = new List<GooglePhotosAlbumInfo>();
-
-        var albumListArgs = new Dictionary<string, string>
-        {
-            { "excludeNonAppCreatedData", "true" },
-            { "fields", "albums(id,title,shareInfo),nextPageToken" }
-        };
-
-        var pageToken = "";
-
-        do
-        {
-            albumListArgs["pageToken"] = pageToken;
-            var response = SendRequest(HttpMethod.Get, "https://photoslibrary.googleapis.com/v1/albums", albumListArgs, OAuth2.GetAuthHeaders());
-            pageToken = "";
-
-            if (!string.IsNullOrEmpty(response))
-            {
-                var albumsResponse = JsonSerializer.Deserialize<GooglePhotosAlbums>(response);
-
-                if (albumsResponse.albums != null)
-                {
-                    foreach (GooglePhotosAlbum album in albumsResponse.albums)
-                    {
-                        var AlbumInfo = new GooglePhotosAlbumInfo
-                        {
-                            ID = album.id,
-                            Name = album.title
-                        };
-
-                        if (album.shareInfo == null)
-                        {
-                            albumList.Add(AlbumInfo);
-                        }
-                    }
-                }
-                pageToken = albumsResponse.nextPageToken;
-            }
-        }
-        while (!string.IsNullOrEmpty(pageToken));
-
-        return albumList;
+        var album = GooglePhotosService.GetAlbumsAsync();
+        return album.GetAwaiter().GetResult()!;
     }
 
     [RequiresUnreferencedCode("Uploader")]
@@ -151,175 +118,24 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
 
         var result = new UploadResult();
 
+        var album = CreateAlbum(fileName);
+
         if (IsPublic)
         {
-            AlbumID = CreateAlbum(fileName).id;
+            AlbumID = album.id;
 
-            var albumOptionsResponseArgs = new Dictionary<string, string>
-            {
-                { "fields", "shareInfo/shareableUrl" }
-            };
+            var shareInfo = GooglePhotosService.ShareAlbumAsync(AlbumID).GetAwaiter().GetResult()!;
 
-            var albumOptions = new GooglePhotosAlbumOptions();
-
-            var serializedAlbumOptions = JsonSerializer.Serialize(albumOptions);
-            var serializedAlbumOptionsResponse = SendRequest(HttpMethod.Post, $"https://photoslibrary.googleapis.com/v1/albums/{AlbumID}:share", serializedAlbumOptions, RequestHelpers.ContentTypeJSON, albumOptionsResponseArgs, OAuth2.GetAuthHeaders());
-            var albumOptionsResponse = JsonSerializer.Deserialize<GooglePhotosAlbumOptionsResponse>(serializedAlbumOptionsResponse);
-
-            result.URL = albumOptionsResponse.shareInfo.shareableUrl;
+            result.URL = shareInfo.shareableUrl;
         }
 
-        var uploadTokenHeaders = new NameValueCollection
-        {
-            { "X-Goog-Upload-File-Name", fileName },
-            { "X-Goog-Upload-Protocol", "raw" },
-            { "Authorization", OAuth2.GetAuthHeaders()["Authorization"] }
-        };
-
-        var uploadToken = SendRequest(HttpMethod.Post, "https://photoslibrary.googleapis.com/v1/uploads", stream, RequestHelpers.ContentTypeOctetStream, null, uploadTokenHeaders);
-
-        var newMediaItemRequest = new GooglePhotosNewMediaItemRequest
-        {
-            albumId = AlbumID,
-            newMediaItems =
-            [
-                new  GooglePhotosNewMediaItem
-                {
-                    simpleMediaItem = new GooglePhotosSimpleMediaItem
-                    {
-                        uploadToken = uploadToken
-                    }
-                }
-            ]
-        };
-
-        var newMediaItemRequestArgs = new Dictionary<string, string>
-        {
-            { "fields", "newMediaItemResults(mediaItem/productUrl)" }
-        };
-
-        var serializedNewMediaItemRequest = JsonSerializer.Serialize(newMediaItemRequest);
-
-        result.Response = SendRequest(HttpMethod.Post, "https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate", serializedNewMediaItemRequest, RequestHelpers.ContentTypeJSON, newMediaItemRequestArgs, OAuth2.GetAuthHeaders());
-
-        var newMediaItemResult = JsonSerializer.Deserialize<GooglePhotosNewMediaItemResults>(result.Response);
+        var newMediaItemResult = GooglePhotosService.UploadSingle(fileName, AlbumID, $"Created by SnapX {Core.SnapX.VersionText}").GetAwaiter().GetResult()!;
 
         if (!IsPublic)
         {
-            result.URL = newMediaItemResult.newMediaItemResults[0].mediaItem.productUrl;
+            result.URL = newMediaItemResult.mediaItem.productUrl;
         }
 
         return result;
     }
 }
-
-public class GooglePhotosAlbumInfo
-{
-    public string ID { get; set; }
-    public string Name { get; set; }
-    public string Summary { get; set; }
-}
-
-public class GooglePhotosAlbums
-{
-    public GooglePhotosAlbum[] albums { get; set; }
-    public string nextPageToken { get; set; }
-}
-
-public class GooglePhotosAlbum
-{
-    public string id { get; set; }
-    public string title { get; set; }
-    public string productUrl { get; set; }
-    public string coverPhotoBaseUrl { get; set; }
-    public string coverPhotoMediaItemId { get; set; }
-    public string isWriteable { get; set; }
-    public GooglePhotosShareInfo shareInfo { get; set; }
-    public string mediaItemsCount { get; set; }
-}
-
-public class GooglePhotosNewMediaItemRequest
-{
-    public string albumId { get; set; }
-    public GooglePhotosNewMediaItem[] newMediaItems { get; set; }
-}
-
-public class GooglePhotosNewMediaItem
-{
-    public string description { get; set; }
-    public GooglePhotosSimpleMediaItem simpleMediaItem { get; set; }
-}
-
-public class GooglePhotosSimpleMediaItem
-{
-    public string uploadToken { get; set; }
-}
-
-public class GooglePhotosNewMediaItemResults
-{
-    public GooglePhotosNewMediaItemResult[] newMediaItemResults { get; set; }
-}
-
-public class GooglePhotosNewMediaItemResult
-{
-    public string uploadToken { get; set; }
-    public GooglePhotosStatus status { get; set; }
-    public GooglePhotosMediaItem mediaItem { get; set; }
-}
-
-public class GooglePhotosStatus
-{
-    public string message { get; set; }
-    public int code { get; set; }
-}
-
-public class GooglePhotosMediaItem
-{
-    public string id { get; set; }
-    public string productUrl { get; set; }
-    public string description { get; set; }
-    public string baseUrl { get; set; }
-    public GooglePhotosMediaMetaData mediaMetadata { get; set; }
-}
-
-public class GooglePhotosMediaMetaData
-{
-    public string width { get; set; }
-    public string height { get; set; }
-    public string creationTime { get; set; }
-    public GooglePhotosPhoto photo { get; set; }
-}
-
-public class GooglePhotosPhoto
-{
-}
-
-public class GooglePhotosNewAlbum
-{
-    public GooglePhotosAlbum album { get; set; }
-}
-
-public class GooglePhotosAlbumOptions
-{
-    public GooglePhotosSharedAlbumOptions sharedAlbumOptions { get; set; }
-}
-
-public class GooglePhotosSharedAlbumOptions
-{
-    public string isCollaborative { get; set; }
-    public string isCommentable { get; set; }
-}
-
-public class GooglePhotosAlbumOptionsResponse
-{
-    public GooglePhotosShareInfo shareInfo { get; set; }
-}
-
-public class GooglePhotosShareInfo
-{
-    public GooglePhotosSharedAlbumOptions sharedAlbumOptions { get; set; }
-    public string shareableUrl { get; set; }
-    public string shareToken { get; set; }
-    public string isJoined { get; set; }
-}
-

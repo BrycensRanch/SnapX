@@ -58,21 +58,20 @@ public sealed class YfrogUploader : ImageUploader
 
     public override UploadResult Upload(Stream stream, string fileName)
     {
-        switch (Options.UploadType)
+        return Options.UploadType switch
         {
-            case YfrogUploadType.UPLOAD_IMAGE_ONLY:
-                return Upload(stream, fileName, "");
-            case YfrogUploadType.UPLOAD_IMAGE_AND_TWITTER: throw new NotImplementedException("YfrogUploadType UPLOAD_IMAGE_AND_TWITTER is not implemented.");
-        }
+            YfrogUploadType.UPLOAD_IMAGE_ONLY => Upload(stream, fileName, ""),
+            YfrogUploadType.UPLOAD_IMAGE_AND_TWITTER => throw new NotImplementedException("YfrogUploadType UPLOAD_IMAGE_AND_TWITTER is not implemented."),
+            _ => throw new InvalidOperationException("Unknown upload type.")
+        };
 
-        return null;
     }
 
     private UploadResult Upload(Stream stream, string fileName, string msg)
     {
         string url;
 
-        Dictionary<string, string> arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string>
         {
             { "username", Options.Username },
             { "password", Options.Password }
@@ -94,7 +93,7 @@ public sealed class YfrogUploader : ImageUploader
 
         arguments.Add("key", Options.DeveloperKey);
 
-        UploadResult result = SendRequestFile(url, stream, fileName, "media", arguments);
+        var result = SendRequestFile(url, stream, fileName, "media", arguments);
 
         return ParseResult(result);
     }
@@ -103,8 +102,8 @@ public sealed class YfrogUploader : ImageUploader
     {
         if (result.IsSuccess)
         {
-            XDocument xdoc = XDocument.Parse(result.Response);
-            XElement xele = xdoc.Element("rsp");
+            var xdoc = XDocument.Parse(result.Response);
+            var xele = xdoc.Element("rsp");
 
             if (xele != null)
             {
@@ -114,14 +113,14 @@ public sealed class YfrogUploader : ImageUploader
                         //string statusid = xele.GetElementValue("statusid");
                         //string userid = xele.GetElementValue("userid");
                         //string mediaid = xele.GetElementValue("mediaid");
-                        string mediaurl = xele.GetElementValue("mediaurl");
+                        var mediaurl = xele.GetElementValue("mediaurl");
                         if (Options.ShowFull) mediaurl += "/full";
                         result.URL = mediaurl;
                         result.ThumbnailURL = mediaurl + ".th.jpg";
                         break;
                     case "fail":
                         //string code = xele.Element("err").Attribute("code").Value;
-                        string msg = xele.Element("err").Attribute("msg").Value;
+                        var msg = xele.Element("err").Attribute("msg").Value;
                         Errors.Add(msg);
                         break;
                 }

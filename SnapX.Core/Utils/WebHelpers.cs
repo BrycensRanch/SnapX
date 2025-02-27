@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Utils;
@@ -116,7 +115,7 @@ public static class WebHelpers
             DebugHelper.Logger.Error("{url}: mediaType is null.", url);
             return null;
         }
-        if (!MimeTypes.IsImageMimeType(mediaType))
+        if (!MimeTypesPlus.IsImageMimeType(mediaType))
             return null;
 
         var data = await responseMessage.Content.ReadAsByteArrayAsync();

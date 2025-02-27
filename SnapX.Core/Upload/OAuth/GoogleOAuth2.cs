@@ -5,10 +5,16 @@
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.OAuth;
+
+[JsonSerializable(typeof(OAuth2Token))]
+[JsonSerializable(typeof(OAuthUserInfo))]
+internal partial class GoogleContext : JsonSerializerContext
+{ }
 
 public class GoogleOAuth2 : IOAuth2Loopback
 {
@@ -58,8 +64,8 @@ public class GoogleOAuth2 : IOAuth2Loopback
         var response = GoogleUploader.SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
 
         if (string.IsNullOrEmpty(response)) return false;
-
-        var token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        var options = new JsonSerializerOptions { TypeInfoResolver = GoogleContext.Default };
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response, options);
         if (token?.access_token == null) return false;
 
         token.UpdateExpireDate();
@@ -85,8 +91,9 @@ public class GoogleOAuth2 : IOAuth2Loopback
         var response = GoogleUploader.SendRequestURLEncoded(HttpMethod.Post, TokenEndpoint, args);
 
         if (string.IsNullOrEmpty(response)) return false;
+        var options = new JsonSerializerOptions { TypeInfoResolver = GoogleContext.Default };
 
-        var token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response, options);
 
         if (token?.access_token == null) return false;
 
@@ -97,7 +104,7 @@ public class GoogleOAuth2 : IOAuth2Loopback
         return true;
     }
 
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool CheckAuthorization()
     {
         if (OAuth2Info.CheckOAuth(AuthInfo))
@@ -131,9 +138,10 @@ public class GoogleOAuth2 : IOAuth2Loopback
     public OAuthUserInfo GetUserInfo()
     {
         var response = GoogleUploader.SendRequest(HttpMethod.Get, UserInfoEndpoint, null, GetAuthHeaders());
+        var options = new JsonSerializerOptions { TypeInfoResolver = GoogleContext.Default };
 
         return !string.IsNullOrEmpty(response)
-            ? JsonSerializer.Deserialize<OAuthUserInfo>(response)
+            ? JsonSerializer.Deserialize<OAuthUserInfo>(response, options)
             : null;
     }
 

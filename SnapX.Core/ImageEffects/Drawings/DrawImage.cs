@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Core.Utils;
@@ -55,6 +56,7 @@ public class DrawImage : ImageEffect
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public DrawImage()
     {
         this.ApplyDefaultPropertyValues();

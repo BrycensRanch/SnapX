@@ -28,7 +28,8 @@ public class Vault_oooFileUploaderService : FileUploaderService
         return new Vault_ooo();
     }
 }
-
+[JsonSerializable(typeof(Vault_ooo.Vault_oooMetaInfo))]
+internal partial class Vault_oooContext : JsonSerializerContext;
 public sealed class Vault_ooo : FileUploader
 {
     private const string APIURL = "https://vault.ooo";
@@ -233,7 +234,7 @@ public sealed class Vault_ooo : FileUploader
         public byte[] IV { get; set; }
     }
 
-    private class Vault_oooMetaInfo
+    public class Vault_oooMetaInfo
     {
         [JsonPropertyName("urlPathName")]
         public string UrlPathName { get; set; }

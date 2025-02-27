@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.OAuth;
@@ -35,7 +36,9 @@ public class GitHubGistTextUploaderService : TextUploaderService
         };
     }
 }
-
+[JsonSerializable(typeof(OAuth2Token))]
+[JsonSerializable(typeof(GitHubGist.GistResponse))]
+internal partial class GitHubContext : JsonSerializerContext;
 public sealed class GitHubGist : TextUploader, IOAuth2Basic
 {
     private const string URLAPI = "https://api.github.com";
@@ -81,8 +84,11 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
         var response = SendRequestMultiPart("https://github.com/login/oauth/access_token", args, headers);
         if (string.IsNullOrEmpty(response)) return false;
-
-        var token = JsonSerializer.Deserialize<OAuth2Token>(response);
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = GitHubContext.Default
+        };
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response, options);
         if (string.IsNullOrEmpty(token?.access_token)) return false;
 
         AuthInfo.Token = token;
@@ -140,13 +146,13 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
         public string content { get; set; }
     }
 
-    private class GistResponse
+    public class GistResponse
     {
         public string html_url { get; set; }
         public Dictionary<string, GistResponseFileInfo> files { get; set; }
     }
 
-    private class GistResponseFileInfo
+    public class GistResponseFileInfo
     {
         public string filename { get; set; }
         public string raw_url { get; set; }
