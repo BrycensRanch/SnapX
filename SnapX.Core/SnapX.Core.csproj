@@ -52,7 +52,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
-    <PackageReference Include="SoundFlow" Version="1.0.1" />
+    <PackageReference Include="SoundFlow" Version="1.0.3" />
     <PackageReference Include="TesseractOCR" Version="5.4.2" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
@@ -99,7 +99,4 @@
     <Folder Include="Model\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
-<ItemGroup>
-  <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
-</ItemGroup>
 </Project>

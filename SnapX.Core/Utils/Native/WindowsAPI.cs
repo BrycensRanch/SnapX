@@ -6,9 +6,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
 

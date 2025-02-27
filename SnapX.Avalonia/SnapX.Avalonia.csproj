@@ -15,6 +15,7 @@
     <!-- Recommended Avalonia trimming settings for Native AOT -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TrimMode>link</TrimMode>
     <AvaloniaVersion>11.2.3</AvaloniaVersion>
     <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
@@ -38,6 +39,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.2.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Sentry.Serilog" Version="5.1.0" />
     <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
   </ItemGroup>
