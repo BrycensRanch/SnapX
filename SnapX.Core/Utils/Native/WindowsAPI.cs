@@ -259,14 +259,6 @@ public class WindowsAPI : NativeAPI
         SetClipboardData(CF_DIB, dataPtr);
         GlobalUnlock(dataPtr);
 
-        // If a filename is provided, add it to the clipboard as text (CF_UNICODETEXT)
-        if (!string.IsNullOrEmpty(filename))
-        {
-            var filenamePtr = Marshal.StringToHGlobalUni(filename);
-            SetClipboardData(CF_UNICODETEXT, filenamePtr);
-            Marshal.FreeHGlobal(filenamePtr);
-        }
-
         CloseClipboard();
     }
     public override Rectangle GetWindowRectangle(WindowInfo Window)

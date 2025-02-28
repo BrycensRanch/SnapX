@@ -1,5 +1,3 @@
-using SnapX.Core.Utils.Extensions;
-
 namespace SnapX.Core.Media;
 
 public class ImageData : IDisposable
@@ -18,33 +16,25 @@ public class ImageData : IDisposable
         {
             try
             {
-                // Attempt to save the file
-                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                {
-                    ImageStream.CopyTo(fileStream); // Copy the stream to the file
-                }
-
-                // If no exception was thrown, file is saved successfully
-                DebugHelper.WriteLine($"File saved successfully to {filePath}.");
+                using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                ImageStream.CopyTo(fileStream);
                 fileSaved = true;
             }
             catch (IOException ex)
             {
                 retryCount++;
 
-                // Log the exception message and retry information
                 DebugHelper.WriteLine(
                     $"Attempt {retryCount} failed. IOException: {ex.Message}. Retrying in {retryDelayMilliseconds / 1000} second(s)...");
 
                 if (retryCount < maxRetries)
                 {
-                    // Wait for the specified delay before retrying
                     Thread.Sleep(retryDelayMilliseconds);
                 }
                 else
                 {
-                    // If max retries reached, log failure
-                    DebugHelper.WriteLine($"Failed to save the file after {maxRetries} retries.");
+                    DebugHelper.WriteLine($"Failed to save the file after {maxRetries} retries. Throwing :(");
+                    throw;
                 }
             }
         }

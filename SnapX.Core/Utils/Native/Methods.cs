@@ -18,28 +18,28 @@ public static class Methods
     {
         get
         {
-// #if WINDOWS
-//             return new WindowsAPI();
-// #else
+            // #if WINDOWS
+            //             return new WindowsAPI();
+            // #else
             if (IsWindows) return new WindowsAPI();
             if (IsMacOS) return new MacOSAPI();
             if (IsLinux) return new LinuxAPI();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
-// #endif
+            // #endif
         }
     }
     private static BaseCapture SharpCapture
     {
         get
         {
-// #if WINDOWS
-//             return new WindowsCapture();
-// #else
+            // #if WINDOWS
+            //             return new WindowsCapture();
+            // #else
             if (IsWindows) return new WindowsCapture();
             if (IsMacOS) return new macOSCapture();
             if (IsLinux) return new LinuxCapture();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
-// #endif
+            // #endif
         }
     }
     public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();

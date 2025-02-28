@@ -1,10 +1,8 @@
 using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
-using Vortice.DXCore;
 using Vortice.DXGI;
 
 namespace SnapX.Core.ScreenCapture.SharpCapture.Windows;
@@ -83,7 +81,7 @@ public class WindowsCapture : BaseCapture
         var width = 1920;
         var height = 1080;
 
-        D3D11.D3D11CreateDevice(Adapter, DriverType.Unknown, DeviceCreationFlags.None, new []{FeatureLevel.Level_11_1}, out var device);
+        D3D11.D3D11CreateDevice(Adapter, DriverType.Unknown, DeviceCreationFlags.None, new[] { FeatureLevel.Level_11_1 }, out var device);
         var bounds = firstOutput.Description.DesktopCoordinates;
         var textureDesc = new Texture2DDescription
         {

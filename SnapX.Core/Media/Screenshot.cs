@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
 

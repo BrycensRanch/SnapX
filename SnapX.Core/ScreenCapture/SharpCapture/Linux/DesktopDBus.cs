@@ -3622,13 +3622,15 @@ class PropertyChanges<TProperties>
     public bool HasChanged(string property) => Array.IndexOf(Changed, property) != -1;
     public bool IsInvalidated(string property) => Array.IndexOf(Invalidated, property) != -1;
 }
-class PortalResponse {
+class PortalResponse
+{
     public required string RequestPath { get; init; }
     public required Dictionary<string, VariantValue> Results { get; init; }
 
     public static async Task<PortalResponse> WaitAsync(Connection connection,
                                                        Func<Task<ObjectPath>> request,
-                                                       CancellationToken cancel = default) {
+                                                       CancellationToken cancel = default)
+    {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(request);
 
@@ -3637,24 +3639,31 @@ class PortalResponse {
         string? requestPath = null;
 
         using var matcher = await connection.AddMatchAsync(
-            new() {
+            new()
+            {
                 Type = MessageType.Signal,
                 Member = "Response",
                 Interface = "org.freedesktop.portal.Request",
             },
-            reader: (message, state) => {
+            reader: (message, state) =>
+            {
                 var reader = message.GetBodyReader();
                 uint arg0 = reader.ReadUInt32();
-                return new PortalResponse {
+                return new PortalResponse
+                {
                     RequestPath = message.PathAsString!,
                     Results = reader.ReadDictionaryOfStringToVariantValue(),
                 };
             },
-            handler: (ex, response, _, __) => {
+            handler: (ex, response, _, __) =>
+            {
                 DebugHelper.WriteLine($"Got {response}");
-                if (ex is null) {
-                    lock (results) {
-                        if (requestPath != null) {
+                if (ex is null)
+                {
+                    lock (results)
+                    {
+                        if (requestPath != null)
+                        {
                             if (response.RequestPath != requestPath)
                                 return;
 
@@ -3664,7 +3673,9 @@ class PortalResponse {
 
                         results.Add(response);
                     }
-                } else {
+                }
+                else
+                {
                     result.SetException(ex);
                 }
             },
@@ -3672,7 +3683,8 @@ class PortalResponse {
 
         var path = await request().WaitAsync(cancel).ConfigureAwait(false);
 
-        lock (results) {
+        lock (results)
+        {
             requestPath = path;
             if (results.Find(r => r.RequestPath == path) is { } response)
                 return response;
@@ -3681,12 +3693,14 @@ class PortalResponse {
         return await result.Task.WaitAsync(cancel).ConfigureAwait(false);
     }
 
-    public override string ToString() {
+    public override string ToString()
+    {
         var result = new System.Text.StringBuilder();
         result.Append(this.RequestPath.AfterLast('/'));
         Console.WriteLine($"Request path: {RequestPath}");
         result.Append("{ ");
-        foreach (var (key, value) in this.Results) {
+        foreach (var (key, value) in this.Results)
+        {
             result.Append(key);
             result.Append('=');
             result.Append(value);

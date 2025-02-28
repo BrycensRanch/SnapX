@@ -3,7 +3,6 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
 
 namespace SnapX.Core.Utils.Native;
