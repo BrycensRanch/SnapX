@@ -110,16 +110,22 @@ public class WindowsCapture : BaseCapture
     private byte[] GetDataAsByteArray(IntPtr dataPointer, int rowPitch, int width, int height)
     {
         // Create a byte[] array to hold the pixel data
-        byte[] pixelData = new byte[height * rowPitch];
+        var pixelData = new byte[height * rowPitch];
 
-        // Copy the data from the unmanaged memory to the byte array
-        for (int y = 0; y < height; y++)
+        // Copy the data from unmanaged memory to the byte array
+        for (var y = 0; y < height; y++)
         {
             // Pointer arithmetic to calculate the address of each row
             var rowPointer = IntPtr.Add(dataPointer, y * rowPitch);
 
             // Copy the row from unmanaged memory to the byte array
             Marshal.Copy(rowPointer, pixelData, y * width * 4, width * 4); // Assuming 4 bytes per pixel (RGBA)
+        }
+
+        for (var i = 0; i < pixelData.Length; i += 4)
+        {
+            // Deconstruct the RGBA values and swap the red and blue channels
+            (pixelData[i + 2], pixelData[i]) = (pixelData[i], pixelData[i + 2]); // Swap Blue (index 0) and Red (index 2)
         }
 
         return pixelData;
