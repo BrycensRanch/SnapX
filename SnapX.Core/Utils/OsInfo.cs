@@ -383,36 +383,50 @@ public static partial class OsInfo
     {
         try
         {
-            using var key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Enum\PCI");
-            if (key != null)
-            {
-                foreach (var subKeyName in key.GetSubKeyNames())
-                {
-                    using var deviceKey = key.OpenSubKey(subKeyName);
-                    var deviceDesc = deviceKey?.GetValue("DeviceDesc")?.ToString();
-                    var driverVersion = deviceKey?.OpenSubKey("Device Parameters")?.GetValue("DriverVersion")?.ToString();
-                    if (deviceDesc != null && driverVersion != null)
-                    {
-                        DebugHelper.WriteLine($"GPU: {deviceDesc}");
-                        DebugHelper.WriteLine($"Driver Version: {driverVersion}");
-                    }
-                }
+// PowerShell script to get GPU info and format driver version for NVIDIA GPUs
+var command = @"
+$gpuInfo = Get-WmiObject Win32_VideoController | Select-Object Description, DriverVersion
+foreach ($gpu in $gpuInfo) {
+    $description = $gpu.Description
+    $driverVersion = $gpu.DriverVersion
+
+    if ($description -like '*nvidia*') {
+        # Check if it's an NVIDIA GPU
+        if ($driverVersion.Length -ge 12) {
+            # Check if driver version length is at least 12 characters (expected format length)
+            $versionParts = $driverVersion.Split('.')
+            if ($versionParts.Length -ge 4) {
+                # Check if driver version has at least 4 parts separated by dots
+                $buildNumberPart = $versionParts[2] # The 3rd part is assumed to be build number (e.g., ""15"")
+                $revisionNumberPart = $versionParts[3] # The 4th part is assumed to be revision number (e.g., ""7216"")
+
+                $lastDigitOfBuild = $buildNumberPart.Substring($buildNumberPart.Length - 1, 1) # Extract last digit of build number
+                $firstTwoDigitsOfRevision = $revisionNumberPart.Substring(0, 2)          # Extract first two digits of revision number
+                $lastTwoDigitsOfRevision = $revisionNumberPart.Substring($revisionNumberPart.Length - 2, 2) # Extract last two digits of revision number
+
+                # Format the driver version as: (last digit of build).(first two digits of revision)(last two digits of revision)
+                $formattedDriverVersion = $lastDigitOfBuild + $firstTwoDigitsOfRevision + '.' + $lastTwoDigitsOfRevision
+                Write-Host ""GPU: $($description), Driver Version: $($formattedDriverVersion)""
+            } else {
+                # If less than 4 parts, output raw driver version
+                Write-Host ""GPU: $($description), Driver Version: $($driverVersion)""
             }
+        } else {
+            # If driver version length is less than 12 characters, output raw driver version
+            Write-Host ""GPU: $($description), Driver Version: $($driverVersion)""
+        }
+    }
+    else {
+        # For non-NVIDIA GPUs, output raw driver version
+        Write-Host ""GPU: $($description), Driver Version: $($driverVersion)""
+    }
+}";
+            var gpuInfo = RunPowerShellCommand(command);
+            DebugHelper.WriteLine("GPU Info: " + gpuInfo);
         }
         catch (Exception ex)
         {
             DebugHelper.WriteLine("Error reading GPU info on Windows: " + ex.Message);
-        }
-
-        try
-        {
-            // Did you know Powershell is extremely powerful?
-            var monitorInfo = RunPowerShellCommand("Get-WmiObject Win32_DesktopMonitor | Select-Object -Property Name");
-            DebugHelper.WriteLine($"Monitor: {monitorInfo}");
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine("Error reading monitor info on Windows: " + ex.Message);
         }
     }
     private static string RunPowerShellCommand(string command)
