@@ -67,10 +67,11 @@ public static class Methods
         {
             point = NativeAPI.GetCursorPosition();
         }
-        catch (Exception ex) when (ex is PlatformNotSupportedException)
+        catch (Exception ex)
         {
             DebugHelper.Logger.Warning(ex.ToString());
         }
+        DebugHelper.WriteLine($"GetCursorPosition returned {point}");
         return point;
     }
 

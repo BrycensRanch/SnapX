@@ -216,13 +216,19 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WinPoint
+    {
+        public int X;
+        public int Y;
+    }
     [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out Point lpPoint);
+    private static extern bool GetCursorPos(out WinPoint lpPoint);
 
     public override Point GetCursorPosition()
     {
         GetCursorPos(out var LpPoint);
-        return LpPoint;
+        return new Point(LpPoint.X, LpPoint.Y);
     }
     public override void CopyImage(Image image)
     {

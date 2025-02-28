@@ -27,13 +27,7 @@ public partial class Screenshot
         return CaptureRectangleNative(rect, CaptureCursor);
     }
 
-    public Image CaptureFullscreen()
-    {
-        var imagePromise = Methods.CaptureFullscreen();
-        imagePromise.ConfigureAwait(false);
-        imagePromise.Wait();
-        return imagePromise.Result;
-    }
+    public Image CaptureFullscreen() => Methods.CaptureFullscreen().GetAwaiter().GetResult();
 
     public Image CaptureWindow(IntPtr handle)
     {
@@ -77,24 +71,10 @@ public partial class Screenshot
     }
 
     public Image CaptureWindow(Point pos) => Methods.CaptureWindow(pos).GetAwaiter().GetResult();
-    public Image CaptureActiveWindow()
-    {
-        return CaptureWindow(Methods.GetCursorPosition());
-    }
+    public Image CaptureActiveWindow() => CaptureWindow(Methods.GetCursorPosition());
+    public async Task<Image> CaptureActiveMonitor() => await CaptureMonitor(Methods.GetCursorPosition());
 
-    public async Task<Image> CaptureActiveMonitor()
-    {
-        // return CaptureMonitor(Methods.GetCursorPosition());
-        return await CaptureMonitor(Methods.GetCursorPosition());
-    }
-
-    private async Task<Image> CaptureMonitor(Point pos)
-    {
-        // var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
-        // return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureMonitor(monitor.name));
-        return await Methods.CaptureScreen(Methods.GetScreen(pos));
-    }
-
+    private async Task<Image> CaptureMonitor(Point pos) => await Methods.CaptureScreen(Methods.GetScreen(pos));
     private Image CaptureRectangleNative(Rectangle rect, bool captureCursor = false) => Methods.CaptureRectangle(rect).GetAwaiter().GetResult();
 
     // private Image CaptureRectangleNative(IntPtr handle, Rectangle rect, bool captureCursor = false)
