@@ -11,35 +11,32 @@ public static class Methods
 {
     private static bool IsMacOS => OperatingSystem.IsMacOS();
     private static bool IsLinux => OperatingSystem.IsLinux();
-    private static bool IsWindows => OperatingSystem.IsWindows();
 
 
     private static NativeAPI NativeAPI
     {
         get
         {
-            // #if WINDOWS
-            //             return new WindowsAPI();
-            // #else
-            if (IsWindows) return new WindowsAPI();
+            #if WINDOWS
+                        return new WindowsAPI();
+            #else
             if (IsMacOS) return new MacOSAPI();
             if (IsLinux) return new LinuxAPI();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
-            // #endif
+            #endif
         }
     }
     private static BaseCapture SharpCapture
     {
         get
         {
-            // #if WINDOWS
-            //             return new WindowsCapture();
-            // #else
-            if (IsWindows) return new WindowsCapture();
+            #if WINDOWS
+                        return new WindowsCapture();
+            #else
             if (IsMacOS) return new macOSCapture();
             if (IsLinux) return new LinuxCapture();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
-            // #endif
+            #endif
         }
     }
     public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();
