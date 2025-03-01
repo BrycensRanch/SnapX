@@ -28,6 +28,7 @@ public class WindowsAPI : NativeAPI
     // Constants for allocating memory and setting data format
     public const uint CF_TEXT = 1;
     private const uint CF_DIB = 8;
+    public const uint CF_UNICODETEXT = 13;
 
     public const int GMEM_ZEROINIT = 0x0040;
 
@@ -215,20 +216,26 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WinPoint
+    {
+        public int X;
+        public int Y;
+    }
     [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out Point lpPoint);
+    private static extern bool GetCursorPos(out WinPoint lpPoint);
 
     public override Point GetCursorPosition()
     {
         GetCursorPos(out var LpPoint);
-        return LpPoint;
+        return new Point(LpPoint.X, LpPoint.Y);
     }
-    public override void CopyImage(Image image)
+    public override void CopyImage(Image image, string filename = null)
     {
         OpenClipboard(IntPtr.Zero);
         EmptyClipboard();
 
-
+        // Save image to memory stream in PNG format
         using var ms = new MemoryStream();
         if (image.Metadata.DecodedImageFormat != null)
         {
@@ -236,15 +243,18 @@ public class WindowsAPI : NativeAPI
         }
         else
         {
-            image.Save(ms, new PngEncoder());
+            image.SaveAsPng(ms);
         }
+
         var imageBytes = ms.ToArray();
 
+        // Allocate memory for image data
         var dataSize = (uint)(imageBytes.Length);
         var dataPtr = GlobalAlloc(0x0040, dataSize);
 
         Marshal.Copy(imageBytes, 0, dataPtr, imageBytes.Length);
 
+        // Set image data in the clipboard (CF_DIB format)
         SetClipboardData(CF_DIB, dataPtr);
         GlobalUnlock(dataPtr);
 
