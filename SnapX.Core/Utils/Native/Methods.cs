@@ -3,7 +3,7 @@ using SnapX.Core.Media;
 using SnapX.Core.ScreenCapture.SharpCapture;
 using SnapX.Core.ScreenCapture.SharpCapture.Linux;
 using SnapX.Core.ScreenCapture.SharpCapture.macOS;
-#if WINDOWS
+#if TARGET_WINDOWS
 using SnapX.Core.ScreenCapture.SharpCapture.Windows;
 #endif
 
@@ -19,7 +19,7 @@ public static class Methods
     {
         get
         {
-            #if WINDOWS
+            #if TARGET_WINDOWS
                         return new WindowsAPI();
             #else
             if (IsMacOS) return new MacOSAPI();
@@ -32,7 +32,7 @@ public static class Methods
     {
         get
         {
-            #if WINDOWS
+            #if TARGET_WINDOWS
                         return new WindowsCapture();
             #else
             if (IsMacOS) return new macOSCapture();

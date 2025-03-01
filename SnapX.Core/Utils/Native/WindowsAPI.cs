@@ -244,7 +244,7 @@ public class WindowsAPI : NativeAPI
         }
         else
         {
-            image.Save(ms, new PngEncoder());
+            image.SaveAsPng(ms);
         }
 
         var imageBytes = ms.ToArray();
