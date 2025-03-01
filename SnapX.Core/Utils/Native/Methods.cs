@@ -3,7 +3,9 @@ using SnapX.Core.Media;
 using SnapX.Core.ScreenCapture.SharpCapture;
 using SnapX.Core.ScreenCapture.SharpCapture.Linux;
 using SnapX.Core.ScreenCapture.SharpCapture.macOS;
+#if WINDOWS
 using SnapX.Core.ScreenCapture.SharpCapture.Windows;
+#endif
 
 namespace SnapX.Core.Utils.Native;
 

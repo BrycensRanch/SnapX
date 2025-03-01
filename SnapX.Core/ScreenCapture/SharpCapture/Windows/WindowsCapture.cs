@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Vortice.Direct3D;
@@ -7,6 +8,7 @@ using Vortice.DXGI;
 
 namespace SnapX.Core.ScreenCapture.SharpCapture.Windows;
 
+[SupportedOSPlatform("windows")]
 public class WindowsCapture : BaseCapture
 {
 
