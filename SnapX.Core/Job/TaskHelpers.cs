@@ -687,7 +687,7 @@ public static class TaskHelpers
             DebugHelper.WriteException(new ConstraintException("PaddleOCR is not supported on Linux. It is only supported on Windows X64, ARM64, and macOS ARM64"));
             return string.Empty;
         }
-        var config = PaddleDevice.Openblas();
+        var config = PaddleDevice.Onnx();
 
         using var all = new PaddleOcrAll(model, config) {
             AllowRotateDetection = false,
