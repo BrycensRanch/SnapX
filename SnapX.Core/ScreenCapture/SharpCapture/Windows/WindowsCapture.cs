@@ -138,88 +138,88 @@ public class WindowsCapture : BaseCapture
     }
 
     private List<IDXGIAdapter1> EnumerateAdapters(IDXGIFactory1 factory)
-{
-    var adapters = new List<IDXGIAdapter1>();
-
-    for (uint adapterIndex = 0; factory.EnumAdapters1(adapterIndex, out var adapter).Success; adapterIndex++)
     {
-        var desc = adapter.Description1;
+        var adapters = new List<IDXGIAdapter1>();
 
-        if ((desc.Flags & AdapterFlags.Software) != AdapterFlags.None)
+        for (uint adapterIndex = 0; factory.EnumAdapters1(adapterIndex, out var adapter).Success; adapterIndex++)
         {
-            adapter.Dispose();
-            continue;
+            var desc = adapter.Description1;
+
+            if ((desc.Flags & AdapterFlags.Software) != AdapterFlags.None)
+            {
+                adapter.Dispose();
+                continue;
+            }
+
+            if (IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
+            {
+                DebugHelper.WriteLine($"Feature level {FeatureLevel.Level_11_1} not supported. Skipping Adapter {adapter.Description}");
+                adapter.Dispose();
+                continue;
+            }
+
+            adapters.Add(adapter);
         }
 
-        if (IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
-        {
-            DebugHelper.WriteLine($"Feature level {FeatureLevel.Level_11_1} not supported. Skipping Adapter {adapter.Description}");
-            adapter.Dispose();
-            continue;
-        }
-
-        adapters.Add(adapter);
+        return adapters;
     }
 
-    return adapters;
-}
-
-private List<(IDXGIOutput1 Output, int X, int Y, int Width, int Height, IDXGIAdapter Adapter)> EnumerateOutputs(List<IDXGIAdapter1> adapters)
-{
-    var outputs = new List<(IDXGIOutput1 Output, int X, int Y, int Width, int Height, IDXGIAdapter Adapter)>();
-
-    foreach (var adapter in adapters)
+    private List<(IDXGIOutput1 Output, int X, int Y, int Width, int Height, IDXGIAdapter Adapter)> EnumerateOutputs(List<IDXGIAdapter1> adapters)
     {
-        for (uint outputIndex = 0; adapter.EnumOutputs(outputIndex, out var output).Success; outputIndex++)
+        var outputs = new List<(IDXGIOutput1 Output, int X, int Y, int Width, int Height, IDXGIAdapter Adapter)>();
+
+        foreach (var adapter in adapters)
         {
-            var firstOutput = output.QueryInterface<IDXGIOutput1>();
-            var bounds = firstOutput.Description.DesktopCoordinates;
+            for (uint outputIndex = 0; adapter.EnumOutputs(outputIndex, out var output).Success; outputIndex++)
+            {
+                var firstOutput = output.QueryInterface<IDXGIOutput1>();
+                var bounds = firstOutput.Description.DesktopCoordinates;
 
-            int width = bounds.Right - bounds.Left;
-            int height = bounds.Bottom - bounds.Top;
-            int x = bounds.Left;
-            int y = bounds.Top;
+                int width = bounds.Right - bounds.Left;
+                int height = bounds.Bottom - bounds.Top;
+                int x = bounds.Left;
+                int y = bounds.Top;
 
-            outputs.Add((firstOutput, x, y, width, height, adapter));
+                outputs.Add((firstOutput, x, y, width, height, adapter));
+            }
         }
+
+        return outputs;
     }
 
-    return outputs;
-}
-
-private async Task<Image?> CaptureOutputImage(IDXGIOutput1 output, IDXGIAdapter adapter, Rectangle bounds)
-{
-    D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.None, new[] { FeatureLevel.Level_11_1 }, out var device);
-
-    var textureDesc = new Texture2DDescription
+    private async Task<Image?> CaptureOutputImage(IDXGIOutput1 output, IDXGIAdapter adapter, Rectangle bounds)
     {
-        CPUAccessFlags = CpuAccessFlags.Read,
-        BindFlags = BindFlags.None,
-        Format = Format.B8G8R8A8_UNorm,
-        Width = (uint)bounds.Width,
-        Height = (uint)bounds.Height,
-        MiscFlags = ResourceOptionFlags.None,
-        MipLevels = 1,
-        ArraySize = 1,
-        SampleDescription = { Count = 1, Quality = 0 },
-        Usage = ResourceUsage.Staging
-    };
+        D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.None, new[] { FeatureLevel.Level_11_1 }, out var device);
 
-    var duplication = output.DuplicateOutput(device);
-    var currentFrame = device.CreateTexture2D(textureDesc);
+        var textureDesc = new Texture2DDescription
+        {
+            CPUAccessFlags = CpuAccessFlags.Read,
+            BindFlags = BindFlags.None,
+            Format = Format.B8G8R8A8_UNorm,
+            Width = (uint)bounds.Width,
+            Height = (uint)bounds.Height,
+            MiscFlags = ResourceOptionFlags.None,
+            MipLevels = 1,
+            ArraySize = 1,
+            SampleDescription = { Count = 1, Quality = 0 },
+            Usage = ResourceUsage.Staging
+        };
 
-    Thread.Sleep(100);
+        var duplication = output.DuplicateOutput(device);
+        var currentFrame = device.CreateTexture2D(textureDesc);
 
-    duplication.AcquireNextFrame(500, out var frameInfo, out var desktopResource);
-    var tempTexture = desktopResource.QueryInterface<ID3D11Texture2D>();
+        Thread.Sleep(100);
 
-    device.ImmediateContext.CopyResource(currentFrame, tempTexture);
-    var dataBox = device.ImmediateContext.Map(currentFrame, 0);
+        duplication.AcquireNextFrame(500, out var frameInfo, out var desktopResource);
+        var tempTexture = desktopResource.QueryInterface<ID3D11Texture2D>();
 
-    var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, (int)bounds.Width, (int)bounds.Height);
+        device.ImmediateContext.CopyResource(currentFrame, tempTexture);
+        var dataBox = device.ImmediateContext.Map(currentFrame, 0);
 
-    return Image.LoadPixelData<Rgba32>(screenshotBytes, (int)bounds.Width, (int)bounds.Height);
-}
+        var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, (int)bounds.Width, (int)bounds.Height);
+
+        return Image.LoadPixelData<Rgba32>(screenshotBytes, (int)bounds.Width, (int)bounds.Height);
+    }
     private byte[] GetDataAsByteArray(IntPtr dataPointer, int rowPitch, int width, int height)
     {
         // Create a byte[] array to hold the pixel data

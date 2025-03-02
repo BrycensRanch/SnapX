@@ -1,8 +1,6 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
 using SnapX.Core.ScreenCapture.SharpCapture;
-using SnapX.Core.ScreenCapture.SharpCapture.Linux;
-using SnapX.Core.ScreenCapture.SharpCapture.macOS;
 #if TARGET_WINDOWS
 using SnapX.Core.ScreenCapture.SharpCapture.Windows;
 #endif
@@ -19,26 +17,26 @@ public static class Methods
     {
         get
         {
-            #if TARGET_WINDOWS
-                        return new WindowsAPI();
-            #else
+#if TARGET_WINDOWS
+            return new WindowsAPI();
+#else
             if (IsMacOS) return new MacOSAPI();
             if (IsLinux) return new LinuxAPI();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
-            #endif
+#endif
         }
     }
     private static BaseCapture SharpCapture
     {
         get
         {
-            #if TARGET_WINDOWS
-                        return new WindowsCapture();
-            #else
+#if TARGET_WINDOWS
+            return new WindowsCapture();
+#else
             if (IsMacOS) return new macOSCapture();
             if (IsLinux) return new LinuxCapture();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
-            #endif
+#endif
         }
     }
     public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();
