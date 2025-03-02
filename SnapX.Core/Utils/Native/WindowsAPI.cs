@@ -148,11 +148,9 @@ public class WindowsAPI : NativeAPI
         return true; // Continue enumeration
     }
 
-    // List to hold the window info
     private static List<WindowInfo> windowList = [];
 
-    // Method to get the list of windows
-    public List<WindowInfo> GetWindowList()
+    public override List<WindowInfo> GetWindowList()
     {
         windowList.Clear();
         EnumWindows(EnumWindowsCallback, IntPtr.Zero);
