@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
@@ -37,78 +38,188 @@ public class WindowsCapture : BaseCapture
         device?.Dispose(); // Clean up the created device
         return false; // The feature level is not supported
     }
-    public override async Task<Image> CaptureFullscreen()
+    public override async Task<Image?> CaptureFullscreen()
     {
-        // # of graphics card adapter
-        const int numAdapter = 0;
-
-        // # of output device (i.e. monitor)
-        const int numOutput = 0;
-
         var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>()!;
-        IDXGIAdapter1 Adapter;
 
-        for (uint adapterIndex = 0; factory.EnumAdapters1(adapterIndex, out Adapter).Success; adapterIndex++)
+        var adapters = EnumerateAdapters(factory);
+
+        if (adapters.Count == 0)
         {
-            var desc = Adapter.Description1;
+            return null; // No suitable adapters found
+        }
 
-            // Don't select the Basic Render Driver adapter.
-            if ((desc.Flags & AdapterFlags.Software) != AdapterFlags.None)
+        var outputs = EnumerateOutputs(adapters);
+
+        if (outputs.Count == 0)
+        {
+            return null; // No outputs found
+        }
+
+        int totalWidth = 0;
+        int totalHeight = 0;
+
+        // Calculate the total width and height required for the combined image
+        foreach (var (output, x, y, width, height, _) in outputs)
+        {
+            totalWidth = Math.Max(totalWidth, x + width);
+            totalHeight = Math.Max(totalHeight, y + height);
+        }
+
+        var combinedImage = new Image<Rgba32>(totalWidth, totalHeight);
+
+        foreach (var (output, x, y, width, height, adapter) in outputs)
+        {
+            var bounds = new Rectangle(x, y, width, height);
+
+            var monitorImage = await CaptureOutputImage(output, adapter, bounds);
+
+            if (monitorImage != null)
             {
-                Adapter.Dispose();
-
-                continue;
+                combinedImage.Mutate(ctx => ctx.DrawImage(monitorImage, new Point(x, y), 1f));
             }
 
-            if (IsSupportedFeatureLevel(Adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
-            {
-                break;
-            }
-
+            output.Dispose();
         }
 
-        IDXGIOutput Output;
-        if (Adapter == null)
+        foreach (var adapter in adapters)
         {
-            DebugHelper.WriteException(new InvalidOperationException("Adapter is not initialized."));
-            factory.EnumAdapters1(0, out Adapter);
-
+            adapter.Dispose();
         }
-        var output = Adapter.EnumOutputs(0, out Output);
-        if (output == null || Output == null)
-        {
-            throw new InvalidOperationException("Failed to enumerate outputs or output is null.");
-        }
-        var firstOutput = Output.QueryInterface<IDXGIOutput1>();
-        var width = 1920;
-        var height = 1080;
 
-        D3D11.D3D11CreateDevice(Adapter, DriverType.Unknown, DeviceCreationFlags.None, new[] { FeatureLevel.Level_11_1 }, out var device);
-        var bounds = firstOutput.Description.DesktopCoordinates;
-        var textureDesc = new Texture2DDescription
-        {
-            CPUAccessFlags = CpuAccessFlags.Read,
-            BindFlags = BindFlags.None,
-            Format = Format.B8G8R8A8_UNorm,
-            Width = (uint)(bounds.Right - bounds.Left),
-            Height = (uint)(bounds.Bottom - bounds.Top),
-            MiscFlags = ResourceOptionFlags.None,
-            MipLevels = 1,
-            ArraySize = 1,
-            SampleDescription = { Count = 1, Quality = 0 },
-            Usage = ResourceUsage.Staging
-        };
-        var duplication = firstOutput.DuplicateOutput(device);
-        var currentFrame = device.CreateTexture2D(textureDesc);
-        Thread.Sleep(100);
-        duplication.AcquireNextFrame(500, out var frameInfo, out var desktopResource);
-        var tempTexture = desktopResource.QueryInterface<ID3D11Texture2D>();
-        device.ImmediateContext.CopyResource(currentFrame, tempTexture);
-        var dataBox = device.ImmediateContext.Map(currentFrame, 0, MapMode.Read, Vortice.Direct3D11.MapFlags.None);
-        var screenShotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, width, height);
-        return Image.LoadPixelData<Rgba32>(screenShotBytes, width, height);
-
+        return combinedImage;
     }
+
+
+    public override async Task<Image?> CaptureScreen(Point? pos)
+    {
+        var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>()!;
+
+        var adapters = EnumerateAdapters(factory);
+
+        if (adapters.Count == 0)
+        {
+            return null;
+        }
+
+        var outputs = EnumerateOutputs(adapters);
+
+        if (outputs.Count == 0)
+        {
+            return null;
+        }
+
+        if (pos.HasValue)
+        {
+            var targetOutput = outputs.FirstOrDefault(output =>
+                pos.Value.X >= output.X && pos.Value.X < output.X + output.Width &&
+                pos.Value.Y >= output.Y && pos.Value.Y < output.Y + output.Height);
+
+            if (targetOutput.Equals(default))
+            {
+                return null;
+            }
+
+            var output = targetOutput.Output;
+            var adapter = targetOutput.Adapter;
+            var bounds = new Rectangle(targetOutput.X, targetOutput.Y, targetOutput.Width, targetOutput.Height);
+
+            return await CaptureOutputImage(output, adapter, bounds);
+        }
+
+        var defaultOutput = outputs.FirstOrDefault();
+        if (defaultOutput.Equals(default))
+        {
+            return null;
+        }
+
+        var defaultBounds = new Rectangle(defaultOutput.X, defaultOutput.Y, defaultOutput.Width, defaultOutput.Height);
+        return await CaptureOutputImage(defaultOutput.Output, defaultOutput.Adapter, defaultBounds);
+    }
+
+    private List<IDXGIAdapter1> EnumerateAdapters(IDXGIFactory1 factory)
+{
+    var adapters = new List<IDXGIAdapter1>();
+
+    for (uint adapterIndex = 0; factory.EnumAdapters1(adapterIndex, out var adapter).Success; adapterIndex++)
+    {
+        var desc = adapter.Description1;
+
+        if ((desc.Flags & AdapterFlags.Software) != AdapterFlags.None)
+        {
+            adapter.Dispose();
+            continue;
+        }
+
+        if (IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
+        {
+            DebugHelper.WriteLine($"Feature level {FeatureLevel.Level_11_1} not supported. Skipping Adapter {adapter.Description}");
+            adapter.Dispose();
+            continue;
+        }
+
+        adapters.Add(adapter);
+    }
+
+    return adapters;
+}
+
+private List<(IDXGIOutput1 Output, int X, int Y, int Width, int Height, IDXGIAdapter Adapter)> EnumerateOutputs(List<IDXGIAdapter1> adapters)
+{
+    var outputs = new List<(IDXGIOutput1 Output, int X, int Y, int Width, int Height, IDXGIAdapter Adapter)>();
+
+    foreach (var adapter in adapters)
+    {
+        for (uint outputIndex = 0; adapter.EnumOutputs(outputIndex, out var output).Success; outputIndex++)
+        {
+            var firstOutput = output.QueryInterface<IDXGIOutput1>();
+            var bounds = firstOutput.Description.DesktopCoordinates;
+
+            int width = bounds.Right - bounds.Left;
+            int height = bounds.Bottom - bounds.Top;
+            int x = bounds.Left;
+            int y = bounds.Top;
+
+            outputs.Add((firstOutput, x, y, width, height, adapter));
+        }
+    }
+
+    return outputs;
+}
+
+private async Task<Image?> CaptureOutputImage(IDXGIOutput1 output, IDXGIAdapter adapter, Rectangle bounds)
+{
+    D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.None, new[] { FeatureLevel.Level_11_1 }, out var device);
+
+    var textureDesc = new Texture2DDescription
+    {
+        CPUAccessFlags = CpuAccessFlags.Read,
+        BindFlags = BindFlags.None,
+        Format = Format.B8G8R8A8_UNorm,
+        Width = (uint)bounds.Width,
+        Height = (uint)bounds.Height,
+        MiscFlags = ResourceOptionFlags.None,
+        MipLevels = 1,
+        ArraySize = 1,
+        SampleDescription = { Count = 1, Quality = 0 },
+        Usage = ResourceUsage.Staging
+    };
+
+    var duplication = output.DuplicateOutput(device);
+    var currentFrame = device.CreateTexture2D(textureDesc);
+
+    Thread.Sleep(100);
+
+    duplication.AcquireNextFrame(500, out var frameInfo, out var desktopResource);
+    var tempTexture = desktopResource.QueryInterface<ID3D11Texture2D>();
+
+    device.ImmediateContext.CopyResource(currentFrame, tempTexture);
+    var dataBox = device.ImmediateContext.Map(currentFrame, 0);
+
+    var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, (int)bounds.Width, (int)bounds.Height);
+
+    return Image.LoadPixelData<Rgba32>(screenshotBytes, (int)bounds.Width, (int)bounds.Height);
+}
     private byte[] GetDataAsByteArray(IntPtr dataPointer, int rowPitch, int width, int height)
     {
         // Create a byte[] array to hold the pixel data
