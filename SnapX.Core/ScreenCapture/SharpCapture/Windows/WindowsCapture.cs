@@ -189,10 +189,10 @@ public class WindowsCapture : BaseCapture
                 var firstOutput = output.QueryInterface<IDXGIOutput1>();
                 var bounds = firstOutput.Description.DesktopCoordinates;
 
-                int width = bounds.Right - bounds.Left;
-                int height = bounds.Bottom - bounds.Top;
-                int x = bounds.Left;
-                int y = bounds.Top;
+                var width = bounds.Right - bounds.Left;
+                var height = bounds.Bottom - bounds.Top;
+                var x = bounds.Left;
+                var y = bounds.Top;
 
                 outputs.Add((firstOutput, x, y, width, height, adapter));
             }
@@ -231,7 +231,8 @@ public class WindowsCapture : BaseCapture
         var dataBox = device.ImmediateContext.Map(currentFrame, 0);
 
         var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, (int)bounds.Width, (int)bounds.Height);
-
+        duplication.ReleaseFrame();
+        device.ImmediateContext.Unmap(currentFrame, 0);
         return Image.LoadPixelData<Rgba32>(screenshotBytes, (int)bounds.Width, (int)bounds.Height);
     }
     private byte[] GetDataAsByteArray(IntPtr dataPointer, int rowPitch, int width, int height)
