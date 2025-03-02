@@ -1,6 +1,8 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
 using SnapX.Core.ScreenCapture.SharpCapture;
+using SnapX.Core.ScreenCapture.SharpCapture.Linux;
+using SnapX.Core.ScreenCapture.SharpCapture.macOS;
 #if TARGET_WINDOWS
 using SnapX.Core.ScreenCapture.SharpCapture.Windows;
 #endif
