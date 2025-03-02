@@ -3,9 +3,11 @@ using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+#if TARGET_WINDOWS
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
+#endif
 
 namespace SnapX.Core.ScreenCapture.SharpCapture.Windows;
 
@@ -40,6 +42,10 @@ public class WindowsCapture : BaseCapture
     }
     public override async Task<Image?> CaptureFullscreen()
     {
+        #if TARGET_WINDOWS
+        #else
+        return await base.CaptureFullscreen();
+       #endif
         var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>()!;
 
         var adapters = EnumerateAdapters(factory);
@@ -93,6 +99,10 @@ public class WindowsCapture : BaseCapture
 
     public override async Task<Image?> CaptureScreen(Point? pos)
     {
+#if TARGET_WINDOWS
+#else
+        return await base.CaptureScreen(pos);
+#endif
         var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>()!;
 
         var adapters = EnumerateAdapters(factory);
