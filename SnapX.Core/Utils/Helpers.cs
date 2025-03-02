@@ -177,7 +177,7 @@ public static class Helpers
 
     public static string GetRandomLineFromFile(string filePath)
     {
-        var text = System.IO.File.ReadAllText(filePath, Encoding.UTF8);
+        var text = File.ReadAllText(filePath, Encoding.UTF8);
         return GetRandomLine(text);
     }
 

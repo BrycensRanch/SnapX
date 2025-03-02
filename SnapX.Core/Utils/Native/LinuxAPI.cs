@@ -136,10 +136,6 @@ public class LinuxAPI : NativeAPI
                 Handle = window,
                 Title = title,
                 IsVisible = isVisible,
-                X = rect.X,
-                Y = rect.Y,
-                Width = rect.Width,
-                Height = rect.Height,
                 Rectangle = rect,
                 IsMinimized = IsWindowMinimized(display, window),
                 IsActive = isActive

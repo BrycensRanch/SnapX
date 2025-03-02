@@ -132,10 +132,6 @@ public class WindowsAPI : NativeAPI
                 Handle = hwnd,
                 Title = windowTitle.ToString(),
                 Rectangle = windowRECT,
-                X = windowRECT.X,
-                Y = windowRECT.Y,
-                Width = windowRECT.Width,
-                Height = windowRECT.Height,
                 IsVisible = IsWindowVisible(hwnd),
                 IsMinimized = IsWindowMinimized(hwnd),
                 IsActive = IsWindowActive(hwnd)
