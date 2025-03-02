@@ -68,18 +68,32 @@ public class WindowsCapture : BaseCapture
 
         var combinedImage = new Image<Rgba32>(totalWidth, totalHeight);
 
+        // Create a list of tasks to capture the screens asynchronously
+        var captureTasks = new List<Task<Image?>>();
+
         foreach (var (output, x, y, width, height, adapter) in outputs)
         {
             var bounds = new Rectangle(x, y, width, height);
+            var captureTask = CaptureOutputImage(output, adapter, bounds);
+            captureTasks.Add(captureTask);
+        }
 
-            var monitorImage = await CaptureOutputImage(output, adapter, bounds);
+        // Wait for all screenshots to complete concurrently
+        var capturedImages = await Task.WhenAll(captureTasks);
 
+        // Combine the captured images into one full image
+        foreach (var (_, x, y, _, _, _) in outputs)
+        {
+            var monitorImage = capturedImages.FirstOrDefault(image => image != null);
             if (monitorImage != null)
             {
                 combinedImage.Mutate(ctx => ctx.DrawImage(monitorImage, new Point(x, y), 1f));
             }
+        }
 
-            output.Dispose();
+        foreach (var output in outputs)
+        {
+            output.Output.Dispose();
         }
 
         foreach (var adapter in adapters)
