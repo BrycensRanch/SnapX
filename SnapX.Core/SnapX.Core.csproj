@@ -79,7 +79,7 @@
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
     <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->
-    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
