@@ -6,11 +6,11 @@ public class CLIChangelog : SnapX.CommonUI.Changelog
         Version = version;
     }
 
-    public override async void Display()
+    public override void Display()
     {
         // Display changelog in the CLI
         Console.WriteLine($"Changelog for {Version}:");
-        var changes = await base.GetChangeSummary();
+        var changes = base.GetChangeSummary().GetAwaiter().GetResult();
         Console.WriteLine(changes);
     }
 }
