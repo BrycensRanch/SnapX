@@ -1,9 +1,12 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace SnapX.Core.ScreenCapture.SharpCapture.macOS;
 
+[SupportedOSPlatform ("maccatalyst18.2")]
+[SupportedOSPlatform("macos12.3")]
 public class macOSCapture : BaseCapture
 {
     private const string ScreenCaptureKit = "/System/Library/Frameworks/ScreenCaptureKit.framework/ScreenCaptureKit";
