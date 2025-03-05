@@ -149,6 +149,7 @@ public class SnapX
     private static string CustomPersonalPath { get; set; }
 
     private static string CustomConfigPath { get; set; }
+    public static string ShortenPath(string path) => path.Replace(Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE") ?? "", "~");
 
     public static string PersonalFolder =>
         !string.IsNullOrEmpty(CustomPersonalPath)
@@ -360,9 +361,8 @@ public class SnapX
         DebugHelper.WriteLine("SnapX starting.");
         DebugHelper.WriteLine("Version: " + VersionText);
         DebugHelper.WriteLine("Build: " + Build);
-        DebugHelper.WriteLine("Command line: " + Environment.CommandLine);
-        DebugHelper.WriteLine("Data folder: " + PersonalFolder);
-        DebugHelper.WriteLine("Config folder: " + ConfigFolder);
+        DebugHelper.WriteLine("Data folder: " + ShortenPath(PersonalFolder));
+        DebugHelper.WriteLine("Config folder: " + ShortenPath(ConfigFolder));
 
         if (!string.IsNullOrWhiteSpace(PersonalPathDetectionMethod))
         {
