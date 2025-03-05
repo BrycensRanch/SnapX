@@ -178,7 +178,7 @@ public class macOSCapture : BaseCapture
             var boundsPtr = CGDisplayBounds(display);
             if (boundsPtr == IntPtr.Zero) continue;
 
-            var bounds = Marshal.PtrToStructure<Rect>(boundsPtr);
+            var bounds = Marshal.PtrToStructure<CGRect>(boundsPtr);
             if (pos.Value.X >= bounds.X && pos.Value.X < bounds.X + bounds.Width &&
                 pos.Value.Y >= bounds.Y && pos.Value.Y < bounds.Y + bounds.Height)
             {
@@ -200,7 +200,7 @@ public class macOSCapture : BaseCapture
         return managedArray;
     }
     [StructLayout(LayoutKind.Sequential)]
-    private struct Rect
+    private struct CGRect
     {
         public int X, Y, Width, Height;
     }
