@@ -181,7 +181,6 @@ public class WindowsAPI : NativeAPI
         // Close the clipboard
         CloseClipboard();
 
-        Console.WriteLine("Text copied to clipboard.");
     }
 
     [DllImport("user32.dll", SetLastError = true)]

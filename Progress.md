@@ -13,6 +13,10 @@
 - [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
 - [x] Log files should be a daily log file, not a whole MONTH (wtf?)
 - [x] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
+- [ ] Create custom uploader list with reviews & privacy policies enforced & popularity filter to quality control hosts. Run service on HB VPS to automatically prune custom uploaders that aren't online 90% of the time in a week.
+- [ ] Package PaddleOCR for Linux properly.
+- [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
+- [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation. 
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
 - [ ] Add back OCR with [TesseractOCR](https://github.com/Sicos1977/TesseractOCR) and train with [tessdata_best](https://github.com/tesseract-ocr/tessdata_best)
 - [ ] Expose entire Core in UI (Avalonia, GTK4)
