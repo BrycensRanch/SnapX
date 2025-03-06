@@ -70,7 +70,7 @@
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" Condition="'$(Configuration)'=='Debug'" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <!-- Cross platform image library -->
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
     <!-- Wayland support -->
