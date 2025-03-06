@@ -155,7 +155,7 @@ refactor(Core): use asynchronous save instead of sync
 
 One of the major benefits of this approach is the fact that it will **automatically release a new version** on every successful push to either `develop` based on the commit messages. This makes sure SnapX is released following the [semantic versioning](https://semver.org/) guidelines. For this to work you have to follow a few simple rules:
 
-- THe master branch should always have working code that is tested. _Use Pull Requests to work on bigger features or bug fixes and merge them when you are ready._
+- The master branch should always have working code that is tested. _Use Pull Requests to work on bigger features or bug fixes and merge them when you are ready._
 - Every bugfix, feature and change should have one commit associated with it. _Do not mix multiple bugs, features, etc. into one huge commit message. Keep your commit size small and commit often._
 - Your commit messages must follow the [conventional commit rules](https://www.conventionalcommits.org/) additionally, the Angular flavor is accepted as well.
 
