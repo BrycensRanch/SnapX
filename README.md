@@ -16,7 +16,7 @@
 
 ## :warning: Disclaimer
 
-SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the application [ShareX](https://github.com/ShareX/ShareX).
+SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows application [ShareX](https://github.com/ShareX/ShareX).
 
 ## Feature wise
 
