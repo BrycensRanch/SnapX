@@ -25,6 +25,8 @@ public class SnapX
             BuildType.RPM;
 #elif DEB
             BuildType.DEB;
+#elif ARCH
+            BuildType.Arch;
 #elif APPIMAGE
             BuildType.AppImage;
 #elif FLATPAK

@@ -86,6 +86,7 @@ SnapX but with Avalonia. Works best on X11.
 %endif
 export PATH=$PATH:/usr/local/bin
 export VERSION=%{version}
+export PKGTYPE=RPM
 
 ./build.sh --configuration Release
 
