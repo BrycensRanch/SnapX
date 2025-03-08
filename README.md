@@ -118,7 +118,7 @@ winget install -e --id Git.Git
 
 ## macOS Ventura+ 🍎
 
-Avalonia can run on macOS 11+. But you can't develop with such an old version.
+SnapX can run on macOS 12.3+ But you can't develop with such an old version.
 
 #### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 

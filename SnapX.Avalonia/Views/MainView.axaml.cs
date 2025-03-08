@@ -17,6 +17,7 @@ namespace SnapX.Avalonia;
 public partial class MainView : AppWindow
 {
     public static string MainWindowName => Core.SnapX.Title + " " + Core.SnapX.VersionText;
+    public bool IsPaneOpen => false;
     public MainView()
     {
         InitializeComponent();
@@ -50,16 +51,17 @@ public partial class MainView : AppWindow
     {
         DebugHelper.WriteLine("Upload Demo Image triggered");
 
-        try
-        {
-            var imageUrl = ImageURLTextBox.Text ?? ImageURLTextBox.Watermark;
-            UploadManager.DownloadAndUploadFile(imageUrl!);
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.Logger.Error(ex.ToString());
-        }
+        // try
+        // {
+        //     var imageUrl = ImageURLTextBox.Text ?? ImageURLTextBox.Watermark;
+        //     UploadManager.DownloadAndUploadFile(imageUrl!);
+        // }
+        // catch (Exception ex)
+        // {
+        //     DebugHelper.Logger.Error(ex.ToString());
+        // }
     }
+    private void ClickAboutButton(object? Sender, RoutedEventArgs E) => new AboutWindow().Show();
 
     private void ApplicationActualThemeVariantChanged(object? sender, EventArgs e)
     {

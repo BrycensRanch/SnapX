@@ -19,10 +19,11 @@ public class App : Application
     {
 
         SnapX = new SnapXAvalonia();
+        SnapX.setQualifier(" UI");
         AvaloniaXamlLoader.Load(this);
         AppDomain.CurrentDomain.UnhandledException += (Sender, Args) =>
         {
-            ShowErrorDialog("SnapX Unhandled Exception", Args.ExceptionObject as Exception);
+            ShowErrorDialog(Lang.UnhandledException, Args.ExceptionObject as Exception);
         };
         // for macOS
         Current!.Name = Core.SnapX.AppName;
@@ -265,9 +266,5 @@ public class App : Application
         }
     }
 
-    private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E)
-    {
-        var aboutWindow = new AboutWindow();
-        aboutWindow.Show();
-    }
+    private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E) => new AboutWindow().Show();
 }

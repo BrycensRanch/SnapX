@@ -18,6 +18,9 @@
   <data name="AboutSnapX">
     <value>About SnapX</value>
   </data>
+  <data name="UnhandledException">
+    <value>SnapX Unhandled Exception</value>
+  </data>
   <data name="UploadToAmazonS3Failed">
     <value>Upload to AmazonS3 Failed</value>
   </data>
