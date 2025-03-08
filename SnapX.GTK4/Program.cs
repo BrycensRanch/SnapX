@@ -18,7 +18,6 @@ var snapx = new SnapXGTK4();
 snapx.setQualifier(" GTK4");
 
 
-
 var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
 var sigintReceived = false;
 

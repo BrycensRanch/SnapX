@@ -1,0 +1,17 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+              xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
+              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+              x:Class="SnapX.Avalonia.HomePageView"
+              x:DataType="viewModels1:HomePageViewModel">
+    <Grid RowDefinitions="Auto, *" Margin="20">
+        <TextBlock Grid.Row="0" Margin="0 20" FontSize="20" FontWeight="Bold">
+            Homepage
+        </TextBlock>
+        <Border Grid.Row="1" Background="#2d323c" CornerRadius="10">
+            <Image Source="/../SnapX.Core/Resources/SnapX_Logo.png" Height="320" />
+        </Border>
+    </Grid>
+</UserControl>

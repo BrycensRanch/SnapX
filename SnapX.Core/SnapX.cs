@@ -16,7 +16,7 @@ namespace SnapX.Core;
 public class SnapX
 {
     public const string AppName = "SnapX";
-    public static string Qualifier = "";
+    public static string Qualifier { get; set; }  = "";
     public const BuildType Build =
 
 #if DEBUG
