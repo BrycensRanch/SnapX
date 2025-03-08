@@ -26,6 +26,23 @@ export NUKE_TELEMETRY_OPTOUT=1
 # EXECUTION
 ###########################################################################
 
+
+if [ "$(uname)" = "Darwin" ]; then
+    USER_MACOS_VERSION=$(sw_vers -productVersion)
+    USER_MACOS_VERSION_INT=$(echo "$USER_MACOS_VERSION" | awk -F. '{ printf "%d%02d", $1, $2 }')
+
+    REQUIRED_VERSION_INT=1203
+
+    if [ "$USER_MACOS_VERSION_INT" -lt "$REQUIRED_VERSION_INT" ]; then
+        echo "This build will most likely fail as you are running an old version of macOS. Continue anyway? (y/n)"
+        read -r response
+        if [ "$response" = "n" ]; then
+            echo "Exiting..."
+            exit 1
+        fi
+    fi
+fi
+
 function FirstJsonValue {
     perl -nle 'print $1 if m{"'"$1"'": "([^"]+)",?}' <<< "${@:2}"
 }
