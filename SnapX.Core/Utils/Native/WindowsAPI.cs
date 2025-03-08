@@ -6,7 +6,6 @@ using System.Runtime.Versioning;
 using System.Text;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
 using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
 
@@ -28,6 +27,7 @@ public class WindowsAPI : NativeAPI
     // Constants for allocating memory and setting data format
     public const uint CF_TEXT = 1;
     private const uint CF_DIB = 8;
+    public const uint CF_UNICODETEXT = 13;
 
     public const int GMEM_ZEROINIT = 0x0040;
 
@@ -132,10 +132,6 @@ public class WindowsAPI : NativeAPI
                 Handle = hwnd,
                 Title = windowTitle.ToString(),
                 Rectangle = windowRECT,
-                X = windowRECT.X,
-                Y = windowRECT.Y,
-                Width = windowRECT.Width,
-                Height = windowRECT.Height,
                 IsVisible = IsWindowVisible(hwnd),
                 IsMinimized = IsWindowMinimized(hwnd),
                 IsActive = IsWindowActive(hwnd)
@@ -148,11 +144,9 @@ public class WindowsAPI : NativeAPI
         return true; // Continue enumeration
     }
 
-    // List to hold the window info
     private static List<WindowInfo> windowList = [];
 
-    // Method to get the list of windows
-    public List<WindowInfo> GetWindowList()
+    public override List<WindowInfo> GetWindowList()
     {
         windowList.Clear();
         EnumWindows(EnumWindowsCallback, IntPtr.Zero);
@@ -215,20 +209,26 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WinPoint
+    {
+        public int X;
+        public int Y;
+    }
     [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out Point lpPoint);
+    private static extern bool GetCursorPos(out WinPoint lpPoint);
 
     public override Point GetCursorPosition()
     {
         GetCursorPos(out var LpPoint);
-        return LpPoint;
+        return new Point(LpPoint.X, LpPoint.Y);
     }
-    public override void CopyImage(Image image)
+    public override void CopyImage(Image image, string filename = null)
     {
         OpenClipboard(IntPtr.Zero);
         EmptyClipboard();
 
-
+        // Save image to memory stream in PNG format
         using var ms = new MemoryStream();
         if (image.Metadata.DecodedImageFormat != null)
         {
@@ -236,15 +236,18 @@ public class WindowsAPI : NativeAPI
         }
         else
         {
-            image.Save(ms, new PngEncoder());
+            image.SaveAsPng(ms);
         }
+
         var imageBytes = ms.ToArray();
 
+        // Allocate memory for image data
         var dataSize = (uint)(imageBytes.Length);
         var dataPtr = GlobalAlloc(0x0040, dataSize);
 
         Marshal.Copy(imageBytes, 0, dataPtr, imageBytes.Length);
 
+        // Set image data in the clipboard (CF_DIB format)
         SetClipboardData(CF_DIB, dataPtr);
         GlobalUnlock(dataPtr);
 
